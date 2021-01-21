@@ -7,10 +7,10 @@ import AccountsBar from './accounts-bar'
 import AppMenu from './app-menu'
 import { AppList } from './apps/apps'
 import { useAccounts } from './state/accounts-state'
-import useGlobalState from './state/global-state'
+import useLocalStorageState from './state/localstorage-state'
 
 const App = () => {
-	const [selectedApp, setSelectedApp] = useGlobalState("terminal/core/selected-app", accountsAppName)
+	const [selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", accountsAppName)
 	const {accounts, selectedAccount, setSelectedAccount} = useAccounts()
 
 	if (!accounts || !selectedAccount) {

@@ -23,7 +23,7 @@ const AccountsBar = (props: {
 				{
 					props.accounts.map((a) => (
 						<MenuItem value={a.address} key={a.address}>
-							{`${a.name}: ${a.address}`}
+							{`${a.name}: ${a.address.slice(0,6)}...${a.address.slice(a.address.length-4)}`}
 						</MenuItem>
 					))
 				}

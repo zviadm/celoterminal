@@ -26,27 +26,15 @@ const useOnChainState = <T>(
 
 		fetch(kit(), c)
 		.then((a: T) => {
-			if (!c.isCancelled()) {
-				setFetched(a)
-			}
+			c.isCancelled() || setFetched(a)
 		})
 		.catch((e) => {
-			if (!c.isCancelled()) {
-				setFetchError(e)
-			}
+			c.isCancelled() || setFetchError(e)
 		})
 		.finally(() => {
-			if (!c.isCancelled()) {
-				console.info(`fetch finished: ${fetchN}`)
-				setIsFetching(false)
-			} else {
-				console.info(`fetch canceled: ${fetchN}`)
-			}
+			c.isCancelled() || setIsFetching(false)
 		})
-
-		return () => {
-			c.cancel()
-		}
+		return () => { c.cancel() }
 	}, [fetchN].concat(deps))
 
 	const refetch = () => {
