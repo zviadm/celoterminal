@@ -1,16 +1,11 @@
 import * as React from 'react'
 import { ContractKit } from '@celo/contractkit'
-import BigNumber from 'bignumber.js'
 
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
 import Button from '@material-ui/core/Button'
 
 import { Account } from '../../state/accounts-state'
-import useGlobalState from '../../state/global-state'
 import useOnChainState from '../../state/onchain-state'
-import { CancelPromise, fmtCELOAmt, sleep } from '../../utils'
-import useLocalStorageState from '../../state/localstorage-state'
+import { fmtCELOAmt } from '../../utils'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
@@ -26,7 +21,7 @@ export const LockerApp = (props: {
 		fetched,
 		fetchError,
 		refetch,
-	} = useOnChainState(async (kit: ContractKit, c: CancelPromise) => {
+	} = useOnChainState(async (kit: ContractKit) => {
 		const goldToken = await kit.contracts.getGoldToken()
 		const lockedGold = await kit.contracts.getLockedGold()
 
@@ -53,7 +48,7 @@ export const LockerApp = (props: {
 						<TextField
 								autoFocus
 								margin="dense"
-								label={`Lock CELO (max: ${fmtCELOAmt(fetched.totalCELO)})`}
+								label={`Lock (max: ${fmtCELOAmt(fetched.totalCELO)})`}
 								variant="outlined"
 								value={toLock}
 								size="medium"
@@ -71,7 +66,7 @@ export const LockerApp = (props: {
 						<TextField
 								autoFocus
 								margin="dense"
-								label={`Unlock CELO (max: ${fmtCELOAmt(fetched.totalLocked)})`}
+								label={`Unlock (max: ${fmtCELOAmt(fetched.totalLocked)})`}
 								variant="outlined"
 								value={toUnlock}
 								size="medium"

@@ -7,9 +7,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Button from '@material-ui/core/Button'
 
 import { Account } from '../../state/accounts-state'
-import useGlobalState from '../../state/global-state'
 import useOnChainState from '../../state/onchain-state'
-import { CancelPromise, sleep } from '../../utils'
 import useLocalStorageState from '../../state/localstorage-state'
 
 interface Erc20Contract {
@@ -42,7 +40,7 @@ export const SendReceiveApp = (props: {
 		fetched,
 		fetchError,
 		refetch,
-	} = useOnChainState(async (kit: ContractKit, c: CancelPromise) => {
+	} = useOnChainState(async (kit: ContractKit) => {
 		const e = erc20s.find((e) => e.name === erc20)
 		if (!e) {
 			throw new Error("unreachable code!")
