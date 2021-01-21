@@ -17,10 +17,10 @@ export const LockerApp = (props: {
 	selectedAccount: Account,
 }): JSX.Element => {
 	const {
-		isFetching,
+		// isFetching,
 		fetched,
 		fetchError,
-		refetch,
+		// refetch,
 	} = useOnChainState(async (kit: ContractKit) => {
 		const goldToken = await kit.contracts.getGoldToken()
 		const lockedGold = await kit.contracts.getLockedGold()
