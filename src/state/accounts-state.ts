@@ -23,13 +23,13 @@ export const useAccounts = () => {
 	React.useEffect(() => {
 		// TODO: load from a database instead.
 		const accts: Account[] = [{
-				type: "local",
-				name: "local1",
-				address: "0x0001",
+				type: "address_only",
+				name: "RGGroup",
+				address: "0x7C75B0B81A54359E9dCCDa9cb663ca2e3De6B710",
 			}, {
 				type: "ledger",
-				name: "ledger1",
-				address: "0x0002",
+				name: "Ledger0",
+				address: "0x4d82BfC8823a4F3AF82B0AdE52ff3e2d74A04757",
 				baseDerivationPath: celoBaseDerivationPath,
 				derivationPathIndex: 0,
 			}

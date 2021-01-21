@@ -79,6 +79,7 @@
     "eslint": "^7.6.0",
     "eslint-plugin-import": "^2.20.0",
     "eslint-plugin-react": "^7.22.0",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "fork-ts-checker-webpack-plugin": "^5.0.14",
     "node-loader": "^1.0.1",
     "style-loader": "^1.2.1",
@@ -86,6 +87,7 @@
     "typescript": "^4.0.2"
   },
   "dependencies": {
+    "@celo/contractkit": "^1.0.0-beta4",
     "@material-ui/core": "^4.11.2",
     "electron-squirrel-startup": "^1.0.0",
     "react": "^17.0.1",
