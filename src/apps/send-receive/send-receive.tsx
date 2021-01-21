@@ -16,7 +16,7 @@ interface Erc20Contract {
 	balanceOf(address: string): Promise<BigNumber>
 }
 
-const ERC20s = [
+const erc20s = [
 	{
 		name: "CELO",
 		contract: (kit: ContractKit): Promise<Erc20Contract> => {
@@ -32,18 +32,18 @@ const ERC20s = [
 ]
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const sendReceiveApp = (props: {
+export const SendReceiveApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
 }): JSX.Element => {
-	const [erc20, setErc20] = useLocalStorageState("terminal/send-receive/erc20", ERC20s[0].name)
+	const [erc20, setErc20] = useLocalStorageState("terminal/send-receive/erc20", erc20s[0].name)
 	const {
 		isFetching,
 		fetched,
 		fetchError,
 		refetch,
 	} = useOnChainState(async (kit: ContractKit, c: CancelPromise) => {
-		const e = ERC20s.find((e) => e.name === erc20)
+		const e = erc20s.find((e) => e.name === erc20)
 		if (!e) {
 			throw new Error("unreachable code!")
 		}
@@ -59,7 +59,7 @@ export const sendReceiveApp = (props: {
 				value={erc20}
 				onChange={(event) => { setErc20(event.target.value as string) }}>
 				{
-					ERC20s.map((e) => (
+					erc20s.map((e) => (
 						<MenuItem value={e.name} key={e.name}>{e.name}</MenuItem>
 					))
 				}

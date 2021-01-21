@@ -1,8 +1,8 @@
 import Box from '@material-ui/core/Box'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import { AccountsApp, accountsAppName } from './accounts-app'
 
+import { AccountsApp, accountsAppName } from './accounts-app'
 import AccountsBar from './accounts-bar'
 import AppMenu from './app-menu'
 import { AppList } from './apps/apps'
@@ -35,7 +35,7 @@ const App = () => {
 					setSelectedApp={setSelectedApp}
 					appList={AppList}
 				/>
-				<Box p={2}>
+				<Box px={2}>
 					{
 					(selectedApp === accountsAppName) ?
 					<AccountsApp /> :

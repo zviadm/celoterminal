@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js'
 
 export const sleep = (milliseconds: number): Promise<void> => {
 	return new Promise(resolve => setTimeout(resolve, milliseconds))
@@ -26,4 +27,8 @@ export class CancelPromise {
 	cancelPromise = (): Promise<void> => {
 		return this.p
 	}
+}
+
+export const fmtCELOAmt = (v: BigNumber, precision?: number): string => {
+	return v.div(1e18).toFixed(precision || 4)
 }

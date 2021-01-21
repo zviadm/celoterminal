@@ -1,4 +1,5 @@
 import * as React from 'react'
+import useLocalStorageState from './localstorage-state'
 
 const celoBaseDerivationPath = "44'/52752'/0'/0/"
 
@@ -19,7 +20,8 @@ export type Account = BaseAccount | LedgerAccount
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useAccounts = () => {
 	const [accounts, setAccounts] = React.useState<Account[] | undefined>()
-	const [selectedAccount, setSelectedAccount] = React.useState<Account | undefined>()
+	const [selectedAccount, setSelectedAccount] =
+		useLocalStorageState<Account | undefined>("terminal/core/selected-account", undefined)
 	React.useEffect(() => {
 		// TODO: load from a database instead.
 		const accts: Account[] = [{
@@ -35,7 +37,8 @@ export const useAccounts = () => {
 			}
 		]
 		setAccounts(accts)
-		setSelectedAccount(accts[1])
+		const selected = (accts.find((a) => a.address === selectedAccount.address)) || accts[0]
+		setSelectedAccount(selected)
 	}, [])
 	return {
 		accounts,
