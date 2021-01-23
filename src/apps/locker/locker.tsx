@@ -17,7 +17,7 @@ export const LockerApp = (props: {
 	selectedAccount: Account,
 }): JSX.Element => {
 	const {
-		// isFetching,
+		isFetching,
 		fetched,
 		fetchError,
 		// refetch,
@@ -37,10 +37,22 @@ export const LockerApp = (props: {
 	const [toUnlock, setToUnlock] = React.useState(0)
 	const [toLock, setToLock] = React.useState(0)
 
+	const createLockTXs = async (kit: ContractKit) => {
+		const lockedGold = await kit.contracts.getLockedGold()
+		const tx = lockedGold.lock()
+		return [{
+			from: props.selectedAccount,
+			tx: tx,
+			value: toLock,
+		}]
+	}
+
 	return (
-		<div>{
-			(!fetched && !fetchError) ? <LinearProgress /> :
+		<div>
+			{isFetching && <LinearProgress />}
+			{
 			fetchError ? <div>Error: {fetchError}</div> :
+			fetched ?
 			<div>
 				<Box p={2}>
 					<Typography>CELO Balance: {fmtCELOAmt(fetched.totalCELO)}</Typography>
@@ -79,7 +91,7 @@ export const LockerApp = (props: {
 					</div>
 					<Typography>Pending withdrawals: {fetched.pendingWithdrawals.length}</Typography>
 				</Box>
-			</div>}
+			</div> : <></>}
 		</div>
 	)
 }

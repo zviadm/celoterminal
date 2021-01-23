@@ -1,14 +1,7 @@
 import * as React from 'react'
-import { ContractKit, newKit } from '@celo/contractkit'
+import { ContractKit } from '@celo/contractkit'
 import { CancelPromise } from '../utils'
-
-let _kit: ContractKit | undefined
-const kit = () => {
-	if (!_kit) {
-		_kit = newKit(`https://forno.celo.org`)
-	}
-	return _kit
-}
+import kit from '../tx-runner/kit'
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const useOnChainState = <T>(
@@ -35,7 +28,8 @@ const useOnChainState = <T>(
 			c.isCancelled() || setIsFetching(false)
 		})
 		return () => { c.cancel() }
-	}, [fetchN].concat(deps))
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [...deps, fetch, fetchN])
 
 	const refetch = () => {
 		setFetchN(fetchN + 1)

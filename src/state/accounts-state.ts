@@ -37,9 +37,11 @@ export const useAccounts = () => {
 			}
 		]
 		setAccounts(accts)
-		const selected = (accts.find((a) => a.address === selectedAccount.address)) || accts[0]
-		setSelectedAccount(selected)
 	}, [])
+	React.useEffect(() => {
+		const selected = (accounts.find((a) => a.address === selectedAccount.address)) || accounts[0]
+		setSelectedAccount(selected)
+	}, [accounts, selectedAccount, setSelectedAccount])
 	return {
 		accounts,
 		selectedAccount,
