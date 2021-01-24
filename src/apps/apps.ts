@@ -20,5 +20,6 @@ export interface AppDefinition {
 		accounts: Account[],
 		selectedAccount: Account,
 		runTXs: (f: TXFunc) => void,
+		onError: (e: Error) => void,
 	}) => JSX.Element
 }

@@ -17,6 +17,7 @@ export const LockerApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
 	runTXs: (f: TXFunc) => void,
+	onError: (e: Error) => void,
 }): JSX.Element => {
 	const {
 		isFetching,
@@ -36,6 +37,12 @@ export const LockerApp = (props: {
 			pendingWithdrawals,
 		}
 	}, [props.selectedAccount.address])
+	const onError = props.onError
+	React.useEffect(() => {
+		if (fetchError) {
+			onError(fetchError)
+		}
+	}, [fetchError, onError])
 	const [toUnlock, setToUnlock] = React.useState(0)
 	const [toLock, setToLock] = React.useState(0)
 
@@ -49,12 +56,10 @@ export const LockerApp = (props: {
 	}
 
 	return (
-		<div>
+		<div style={{display: "flex", flex: 1}}>
 			{isFetching || <LinearProgress />}
-			{
-			fetchError ? <div>Error: {fetchError}</div> :
-			fetched ?
-			<div>
+			{fetched &&
+			<div style={{display: "flex", flex: 1, flexDirection: "column"}}>
 				<Box p={2}>
 					<Typography>CELO Balance: {fmtCELOAmt(fetched.totalCELO)}</Typography>
 					<div style={{display: "flex", flexDirection: "row"}}>
@@ -92,7 +97,7 @@ export const LockerApp = (props: {
 					</div>
 					<Typography>Pending withdrawals: {fetched.pendingWithdrawals.length}</Typography>
 				</Box>
-			</div> : <></>}
+			</div>}
 		</div>
 	)
 }

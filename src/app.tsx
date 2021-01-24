@@ -1,10 +1,13 @@
-import Box from '@material-ui/core/Box'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
-import { AccountsApp, accountsAppName } from './accounts-app'
+import Box from '@material-ui/core/Box'
+import Snackbar from '@material-ui/core/Snackbar'
+import Alert from '@material-ui/lab/Alert'
+
 import AccountsBar from './accounts-bar'
 import AppMenu from './app-menu'
+import { AccountsApp, accountsAppName } from './accounts-app'
 import { AppList } from './apps/apps'
 import { useAccounts } from './state/accounts-state'
 import useLocalStorageState from './state/localstorage-state'
@@ -17,6 +20,7 @@ const App = () => {
 	const runTXs = (f: TXFunc) => {
 		setTXFunc(() => f)
 	}
+	const [error, setError] = React.useState<Error | undefined>()
 
 	if (!accounts || !selectedAccount) {
 		return (
@@ -32,10 +36,10 @@ const App = () => {
 				accounts={accounts}
 				selectedAccount={selectedAccount}
 				runTXs={runTXs}
+				onError={setError}
 			/>
 	} catch (e) {
-		// TODO: set errorr
-		console.error(e)
+		setError(e)
 		renderedApp = <div></div>
 	}
 
@@ -45,7 +49,7 @@ const App = () => {
 				selectedAccount={selectedAccount}
 				txFunc={txFunc}
 				onFinish={() => { setTXFunc(undefined) }}
-				onError={(e) => { console.error(e) }}
+				onError={setError}
 			/>
 			<AccountsBar
 				accounts={accounts}
@@ -61,8 +65,18 @@ const App = () => {
 					setSelectedApp={setSelectedApp}
 					appList={AppList}
 				/>
-				<Box px={2}>{renderedApp}</Box>
+				<Box px={2} style={{display: "flex", flex: 1}}>{renderedApp}</Box>
 			</div>
+			<Snackbar
+        open={error ? true : false}
+        autoHideDuration={10000}
+        onClose={() => { setError(undefined) }}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+        <Alert
+          style={{maxWidth: 1000}}
+          severity="error"
+          onClose={() => { setError(undefined) }}>{error?.message}</Alert>
+      </Snackbar>
 		</div>
 	)
 }
