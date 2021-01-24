@@ -2,19 +2,21 @@ import * as React from 'react'
 import { ContractKit } from '@celo/contractkit'
 
 import Button from '@material-ui/core/Button'
-
-import { Account } from '../../state/accounts-state'
-import useOnChainState from '../../state/onchain-state'
-import { fmtCELOAmt } from '../../utils'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
 import Box from '@material-ui/core/Box'
 
+import { Account } from '../../state/accounts-state'
+import useOnChainState from '../../state/onchain-state'
+import { fmtCELOAmt } from '../../utils'
+import { TXFunc } from '../../tx-runner/tx-runner'
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const LockerApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
+	runTXs: (f: TXFunc) => void,
 }): JSX.Element => {
 	const {
 		isFetching,
@@ -37,11 +39,10 @@ export const LockerApp = (props: {
 	const [toUnlock, setToUnlock] = React.useState(0)
 	const [toLock, setToLock] = React.useState(0)
 
-	const createLockTXs = async (kit: ContractKit) => {
+	const createLockTXs: TXFunc = async (kit: ContractKit) => {
 		const lockedGold = await kit.contracts.getLockedGold()
 		const tx = lockedGold.lock()
 		return [{
-			from: props.selectedAccount,
 			tx: tx,
 			value: toLock,
 		}]
@@ -49,7 +50,7 @@ export const LockerApp = (props: {
 
 	return (
 		<div>
-			{isFetching && <LinearProgress />}
+			{isFetching || <LinearProgress />}
 			{
 			fetchError ? <div>Error: {fetchError}</div> :
 			fetched ?
@@ -69,7 +70,7 @@ export const LockerApp = (props: {
 								// style={{marginTop: 20}}
 								onChange={(e) => { setToLock(Number.parseFloat(e.target.value)) }}
 							/>
-						<Button>Lock</Button>
+						<Button onClick={() => { props.runTXs(createLockTXs) }}>Lock</Button>
 					</div>
 				</Box>
 				<Box p={2}>
