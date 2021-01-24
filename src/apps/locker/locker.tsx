@@ -16,14 +16,14 @@ import { TXFunc } from '../../tx-runner/tx-runner'
 export const LockerApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
-	runTXs: (f: TXFunc) => void,
+	runTXs: (f: TXFunc, onFinish?: () => void) => void,
 	onError: (e: Error) => void,
 }): JSX.Element => {
 	const {
 		isFetching,
 		fetched,
 		fetchError,
-		// refetch,
+		refetch,
 	} = useOnChainState(async (kit: ContractKit) => {
 		const goldToken = await kit.contracts.getGoldToken()
 		const lockedGold = await kit.contracts.getLockedGold()
@@ -54,6 +54,9 @@ export const LockerApp = (props: {
 			value: toLock,
 		}]
 	}
+	const runTXs = (f: TXFunc) => {
+		props.runTXs(f, () => { refetch() })
+	}
 
 	return (
 		<div style={{display: "flex", flex: 1}}>
@@ -75,7 +78,7 @@ export const LockerApp = (props: {
 								// style={{marginTop: 20}}
 								onChange={(e) => { setToLock(Number.parseFloat(e.target.value)) }}
 							/>
-						<Button onClick={() => { props.runTXs(createLockTXs) }}>Lock</Button>
+						<Button onClick={() => { runTXs(createLockTXs) }}>Lock</Button>
 					</div>
 				</Box>
 				<Box p={2}>

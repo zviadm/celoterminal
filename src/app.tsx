@@ -1,5 +1,6 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
+import { CeloTxReceipt } from '@celo/connect'
 
 import Box from '@material-ui/core/Box'
 import Snackbar from '@material-ui/core/Snackbar'
@@ -11,14 +12,17 @@ import { AccountsApp, accountsAppName } from './accounts-app'
 import { AppList } from './apps/apps'
 import { useAccounts } from './state/accounts-state'
 import useLocalStorageState from './state/localstorage-state'
-import TXRunner, { TXFunc } from './tx-runner/tx-runner'
+import TXRunner, { TXFinishFunc, TXFunc } from './tx-runner/tx-runner'
 
 const App = () => {
 	const [selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", accountsAppName)
 	const {accounts, selectedAccount, setSelectedAccount} = useAccounts()
-	const [txFunc, setTXFunc] = React.useState<TXFunc | undefined>()
-	const runTXs = (f: TXFunc) => {
-		setTXFunc(() => f)
+	const [txFunc, setTXFunc] = React.useState<
+		{f: TXFunc, onFinish?: TXFinishFunc} | undefined>()
+	const runTXs = (
+		f: TXFunc,
+		onFinish?: TXFinishFunc) => {
+		setTXFunc({f, onFinish})
 	}
 	const [error, setError] = React.useState<Error | undefined>()
 
@@ -30,7 +34,7 @@ const App = () => {
 	const terminalApp = AppList.find((a) => a.name === selectedApp)
 	let renderedApp
 	try {
-		renderedApp = (selectedApp === accountsAppName) ?
+		renderedApp = (selectedApp === accountsAppName || !terminalApp) ?
 			<AccountsApp /> :
 			<terminalApp.renderApp
 				accounts={accounts}
@@ -47,9 +51,16 @@ const App = () => {
 		<div>
 			<TXRunner
 				selectedAccount={selectedAccount}
-				txFunc={txFunc}
-				onFinish={() => { setTXFunc(undefined) }}
-				onError={setError}
+				txFunc={txFunc?.f}
+				onFinish={(e: Error | null, r: CeloTxReceipt[]) => {
+					if (e) {
+						setError(e)
+					}
+					if (txFunc?.onFinish) {
+						txFunc.onFinish(e, r)
+					}
+					setTXFunc(undefined)
+				}}
 			/>
 			<AccountsBar
 				accounts={accounts}

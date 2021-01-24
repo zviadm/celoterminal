@@ -14,6 +14,7 @@ const useOnChainState = <T>(
 	const [isFetching, setIsFetching] = React.useState(true)
 	const [fetchN, setFetchN] = React.useState(0)
 	React.useEffect(() => {
+		console.info(`useOnChainState: fetch initiated: ${fetchN}`)
 		const c = new CancelPromise()
 		setIsFetching(true)
 
@@ -25,11 +26,12 @@ const useOnChainState = <T>(
 			c.isCancelled() || setFetchError(e)
 		})
 		.finally(() => {
+			console.info(`useOnChainState: fetch finished: ${fetchN}`)
 			c.isCancelled() || setIsFetching(false)
 		})
 		return () => { c.cancel() }
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [...deps, fetch, fetchN])
+	}, [fetchN, ...deps])
 
 	const refetch = () => {
 		setFetchN(fetchN + 1)

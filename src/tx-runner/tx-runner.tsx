@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { ContractKit, newKitFromWeb3 } from '@celo/contractkit'
-import { CeloTransactionObject } from '@celo/connect'
+import { CeloTransactionObject, CeloTxReceipt } from '@celo/connect'
 import BN from 'bn.js'
 
 import Dialog from '@material-ui/core/Dialog'
@@ -16,17 +16,16 @@ export interface Transaction {
 }
 
 export type TXFunc = (kit: ContractKit) => Promise<Transaction[]>
+export type TXFinishFunc = (e: Error | null, r: CeloTxReceipt[]) => void
 
 function TXRunner(props: {
 	selectedAccount: Account,
 	txFunc?: TXFunc,
-	onFinish: () => void,
-	onError: (e: Error) => void,
+	onFinish: TXFinishFunc,
 }): JSX.Element {
 	const [isRunning, setIsRunning] = React.useState(false)
 	const txFunc = props.txFunc
 	const onFinish = props.onFinish
-	const onError = props.onError
 	React.useEffect(() => {
 		if (isRunning || !txFunc) {
 			return
@@ -41,17 +40,19 @@ function TXRunner(props: {
 				console.info(`kitwithacct`, kitWithAcct)
 				const txs = await txFunc(kitWithAcct)
 				console.info(`txs`, txs)
+				const r: CeloTxReceipt[] = []
 				for (const tx of txs) {
-					await tx.tx.sendAndWaitForReceipt({value: tx.value})
+					const result = await tx.tx.sendAndWaitForReceipt({value: tx.value})
+					r.push(result)
 				}
+				onFinish(null, r)
 			} catch (e) {
-				onError(e)
+				onFinish(e, [])
 			} finally {
-				onFinish()
 				setIsRunning(false)
 			}
 		})()
-	}, [isRunning, txFunc, onFinish, onError])
+	}, [isRunning, txFunc, onFinish])
 	return (
 		<Dialog
 			open={isRunning}

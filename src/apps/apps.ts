@@ -1,4 +1,4 @@
-import { TXFunc } from '../tx-runner/tx-runner'
+import { TXFunc, TXFinishFunc } from '../tx-runner/tx-runner'
 import { Account } from '../state/accounts-state'
 import { LockerApp } from './locker/locker'
 import { SendReceiveApp } from './send-receive/send-receive'
@@ -19,7 +19,7 @@ export interface AppDefinition {
 	renderApp: (props: {
 		accounts: Account[],
 		selectedAccount: Account,
-		runTXs: (f: TXFunc) => void,
+		runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 		onError: (e: Error) => void,
 	}) => JSX.Element
 }

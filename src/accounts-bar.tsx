@@ -8,7 +8,7 @@ import { Account } from './state/accounts-state'
 const AccountsBar = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
-	setSelectedAccount: React.Dispatch<React.SetStateAction<Account>>,
+	setSelectedAccount: (a: Account) => void,
 }): JSX.Element => {
 	return (
 		<div style={{display: "flex", flexDirection: "row", justifyContent: "flex-end"}}>
