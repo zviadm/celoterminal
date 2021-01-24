@@ -10,13 +10,13 @@ import Box from '@material-ui/core/Box'
 import { Account } from '../../state/accounts-state'
 import useOnChainState from '../../state/onchain-state'
 import { fmtCELOAmt } from '../../utils'
-import { TXFunc } from '../../tx-runner/tx-runner'
+import { TXFunc, TXFinishFunc } from '../../tx-runner/tx-runner'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const LockerApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
-	runTXs: (f: TXFunc, onFinish?: () => void) => void,
+	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 	onError: (e: Error) => void,
 }): JSX.Element => {
 	const {

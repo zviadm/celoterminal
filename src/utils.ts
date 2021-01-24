@@ -7,7 +7,7 @@ export const sleep = (milliseconds: number): Promise<void> => {
 export class CancelPromise {
 	private cancelled = false
 	private p
-	private resolve: (value: void | PromiseLike<void>) => void
+	private resolve?: (value: void | PromiseLike<void>) => void
 	constructor() {
 		this.p = new Promise<void>((resolve) => {
 			this.resolve = resolve

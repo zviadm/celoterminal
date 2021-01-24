@@ -9,7 +9,7 @@ import { accountsAppName } from './accounts-app'
 
 const AppMenu = (props: {
 	selectedApp: string,
-	setSelectedApp: React.Dispatch<React.SetStateAction<string>>,
+	setSelectedApp: (selectedApp: string) => void,
 	appList: AppDefinition[],
 }): JSX.Element => {
 	const apps: {

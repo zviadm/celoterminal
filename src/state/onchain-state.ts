@@ -7,7 +7,7 @@ import kit from '../tx-runner/kit'
 const useOnChainState = <T>(
 	fetch:
 		(kit: ContractKit, c: CancelPromise) => Promise<T>,
-	deps?: React.DependencyList,
+	deps: React.DependencyList,
 ) => {
 	const [fetched, setFetched] = React.useState<T | undefined>(undefined)
 	const [fetchError, setFetchError] = React.useState<Error | undefined>(undefined)
