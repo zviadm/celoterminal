@@ -23,7 +23,10 @@ const useOnChainState = <T>(
 			c.isCancelled() || setFetched(a)
 		})
 		.catch((e) => {
-			c.isCancelled() || setFetchError(e)
+			if (!c.isCancelled()) {
+				setFetchError(e)
+				setFetched(undefined)
+			}
 		})
 		.finally(() => {
 			console.info(`useOnChainState: fetch finished: ${fetchN}`)

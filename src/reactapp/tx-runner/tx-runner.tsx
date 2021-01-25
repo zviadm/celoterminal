@@ -1,8 +1,9 @@
 import * as React from 'react'
-import { ipcRenderer } from 'electron'
-import { ContractKit } from '@celo/contractkit'
-import { CeloTransactionObject, CeloTxReceipt } from '@celo/connect'
+import { ContractKit, newKitFromWeb3 } from '@celo/contractkit'
+import { CeloTransactionObject, CeloTxReceipt , ReadOnlyWallet } from '@celo/connect'
 import BN from 'bn.js'
+import TransportNodeHidNoEvents from '@ledgerhq/hw-transport-node-hid-noevents'
+import { AddressValidation, newLedgerWalletWithSetup } from '@celo/wallet-ledger'
 
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -10,7 +11,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 
 import kit from './kit'
 import { Account } from '../../common/accounts'
-import { channelRunTXs, RunTXsReq, RunTXsResp } from '../../common/ipc'
+import { CFG } from '../..//common/cfg'
 
 export interface Transaction {
 	tx: CeloTransactionObject<unknown>
@@ -38,13 +39,24 @@ function TXRunner(props: {
 		(async () => {
 			try {
 				const _k = kit()
-				const txs = await txFunc(_k)
-				const r: RunTXsResp = await ipcRenderer.invoke(
-					channelRunTXs, {
-						selectedAccount: selectedAccount,
-						// txs: txs,
-					} as RunTXsReq)
-				onFinish(null, r)
+				const networkId = await _k.web3.eth.net.getId()
+				if (networkId !== CFG.networkId) {
+					throw new Error(`NetworkId mismatch! Expected: ${CFG.networkId}, Got: ${networkId}. Refusing to run transactions!`)
+				}
+				const w = await createWallet(selectedAccount)
+				try {
+					const kitWithAcct = newKitFromWeb3(_k.web3, w.wallet)
+					kitWithAcct.defaultAccount = selectedAccount.address
+					const txs = await txFunc(kitWithAcct)
+					for (const tx of txs) {
+						await tx.tx.sendAndWaitForReceipt({value: tx.value})
+					}
+					onFinish(null, [])
+				} finally {
+					if (w.transport) {
+						await w.transport.close()
+					}
+				}
 			} catch (e) {
 				onFinish(e, [])
 			} finally {
@@ -67,4 +79,44 @@ function TXRunner(props: {
 		</Dialog>
 	)
 }
+
+export async function createWallet(a: Account): Promise<{
+	wallet: ReadOnlyWallet
+	transport?: {close: () => void}
+}> {
+	switch (a.type) {
+		// case "local": {
+		// 	const w = new LocalWallet()
+		// 	return w
+		// }
+		case "ledger": {
+			// if (!_transportLedgerP) {
+			// 	console.info(`transport create call`)
+			// 	_transportLedgerP = TransportNodeHid.open()
+			// 	_transportLedgerP?.catch((e) => {
+			// 		console.error(`transport create err: ${e}`)
+			// 		_transportLedgerP = undefined
+			// 	})
+			// }
+			const _transport = await TransportNodeHidNoEvents.open()
+			console.info(`transport created`, _transport)
+			try {
+				const wallet = await newLedgerWalletWithSetup(
+					_transport,
+					[a.derivationPathIndex],
+					a.baseDerivationPath,
+					AddressValidation.never)
+				return {wallet, transport: _transport}
+			} catch (e) {
+				_transport.close()
+				throw e
+			}
+		}
+		case "address-only":
+			throw new Error("address-only account can not sign transactions!")
+		// default:
+		// 	throw new Error(`unknown account type: ${a.type}`)
+	}
+}
+
 export default TXRunner
