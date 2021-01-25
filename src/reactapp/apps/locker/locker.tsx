@@ -27,11 +27,17 @@ export const LockerApp = (props: {
 	} = useOnChainState(async (kit: ContractKit) => {
 		const goldToken = await kit.contracts.getGoldToken()
 		const lockedGold = await kit.contracts.getLockedGold()
+		const accounts = await kit.contracts.getAccounts()
 
+		const isAccount = await accounts.isAccount(props.selectedAccount.address)
+		if (!isAccount) {
+			return { isAccount }
+		}
 		const totalCELO = await goldToken.balanceOf(props.selectedAccount.address)
 		const totalLocked = await lockedGold.getAccountTotalLockedGold(props.selectedAccount.address)
 		const pendingWithdrawals = await lockedGold.getPendingWithdrawals(props.selectedAccount.address)
 		return {
+			isAccount,
 			totalCELO,
 			totalLocked,
 			pendingWithdrawals,
@@ -62,6 +68,11 @@ export const LockerApp = (props: {
 		<div style={{display: "flex", flex: 1}}>
 			{isFetching || <LinearProgress />}
 			{fetched &&
+			(!fetched.isAccount ?
+			<div>
+				<Button>Register Account</Button>
+			</div>
+			:
 			<div style={{display: "flex", flex: 1, flexDirection: "column"}}>
 				<Box p={2}>
 					<Typography>CELO Balance: {fmtCELOAmt(fetched.totalCELO)}</Typography>
@@ -100,7 +111,7 @@ export const LockerApp = (props: {
 					</div>
 					<Typography>Pending withdrawals: {fetched.pendingWithdrawals.length}</Typography>
 				</Box>
-			</div>}
+			</div>)}
 		</div>
 	)
 }
