@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { ContractKit, newKitFromWeb3 } from '@celo/contractkit'
+import { ipcRenderer } from 'electron'
+import { ContractKit } from '@celo/contractkit'
 import { CeloTransactionObject, CeloTxReceipt } from '@celo/connect'
 import BN from 'bn.js'
 
@@ -8,7 +9,8 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 
 import kit from './kit'
-import { Account } from '../state/accounts-state'
+import { Account } from '../../common/accounts'
+import { channelRunTXs, RunTXsReq, RunTXsResp } from '../../common/ipc'
 
 export interface Transaction {
 	tx: CeloTransactionObject<unknown>
@@ -26,6 +28,7 @@ function TXRunner(props: {
 	const [isRunning, setIsRunning] = React.useState(false)
 	const txFunc = props.txFunc
 	const onFinish = props.onFinish
+	const selectedAccount = props.selectedAccount
 	React.useEffect(() => {
 		if (isRunning || !txFunc) {
 			return
@@ -35,16 +38,12 @@ function TXRunner(props: {
 		(async () => {
 			try {
 				const _k = kit()
-				// const w = new Wallet()
-				const kitWithAcct = newKitFromWeb3(_k.web3) //, w)
-				console.info(`kitwithacct`, kitWithAcct)
-				const txs = await txFunc(kitWithAcct)
-				console.info(`txs`, txs)
-				const r: CeloTxReceipt[] = []
-				for (const tx of txs) {
-					const result = await tx.tx.sendAndWaitForReceipt({value: tx.value})
-					r.push(result)
-				}
+				const txs = await txFunc(_k)
+				const r: RunTXsResp = await ipcRenderer.invoke(
+					channelRunTXs, {
+						selectedAccount: selectedAccount,
+						// txs: txs,
+					} as RunTXsReq)
 				onFinish(null, r)
 			} catch (e) {
 				onFinish(e, [])
@@ -52,7 +51,7 @@ function TXRunner(props: {
 				setIsRunning(false)
 			}
 		})()
-	}, [isRunning, txFunc, onFinish])
+	}, [isRunning, txFunc, onFinish, selectedAccount])
 	return (
 		<Dialog
 			open={isRunning}

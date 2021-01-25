@@ -3,7 +3,7 @@ import * as React from 'react'
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 
-import { Account } from './state/accounts-state'
+import { Account } from '../common/accounts'
 
 const AccountsBar = (props: {
 	accounts: Account[],

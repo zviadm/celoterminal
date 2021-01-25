@@ -1,5 +1,5 @@
 import { TXFunc, TXFinishFunc } from '../tx-runner/tx-runner'
-import { Account } from '../state/accounts-state'
+import { Account } from '../../common/accounts'
 import { LockerApp } from './locker/locker'
 import { SendReceiveApp } from './send-receive/send-receive'
 

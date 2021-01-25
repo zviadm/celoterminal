@@ -88,7 +88,10 @@
   },
   "dependencies": {
     "@celo/contractkit": "^1.0.1",
+    "@celo/wallet-ledger": "^1.0.1",
+    "@celo/wallet-local": "^1.0.1",
     "@fontsource/roboto": "^4.1.0",
+    "@ledgerhq/hw-transport-node-hid": "^5.11.0",
     "@material-ui/core": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "bignumber.js": "^9.0.1",

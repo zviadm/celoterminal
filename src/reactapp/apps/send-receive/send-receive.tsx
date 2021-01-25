@@ -8,7 +8,7 @@ import Button from '@material-ui/core/Button'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import Typography from '@material-ui/core/Typography'
 
-import { Account } from '../../state/accounts-state'
+import { Account } from '../../../common/accounts'
 import useOnChainState from '../../state/onchain-state'
 import useLocalStorageState from '../../state/localstorage-state'
 import { fmtCELOAmt } from '../../utils'

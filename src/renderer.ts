@@ -26,4 +26,4 @@
  * ```
  */
 // import '@fontsource/roboto'
-import './app'
+import './reactapp/app'

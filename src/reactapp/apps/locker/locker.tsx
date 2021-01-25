@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
 import Box from '@material-ui/core/Box'
 
-import { Account } from '../../state/accounts-state'
+import { Account } from '../../../common/accounts'
 import useOnChainState from '../../state/onchain-state'
 import { fmtCELOAmt } from '../../utils'
 import { TXFunc, TXFinishFunc } from '../../tx-runner/tx-runner'
