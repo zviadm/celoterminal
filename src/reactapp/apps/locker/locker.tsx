@@ -49,8 +49,8 @@ export const LockerApp = (props: {
 			onError(fetchError)
 		}
 	}, [fetchError, onError])
-	const [toUnlock, setToUnlock] = React.useState(0)
-	const [toLock, setToLock] = React.useState(0)
+	const [toUnlock, setToUnlock] = React.useState("0")
+	const [toLock, setToLock] = React.useState("0")
 
 	const createLockTXs: TXFunc = async (kit: ContractKit) => {
 		const lockedGold = await kit.contracts.getLockedGold()
@@ -87,7 +87,7 @@ export const LockerApp = (props: {
 								type="number"
 								fullWidth={true}
 								// style={{marginTop: 20}}
-								onChange={(e) => { setToLock(Number.parseFloat(e.target.value)) }}
+								onChange={(e) => { setToLock(e.target.value) }}
 							/>
 						<Button onClick={() => { runTXs(createLockTXs) }}>Lock</Button>
 					</div>
@@ -105,7 +105,7 @@ export const LockerApp = (props: {
 								type="number"
 								fullWidth={true}
 								// style={{marginTop: 20}}
-								onChange={(e) => { setToUnlock(Number.parseFloat(e.target.value)) }}
+								onChange={(e) => { setToUnlock(e.target.value) }}
 							/>
 						<Button>Unlock</Button>
 					</div>

@@ -92,8 +92,4 @@ const App = () => {
 	)
 }
 
-function render() {
-	ReactDOM.render(<App/>, document.getElementById('root'))
-}
-
-render();
+ReactDOM.render(<App/>, document.getElementById('root'))

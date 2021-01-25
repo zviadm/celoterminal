@@ -49,7 +49,10 @@ function TXRunner(props: {
 					kitWithAcct.defaultAccount = selectedAccount.address
 					const txs = await txFunc(kitWithAcct)
 					for (const tx of txs) {
-						await tx.tx.sendAndWaitForReceipt({value: tx.value})
+						await tx.tx.sendAndWaitForReceipt({
+							from: selectedAccount.address,
+							value: tx.value,
+						})
 					}
 					onFinish(null, [])
 				} finally {
@@ -90,14 +93,6 @@ export async function createWallet(a: Account): Promise<{
 		// 	return w
 		// }
 		case "ledger": {
-			// if (!_transportLedgerP) {
-			// 	console.info(`transport create call`)
-			// 	_transportLedgerP = TransportNodeHid.open()
-			// 	_transportLedgerP?.catch((e) => {
-			// 		console.error(`transport create err: ${e}`)
-			// 		_transportLedgerP = undefined
-			// 	})
-			// }
 			const _transport = await TransportNodeHidNoEvents.open()
 			console.info(`transport created`, _transport)
 			try {
@@ -112,10 +107,8 @@ export async function createWallet(a: Account): Promise<{
 				throw e
 			}
 		}
-		case "address-only":
-			throw new Error("address-only account can not sign transactions!")
-		// default:
-		// 	throw new Error(`unknown account type: ${a.type}`)
+		default:
+			throw new Error(`Account type: '${a.type}' can not sign transactions!`)
 	}
 }
 
