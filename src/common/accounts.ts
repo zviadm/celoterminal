@@ -1,5 +1,3 @@
-export const celoBaseDerivationPath = "44'/52752'/0'/0/"
-
 export interface BaseAccount {
 	name: string
 	address: string

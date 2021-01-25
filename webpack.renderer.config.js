@@ -10,7 +10,7 @@ rules.push({
 // NOTE(zviad): This is ultimate HAX, to workaround the issue that 'webpack-asset-relocator-loader'
 // seems to generate incorrect paths for native_modules for renderer code.
 plugins.push(new HookShellScriptPlugin({
-  afterEmit: ['ln -s renderer/native_modules .webpack/native_modules'],
+  afterEmit: ['ln -sf renderer/native_modules .webpack/native_modules'],
 }))
 
 module.exports = {

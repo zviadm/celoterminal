@@ -1,6 +1,9 @@
 import * as React from 'react'
+
+import { CELO_BASE_DERIVATION_PATH } from '@celo/wallet-ledger'
+
 import useLocalStorageState from './localstorage-state'
-import { Account, celoBaseDerivationPath } from '../../common/accounts'
+import { Account } from '../../common/accounts'
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useAccounts = () => {
@@ -17,7 +20,7 @@ export const useAccounts = () => {
 				type: "ledger",
 				name: "Ledger0",
 				address: "0x4d82BfC8823a4F3AF82B0AdE52ff3e2d74A04757",
-				baseDerivationPath: celoBaseDerivationPath,
+				baseDerivationPath: CELO_BASE_DERIVATION_PATH,
 				derivationPathIndex: 0,
 			}
 		]
