@@ -10,11 +10,11 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 
 import { Account } from '../../common/accounts'
-import { CFG } from '../..//common/cfg'
+import { CFG } from '../../common/cfg'
 
 export interface Transaction {
 	tx: CeloTransactionObject<unknown>
-	value: string | number | BN
+	value?: string | number | BN
 }
 
 export type TXFunc = (kit: ContractKit) => Promise<Transaction[]>

@@ -53,13 +53,23 @@ export const LockerApp = (props: {
 	const [toUnlock, setToUnlock] = React.useState("0")
 	const [toLock, setToLock] = React.useState("0")
 
-	const createLockTXs: TXFunc = async (kit: ContractKit) => {
+	const runTXs = (f: TXFunc) => {
+		props.runTXs(f, () => { refetch() })
+	}
+	const txsLock: TXFunc = async (kit: ContractKit) => {
 		const lockedGold = await kit.contracts.getLockedGold()
 		const tx = lockedGold.lock()
 		return [{tx: tx, value: toWei(toLock, 'ether')}]
 	}
-	const runTXs = (f: TXFunc) => {
-		props.runTXs(f, () => { refetch() })
+	const txsUnlock: TXFunc = async (kit: ContractKit) => {
+		const lockedGold = await kit.contracts.getLockedGold()
+		const tx = lockedGold.unlock(toWei(toUnlock, 'ether'))
+		return [{tx: tx}]
+	}
+	const txsCreateAccount: TXFunc = async (kit: ContractKit) => {
+		const accounts = await kit.contracts.getAccounts()
+		const tx = accounts.createAccount()
+		return [{tx: tx}]
 	}
 
 	return (
@@ -68,7 +78,11 @@ export const LockerApp = (props: {
 			{fetched &&
 			(!fetched.isAccount ?
 			<div>
-				<Button>Register Account</Button>
+				<Box p={2}>
+					<Typography>To lock CELO and participate in elections or governance,
+						you need to register your address by creating an account first.</Typography>
+					<Button onClick={() => { runTXs(txsCreateAccount) }}>Create Account</Button>
+				</Box>
 			</div>
 			:
 			<div style={{display: "flex", flex: 1, flexDirection: "column"}}>
@@ -87,7 +101,7 @@ export const LockerApp = (props: {
 								// style={{marginTop: 20}}
 								onChange={(e) => { setToLock(e.target.value) }}
 							/>
-						<Button onClick={() => { runTXs(createLockTXs) }}>Lock</Button>
+						<Button onClick={() => { runTXs(txsLock) }}>Lock</Button>
 					</div>
 				</Box>
 				<Box p={2}>
@@ -105,7 +119,7 @@ export const LockerApp = (props: {
 								// style={{marginTop: 20}}
 								onChange={(e) => { setToUnlock(e.target.value) }}
 							/>
-						<Button>Unlock</Button>
+						<Button onClick={() => { runTXs(txsUnlock) }}>Unlock</Button>
 					</div>
 					<Typography>Pending withdrawals: {fetched.pendingWithdrawals.length}</Typography>
 				</Box>

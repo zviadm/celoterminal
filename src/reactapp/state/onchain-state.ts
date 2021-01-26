@@ -14,22 +14,23 @@ const useOnChainState = <T>(
 	const [isFetching, setIsFetching] = React.useState(true)
 	const [fetchN, setFetchN] = React.useState(0)
 	React.useEffect(() => {
-		console.info(`useOnChainState: fetch initiated: ${fetchN}`)
+		console.info(`useOnChainState[${fetchN}]: ...`)
 		const c = new CancelPromise()
 		setIsFetching(true)
 
 		fetch(kit(), c)
 		.then((a: T) => {
+			console.info(`useOnChainState[${fetchN}]`, a)
 			c.isCancelled() || setFetched(a)
 		})
 		.catch((e) => {
+			console.error(`useOnChainState[${fetchN}]`, e)
 			if (!c.isCancelled()) {
 				setFetchError(e)
 				setFetched(undefined)
 			}
 		})
 		.finally(() => {
-			console.info(`useOnChainState: fetch finished: ${fetchN}`)
 			c.isCancelled() || setIsFetching(false)
 		})
 		return () => { c.cancel() }
