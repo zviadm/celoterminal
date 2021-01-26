@@ -4,7 +4,7 @@ import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 import Box from '@material-ui/core/Box'
 
-import { Account } from '../common/accounts'
+import { Account } from './common/accounts'
 
 const AccountsBar = (props: {
 	accounts: Account[],

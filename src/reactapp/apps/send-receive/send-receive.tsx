@@ -5,13 +5,13 @@ import BigNumber from 'bignumber.js'
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 import Typography from '@material-ui/core/Typography'
-import AppHeader from '../../app-header'
+import AppHeader from '../../components/app-header'
 import Box from '@material-ui/core/Box'
 
 import { Account } from '../../../common/accounts'
 import useOnChainState from '../../state/onchain-state'
 import useLocalStorageState from '../../state/localstorage-state'
-import { fmtCELOAmt } from '../../utils'
+import { fmtCELOAmt } from '../../../common/utils'
 
 interface Erc20Contract {
 	balanceOf(address: string): Promise<BigNumber>

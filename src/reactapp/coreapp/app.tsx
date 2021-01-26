@@ -6,13 +6,13 @@ import Box from '@material-ui/core/Box'
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
 
-import AccountsBar from './accounts-bar'
+import AccountsBar from '../../accounts-bar'
 import AppMenu from './app-menu'
 import { AccountsApp, accountsAppName } from './accounts-app'
-import { AppList } from './apps/apps'
-import { useAccounts } from './state/accounts-state'
-import useLocalStorageState from './state/localstorage-state'
-import TXRunner, { TXFinishFunc, TXFunc } from './tx-runner/tx-runner'
+import { AppList } from '../apps/apps'
+import { useAccounts } from '../state/accounts-state'
+import useLocalStorageState from '../state/localstorage-state'
+import TXRunner, { TXFinishFunc, TXFunc } from '../tx-runner/tx-runner'
 
 const App = () => {
 	const [selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", accountsAppName)

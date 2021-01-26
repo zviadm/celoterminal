@@ -9,9 +9,9 @@ import Box from '@material-ui/core/Box'
 
 import { Account } from '../../../common/accounts'
 import useOnChainState from '../../state/onchain-state'
-import { fmtCELOAmt } from '../../utils'
+import { fmtCELOAmt } from '../../../common/utils'
 import { TXFunc, TXFinishFunc } from '../../tx-runner/tx-runner'
-import AppHeader from '../../app-header'
+import AppHeader from '../../components/app-header'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const LockerApp = (props: {
