@@ -1,16 +1,23 @@
 export interface BaseAccount {
-	name: string
-	address: string
+	readonly name: string
+	readonly address: string
 }
 
 export interface AddressOnlyAccount extends BaseAccount {
-	type: "address-only"
+	readonly type: "address-only"
+}
+
+export interface LocalAccount extends BaseAccount {
+	readonly type: "local"
 }
 
 export interface LedgerAccount extends BaseAccount {
-	type: "ledger"
-	baseDerivationPath: string
-	derivationPathIndex: number
+	readonly type: "ledger"
+	readonly baseDerivationPath: string
+	readonly derivationPathIndex: number
 }
 
-export type Account = AddressOnlyAccount | LedgerAccount
+export type Account =
+	AddressOnlyAccount |
+	LedgerAccount |
+	LocalAccount

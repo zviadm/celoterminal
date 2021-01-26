@@ -1,4 +1,5 @@
 import * as React from 'react'
+import fs from 'fs'
 import BN from 'bn.js'
 import TransportNodeHid from '@ledgerhq/hw-transport-node-hid-noevents'
 import { ContractKit, newKit } from '@celo/contractkit'
@@ -11,6 +12,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 
 import { Account } from '../../common/accounts'
 import { CFG } from '../../common/cfg'
+import { LocalWallet } from '@celo/wallet-local'
 
 export interface Transaction {
 	tx: CeloTransactionObject<unknown>
@@ -38,6 +40,13 @@ function TXRunner(props: {
 		(async () => {
 			try {
 				const w = await createWallet(selectedAccount)
+				const accounts = w.wallet.getAccounts()
+				if (accounts.length !== 1 ||
+					accounts[0].toLowerCase() !== selectedAccount.address.toLowerCase()) {
+					throw new Error(
+						`Unexpected account. Expected: ${selectedAccount.address}, Got: ${accounts[0]}. ` +
+						`Refusing to sign transactions!`)
+				}
 				const kit = newKit(CFG.networkURL, w.wallet)
 				kit.defaultAccount = selectedAccount.address
 				try {
@@ -91,10 +100,13 @@ export async function createWallet(a: Account): Promise<{
 	transport?: {close: () => void}
 }> {
 	switch (a.type) {
-		// case "local": {
-		// 	const w = new LocalWallet()
-		// 	return w
-		// }
+		case "local": {
+			const wallet = new LocalWallet()
+			// TODO(zviad): Load private key from local storage and decrypt it with a PIN.
+			const key = fs.readFileSync("/tmp/bktestacct.key").toString()
+			wallet.addAccount(key)
+			return {wallet}
+		}
 		case "ledger": {
 			const _transport = await TransportNodeHid.open()
 			try {

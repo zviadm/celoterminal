@@ -15,32 +15,38 @@ const useOnChainState = <T>(
 	const [fetchN, setFetchN] = React.useState(0)
 	const [fetchedN, setFetchedN] = React.useState(0)
 	React.useEffect(() => {
-		console.info(`useOnChainState[${fetchN}]: ...`)
+		console.info(`useOnChainState[${fetchN}]: fetching...`)
 		const c = new CancelPromise()
 		if (fetchN === fetchedN) {
 			setFetched(undefined)
+		} else {
+			setFetchedN(fetchN)
 		}
 		setIsFetching(true)
 
 		fetch(kit(), c)
 		.then((a: T) => {
-			console.info(`useOnChainState[${fetchN}]`, a)
-			c.isCancelled() || setFetched(a)
+			if (!c.isCancelled()) {
+				console.info(`useOnChainState[${fetchN}]`, a)
+				setFetched(a)
+			}
 		})
 		.catch((e) => {
-			console.error(`useOnChainState[${fetchN}]`, e)
 			if (!c.isCancelled()) {
+				console.error(`useOnChainState[${fetchN}]`, e)
 				setFetchError(e)
 				setFetched(undefined)
 			}
 		})
 		.finally(() => {
-			setFetchedN((fetchedN) => fetchN > fetchedN ? fetchN : fetchedN)
 			if (!c.isCancelled()) {
 				setIsFetching(false)
 			}
 		})
-		return () => { c.cancel() }
+		return () => {
+			console.info(`useOnChainState[${fetchN}]: cancelled`)
+			c.cancel()
+		}
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [fetchN, ...deps])
 

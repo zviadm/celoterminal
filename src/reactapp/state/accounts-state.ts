@@ -22,6 +22,10 @@ export const useAccounts = () => {
 				address: "0x4d82BfC8823a4F3AF82B0AdE52ff3e2d74A04757",
 				baseDerivationPath: CELO_BASE_DERIVATION_PATH,
 				derivationPathIndex: 0,
+			}, {
+				type: "local",
+				name: "Local0",
+				address: "0x9d1C3a6b2478EF3f15E025101dC34aBE1F847eC8",
 			}
 		]
 		setAccounts(accts)
