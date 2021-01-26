@@ -16,7 +16,7 @@ import TXRunner, { TXFinishFunc, TXFunc } from '../tx-runner/tx-runner'
 import { closeDB } from '../accountsdb/accountsdb'
 
 const App = () => {
-	const [selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", accountsAppName)
+	const [_selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", accountsAppName)
 	const {accounts, selectedAccount, setSelectedAccount} = useAccounts()
 	const [txFunc, setTXFunc] = React.useState<
 		{f: TXFunc, onFinish?: TXFinishFunc} | undefined>()
@@ -27,29 +27,38 @@ const App = () => {
 	}
 	const [error, setError] = React.useState<Error | undefined>()
 
-	if (!accounts || !selectedAccount) {
+	if (!accounts) {
+		// TODO(zviad): Different loading screen. Waiting to load accounts from the database
+		// for the first time. Can't start without this.
 		return (
 			<div>Loading...</div>
 		)
 	}
-	const terminalApp = AppList.find((a) => a.name === selectedApp)
 	let renderedApp
-	try {
-		renderedApp = (selectedApp === accountsAppName || !terminalApp) ?
-			<AccountsApp /> :
-			<terminalApp.renderApp
-				accounts={accounts}
-				selectedAccount={selectedAccount}
-				runTXs={runTXs}
-				onError={setError}
-			/>
-	} catch (e) {
-		setError(e)
-		renderedApp = <div></div>
+	let selectedApp = _selectedApp
+	if (!selectedAccount) {
+		selectedApp = accountsAppName
+		renderedApp = <AccountsApp />
+	} else {
+		const terminalApp = AppList.find((a) => a.name === selectedApp)
+		try {
+			renderedApp = (selectedApp === accountsAppName || !terminalApp) ?
+				<AccountsApp /> :
+				<terminalApp.renderApp
+					accounts={accounts}
+					selectedAccount={selectedAccount}
+					runTXs={runTXs}
+					onError={setError}
+				/>
+		} catch (e) {
+			setError(e)
+			renderedApp = <div></div>
+		}
 	}
 
 	return (
 		<div>
+			{selectedAccount &&
 			<TXRunner
 				selectedAccount={selectedAccount}
 				txFunc={txFunc?.f}
@@ -62,7 +71,7 @@ const App = () => {
 					}
 					setTXFunc(undefined)
 				}}
-			/>
+			/>}
 			<AccountsBar
 				accounts={accounts}
 				selectedAccount={selectedAccount}

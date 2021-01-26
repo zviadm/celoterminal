@@ -8,7 +8,7 @@ import { Account } from '../accountsdb/accounts'
 
 const AccountsBar = (props: {
 	accounts: Account[],
-	selectedAccount: Account,
+	selectedAccount?: Account,
 	setSelectedAccount: (a: Account) => void,
 }): JSX.Element => {
 	return (
@@ -17,7 +17,7 @@ const AccountsBar = (props: {
 			px={2}
 			>
 			<Select
-				value={props.selectedAccount.address}
+				value={props.selectedAccount?.address}
 				onChange={(event) => {
 					const selected = props.accounts.find((a) => a.address === event.target.value)
 					if (selected) {

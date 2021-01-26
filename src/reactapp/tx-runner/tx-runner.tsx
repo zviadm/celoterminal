@@ -12,7 +12,6 @@ import DialogContent from '@material-ui/core/DialogContent'
 import { Account } from '../accountsdb/accounts'
 import { CFG } from '../../common/cfg'
 import { LocalWallet } from '@celo/wallet-local'
-import { readAccountData } from '../accountsdb/accountsdb'
 
 export interface Transaction {
 	tx: CeloTransactionObject<unknown>
@@ -104,13 +103,8 @@ export async function createWallet(a: Account): Promise<{
 	switch (a.type) {
 		case "local": {
 			const wallet = new LocalWallet()
-			// TODO(zviad): Load private key from local storage and decrypt it with a PIN.
-			const accountData = readAccountData(a.address)
-			if (!accountData) {
-				throw new Error(`Account: ${a.address} not found in the database!`)
-			}
 			// TODO(zviad): need to decode encrypted data first.
-			wallet.addAccount(accountData.encryptedData)
+			wallet.addAccount(a.encryptedData)
 			return {wallet}
 		}
 		case "ledger": {
