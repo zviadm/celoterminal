@@ -13,6 +13,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import { Account } from '../../common/accounts'
 import { CFG } from '../../common/cfg'
 import { LocalWallet } from '@celo/wallet-local'
+import { readAccountData } from '../../accountsdb/accountsdb'
 
 export interface Transaction {
 	tx: CeloTransactionObject<unknown>
@@ -103,6 +104,7 @@ export async function createWallet(a: Account): Promise<{
 		case "local": {
 			const wallet = new LocalWallet()
 			// TODO(zviad): Load private key from local storage and decrypt it with a PIN.
+			const accountData = readAccountData()
 			const key = fs.readFileSync("/tmp/bktestacct.key").toString()
 			wallet.addAccount(key)
 			return {wallet}

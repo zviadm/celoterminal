@@ -15,6 +15,7 @@ const createWindow = (): void => {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
+      enableRemoteModule: true,
     }
   });
 
@@ -46,13 +47,6 @@ app.on('activate', () => {
     createWindow();
   }
 });
-
-process.on('unhandledRejection', (reason) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  console.error('Unhandled Rejection at:', reason.stack || reason)
-  process.exit(0)
-})
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
