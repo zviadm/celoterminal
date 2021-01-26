@@ -2,6 +2,7 @@ import * as React from 'react'
 
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
+import Box from '@material-ui/core/Box'
 
 import { Account } from '../common/accounts'
 
@@ -11,7 +12,10 @@ const AccountsBar = (props: {
 	setSelectedAccount: (a: Account) => void,
 }): JSX.Element => {
 	return (
-		<div style={{display: "flex", flexDirection: "row", justifyContent: "flex-end"}}>
+		<Box
+			style={{display: "flex", flexDirection: "row", justifyContent: "flex-end"}}
+			px={2}
+			>
 			<Select
 				value={props.selectedAccount.address}
 				onChange={(event) => {
@@ -28,7 +32,7 @@ const AccountsBar = (props: {
 					))
 				}
 			</Select>
-		</div>
+		</Box>
 	)
 }
 

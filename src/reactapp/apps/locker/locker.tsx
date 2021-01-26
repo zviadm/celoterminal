@@ -3,7 +3,6 @@ import { ContractKit } from '@celo/contractkit'
 import { toWei } from "web3-utils"
 
 import Button from '@material-ui/core/Button'
-import LinearProgress from '@material-ui/core/LinearProgress'
 import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
 import Box from '@material-ui/core/Box'
@@ -12,6 +11,7 @@ import { Account } from '../../../common/accounts'
 import useOnChainState from '../../state/onchain-state'
 import { fmtCELOAmt } from '../../utils'
 import { TXFunc, TXFinishFunc } from '../../tx-runner/tx-runner'
+import AppHeader from '../../app-header'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const LockerApp = (props: {
@@ -73,8 +73,8 @@ export const LockerApp = (props: {
 	}
 
 	return (
-		<div style={{display: "flex", flex: 1}}>
-			{isFetching || <LinearProgress />}
+		<div style={{display: "flex", flex: 1, flexDirection: "column"}}>
+			<AppHeader title={"Locker"} isFetching={isFetching} refetch={refetch} />
 			{fetched &&
 			(!fetched.isAccount ?
 			<div>
@@ -85,7 +85,7 @@ export const LockerApp = (props: {
 				</Box>
 			</div>
 			:
-			<div style={{display: "flex", flex: 1, flexDirection: "column"}}>
+			<div>
 				<Box p={2}>
 					<Typography>CELO Balance: {fmtCELOAmt(fetched.totalCELO)}</Typography>
 					<div style={{display: "flex", flexDirection: "row"}}>

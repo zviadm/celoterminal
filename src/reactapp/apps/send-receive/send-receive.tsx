@@ -4,9 +4,9 @@ import BigNumber from 'bignumber.js'
 
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
-import Button from '@material-ui/core/Button'
-import LinearProgress from '@material-ui/core/LinearProgress'
 import Typography from '@material-ui/core/Typography'
+import AppHeader from '../../app-header'
+import Box from '@material-ui/core/Box'
 
 import { Account } from '../../../common/accounts'
 import useOnChainState from '../../state/onchain-state'
@@ -64,26 +64,25 @@ export const SendReceiveApp = (props: {
 	}, [fetchError, onError])
 
 	return (
-		<div style={{display: "flex", flex: 1}}>
-			{isFetching || <LinearProgress />}
+		<div style={{display: "flex", flex: 1, flexDirection: "column"}}>
+			<AppHeader title={"Send/Receive"} isFetching={isFetching} refetch={refetch} />
 			{fetched &&
-			<div style={{display: "flex", flexDirection: "column"}}>
-				<Select
-					label="ERC20"
-					value={erc20}
-					onChange={(event) => { setErc20(event.target.value as string) }}>
-					{
-						erc20s.map((e) => (
-							<MenuItem value={e.name} key={e.name}>{e.name}</MenuItem>
-						))
-					}
-				</Select>
-				<Typography>
-					Balance: {fmtCELOAmt(fetched.balance)} {erc20}
-				</Typography>
-				<Button onClick={() => { refetch() }} >
-					REFETCH
-				</Button>
+			<div>
+				<Box p={2}>
+					<Select
+						label="ERC20"
+						value={erc20}
+						onChange={(event) => { setErc20(event.target.value as string) }}>
+						{
+							erc20s.map((e) => (
+								<MenuItem value={e.name} key={e.name}>{e.name}</MenuItem>
+							))
+						}
+					</Select>
+					<Typography>
+						Balance: {fmtCELOAmt(fetched.balance)} {erc20}
+					</Typography>
+				</Box>
 			</div>}
 		</div>
 	)

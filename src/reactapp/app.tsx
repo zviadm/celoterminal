@@ -76,7 +76,7 @@ const App = () => {
 					setSelectedApp={setSelectedApp}
 					appList={AppList}
 				/>
-				<Box px={2} style={{display: "flex", flex: 1}}>{renderedApp}</Box>
+				<Box paddingLeft={2} style={{display: "flex", flex: 1}}>{renderedApp}</Box>
 			</div>
 			<Snackbar
         open={error ? true : false}
