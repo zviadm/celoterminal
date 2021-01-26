@@ -13,9 +13,13 @@ const useOnChainState = <T>(
 	const [fetchError, setFetchError] = React.useState<Error | undefined>(undefined)
 	const [isFetching, setIsFetching] = React.useState(true)
 	const [fetchN, setFetchN] = React.useState(0)
+	const [fetchedN, setFetchedN] = React.useState(0)
 	React.useEffect(() => {
 		console.info(`useOnChainState[${fetchN}]: ...`)
 		const c = new CancelPromise()
+		if (fetchN === fetchedN) {
+			setFetched(undefined)
+		}
 		setIsFetching(true)
 
 		fetch(kit(), c)
@@ -31,14 +35,17 @@ const useOnChainState = <T>(
 			}
 		})
 		.finally(() => {
-			c.isCancelled() || setIsFetching(false)
+			setFetchedN((fetchedN) => fetchN > fetchedN ? fetchN : fetchedN)
+			if (!c.isCancelled()) {
+				setIsFetching(false)
+			}
 		})
 		return () => { c.cancel() }
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [fetchN, ...deps])
 
 	const refetch = () => {
-		setFetchN(fetchN + 1)
+		setFetchN((fetchN) => (fetchN + 1))
 	}
 	return {
 		isFetching,
