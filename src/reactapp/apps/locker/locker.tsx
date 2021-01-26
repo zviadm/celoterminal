@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { ContractKit } from '@celo/contractkit'
+import { toWei } from "web3-utils"
 
 import Button from '@material-ui/core/Button'
 import LinearProgress from '@material-ui/core/LinearProgress'
@@ -55,10 +56,7 @@ export const LockerApp = (props: {
 	const createLockTXs: TXFunc = async (kit: ContractKit) => {
 		const lockedGold = await kit.contracts.getLockedGold()
 		const tx = lockedGold.lock()
-		return [{
-			tx: tx,
-			value: toLock,
-		}]
+		return [{tx: tx, value: toWei(toLock, 'ether')}]
 	}
 	const runTXs = (f: TXFunc) => {
 		props.runTXs(f, () => { refetch() })

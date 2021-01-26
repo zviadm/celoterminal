@@ -1,15 +1,14 @@
 import * as React from 'react'
-import { ContractKit, newKitFromWeb3 } from '@celo/contractkit'
-import { CeloTransactionObject, CeloTxReceipt , ReadOnlyWallet } from '@celo/connect'
 import BN from 'bn.js'
-import TransportNodeHidNoEvents from '@ledgerhq/hw-transport-node-hid-noevents'
+import TransportNodeHid from '@ledgerhq/hw-transport-node-hid-noevents'
+import { ContractKit, newKit } from '@celo/contractkit'
+import { CeloTransactionObject, CeloTxReceipt , ReadOnlyWallet } from '@celo/connect'
 import { AddressValidation, newLedgerWalletWithSetup } from '@celo/wallet-ledger'
 
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 
-import kit from './kit'
 import { Account } from '../../common/accounts'
 import { CFG } from '../..//common/cfg'
 
@@ -38,24 +37,28 @@ function TXRunner(props: {
 		// NOTE: This should be impossible to cancel now from outside.
 		(async () => {
 			try {
-				const _k = kit()
-				const networkId = await _k.web3.eth.net.getId()
-				if (networkId !== CFG.networkId) {
-					throw new Error(`NetworkId mismatch! Expected: ${CFG.networkId}, Got: ${networkId}. Refusing to run transactions!`)
-				}
 				const w = await createWallet(selectedAccount)
+				const kit = newKit(CFG.networkURL, w.wallet)
+				kit.defaultAccount = selectedAccount.address
 				try {
-					const kitWithAcct = newKitFromWeb3(_k.web3, w.wallet)
-					kitWithAcct.defaultAccount = selectedAccount.address
-					const txs = await txFunc(kitWithAcct)
-					for (const tx of txs) {
-						await tx.tx.sendAndWaitForReceipt({
-							from: selectedAccount.address,
-							value: tx.value,
-						})
+					const networkId = await kit.web3.eth.net.getId()
+					if (networkId !== CFG.networkId) {
+						throw new Error(`NetworkId mismatch! Expected: ${CFG.networkId}, Got: ${networkId}. Refusing to run transactions!`)
 					}
-					onFinish(null, [])
+					const txs = await txFunc(kit)
+					const r: CeloTxReceipt[] = []
+					for (const tx of txs) {
+						console.info(`TX args: `, tx.tx.txo._parent.options.address, tx.tx.txo.arguments)
+						const result = await tx.tx.send({value: tx.value})
+						const txHash = await result.getHash()
+						console.info(`TX sent: `, txHash)
+						const receipt = await result.waitReceipt()
+						console.info(`TX receipt: `, receipt)
+						r.push(receipt)
+					}
+					onFinish(null, r)
 				} finally {
+					kit.stop()
 					if (w.transport) {
 						await w.transport.close()
 					}
@@ -93,8 +96,7 @@ export async function createWallet(a: Account): Promise<{
 		// 	return w
 		// }
 		case "ledger": {
-			const _transport = await TransportNodeHidNoEvents.open()
-			console.info(`transport created`, _transport)
+			const _transport = await TransportNodeHid.open()
 			try {
 				const wallet = await newLedgerWalletWithSetup(
 					_transport,
