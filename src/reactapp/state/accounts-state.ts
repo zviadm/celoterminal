@@ -3,7 +3,7 @@ import * as React from 'react'
 import { CELO_BASE_DERIVATION_PATH } from '@celo/wallet-ledger'
 
 import useLocalStorageState from './localstorage-state'
-import { Account } from '../../common/accounts'
+import { Account } from '../accountsdb/accounts'
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useAccounts = () => {

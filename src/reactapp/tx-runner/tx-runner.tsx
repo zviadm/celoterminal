@@ -1,5 +1,4 @@
 import * as React from 'react'
-import fs from 'fs'
 import BN from 'bn.js'
 import TransportNodeHid from '@ledgerhq/hw-transport-node-hid-noevents'
 import { ContractKit, newKit } from '@celo/contractkit'
@@ -10,10 +9,10 @@ import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 
-import { Account } from '../../common/accounts'
+import { Account } from '../accountsdb/accounts'
 import { CFG } from '../../common/cfg'
 import { LocalWallet } from '@celo/wallet-local'
-import { readAccountData } from '../../accountsdb/accountsdb'
+import { readAccountData } from '../accountsdb/accountsdb'
 
 export interface Transaction {
 	tx: CeloTransactionObject<unknown>
@@ -45,15 +44,17 @@ function TXRunner(props: {
 				if (accounts.length !== 1 ||
 					accounts[0].toLowerCase() !== selectedAccount.address.toLowerCase()) {
 					throw new Error(
-						`Unexpected account. Expected: ${selectedAccount.address}, Got: ${accounts[0]}. ` +
-						`Refusing to sign transactions!`)
+						`Unexpected Account! Expected: ${selectedAccount.address}, Got: ${accounts[0]}. ` +
+						`Refusing to run transactions!`)
 				}
 				const kit = newKit(CFG.networkURL, w.wallet)
 				kit.defaultAccount = selectedAccount.address
 				try {
 					const networkId = await kit.web3.eth.net.getId()
 					if (networkId !== CFG.networkId) {
-						throw new Error(`NetworkId mismatch! Expected: ${CFG.networkId}, Got: ${networkId}. Refusing to run transactions!`)
+						throw new Error(
+							`Unexpected NetworkId! Expected: ${CFG.networkId}, Got: ${networkId}. ` +
+							`Refusing to run transactions!`)
 					}
 					const txs = await txFunc(kit)
 					const r: CeloTxReceipt[] = []
@@ -104,9 +105,12 @@ export async function createWallet(a: Account): Promise<{
 		case "local": {
 			const wallet = new LocalWallet()
 			// TODO(zviad): Load private key from local storage and decrypt it with a PIN.
-			const accountData = readAccountData()
-			const key = fs.readFileSync("/tmp/bktestacct.key").toString()
-			wallet.addAccount(key)
+			const accountData = readAccountData(a.address)
+			if (!accountData) {
+				throw new Error(`Account: ${a.address} not found in the database!`)
+			}
+			// TODO(zviad): need to decode encrypted data first.
+			wallet.addAccount(accountData.encryptedData)
 			return {wallet}
 		}
 		case "ledger": {

@@ -13,7 +13,7 @@ import { AppList } from '../apps/apps'
 import { useAccounts } from '../state/accounts-state'
 import useLocalStorageState from '../state/localstorage-state'
 import TXRunner, { TXFinishFunc, TXFunc } from '../tx-runner/tx-runner'
-import { closeDB } from '../../accountsdb/accountsdb'
+import { closeDB } from '../accountsdb/accountsdb'
 
 const App = () => {
 	const [selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", accountsAppName)
