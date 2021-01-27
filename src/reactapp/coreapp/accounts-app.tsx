@@ -34,23 +34,23 @@ export const AccountsApp = (props: {
 }): JSX.Element => {
 	const [openedAdd, setOpenedAdd] = React.useState<
 		undefined | "add-ledger" | "add-addressonly" | "add-newlocal">()
-	const onAdd = (a?: Account, password?: string) => {
+	const handleAdd = (a: Account, password?: string) => {
 		try {
-			if (a) {
-				props.onAdd(a, password)
-			}
+			props.onAdd(a, password)
 			setOpenedAdd(undefined)
 		} catch (e) {
 			props.onError(e)
 		}
 	}
+	const handleCancel = () => { setOpenedAdd(undefined) }
+	const handleRefetch = () => { props.onAdd() }
 	return (
 		<div style={{display: "flex", flex: 1, flexDirection: "column"}}>
-			{openedAdd === "add-newlocal" && <AddNewLocalAccount onAdd={onAdd} />}
-			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={onAdd} />}
-			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={onAdd} />}
+			{openedAdd === "add-newlocal" && <AddNewLocalAccount onAdd={handleAdd} onCancel={handleCancel} />}
+			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} />}
+			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} />}
 
-			<AppHeader title={"Accounts"} refetch={() => { props.onAdd() }} isFetching={false} />
+			<AppHeader title={"Accounts"} refetch={handleRefetch} isFetching={false} />
 			<Box p={2}>
 				<List>
 					{
@@ -114,15 +114,16 @@ export const AccountsApp = (props: {
 }
 
 const AddLedgerAccount = (props: {
-	onAdd: (a?: LedgerAccount) => void,
+	onAdd: (a: LedgerAccount) => void,
+	onCancel: () => void,
 }) => {
 	return (
-		<Dialog open={true}>
+		<Dialog open={true} onClose={props.onCancel}>
 			<DialogTitle>Choose Ledger Account</DialogTitle>
 			<DialogContent>
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={() => { props.onAdd() }}>Cancel</Button>
+				<Button onClick={props.onCancel}>Cancel</Button>
 				<Button>Add</Button>
 			</DialogActions>
 		</Dialog>
@@ -130,13 +131,29 @@ const AddLedgerAccount = (props: {
 }
 
 const AddNewLocalAccount = (props: {
-	onAdd: (a?: LocalAccount, password?: string) => void,
+	onAdd: (a: LocalAccount, password?: string) => void,
+	onCancel: () => void,
 }) => {
 	const [name, setName] = React.useState("")
 	const [password, setPassword] = React.useState("")
 	const [isAdding, setIsAdding] = React.useState(false)
+	const handleAdd = () => {
+		setIsAdding(true);
+		(async () => {
+			const mnemonic = await generateMnemonic(MnemonicStrength.s256_24words)
+			const keys = await generateKeys(mnemonic)
+			const encryptedData = encryptLocalKey({mnemonic: mnemonic, privateKey: keys.privateKey}, password)
+			props.onAdd({
+				type: "local",
+				name: name,
+				address: keys.address,
+				encryptedData: encryptedData,
+			}, password)
+			setIsAdding(false)
+		})()
+	}
 	return (
-		<Dialog open={true} onClose={() => { props.onAdd() }}>
+		<Dialog open={true} onClose={props.onCancel}>
 			<DialogTitle>Create a new local account</DialogTitle>
 			<DialogContent>
 				<Alert severity="info">
@@ -171,36 +188,29 @@ const AddNewLocalAccount = (props: {
 					/>
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={() => { props.onAdd() }}>Cancel</Button>
-				<Button onClick={() => {
-					setIsAdding(true);
-					(async () => {
-						const mnemonic = await generateMnemonic(MnemonicStrength.s256_24words)
-						const keys = await generateKeys(mnemonic)
-						const encryptedData = encryptLocalKey({mnemonic: mnemonic, privateKey: keys.privateKey}, password)
-						props.onAdd({
-							type: "local",
-							name: name,
-							address: keys.address,
-							encryptedData: encryptedData,
-						}, password)
-					})()
-					.finally(() => {setIsAdding(false)})
-				}}
-				disabled={isAdding}>Add</Button>
+				<Button onClick={props.onCancel}>Cancel</Button>
+				<Button onClick={handleAdd} disabled={isAdding}>Add</Button>
 			</DialogActions>
 		</Dialog>
 	)
 }
 
 const AddAddressOnlyAccount = (props: {
-	onAdd: (a?: AddressOnlyAccount) => void,
+	onAdd: (a: AddressOnlyAccount) => void,
+	onCancel: () => void,
 }) => {
 	const [name, setName] = React.useState("")
 	const [address, setAddress] = React.useState("")
 	const canAdd = isValidAddress(address)
+	const handleAdd = () => {
+		props.onAdd({
+			type: "address-only",
+			name: name,
+			address: address,
+		})
+	}
 	return (
-		<Dialog open={true} onClose={() => { props.onAdd() }}>
+		<Dialog open={true} onClose={props.onCancel}>
 			<DialogTitle>Add a read-only account</DialogTitle>
 			<DialogContent>
 				<Alert severity="info">
@@ -229,13 +239,8 @@ const AddAddressOnlyAccount = (props: {
 					/>
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={() => { props.onAdd() }}>Cancel</Button>
-				<Button onClick={() => { props.onAdd({
-					type: "address-only",
-					name: name,
-					address: address,
-					})}}
-					disabled={!canAdd}>Add</Button>
+				<Button onClick={props.onCancel}>Cancel</Button>
+				<Button onClick={handleAdd} disabled={!canAdd}>Add</Button>
 			</DialogActions>
 		</Dialog>
 	)
