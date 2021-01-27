@@ -89,7 +89,7 @@ class AccountsDB {
 			data = ""
 			encryptedData = a.encryptedData
 			if (!password) {
-				throw new Error(`Password must be provided when adding Local accounts.`)
+				throw new Error(`Password must be provided when adding local accounts.`)
 			}
 			decryptLocalKey(a, password)
 			break
@@ -122,13 +122,14 @@ class AccountsDB {
 						.bind(0, encryptedPassword).run()
 					pws = this.db.prepare("SELECT * from password").all()
 				}
-
-				// make sure it is the same password as the one that is stored.
 				if (pws.length !== 1) {
-					throw new Error(`Password not setup for local accounts.`)
+					throw new Error(`Unreachable code.`)
 				}
-				if (decryptAES(password, pws[0].encrypted_password) !== password) {
-					throw new Error(`Password does not match.`)
+				// make sure it is the same password as the one that is stored.
+				try {
+					decryptAES(password, pws[0].encrypted_password)
+				} catch (e) {
+					throw new Error(`Password does not match with the already existing password for local accounts.`)
 				}
 			}
 

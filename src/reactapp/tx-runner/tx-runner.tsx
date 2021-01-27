@@ -91,7 +91,7 @@ const UnlockAccount = (props: {
 		props.onPassword(password)
 	}
 	return (
-		<Dialog open={true}>
+		<Dialog open={true} onClose={props.onCancel}>
 			<DialogTitle>Unlock account</DialogTitle>
 			<DialogContent>
 				<Alert severity="info">
