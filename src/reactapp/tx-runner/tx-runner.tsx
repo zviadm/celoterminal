@@ -140,8 +140,8 @@ const RunTXs = (props: {
 				if (accounts.length !== 1 ||
 					accounts[0].toLowerCase() !== selectedAccount.address.toLowerCase()) {
 					throw new Error(
-						`Unexpected Account! Expected: ${selectedAccount.address}, Got: ${accounts[0]}. ` +
-						`Refusing to run transactions!`)
+						`Unexpected Account. Expected: ${selectedAccount.address}, Got: ${accounts[0]}. ` +
+						`Refusing to run transactions.`)
 				}
 				const kit = newKit(CFG.networkURL, w.wallet)
 				kit.defaultAccount = selectedAccount.address
@@ -149,8 +149,8 @@ const RunTXs = (props: {
 					const networkId = await kit.web3.eth.net.getId()
 					if (networkId !== CFG.networkId) {
 						throw new Error(
-							`Unexpected NetworkId! Expected: ${CFG.networkId}, Got: ${networkId}. ` +
-							`Refusing to run transactions!`)
+							`Unexpected NetworkId. Expected: ${CFG.networkId}, Got: ${networkId}. ` +
+							`Refusing to run transactions.`)
 					}
 					const txs = await txFunc(kit)
 					const r: CeloTxReceipt[] = []
@@ -194,7 +194,7 @@ export async function createWallet(a: Account, password?: string): Promise<{
 	switch (a.type) {
 		case "local": {
 			if (!password) {
-				throw new Error("Password must be entered to unlock local accounts!")
+				throw new Error("Password must be entered to unlock local accounts.")
 			}
 			const wallet = new LocalWallet()
 			const localKey = decryptLocalKey(a, password)
@@ -216,7 +216,7 @@ export async function createWallet(a: Account, password?: string): Promise<{
 			}
 		}
 		default:
-			throw new Error(`Account type: '${a.type}' can not sign transactions!`)
+			throw new Error(`Read-only accounts can not sign transactions.`)
 	}
 }
 

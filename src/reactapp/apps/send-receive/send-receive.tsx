@@ -48,7 +48,7 @@ export const SendReceiveApp = (props: {
 	} = useOnChainState(async (kit: ContractKit) => {
 		const e = erc20s.find((e) => e.name === erc20)
 		if (!e) {
-			throw new Error("unreachable code!")
+			throw new Error("unreachable code")
 		}
 		const contract = await e.contract(kit)
 		const balance = await contract.balanceOf(selectedAddress)

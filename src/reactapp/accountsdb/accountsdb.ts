@@ -75,7 +75,7 @@ class AccountsDB {
 					encryptedData: r.encrypted_data,
 				}
 			default:
-				throw new Error(`Unrecognized account type: ${r.type}!`)
+				throw new Error(`Unrecognized account type: ${r.type}.`)
 			}
 		})
 		return accounts
@@ -89,7 +89,7 @@ class AccountsDB {
 			data = ""
 			encryptedData = a.encryptedData
 			if (!password) {
-				throw new Error(`Password must be provided when adding Local accounts!`)
+				throw new Error(`Password must be provided when adding Local accounts.`)
 			}
 			decryptLocalKey(a, password)
 			break
@@ -105,11 +105,11 @@ class AccountsDB {
 			encryptedData = ""
 			break
 		default:
-			throw new Error(`Unsupported type!`)
+			throw new Error(`Unreachable code.`)
 		}
 
 		if (!isValidAddress(a.address)) {
-			throw new Error(`Invalid address: ${a.address}!`)
+			throw new Error(`Invalid address: ${a.address}.`)
 		}
 		const address = ensureLeading0x(a.address).toLowerCase()
 		this.db.transaction(() => {
@@ -125,10 +125,10 @@ class AccountsDB {
 
 				// make sure it is the same password as the one that is stored.
 				if (pws.length !== 1) {
-					throw new Error(`Password not setup for local accounts!`)
+					throw new Error(`Password not setup for local accounts.`)
 				}
 				if (decryptAES(password, pws[0].encrypted_password) !== password) {
-					throw new Error(`Password does not match!`)
+					throw new Error(`Password does not match.`)
 				}
 			}
 
@@ -138,7 +138,7 @@ class AccountsDB {
 				(?, ?, ?, ?, ?, ?)`).run(
 					address, currentVersion, a.type, a.name, data, encryptedData)
 			if (result.changes !== 1) {
-				throw new Error(`Unexpected error while writing to Database!`)
+				throw new Error(`Unexpected error while writing to the Database.`)
 			}
 		})()
 	}
@@ -160,7 +160,7 @@ export const decryptLocalKey = (
 	try {
 		return JSON.parse(decryptAES(password, a.encryptedData))
 	} catch (e) {
-		throw new Error(`Incorrect password! Can not decrypt local account!`)
+		throw new Error(`Incorrect password, can not decrypt local account.`)
 	}
 }
 
