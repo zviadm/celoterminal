@@ -143,6 +143,13 @@ class AccountsDB {
 			}
 		})()
 	}
+
+	public removeAccount = (a: Account) => {
+		this.db
+			.prepare("DELETE FROM accounts WHERE address = ? AND type = ?")
+			.bind(a.address.toLowerCase(), a.type)
+			.run()
+	}
 }
 
 export interface LocalKey {

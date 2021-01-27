@@ -30,10 +30,13 @@ export const accountsAppName = "Accounts"
 export const AccountsApp = (props: {
 	accounts: Account[],
 	onAdd: (a?: Account, password?: string) => void,
+	onRemove: (a: Account) => void,
 	onError: (e: Error) => void,
 }): JSX.Element => {
 	const [openedAdd, setOpenedAdd] = React.useState<
 		undefined | "add-ledger" | "add-addressonly" | "add-newlocal">()
+	const [confirmRemove, setConfirmRemove] = React.useState<Account | undefined>()
+
 	const handleAdd = (a: Account, password?: string) => {
 		try {
 			props.onAdd(a, password)
@@ -42,10 +45,18 @@ export const AccountsApp = (props: {
 			props.onError(e)
 		}
 	}
-	const handleCancel = () => { setOpenedAdd(undefined) }
+	const handleRemove = (a: Account) => {
+		props.onRemove(a)
+		setConfirmRemove(undefined)
+	}
+	const handleCancel = () => {
+		setConfirmRemove(undefined)
+		setOpenedAdd(undefined)
+	}
 	const handleRefetch = () => { props.onAdd() }
 	return (
 		<div style={{display: "flex", flex: 1, flexDirection: "column"}}>
+			{confirmRemove && <ConfirmRemove account={confirmRemove} onRemove={handleRemove} onCancel={handleCancel} />}
 			{openedAdd === "add-newlocal" && <AddNewLocalAccount onAdd={handleAdd} onCancel={handleCancel} />}
 			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} />}
 			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} />}
@@ -58,7 +69,7 @@ export const AccountsApp = (props: {
 						<ListItem key={a.address}>
 							<ListItemText primary={a.address} />
 							<ListItemSecondaryAction>
-                <IconButton edge="end" aria-label="delete">
+                <IconButton edge="end" aria-label="delete" onClick={() => setConfirmRemove(a)}>
                   <Delete />
                 </IconButton>
               </ListItemSecondaryAction>
@@ -241,6 +252,51 @@ const AddAddressOnlyAccount = (props: {
 			<DialogActions>
 				<Button onClick={props.onCancel}>Cancel</Button>
 				<Button onClick={handleAdd} disabled={!canAdd}>Add</Button>
+			</DialogActions>
+		</Dialog>
+	)
+}
+
+const ConfirmRemove = (props: {
+	account: Account,
+	onRemove: (a: Account) => void,
+	onCancel: () => void,
+}) => {
+	const [address, setAddress] = React.useState("")
+	const handleRemove = () => { props.onRemove(props.account) }
+	const canRemove = props.account.type !== "local" || props.account.address === address
+	return (
+		<Dialog open={true} onClose={props.onCancel}>
+			<DialogContent>
+				{props.account.type === "local" ? <>
+				<Alert severity="warning">
+					DANGER ZONE! Removing local account will permanently remove its mnemonic and private key
+					from the local database. If you do not have backups, it will be impossible to restore this account
+					in future.
+				</Alert>
+				<Alert severity="info">
+					Confirm the address of your local account that you are attempting to remove to proceed.
+				</Alert>
+				<TextField
+					autoFocus
+					margin="dense"
+					label={`Address`}
+					variant="outlined"
+					value={address}
+					placeholder="0x..."
+					size="medium"
+					fullWidth={true}
+					inputProps={{style: {fontSize: 14}}}
+					onChange={(e) => { setAddress(e.target.value) }}
+				/>
+				</> :
+				<Alert severity="warning">
+					Are you sure you want to remove &quot;{props.account.name}&quot; {props.account.address}?
+				</Alert>}
+			</DialogContent>
+			<DialogActions>
+				<Button onClick={props.onCancel}>Cancel</Button>
+				<Button color="secondary" onClick={handleRemove} disabled={!canRemove}>Remove</Button>
 			</DialogActions>
 		</Dialog>
 	)
