@@ -5,16 +5,15 @@ import { CeloTxReceipt } from '@celo/connect'
 import Box from '@material-ui/core/Box'
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
-
 import AccountsBar from './accounts-bar'
 import AppMenu from './app-menu'
 import { AccountsApp, accountsAppName } from './accounts-app'
 import { AppList } from '../apps/apps'
+
 import { useAccounts } from '../state/accounts-state'
 import useLocalStorageState from '../state/localstorage-state'
 import TXRunner, { TXFinishFunc, TXFunc } from '../tx-runner/tx-runner'
 import { accountsDB } from '../accountsdb/accountsdb'
-import { Account } from '../accountsdb/accounts'
 
 const App = () => {
 	const [_selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", accountsAppName)
@@ -31,13 +30,6 @@ const App = () => {
 		setTXFunc({f, onFinish})
 	}
 	const [error, setError] = React.useState<Error | undefined>()
-	const _addAccount = (a?: Account) => {
-		try {
-			addAccount(a)
-		} catch (e) {
-			setError(e)
-		}
-	}
 
 	if (!accounts) {
 		// TODO(zviad): Different loading screen. Waiting to load accounts from the database
@@ -52,7 +44,8 @@ const App = () => {
 		selectedApp = accountsAppName
 		renderedApp = <AccountsApp
 			accounts={accounts}
-			onAdd={_addAccount}
+			onAdd={addAccount}
+			onError={setError}
 		/>
 	} else {
 		const terminalApp = AppList.find((a) => a.name === selectedApp)
@@ -60,7 +53,8 @@ const App = () => {
 			renderedApp = (selectedApp === accountsAppName || !terminalApp) ?
 				<AccountsApp
 					accounts={accounts}
-					onAdd={_addAccount}
+					onAdd={addAccount}
+					onError={setError}
 				/> :
 				<terminalApp.renderApp
 					accounts={accounts}

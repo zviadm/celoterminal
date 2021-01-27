@@ -2,10 +2,11 @@ import sqlite3 from 'better-sqlite3'
 import electron from 'electron'
 import fs from 'fs'
 import path from 'path'
+import crypto from 'crypto'
 import { ensureLeading0x, toChecksumAddress } from '@celo/utils/lib/address'
 import { isValidAddress } from 'ethereumjs-util'
 
-import { Account } from './accounts'
+import { Account, LocalAccount } from './accounts'
 
 // Supported `account` row versions. Last version is the current version.
 const supportedVersions = [1]
@@ -36,6 +37,11 @@ class AccountsDB {
 				name TEXT,
 				data TEXT,
 				encrypted_data TEXT
+			) WITHOUT ROWID;`)
+		this.db.exec(`
+			CREATE TABLE IF NOT EXISTS password (
+				id INTEGER PRIMARY KEY CHECK (id = 0),
+				encrypted_password TEXT
 			) WITHOUT ROWID;`)
 	}
 
@@ -75,13 +81,17 @@ class AccountsDB {
 		return accounts
 	}
 
-	public addAccount = (a: Account): void => {
+	public addAccount = (a: Account, password?: string): void => {
 		let data: string
 		let encryptedData: string
 		switch (a.type) {
 		case "local":
 			data = ""
 			encryptedData = a.encryptedData
+			if (!password) {
+				throw new Error(`Password must be provided when adding Local accounts!`)
+			}
+			decryptLocalKey(a, password)
 			break
 		case "address-only":
 			data = ""
@@ -102,14 +112,67 @@ class AccountsDB {
 			throw new Error(`Invalid address: ${a.address}!`)
 		}
 		const address = ensureLeading0x(a.address).toLowerCase()
-		const result = this.db.prepare(
-			"INSERT INTO accounts " +
-			"(address, version, type, name, data, encrypted_data) VALUES " +
-			"(?, ?, ?, ?, ?, ?)").run(
-				address, currentVersion, a.type, a.name, data, encryptedData)
-		if (result.changes !== 1) {
-			throw new Error(`Unexpected error while writing to Database!`)
-		}
+		this.db.transaction(() => {
+			if (password) {
+				let pws = this.db.prepare("SELECT * from password").all()
+				if (pws.length === 0) {
+					const encryptedPassword = encryptAES(password, password)
+					this.db
+						.prepare(`INSERT INTO password (id, encrypted_password) VALUES (?, ?)`)
+						.bind(0, encryptedPassword).run()
+					pws = this.db.prepare("SELECT * from password").all()
+				}
+
+				// make sure it is the same password as the one that is stored.
+				if (pws.length !== 1) {
+					throw new Error(`Password not setup for local accounts!`)
+				}
+				if (decryptAES(password, pws[0].encrypted_password) !== password) {
+					throw new Error(`Password does not match!`)
+				}
+			}
+
+			const result = this.db.prepare(
+				`INSERT INTO accounts
+				(address, version, type, name, data, encrypted_data) VALUES
+				(?, ?, ?, ?, ?, ?)`).run(
+					address, currentVersion, a.type, a.name, data, encryptedData)
+			if (result.changes !== 1) {
+				throw new Error(`Unexpected error while writing to Database!`)
+			}
+		})()
 	}
+}
+
+export interface LocalKey {
+	mnemonic: string
+	privateKey: string
+}
+
+export const encryptLocalKey = (
+	data: LocalKey,
+	password: string): string => {
+	return encryptAES(password, JSON.stringify(data))
+}
+export const decryptLocalKey = (
+	a: LocalAccount,
+	password: string): LocalKey => {
+	return JSON.parse(decryptAES(password, a.encryptedData))
+}
+
+const IV_LENGTH = 16
+const AES_KEY_LEN = 32
+function encryptAES(password: string, data: string) {
+	const iv = crypto.randomBytes(IV_LENGTH);
+	const key = crypto.scryptSync(password, iv, AES_KEY_LEN)
+	const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+	return iv.toString('hex') + ":" + cipher.update(data).toString('hex') + cipher.final().toString('hex')
+}
+function decryptAES(password: string, data: string) {
+	const parts = data.split(":")
+	const iv = Buffer.from(parts[0], 'hex')
+	const key = crypto.scryptSync(password, iv, AES_KEY_LEN)
+	const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+	return Buffer.concat([decipher.update(Buffer.from(parts[1], 'hex')), decipher.final()]).toString()
 }
 
