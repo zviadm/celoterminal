@@ -108,7 +108,6 @@ export const LockerApp = (props: {
 					<Typography>CELO Locked: {fmtCELOAmt(fetched.totalLocked)}</Typography>
 					<div style={{display: "flex", flexDirection: "row"}}>
 						<TextField
-								autoFocus
 								margin="dense"
 								label={`Unlock (max: ${fmtCELOAmt(fetched.totalLocked)})`}
 								variant="outlined"

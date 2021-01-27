@@ -2,17 +2,24 @@ import * as React from 'react'
 
 import useLocalStorageState from './localstorage-state'
 import { Account } from '../accountsdb/accounts'
-import { readAccounts } from '../accountsdb/accountsdb'
+import { accountsDB } from '../accountsdb/accountsdb'
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useAccounts = () => {
 	const [accounts, setAccounts] = React.useState<Account[] | undefined>()
 	const [_selectedAccount, setSelectedAccount] =
 		useLocalStorageState<Account | undefined>("terminal/core/selected-account", undefined)
-	React.useEffect(() => {
-		const accounts = readAccounts()
+	const refreshAccounts = () => {
+		const accounts = accountsDB().readAccounts()
 		setAccounts(accounts)
+	}
+	React.useEffect(() => {
+		refreshAccounts()
 	}, [])
+	const addAccount = (a: Account) => {
+		accountsDB().addAccount(a)
+		refreshAccounts()
+	}
 
 	const selectedAccount =
 		!accounts ? _selectedAccount :
@@ -21,7 +28,7 @@ export const useAccounts = () => {
 	return {
 		accounts,
 		selectedAccount,
-		setAccounts,
+		addAccount,
 		setSelectedAccount,
 	}
 }

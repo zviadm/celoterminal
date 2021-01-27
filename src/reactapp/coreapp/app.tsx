@@ -13,11 +13,16 @@ import { AppList } from '../apps/apps'
 import { useAccounts } from '../state/accounts-state'
 import useLocalStorageState from '../state/localstorage-state'
 import TXRunner, { TXFinishFunc, TXFunc } from '../tx-runner/tx-runner'
-import { closeDB } from '../accountsdb/accountsdb'
+import { accountsDB } from '../accountsdb/accountsdb'
+import { Account } from '../accountsdb/accounts'
 
 const App = () => {
 	const [_selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", accountsAppName)
-	const {accounts, selectedAccount, setSelectedAccount} = useAccounts()
+	const {
+		accounts,
+		addAccount,
+		selectedAccount,
+		setSelectedAccount} = useAccounts()
 	const [txFunc, setTXFunc] = React.useState<
 		{f: TXFunc, onFinish?: TXFinishFunc} | undefined>()
 	const runTXs = (
@@ -26,6 +31,13 @@ const App = () => {
 		setTXFunc({f, onFinish})
 	}
 	const [error, setError] = React.useState<Error | undefined>()
+	const _addAccount = (a: Account) => {
+		try {
+			addAccount(a)
+		} catch (e) {
+			setError(e)
+		}
+	}
 
 	if (!accounts) {
 		// TODO(zviad): Different loading screen. Waiting to load accounts from the database
@@ -38,12 +50,18 @@ const App = () => {
 	let selectedApp = _selectedApp
 	if (!selectedAccount) {
 		selectedApp = accountsAppName
-		renderedApp = <AccountsApp />
+		renderedApp = <AccountsApp
+			accounts={accounts}
+			onAdd={_addAccount}
+		/>
 	} else {
 		const terminalApp = AppList.find((a) => a.name === selectedApp)
 		try {
 			renderedApp = (selectedApp === accountsAppName || !terminalApp) ?
-				<AccountsApp /> :
+				<AccountsApp
+					accounts={accounts}
+					onAdd={_addAccount}
+				/> :
 				<terminalApp.renderApp
 					accounts={accounts}
 					selectedAccount={selectedAccount}
@@ -75,7 +93,7 @@ const App = () => {
 			<AccountsBar
 				accounts={accounts}
 				selectedAccount={selectedAccount}
-				setSelectedAccount={setSelectedAccount}
+				onSelectAccount={setSelectedAccount}
 			/>
 			<div style={{
 				display: "flex",
@@ -103,7 +121,7 @@ const App = () => {
 }
 
 ReactDOM.render(<App/>, document.getElementById('root'))
-window.addEventListener('unload', async () => {
-	await closeDB()
+window.addEventListener('unload', () => {
+	accountsDB().close()
 	return
 })
