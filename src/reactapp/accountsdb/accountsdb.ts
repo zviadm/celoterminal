@@ -157,7 +157,11 @@ export const encryptLocalKey = (
 export const decryptLocalKey = (
 	a: LocalAccount,
 	password: string): LocalKey => {
-	return JSON.parse(decryptAES(password, a.encryptedData))
+	try {
+		return JSON.parse(decryptAES(password, a.encryptedData))
+	} catch (e) {
+		throw new Error(`Incorrect password! Can not decrypt local account!`)
+	}
 }
 
 const IV_LENGTH = 16
@@ -175,4 +179,3 @@ function decryptAES(password: string, data: string) {
 	const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
 	return Buffer.concat([decipher.update(Buffer.from(parts[1], 'hex')), decipher.final()]).toString()
 }
-

@@ -67,6 +67,15 @@ const App = () => {
 			renderedApp = <div></div>
 		}
 	}
+	const txOnFinish = (e: Error | null, r: CeloTxReceipt[]) => {
+		if (e) {
+			setError(e)
+		}
+		if (txFunc?.onFinish) {
+			txFunc.onFinish(e, r)
+		}
+		setTXFunc(undefined)
+	}
 
 	return (
 		<div>
@@ -74,15 +83,8 @@ const App = () => {
 			<TXRunner
 				selectedAccount={selectedAccount}
 				txFunc={txFunc?.f}
-				onFinish={(e: Error | null, r: CeloTxReceipt[]) => {
-					if (e) {
-						setError(e)
-					}
-					if (txFunc?.onFinish) {
-						txFunc.onFinish(e, r)
-					}
-					setTXFunc(undefined)
-				}}
+				onFinish={txOnFinish}
+				onError={setError}
 			/>}
 			<AccountsBar
 				accounts={accounts}

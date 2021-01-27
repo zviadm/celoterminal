@@ -12,6 +12,7 @@ const createWindow = (): void => {
   const mainWindow = new BrowserWindow({
     height: 800,
     width: 1200,
+    backgroundColor: '#FFF',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -19,11 +20,11 @@ const createWindow = (): void => {
     }
   });
 
-  // and load the index.html of the app.
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // Load the index.html of the app.
+  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY).then(() => {
+    // Open the DevTools.
+    mainWindow.webContents.openDevTools();
+  })
 };
 
 // This method will be called when Electron has finished
