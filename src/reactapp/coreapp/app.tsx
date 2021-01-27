@@ -34,9 +34,7 @@ const App = () => {
 	if (!accounts) {
 		// TODO(zviad): Different loading screen. Waiting to load accounts from the database
 		// for the first time. Can't start without this.
-		return (
-			<div>Loading...</div>
-		)
+		return (<div>Loading...</div>)
 	}
 	let renderedApp
 	let selectedApp = _selectedApp
@@ -76,6 +74,7 @@ const App = () => {
 		}
 		setTXFunc(undefined)
 	}
+	const onCloseError = () => { setError(undefined) }
 
 	return (
 		<div>
@@ -105,12 +104,12 @@ const App = () => {
 			<Snackbar
         open={error ? true : false}
         autoHideDuration={10000}
-        onClose={() => { setError(undefined) }}
+        onClose={onCloseError}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}>
         <Alert
           style={{maxWidth: 1000}}
           severity="error"
-          onClose={() => { setError(undefined) }}>{error?.message}</Alert>
+          onClose={onCloseError}>{error?.message}</Alert>
       </Snackbar>
 		</div>
 	)
