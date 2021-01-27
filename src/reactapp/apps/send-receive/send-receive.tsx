@@ -43,7 +43,6 @@ export const SendReceiveApp = (props: {
 	const {
 		isFetching,
 		fetched,
-		fetchError,
 		refetch,
 	} = useOnChainState(async (kit: ContractKit) => {
 		const e = erc20s.find((e) => e.name === erc20)
@@ -55,13 +54,7 @@ export const SendReceiveApp = (props: {
 		return {
 			balance: balance,
 		}
-	}, [selectedAddress, erc20])
-	const onError = props.onError
-	React.useEffect(() => {
-		if (fetchError) {
-			onError(fetchError)
-		}
-	}, [fetchError, onError])
+	}, [selectedAddress, erc20], props.onError)
 
 	return (
 		<div style={{display: "flex", flex: 1, flexDirection: "column"}}>

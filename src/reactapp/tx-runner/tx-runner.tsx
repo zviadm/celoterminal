@@ -57,15 +57,15 @@ function TXRunner(props: {
 		props.onFinish(new Error(`Cancelled`), [])
 	}
 	const pwOnPassword = (p: string) => {
-			if (props.selectedAccount.type !== "local") {
-				return
-			}
-			try {
-				decryptLocalKey(props.selectedAccount, p)
-				setPW({password: p, expireMS: Date.now() + 5 * 60 * 1000})
-			} catch (e) {
-				props.onError(e)
-			}
+		if (props.selectedAccount.type !== "local") {
+			return
+		}
+		try {
+			decryptLocalKey(props.selectedAccount, p)
+			setPW({password: p, expireMS: Date.now() + 5 * 60 * 1000})
+		} catch (e) {
+			props.onError(e)
+		}
 	}
 	return (<>{props.txFunc && (
 		pwNeeded ?
@@ -122,17 +122,11 @@ const RunTXs = (props: {
 	txFunc: TXFunc,
 	onFinish: TXFinishFunc,
 }) => {
-	const [isRunning, setIsRunning] = React.useState(false)
 	const txFunc = props.txFunc
 	const onFinish = props.onFinish
 	const selectedAccount = props.selectedAccount
 	const password = props.password
 	React.useEffect(() => {
-		if (isRunning) {
-			return
-		}
-		setIsRunning(true);
-		// NOTE: This should be impossible to cancel now from outside.
 		(async () => {
 			try {
 				const w = await createWallet(selectedAccount, password)
@@ -172,11 +166,12 @@ const RunTXs = (props: {
 				}
 			} catch (e) {
 				onFinish(e, [])
-			} finally {
-				setIsRunning(false)
 			}
 		})()
-	}, [isRunning, txFunc, onFinish, selectedAccount, password])
+	// NOTE: This effect is expected to run only once on first render and it is expected
+	// that parent will unmount the component once it calls onFinish.
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
 	return (
 		<Dialog open={true}>
 			<DialogTitle>Sign Transactions</DialogTitle>

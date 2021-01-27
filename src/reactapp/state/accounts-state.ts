@@ -13,9 +13,7 @@ export const useAccounts = () => {
 		const accounts = accountsDB().readAccounts()
 		setAccounts(accounts)
 	}
-	React.useEffect(() => {
-		refreshAccounts()
-	}, [])
+	React.useEffect(() => { refreshAccounts() }, [])
 	const addAccount = (a?: Account, password?: string) => {
 		if (a) {
 			accountsDB().addAccount(a, password)

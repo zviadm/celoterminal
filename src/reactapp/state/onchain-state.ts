@@ -8,6 +8,7 @@ const useOnChainState = <T>(
 	fetch:
 		(kit: ContractKit, c: CancelPromise) => Promise<T>,
 	deps: React.DependencyList,
+	onError?: (e: Error) => void,
 ) => {
 	const [fetched, setFetched] = React.useState<T | undefined>(undefined)
 	const [fetchError, setFetchError] = React.useState<Error | undefined>(undefined)
@@ -35,17 +36,21 @@ const useOnChainState = <T>(
 			if (!c.isCancelled()) {
 				console.error(`useOnChainState[${fetchN}]`, e)
 				setFetchError(e)
+				onError && onError(e)
 				setFetched(undefined)
 			}
 		})
 		.finally(() => {
 			if (!c.isCancelled()) {
 				setIsFetching(false)
+				c.cancel()
 			}
 		})
 		return () => {
-			console.info(`useOnChainState[${fetchN}]: cancelled`)
-			c.cancel()
+			if (!c.isCancelled()) {
+				console.info(`useOnChainState[${fetchN}]: cancelled`)
+				c.cancel()
+			}
 		}
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [fetchN, ...deps])

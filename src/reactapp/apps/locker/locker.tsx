@@ -23,7 +23,6 @@ export const LockerApp = (props: {
 	const {
 		isFetching,
 		fetched,
-		fetchError,
 		refetch,
 	} = useOnChainState(async (kit: ContractKit) => {
 		const goldToken = await kit.contracts.getGoldToken()
@@ -43,13 +42,7 @@ export const LockerApp = (props: {
 			totalLocked,
 			pendingWithdrawals,
 		}
-	}, [props.selectedAccount.address])
-	const onError = props.onError
-	React.useEffect(() => {
-		if (fetchError) {
-			onError(fetchError)
-		}
-	}, [fetchError, onError])
+	}, [props.selectedAccount.address], props.onError)
 	const [toUnlock, setToUnlock] = React.useState("0")
 	const [toLock, setToLock] = React.useState("0")
 
