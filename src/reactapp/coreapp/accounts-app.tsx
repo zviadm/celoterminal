@@ -7,15 +7,21 @@ import Button from '@material-ui/core/Button'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
+import TextField from '@material-ui/core/TextField'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
+import IconButton from '@material-ui/core/IconButton'
+import Delete from '@material-ui/icons/Delete'
 
 import { Account, AddressOnlyAccount, LedgerAccount } from '../accountsdb/accounts'
-import TextField from '@material-ui/core/TextField'
 
 export const accountsAppName = "Accounts"
 
 export const AccountsApp = (props: {
 	accounts: Account[],
-	onAdd: (a: Account) => void,
+	onAdd: (a?: Account) => void,
 }): JSX.Element => {
 	const [openedAdd, setOpenedAdd] = React.useState<
 		undefined | "add-ledger" | "add-addressonly">()
@@ -31,7 +37,24 @@ export const AccountsApp = (props: {
 			<AddLedgerAccount open={openedAdd === "add-ledger"} onAdd={onAdd} />
 			<AddAddressOnlyAccount open={openedAdd === "add-addressonly"} onAdd={onAdd} />
 
-			<AppHeader title={"Accounts"} />
+			<AppHeader title={"Accounts"} refetch={() => { props.onAdd() }} isFetching={false} />
+			<Box p={2}>
+				<List>
+					{
+					props.accounts.map((a) => (
+						<ListItem key={a.address}>
+							<ListItemText primary={a.address} />
+							<ListItemSecondaryAction>
+                <IconButton edge="end" aria-label="delete">
+                  <Delete />
+                </IconButton>
+              </ListItemSecondaryAction>
+						</ListItem>
+					))
+					}
+				</List>
+
+			</Box>
 			<Box p={2} style={{display: "flex", flexDirection: "column"}}>
 				<Button>Create Local Account</Button>
 				<Button>Import Local Account</Button>

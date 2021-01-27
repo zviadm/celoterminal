@@ -2,7 +2,7 @@ import sqlite3 from 'better-sqlite3'
 import electron from 'electron'
 import fs from 'fs'
 import path from 'path'
-import { ensureLeading0x } from '@celo/utils/lib/address'
+import { ensureLeading0x, toChecksumAddress } from '@celo/utils/lib/address'
 import { isValidAddress } from 'ethereumjs-util'
 
 import { Account } from './accounts'
@@ -50,7 +50,7 @@ class AccountsDB {
 			const base = {
 				type: r.type,
 				name: r.name,
-				address: r.address,
+				address: toChecksumAddress(r.address),
 			}
 			switch (r.type) {
 			case "address-only":

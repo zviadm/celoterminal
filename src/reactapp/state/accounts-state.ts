@@ -16,11 +16,12 @@ export const useAccounts = () => {
 	React.useEffect(() => {
 		refreshAccounts()
 	}, [])
-	const addAccount = (a: Account) => {
-		accountsDB().addAccount(a)
+	const addAccount = (a?: Account) => {
+		if (a) {
+			accountsDB().addAccount(a)
+		}
 		refreshAccounts()
 	}
-
 	const selectedAccount =
 		!accounts ? _selectedAccount :
 		accounts.length === 0 ? undefined :

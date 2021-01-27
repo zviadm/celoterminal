@@ -31,7 +31,7 @@ const App = () => {
 		setTXFunc({f, onFinish})
 	}
 	const [error, setError] = React.useState<Error | undefined>()
-	const _addAccount = (a: Account) => {
+	const _addAccount = (a?: Account) => {
 		try {
 			addAccount(a)
 		} catch (e) {
