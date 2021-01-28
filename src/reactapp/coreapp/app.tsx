@@ -13,7 +13,7 @@ import { AppList } from '../apps/apps'
 import { useAccounts } from './accounts-state'
 import useLocalStorageState from '../state/localstorage-state'
 import TXRunner from './tx-runner/tx-runner'
-import { TXFinishFunc, TXFunc } from '../state/transactions'
+import { TXFinishFunc, TXFunc } from '../components/app-definition'
 import { accountsDB } from './accountsdb'
 
 const App = () => {

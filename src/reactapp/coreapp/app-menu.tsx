@@ -4,7 +4,7 @@ import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 
-import { AppDefinition } from '../apps/apps'
+import { AppDefinition } from '../components/app-definition'
 import { accountsAppName } from './accounts-app/accounts-app'
 
 const AppMenu = (props: {

@@ -15,7 +15,7 @@ import { CFG } from '../../../common/cfg'
 import useSessionState from '../../state/session-state'
 import { decryptLocalKey } from '../accountsdb'
 import { canDecryptLocalKey, createWallet } from './wallet'
-import { Transaction, TXFinishFunc, TXFunc } from '../../state/transactions'
+import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definition'
 
 function TXRunner(props: {
 	selectedAccount: Account,
