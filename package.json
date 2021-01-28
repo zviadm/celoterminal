@@ -95,6 +95,7 @@
     "@celo/wallet-ledger": "^1.0.1",
     "@celo/wallet-local": "^1.0.1",
     "@fontsource/roboto": "^4.1.0",
+    "@ledgerhq/hw-app-eth": "^5.11.0",
     "@ledgerhq/hw-transport-node-hid-noevents": "^5.40.0",
     "@material-ui/core": "^4.11.2",
     "@material-ui/icons": "^4.11.2",

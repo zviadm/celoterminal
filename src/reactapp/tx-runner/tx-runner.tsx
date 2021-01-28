@@ -1,24 +1,21 @@
 import * as React from 'react'
 import BN from 'bn.js'
-import TransportNodeHid from '@ledgerhq/hw-transport-node-hid-noevents'
 import { ContractKit, newKit } from '@celo/contractkit'
-import { CeloTransactionObject, CeloTxReceipt , ReadOnlyWallet } from '@celo/connect'
-import { AddressValidation, newLedgerWalletWithSetup } from '@celo/wallet-ledger'
+import { CeloTransactionObject, CeloTxReceipt } from '@celo/connect'
 
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
+import Button from '@material-ui/core/Button'
+import Typography from '@material-ui/core/Typography'
+import DialogActions from '@material-ui/core/DialogActions'
+import UnlockAccount from './unlock-account'
 
 import { Account } from '../accountsdb/accounts'
 import { CFG } from '../../common/cfg'
-import { LocalWallet } from '@celo/wallet-local'
 import useGlobalState from '../state/global-state'
 import { decryptLocalKey } from '../accountsdb/accountsdb'
-import { DialogActions } from '@material-ui/core'
-import Alert from '@material-ui/lab/Alert'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography'
+import { canDecryptLocalKey, createWallet } from './wallet'
 
 export interface Transaction {
 	tx: CeloTransactionObject<unknown>
@@ -41,14 +38,9 @@ function TXRunner(props: {
 	let pwValid = false
 	if (props.selectedAccount.type === "local") {
 		// check password.
-		if (pw && pw.expireMS > Date.now()) {
-			try {
-				decryptLocalKey(props.selectedAccount, pw.password)
-				pwValid = true
-			} catch (e) {
-				console.warn(`TX: cached password is no longer valid?`)
-			}
-		}
+		pwValid = (pw ?
+			pw && pw.expireMS > Date.now() &&
+			canDecryptLocalKey(props.selectedAccount, pw.password) : false)
 		if (!pwValid && pw) {
 			setPW(undefined)
 		}
@@ -82,40 +74,7 @@ function TXRunner(props: {
 		/>
 	)}</>)
 }
-
-const UnlockAccount = (props: {
-	onPassword: (p: string) => void,
-	onCancel: () => void,
-}) => {
-	const [password, setPassword] = React.useState("")
-	const handleUnlock = () => {
-		props.onPassword(password)
-	}
-	return (
-		<Dialog open={true} onClose={props.onCancel}>
-			<DialogTitle>Unlock account</DialogTitle>
-			<DialogContent>
-				<Alert severity="info">
-					Password is required to unlock your local account.
-				</Alert>
-				<TextField
-						margin="dense"
-						type="password"
-						label={`Password`}
-						variant="outlined"
-						value={password}
-						size="medium"
-						fullWidth={true}
-						onChange={(e) => { setPassword(e.target.value) }}
-					/>
-			</DialogContent>
-			<DialogActions>
-				<Button onClick={props.onCancel}>Cancel</Button>
-				<Button onClick={handleUnlock}>Unlock</Button>
-			</DialogActions>
-		</Dialog>
-	)
-}
+export default TXRunner
 
 const RunTXs = (props: {
 	selectedAccount: Account,
@@ -232,38 +191,3 @@ const RunTXs = (props: {
 		</Dialog>
 	)
 }
-
-export async function createWallet(a: Account, password?: string): Promise<{
-	wallet: ReadOnlyWallet
-	transport?: {close: () => void}
-}> {
-	switch (a.type) {
-		case "local": {
-			if (!password) {
-				throw new Error("Password must be entered to unlock local accounts.")
-			}
-			const wallet = new LocalWallet()
-			const localKey = decryptLocalKey(a, password)
-			wallet.addAccount(localKey.privateKey)
-			return {wallet}
-		}
-		case "ledger": {
-			const _transport = await TransportNodeHid.open()
-			try {
-				const wallet = await newLedgerWalletWithSetup(
-					_transport,
-					[a.derivationPathIndex],
-					a.baseDerivationPath,
-					AddressValidation.never)
-				return {wallet, transport: _transport}
-			} catch (e) {
-				_transport.close()
-				throw e
-			}
-		}
-		default:
-			throw new Error(`Read-only accounts can not sign transactions.`)
-	}
-}
-
-export default TXRunner
