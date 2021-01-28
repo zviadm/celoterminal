@@ -11,6 +11,18 @@ export const useAccounts = () => {
 		useLocalStorageState<Account | undefined>("terminal/core/selected-account", undefined)
 	const refreshAccounts = () => {
 		const accounts = accountsDB().readAccounts()
+		accounts.sort((a, b) => {
+			const rankA = accountRank(a)
+			const rankB = accountRank(b)
+			for (let i = 0; i < rankA.length; i += 1) {
+				if (rankA[i] < rankB[i]) {
+					return -1
+				} else if (rankA[i] > rankB[i]) {
+					return 1
+				}
+			}
+			return 0
+		})
 		setAccounts(accounts)
 	}
 	React.useEffect(() => { refreshAccounts() }, [])
@@ -35,4 +47,11 @@ export const useAccounts = () => {
 		removeAccount,
 		setSelectedAccount,
 	}
+}
+
+const accountRank = (a: Account) => {
+	const typeRank = (
+		a.type === "ledger" ? 0 :
+		a.type === "local" ? 1 : 2)
+	return [typeRank, a.name]
 }

@@ -19,6 +19,7 @@ import { Account } from '../../accountsdb/accounts'
 import AddAddressOnlyAccount from './addressonly-account'
 import AddNewLocalAccount from './local-account'
 import AddLedgerAccount from './ledger-account'
+import Typography from '@material-ui/core/Typography'
 
 export const accountsAppName = "Accounts"
 
@@ -62,7 +63,10 @@ export const AccountsApp = (props: {
 					{
 					props.accounts.map((a) => (
 						<ListItem key={a.address}>
-							<ListItemText primary={a.address} />
+							<ListItemText primary={<div>
+								<Typography style={{fontFamily: "monospace"}}>{a.name}: </Typography>
+								<Typography style={{fontFamily: "monospace"}}>{a.address}</Typography>
+								</div>} />
 							<ListItemSecondaryAction>
                 <IconButton edge="end" aria-label="delete" onClick={() => setConfirmRemove(a)}>
                   <Delete />
