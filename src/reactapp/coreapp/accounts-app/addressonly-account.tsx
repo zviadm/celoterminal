@@ -50,7 +50,7 @@ const AddAddressOnlyAccount = (props: {
 						placeholder="0x..."
 						size="medium"
 						fullWidth={true}
-						inputProps={{style: {fontSize: 14, fontFamily: "monospace"}}}
+						inputProps={{style: {fontFamily: "monospace"}}}
 						onChange={(e) => { setAddress(e.target.value) }}
 					/>
 			</DialogContent>
