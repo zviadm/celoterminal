@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { ContractKit } from '@celo/contractkit'
 import { CancelPromise } from '../../common/utils'
-import kit from '../tx-runner/kit'
+import kit from '../coreapp/tx-runner/kit'
 
 // TODO(zviad): Document OnChainState behaviour.
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

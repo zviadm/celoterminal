@@ -15,7 +15,7 @@ import IconButton from '@material-ui/core/IconButton'
 import Delete from '@material-ui/icons/Delete'
 import Alert from '@material-ui/lab/Alert'
 
-import { Account } from '../../accountsdb/accounts'
+import { Account } from '../../state/accounts'
 import AddAddressOnlyAccount from './addressonly-account'
 import AddNewLocalAccount from './local-account'
 import AddLedgerAccount from './ledger-account'

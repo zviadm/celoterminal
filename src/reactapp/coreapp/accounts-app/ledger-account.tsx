@@ -8,7 +8,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 
-import { LedgerAccount } from '../../accountsdb/accounts'
+import { LedgerAccount } from '../../state/accounts'
 import { AddressValidation, CELO_BASE_DERIVATION_PATH, newLedgerWalletWithSetup } from '@celo/wallet-ledger'
 import Typography from '@material-ui/core/Typography'
 import RadioGroup from '@material-ui/core/RadioGroup'

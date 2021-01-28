@@ -1,8 +1,8 @@
 import * as React from 'react'
 
 import useLocalStorageState from '../state/localstorage-state'
-import { Account } from '../accountsdb/accounts'
-import { accountsDB } from '../accountsdb/accountsdb'
+import { Account } from '../state/accounts'
+import { accountsDB } from './accountsdb'
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useAccounts = () => {

@@ -1,5 +1,5 @@
 import { ContractKit, newKit } from '@celo/contractkit'
-import { CFG } from '../../common/cfg'
+import { CFG } from '../../../common/cfg'
 
 let _kit: ContractKit | undefined
 const kit = (): ContractKit => {

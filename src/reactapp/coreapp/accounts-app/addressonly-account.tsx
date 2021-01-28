@@ -9,7 +9,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 import Alert from '@material-ui/lab/Alert'
 
-import { AddressOnlyAccount } from '../../accountsdb/accounts'
+import { AddressOnlyAccount } from '../../state/accounts'
 
 const AddAddressOnlyAccount = (props: {
 	onAdd: (a: AddressOnlyAccount) => void,

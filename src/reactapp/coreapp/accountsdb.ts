@@ -6,7 +6,7 @@ import crypto from 'crypto'
 import { ensureLeading0x, toChecksumAddress } from '@celo/utils/lib/address'
 import { isValidAddress } from 'ethereumjs-util'
 
-import { Account, LocalAccount } from './accounts'
+import { Account, LocalAccount } from '../state/accounts'
 
 // Supported `account` row versions. Last version is the current version.
 const supportedVersions = [1]

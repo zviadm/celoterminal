@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography'
 import AppHeader from '../../components/app-header'
 import Box from '@material-ui/core/Box'
 
-import { Account } from '../../accountsdb/accounts'
+import { Account } from '../../state/accounts'
 import useOnChainState from '../../state/onchain-state'
 import useLocalStorageState from '../../state/localstorage-state'
 import { fmtCELOAmt } from '../../../common/utils'

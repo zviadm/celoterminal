@@ -11,10 +11,10 @@ import Typography from '@material-ui/core/Typography'
 import DialogActions from '@material-ui/core/DialogActions'
 import UnlockAccount from './unlock-account'
 
-import { Account } from '../accountsdb/accounts'
-import { CFG } from '../../common/cfg'
-import useSessionState from '../state/session-state'
-import { decryptLocalKey } from '../accountsdb/accountsdb'
+import { Account } from '../../state/accounts'
+import { CFG } from '../../../common/cfg'
+import useSessionState from '../../state/session-state'
+import { decryptLocalKey } from '../accountsdb'
 import { canDecryptLocalKey, createWallet } from './wallet'
 
 export interface Transaction {
