@@ -1,6 +1,6 @@
 import * as React from 'react'
 import TransportNodeHid from '@ledgerhq/hw-transport-node-hid-noevents'
-import { zeroRange } from '@celo/base/lib/collections'
+import LedgerApp from '@ledgerhq/hw-app-eth'
 
 import Dialog from '@material-ui/core/Dialog'
 import Button from '@material-ui/core/Button'
@@ -9,7 +9,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 
 import { LedgerAccount } from '../../state/accounts'
-import { AddressValidation, CELO_BASE_DERIVATION_PATH, newLedgerWalletWithSetup } from '@celo/wallet-ledger'
+import { CELO_BASE_DERIVATION_PATH } from '@celo/wallet-ledger'
 import Typography from '@material-ui/core/Typography'
 import RadioGroup from '@material-ui/core/RadioGroup'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
@@ -22,27 +22,22 @@ const AddLedgerAccount = (props: {
 }): JSX.Element => {
 	const [addresses, setAddresses] = React.useState<string[] | undefined>()
 	const [selected, setSelected] = React.useState("0")
+	const [verifyIdx, setVerifyIdx] = React.useState<number | undefined>()
 	const onError = props.onError
 	const onCancel = props.onCancel
+	const onAdd = props.onAdd
 	React.useEffect(() => {
 		(async () => {
 			const transport = await TransportNodeHid.open()
-			console.info(`LEDGER: transport created`)
+			console.info(`LEDGER: transport created to load addresses`)
 			try {
-				const w = await newLedgerWalletWithSetup(
-					transport,
-					zeroRange(5),
-					CELO_BASE_DERIVATION_PATH,
-					AddressValidation.never)
-				setAddresses(w.getAccounts())
-				// const ledgerApp = new Ledger(transport)
-				// const p = []
-				// for (let i = 0; i < 10; i++) {
-				// 	p.push(
-				// 		ledgerApp.getAddress(`${CELO_BASE_DERIVATION_PATH}/${i}`))
-				// }
-				// const addrs = (await Promise.all(p)).map((a) => a.address)
-				// setAddresses(addrs)
+				const ledgerApp = new LedgerApp(transport)
+				const addrs: string[] = []
+				for (let i = 0; i < 5; i++) {
+					const a = await ledgerApp.getAddress(`${CELO_BASE_DERIVATION_PATH}/${i}`)
+					addrs.push(a.address)
+				}
+				setAddresses(addrs)
 			} finally {
 				transport.close()
 			}
@@ -51,24 +46,44 @@ const AddLedgerAccount = (props: {
 			onError(e)
 			onCancel()
 		})
-	}, [onError, onCancel])
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
+	React.useEffect(() => {
+		if (verifyIdx === undefined) {
+			return
+		}
+		(async () => {
+			const transport = await TransportNodeHid.open()
+			console.info(`LEDGER: transport created to verify address`)
+			let addr
+			try {
+				const ledgerApp = new LedgerApp(transport)
+				addr = await ledgerApp.getAddress(
+					`${CELO_BASE_DERIVATION_PATH}/${verifyIdx}`, true)
+			} finally {
+				transport.close()
+			}
+			setVerifyIdx(undefined)
+			onAdd({
+				type: "ledger",
+				name: `Ledger/${verifyIdx}`,
+				address: addr.address,
+				baseDerivationPath: CELO_BASE_DERIVATION_PATH,
+				derivationPathIndex: verifyIdx,
+			})
+		})()
+		.catch((e) => {
+			setVerifyIdx(undefined)
+			onError(e)
+		})
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [verifyIdx])
 
 	const handleSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelected(event.target.value);
 	};
 	const handleAdd = () => {
-		if (!addresses) {
-			return
-		}
-		const selectedIdx = Number.parseInt(selected)
-		const address = addresses[selectedIdx]
-		props.onAdd({
-			type: "ledger",
-			name: `Ledger/${selectedIdx}`,
-			address: address,
-			baseDerivationPath: CELO_BASE_DERIVATION_PATH,
-			derivationPathIndex: selectedIdx,
-		})
+		setVerifyIdx(Number.parseInt(selected))
 	}
 
 	return (
@@ -87,17 +102,21 @@ const AddLedgerAccount = (props: {
 							<FormControlLabel
 								key={`${idx}`}
 								value={`${idx}`}
-								control={<Radio />}
+								control={<Radio disabled={verifyIdx !== undefined} />}
 								label={<Typography style={{fontFamily: "monospace"}}>{v}</Typography>}
 								/>
 						))}
 					</RadioGroup>
 				</div>
 				}
+				{verifyIdx !== undefined &&
+				<div>
+					<Typography>Verify address on Ledger...</Typography>
+				</div>}
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.onCancel}>Cancel</Button>
-				<Button onClick={handleAdd} disabled={!addresses}>Add</Button>
+				<Button onClick={handleAdd} disabled={!addresses || verifyIdx !== undefined}>Add</Button>
 			</DialogActions>
 		</Dialog>
 	)
