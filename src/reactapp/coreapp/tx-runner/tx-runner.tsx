@@ -1,7 +1,6 @@
 import * as React from 'react'
-import BN from 'bn.js'
-import { ContractKit, newKit } from '@celo/contractkit'
-import { CeloTransactionObject, CeloTxReceipt } from '@celo/connect'
+import { newKit } from '@celo/contractkit'
+import { CeloTxReceipt } from '@celo/connect'
 
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -16,14 +15,7 @@ import { CFG } from '../../../common/cfg'
 import useSessionState from '../../state/session-state'
 import { decryptLocalKey } from '../accountsdb'
 import { canDecryptLocalKey, createWallet } from './wallet'
-
-export interface Transaction {
-	tx: CeloTransactionObject<unknown>
-	value?: string | number | BN
-}
-
-export type TXFunc = (kit: ContractKit) => Promise<Transaction[]>
-export type TXFinishFunc = (e: Error | null, r: CeloTxReceipt[]) => void
+import { Transaction, TXFinishFunc, TXFunc } from '../../state/transactions'
 
 function TXRunner(props: {
 	selectedAccount: Account,

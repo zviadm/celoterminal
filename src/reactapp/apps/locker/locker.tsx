@@ -10,7 +10,7 @@ import Box from '@material-ui/core/Box'
 import { Account } from '../../state/accounts'
 import useOnChainState from '../../state/onchain-state'
 import { fmtCELOAmt } from '../../../common/utils'
-import { TXFunc, TXFinishFunc } from '../../coreapp/tx-runner/tx-runner'
+import { TXFunc, TXFinishFunc } from '../../state/transactions'
 import AppHeader from '../../components/app-header'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
