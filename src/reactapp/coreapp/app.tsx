@@ -10,7 +10,7 @@ import AppMenu from './app-menu'
 import { AccountsApp, accountsAppName } from './accounts-app/accounts-app'
 import { AppList } from '../apps/apps'
 
-import { useAccounts } from '../state/accounts-state'
+import { useAccounts } from './accounts-state'
 import useLocalStorageState from '../state/localstorage-state'
 import TXRunner, { TXFinishFunc, TXFunc } from '../tx-runner/tx-runner'
 import { accountsDB } from '../accountsdb/accountsdb'

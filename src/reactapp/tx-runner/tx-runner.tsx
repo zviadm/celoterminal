@@ -13,7 +13,7 @@ import UnlockAccount from './unlock-account'
 
 import { Account } from '../accountsdb/accounts'
 import { CFG } from '../../common/cfg'
-import useGlobalState from '../state/global-state'
+import useSessionState from '../state/session-state'
 import { decryptLocalKey } from '../accountsdb/accountsdb'
 import { canDecryptLocalKey, createWallet } from './wallet'
 
@@ -31,7 +31,7 @@ function TXRunner(props: {
 	onFinish: TXFinishFunc,
 	onError: (e: Error) => void,
 }): JSX.Element {
-	const [pw, setPW] = useGlobalState<{
+	const [pw, setPW] = useSessionState<{
 		password: string,
 		expireMS: number,
 	} | undefined>("terminal/core/password", undefined)

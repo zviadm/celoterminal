@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import useLocalStorageState from './localstorage-state'
+import useLocalStorageState from '../state/localstorage-state'
 import { Account } from '../accountsdb/accounts'
 import { accountsDB } from '../accountsdb/accountsdb'
 
