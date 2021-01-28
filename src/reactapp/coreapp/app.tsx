@@ -1,6 +1,5 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import { CeloTxReceipt } from '@celo/connect'
 
 import Box from '@material-ui/core/Box'
 import Snackbar from '@material-ui/core/Snackbar'
@@ -10,7 +9,7 @@ import AppMenu from './app-menu'
 import { AccountsApp, accountsAppName } from './accounts-app/accounts-app'
 import { AppList } from '../apps/apps'
 
-import { useAccounts } from './accounts-state'
+import { useAccounts } from './accounts-app/accounts-state'
 import useLocalStorageState from '../state/localstorage-state'
 import TXRunner from './tx-runner/tx-runner'
 import { TXFinishFunc, TXFunc } from '../components/app-definition'
@@ -69,7 +68,7 @@ const App = () => {
 			renderedApp = <div></div>
 		}
 	}
-	const txOnFinish = (e: Error | null, r: CeloTxReceipt[]) => {
+	const txOnFinish: TXFinishFunc = (e, r) => {
 		if (e) {
 			setError(e)
 		}

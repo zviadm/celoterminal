@@ -46,7 +46,15 @@ export const LockerApp = (props: {
 	const [toUnlock, setToUnlock] = React.useState("")
 	const [toLock, setToLock] = React.useState("")
 
-	const runTXs = (f: TXFunc) => { props.runTXs(f, () => { refetch() }) }
+	const runTXs = (f: TXFunc) => {
+		props.runTXs(f, (e?: Error) => {
+			refetch()
+			if (!e) {
+				setToLock("")
+				setToUnlock("")
+			}
+		})
+	}
 	const txsLock: TXFunc = async (kit: ContractKit) => {
 		const lockedGold = await kit.contracts.getLockedGold()
 		const tx = lockedGold.lock()

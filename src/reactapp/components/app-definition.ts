@@ -10,7 +10,7 @@ export interface Transaction {
 }
 
 export type TXFunc = (kit: ContractKit) => Promise<Transaction[]>
-export type TXFinishFunc = (e: Error | null, r: CeloTxReceipt[]) => void
+export type TXFinishFunc = (e?: Error, r?: CeloTxReceipt[]) => void
 
 export interface AppDefinition {
 	name: string

@@ -137,7 +137,7 @@ const RunTXs = (props: {
 						console.info(`TX: receipt`, receipt)
 						r.push(receipt)
 					}
-					onFinish(null, r)
+					onFinish(undefined, r)
 				} finally {
 					kit.stop()
 					if (w.transport) {
@@ -145,7 +145,7 @@ const RunTXs = (props: {
 					}
 				}
 			} catch (e) {
-				onFinish(e, [])
+				onFinish(e)
 			}
 		})()
 	// NOTE: This effect is expected to run only once on first render and it is expected
