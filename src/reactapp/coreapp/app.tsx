@@ -1,6 +1,7 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
+import { ThemeProvider } from '@material-ui/core/styles'
 import Box from '@material-ui/core/Box'
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
@@ -8,12 +9,14 @@ import AccountsBar from './accounts-bar'
 import AppMenu from './app-menu'
 import { AccountsApp, accountsAppName } from './accounts-app/accounts-app'
 import { AppList } from '../apps/apps'
+import TXRunner from './tx-runner/tx-runner'
+import theme from './theme'
 
 import { useAccounts } from './accounts-app/accounts-state'
 import useLocalStorageState from '../state/localstorage-state'
-import TXRunner from './tx-runner/tx-runner'
 import { TXFinishFunc, TXFunc } from '../components/app-definition'
 import { accountsDB } from './accountsdb'
+import Container from '@material-ui/core/Container'
 
 const App = () => {
 	const [_selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", accountsAppName)
@@ -118,7 +121,13 @@ const App = () => {
 	)
 }
 
-ReactDOM.render(<App/>, document.getElementById('root'))
+const ThemedApp = () => (
+	<ThemeProvider theme={theme}>
+		<App />
+	</ThemeProvider>
+)
+
+ReactDOM.render(<ThemedApp/>, document.getElementById('root'))
 window.addEventListener('unload', () => {
 	accountsDB().close()
 	return

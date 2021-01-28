@@ -3,7 +3,6 @@ import { newKit } from '@celo/contractkit'
 import { CeloTxReceipt } from '@celo/connect'
 
 import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
@@ -154,7 +153,6 @@ const RunTXs = (props: {
 	}, [])
 	return (
 		<Dialog open={true}>
-			<DialogTitle>Confirm Transactions</DialogTitle>
 			<DialogContent>
 				{
 				stage === "preparing" ?
@@ -165,10 +163,11 @@ const RunTXs = (props: {
 				currentTX ?
 				<div>
 					<Typography>TXInfo: Contract: {`${currentTX.tx.tx.txo._parent.options.address}`}</Typography>
+
 					{props.selectedAccount.type === "local" ?
-					<Typography>Confirm transaction to proceed.</Typography>
+					<Typography>Confirm transaction to proceed</Typography>
 					:
-					<Typography>Confirm transaction on Ledger device.</Typography>
+					<Typography>Confirm transaction on Ledger device</Typography>
 					}
 				</div>
 				:
