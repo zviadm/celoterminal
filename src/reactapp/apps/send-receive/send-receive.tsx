@@ -12,25 +12,8 @@ import { Account } from '../../state/accounts'
 import useOnChainState from '../../state/onchain-state'
 import useLocalStorageState from '../../state/localstorage-state'
 import { fmtCELOAmt } from '../../../common/utils'
-
-interface Erc20Contract {
-	balanceOf(address: string): Promise<BigNumber>
-}
-
-const erc20s = [
-	{
-		name: "CELO",
-		contract: (kit: ContractKit): Promise<Erc20Contract> => {
-			return kit.contracts.getGoldToken()
-		},
-	},
-	{
-		name: "cUSD",
-		contract: (kit: ContractKit): Promise<Erc20Contract> => {
-			return kit.contracts.getStableToken()
-		},
-	},
-]
+import ERC20 from './erc20'
+import { CFG } from '../../../common/cfg'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const SendReceiveApp = (props: {
@@ -38,18 +21,19 @@ export const SendReceiveApp = (props: {
 	selectedAccount: Account,
 	onError: (e: Error) => void,
 }): JSX.Element => {
-	const [erc20, setErc20] = useLocalStorageState("terminal/send-receive/erc20", erc20s[0].name)
+	const erc20s = CFG.erc20s
+	const [erc20, setErc20] = useLocalStorageState("terminal/send-receive/erc20", Object.keys(erc20s)[0])
 	const selectedAddress = props.selectedAccount.address
 	const {
 		isFetching,
 		fetched,
 		refetch,
 	} = useOnChainState(async (kit: ContractKit) => {
-		const e = erc20s.find((e) => e.name === erc20)
-		if (!e) {
+		const erc20address = erc20s[erc20]
+		if (!erc20address) {
 			throw new Error("unreachable code")
 		}
-		const contract = await e.contract(kit)
+		const contract = new ERC20(kit, erc20address)
 		const balance = await contract.balanceOf(selectedAddress)
 		return {
 			balance: balance,
@@ -67,8 +51,8 @@ export const SendReceiveApp = (props: {
 						value={erc20}
 						onChange={(event) => { setErc20(event.target.value as string) }}>
 						{
-							erc20s.map((e) => (
-								<MenuItem value={e.name} key={e.name}>{e.name}</MenuItem>
+							Object.keys(erc20s).map((name) => (
+								<MenuItem value={name} key={name}>{name}</MenuItem>
 							))
 						}
 					</Select>
