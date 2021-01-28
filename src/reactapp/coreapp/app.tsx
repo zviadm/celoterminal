@@ -7,7 +7,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
 import AccountsBar from './accounts-bar'
 import AppMenu from './app-menu'
-import { AccountsApp, accountsAppName } from './accounts-app'
+import { AccountsApp, accountsAppName } from './accounts-app/accounts-app'
 import { AppList } from '../apps/apps'
 
 import { useAccounts } from '../state/accounts-state'
