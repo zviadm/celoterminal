@@ -18,6 +18,7 @@ import { DialogActions } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
+import Typography from '@material-ui/core/Typography'
 
 export interface Transaction {
 	tx: CeloTransactionObject<unknown>
@@ -62,7 +63,7 @@ function TXRunner(props: {
 		}
 		try {
 			decryptLocalKey(props.selectedAccount, p)
-			setPW({password: p, expireMS: Date.now() + 5 * 60 * 1000})
+			setPW({password: p, expireMS: Date.now() + 60 * 60 * 1000})
 		} catch (e) {
 			props.onError(e)
 		}
@@ -122,6 +123,13 @@ const RunTXs = (props: {
 	txFunc: TXFunc,
 	onFinish: TXFinishFunc,
 }) => {
+	const [currentTX, setCurrentTX] = React.useState<{
+		tx: Transaction,
+		confirm: () => void,
+		cancel: () => void,
+	} | undefined>()
+	const [stage, setStage] = React.useState<"preparing" | "executing">("preparing")
+
 	const txFunc = props.txFunc
 	const onFinish = props.onFinish
 	const selectedAccount = props.selectedAccount
@@ -149,6 +157,25 @@ const RunTXs = (props: {
 					const txs = await txFunc(kit)
 					const r: CeloTxReceipt[] = []
 					for (const tx of txs) {
+						const txPromise = new Promise<void>((resolve, reject) => {
+							setCurrentTX({
+								tx: tx,
+								confirm: () => {
+									setCurrentTX(undefined)
+									resolve()
+								},
+								cancel: () => {
+									setCurrentTX(undefined)
+									reject(new Error(`Cancelled`))
+								}
+							})
+						})
+						setStage("executing")
+						if (selectedAccount.type === "local") {
+							// No need to show confirmation dialog for Ledger accounts.
+							await txPromise
+						}
+
 						console.info(`TX: args`, tx.tx.txo._parent.options.address, tx.tx.txo.arguments)
 						const result = await tx.tx.send({value: tx.value})
 						const txHash = await result.getHash()
@@ -174,10 +201,34 @@ const RunTXs = (props: {
 	}, [])
 	return (
 		<Dialog open={true}>
-			<DialogTitle>Sign Transactions</DialogTitle>
+			<DialogTitle>Confirm Transactions</DialogTitle>
 			<DialogContent>
-				Running...
+				{
+				stage === "preparing" ?
+				<div>
+					<Typography>Preparing transactions...</Typography>
+				</div>
+				:
+				currentTX ?
+				<div>
+					<Typography>TXInfo: {`${currentTX}`}</Typography>
+					{props.selectedAccount.type === "local" ?
+					<Typography>Confirm transaction to proceed.</Typography>
+					:
+					<Typography>Confirm transaction on Ledger device.</Typography>
+					}
+				</div>
+				:
+				<div>
+					<Typography>Sending transaction...</Typography>
+				</div>
+				}
 			</DialogContent>
+			{props.selectedAccount.type === "local" &&
+			<DialogActions>
+				<Button onClick={currentTX?.cancel} disabled={!currentTX}>Cancel</Button>
+				<Button onClick={currentTX?.confirm} disabled={!currentTX}>Confirm</Button>
+			</DialogActions>}
 		</Dialog>
 	)
 }
