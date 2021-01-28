@@ -9,7 +9,7 @@ import Box from '@material-ui/core/Box'
 
 import { Account } from '../../state/accounts'
 import useOnChainState from '../../state/onchain-state'
-import { fmtCELOAmt } from '../../../common/utils'
+import { fmtAmount } from '../../../common/utils'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import AppHeader from '../../components/app-header'
 
@@ -17,8 +17,8 @@ import AppHeader from '../../components/app-header'
 export const LockerApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
-	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 	onError: (e: Error) => void,
+	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
 	const {
 		isFetching,
@@ -43,12 +43,10 @@ export const LockerApp = (props: {
 			pendingWithdrawals,
 		}
 	}, [props.selectedAccount.address], props.onError)
-	const [toUnlock, setToUnlock] = React.useState("0")
-	const [toLock, setToLock] = React.useState("0")
+	const [toUnlock, setToUnlock] = React.useState("")
+	const [toLock, setToLock] = React.useState("")
 
-	const runTXs = (f: TXFunc) => {
-		props.runTXs(f, () => { refetch() })
-	}
+	const runTXs = (f: TXFunc) => { props.runTXs(f, () => { refetch() }) }
 	const txsLock: TXFunc = async (kit: ContractKit) => {
 		const lockedGold = await kit.contracts.getLockedGold()
 		const tx = lockedGold.lock()
@@ -64,6 +62,9 @@ export const LockerApp = (props: {
 		const tx = accounts.createAccount()
 		return [{tx: tx}]
 	}
+	const handleLock = () => { runTXs(txsLock) }
+	const handleUnlock = () => { runTXs(txsUnlock) }
+	const handleCreateAccount = () => { runTXs(txsCreateAccount) }
 
 	return (
 		<div style={{display: "flex", flex: 1, flexDirection: "column"}}>
@@ -74,18 +75,18 @@ export const LockerApp = (props: {
 				<Box p={2}>
 					<Typography>To lock CELO and participate in elections or governance,
 						you need to register your address by creating an account first.</Typography>
-					<Button onClick={() => { runTXs(txsCreateAccount) }}>Create Account</Button>
+					<Button onClick={handleCreateAccount}>Create Account</Button>
 				</Box>
 			</div>
 			:
 			<div>
 				<Box p={2}>
-					<Typography>CELO Balance: {fmtCELOAmt(fetched.totalCELO)}</Typography>
-					<div style={{display: "flex", flexDirection: "row"}}>
+					<Typography>Balance: {fmtAmount(fetched.totalCELO, 18)} CELO</Typography>
+					<div style={{display: "flex", flexDirection: "column", width:300}}>
 						<TextField
 								autoFocus
 								margin="dense"
-								label={`Lock (max: ${fmtCELOAmt(fetched.totalCELO)})`}
+								label={`Lock (max: ${fmtAmount(fetched.totalCELO, 18)})`}
 								variant="outlined"
 								value={toLock}
 								size="medium"
@@ -94,15 +95,15 @@ export const LockerApp = (props: {
 								// style={{marginTop: 20}}
 								onChange={(e) => { setToLock(e.target.value) }}
 							/>
-						<Button onClick={() => { runTXs(txsLock) }}>Lock</Button>
+						<Button variant="outlined" color="primary" onClick={handleLock}>Lock</Button>
 					</div>
 				</Box>
 				<Box p={2}>
-					<Typography>CELO Locked: {fmtCELOAmt(fetched.totalLocked)}</Typography>
-					<div style={{display: "flex", flexDirection: "row"}}>
+					<Typography>Locked: {fmtAmount(fetched.totalLocked, 18)} CELO</Typography>
+					<div style={{display: "flex", flexDirection: "column", width: 300}}>
 						<TextField
 								margin="dense"
-								label={`Unlock (max: ${fmtCELOAmt(fetched.totalLocked)})`}
+								label={`Unlock (max: ${fmtAmount(fetched.totalLocked, 18)})`}
 								variant="outlined"
 								value={toUnlock}
 								size="medium"
@@ -111,8 +112,10 @@ export const LockerApp = (props: {
 								// style={{marginTop: 20}}
 								onChange={(e) => { setToUnlock(e.target.value) }}
 							/>
-						<Button onClick={() => { runTXs(txsUnlock) }}>Unlock</Button>
+						<Button variant="outlined" color="primary" onClick={handleUnlock}>Unlock</Button>
 					</div>
+				</Box>
+				<Box p={2}>
 					<Typography>Pending withdrawals: {fetched.pendingWithdrawals.length}</Typography>
 				</Box>
 			</div>)}

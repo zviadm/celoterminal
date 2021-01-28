@@ -17,7 +17,7 @@ export interface AppDefinition {
 	renderApp: (props: {
 		accounts: Account[],
 		selectedAccount: Account,
-		runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 		onError: (e: Error) => void,
+		runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 	}) => JSX.Element
 }

@@ -29,6 +29,6 @@ export class CancelPromise {
 	}
 }
 
-export const fmtCELOAmt = (v: BigNumber, precision?: number): string => {
-	return v.div(1e18).toFixed(precision || 4)
+export const fmtAmount = (v: BigNumber, decimals: number, precision?: number): string => {
+	return v.shiftedBy(-decimals).toFixed(precision || 4)
 }

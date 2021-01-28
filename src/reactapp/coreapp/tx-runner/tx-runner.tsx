@@ -131,6 +131,8 @@ const RunTXs = (props: {
 						const result = await tx.tx.send({value: tx.value})
 						const txHash = await result.getHash()
 						console.info(`TX: sent`, txHash)
+						setCurrentTX(undefined)
+
 						const receipt = await result.waitReceipt()
 						console.info(`TX: receipt`, receipt)
 						r.push(receipt)
@@ -162,7 +164,7 @@ const RunTXs = (props: {
 				:
 				currentTX ?
 				<div>
-					<Typography>TXInfo: {`${currentTX}`}</Typography>
+					<Typography>TXInfo: Contract: {`${currentTX.tx.tx.txo._parent.options.address}`}</Typography>
 					{props.selectedAccount.type === "local" ?
 					<Typography>Confirm transaction to proceed.</Typography>
 					:

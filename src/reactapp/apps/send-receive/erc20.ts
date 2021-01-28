@@ -19,6 +19,11 @@ class ERC20 {
 		)
 	}
 
+	public decimals = async (): Promise<number> => {
+		const r = await this.contract.methods.decimals().call()
+		return r
+	}
+
 	public balanceOf = async (address: string): Promise<BigNumber> => {
 		const r = await this.contract.methods.balanceOf(address).call()
 		return valueToBigNumber(r)
