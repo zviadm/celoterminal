@@ -4,6 +4,7 @@ import Sync from '@material-ui/icons/Sync'
 import IconButton from '@material-ui/core/IconButton'
 import Typography from '@material-ui/core/Typography'
 import Box from '@material-ui/core/Box'
+import Paper from '@material-ui/core/Paper'
 
 const AppHeader = (props: {
 	title: string,
@@ -12,6 +13,7 @@ const AppHeader = (props: {
 }): JSX.Element => {
 	const refetch = props.refetch
 	return (
+		<Paper>
 		<Box p={2} style={{
 			display: "flex",
 			flexDirection: "row",
@@ -28,6 +30,7 @@ const AppHeader = (props: {
 					<Sync color="secondary" />
 				</IconButton>)}
 		</Box>
+		</Paper>
 	)
 }
 export default AppHeader

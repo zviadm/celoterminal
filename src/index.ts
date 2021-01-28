@@ -13,7 +13,6 @@ const createWindow = (): void => {
     height: 800,
     minWidth: 800,
     width: 1200,
-    backgroundColor: '#FFF',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,

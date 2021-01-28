@@ -2,6 +2,7 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
 import { ThemeProvider } from '@material-ui/core/styles'
+import CssBaseline from '@material-ui/core/CssBaseline'
 import Box from '@material-ui/core/Box'
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
@@ -16,7 +17,7 @@ import { useAccounts } from './accounts-app/accounts-state'
 import useLocalStorageState from '../state/localstorage-state'
 import { TXFinishFunc, TXFunc } from '../components/app-definition'
 import { accountsDB } from './accountsdb'
-import Container from '@material-ui/core/Container'
+
 
 const App = () => {
 	const [_selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", accountsAppName)
@@ -105,7 +106,9 @@ const App = () => {
 					setSelectedApp={setSelectedApp}
 					appList={AppList}
 				/>
-				<Box paddingLeft={2} style={{display: "flex", flex: 1}}>{renderedApp}</Box>
+				<Box paddingLeft={2} paddingRight={2} style={{display: "flex", flex: 1}}>
+					{renderedApp}
+				</Box>
 			</div>
 			<Snackbar
         open={error ? true : false}
@@ -123,6 +126,7 @@ const App = () => {
 
 const ThemedApp = () => (
 	<ThemeProvider theme={theme}>
+		<CssBaseline />
 		<App />
 	</ThemeProvider>
 )
