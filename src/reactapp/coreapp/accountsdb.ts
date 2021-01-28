@@ -7,10 +7,12 @@ import { ensureLeading0x, toChecksumAddress } from '@celo/utils/lib/address'
 import { isValidAddress } from 'ethereumjs-util'
 
 import { Account, LocalAccount } from '../state/accounts'
+import { CFG } from '../../common/cfg'
 
 // Supported `account` row versions. Last version is the current version.
 const supportedVersions = [1]
 const currentVersion = supportedVersions[supportedVersions.length - 1]
+const accountsDBFile = "celoaccounts-v0.db"
 
 let _db: AccountsDB
 
@@ -24,9 +26,10 @@ export const accountsDB = (): AccountsDB => {
 class AccountsDB {
 	private db
 	constructor() {
-		const dbdir = path.join(electron.remote.app.getPath("home"), ".celoterminal")
+		const dbdir = path.join(
+			electron.remote.app.getPath(CFG.accountsDBDir.root), ...CFG.accountsDBDir.path)
 		fs.mkdirSync(dbdir, {recursive: true})
-		const dbpath = path.join(dbdir, "celoaccounts-v0.db")
+		const dbpath = path.join(dbdir, accountsDBFile)
 		console.info(`DB: opening database`, dbpath)
 		this.db = new sqlite3(dbpath, {fileMustExist: false, readonly: false})
 		this.db.exec(`
