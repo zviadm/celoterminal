@@ -2,7 +2,7 @@
   "name": "celoterminal",
   "productName": "celoterminal",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Celo Terminal: One-stop-shop to interact with the decentralized apps on the Celo ecosystem.",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
