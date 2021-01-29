@@ -130,7 +130,12 @@ class AccountsDB {
 				}
 				// make sure it is the same password as the one that is stored.
 				try {
-					decryptAES(password, pws[0].encrypted_password)
+					const existingPassword = decryptAES(
+						password,
+						pws[0].encrypted_password)
+					if (existingPassword !== password) {
+						throw new Error()
+					}
 				} catch (e) {
 					throw new Error(`Password does not match with the already existing password for local accounts.`)
 				}
