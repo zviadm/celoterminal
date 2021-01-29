@@ -46,7 +46,6 @@ const ConfirmRemove = (props: {
 				</Alert>}
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={props.onCancel}>Cancel</Button>
 				<Button color="secondary" onClick={handleRemove} disabled={!canRemove}>Remove</Button>
 			</DialogActions>
 		</Dialog>

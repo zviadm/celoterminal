@@ -27,13 +27,14 @@ import UnlockAccount from '../tx-runner/unlock-account'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
+import TextField from '@material-ui/core/TextField'
 
 import { decryptLocalKey, LocalKey } from '../accountsdb'
 import { Account, LocalAccount } from '../../state/accounts'
 
 export const accountsAppName = "Accounts"
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
 	root: {
 		display: "flex",
 		flexDirection: "column",
@@ -55,11 +56,21 @@ const useStyles = makeStyles(() => ({
 	accountTextGroup: {
 		display: "flex",
 		flexDirection: "column",
+		alignItems: "flex-start",
 		flex: 1,
 		marginLeft: 20,
 	},
 	accountText: {
 		fontFamily: "monospace",
+	},
+	buttonName: {
+		padding: 0,
+		marginLeft: 0,
+		minWidth: 0,
+		textAlign: "left",
+		fontFamily: "monospace",
+		textTransform: "none",
+		fontSize: theme.typography.body1.fontSize,
 	},
 	buttonGroup: {
 		display: "flex",
@@ -79,6 +90,7 @@ export const AccountsApp = (props: {
 	accounts: Account[],
 	onAdd: (a?: Account, password?: string) => void,
 	onRemove: (a: Account) => void,
+	onRename: (a: Account, name: string) => void,
 	onError: (e: Error) => void,
 }): JSX.Element => {
 	const classes = useStyles()
@@ -86,6 +98,8 @@ export const AccountsApp = (props: {
 		undefined | "add-ledger" | "add-addressonly" | "add-newlocal">()
 	const [confirmRemove, setConfirmRemove] = React.useState<Account | undefined>()
 	const [revealAccount, setRevealAccount] = React.useState<LocalAccount | undefined>()
+	const [renameAccount, setRenameAccount] = React.useState<Account | undefined>()
+	const [renameNew, setRenameNew] = React.useState("")
 
 	const handleAdd = (a: Account, password?: string) => {
 		try {
@@ -99,10 +113,17 @@ export const AccountsApp = (props: {
 		props.onRemove(a)
 		setConfirmRemove(undefined)
 	}
+	const handleRename = (a: Account, name: string) => {
+		if (a.name !== name) {
+			props.onRename(a, name)
+		}
+		setRenameAccount(undefined)
+	}
 	const handleCancel = () => {
 		setConfirmRemove(undefined)
 		setOpenedAdd(undefined)
 		setRevealAccount(undefined)
+		setRenameAccount(undefined)
 	}
 	const handleRefetch = () => { props.onAdd() }
 	return (
@@ -112,6 +133,7 @@ export const AccountsApp = (props: {
 			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
 			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} />}
 			{revealAccount && <RevealPrivateKey account={revealAccount} onClose={handleCancel} onError={props.onError} />}
+			{/* {renameAccount && <RenameAccount account={renameAccount} onRename={handleRename} onClose={handleCancel} />} */}
 
 			<AppHeader title={"Accounts"} refetch={handleRefetch} isFetching={false} />
 			<Box py={2} className={classes.box}>
@@ -126,7 +148,30 @@ export const AccountsApp = (props: {
 								a.type === "address-only" ? <VisibilityIcon /> : <></>
 								}
 								<div className={classes.accountTextGroup}>
-									<Typography className={classes.accountText}>{a.name}</Typography>
+									{
+									renameAccount === a ?
+									<TextField
+										autoFocus
+										multiline
+										margin="dense"
+										// label={`Name`}
+										value={renameNew}
+										size="medium"
+										fullWidth={true}
+										inputProps={{className: classes.accountText}}
+										onChange={(e) => { setRenameNew(e.target.value) }}
+										onBlur={() => { handleRename(a, renameNew) }}
+										onKeyPress={(e) => { (e.key === "Enter") && handleRename(a, renameNew) }}
+									/>
+									:
+									<Button
+										className={`${classes.buttonName}`}
+										onClick={() => {
+											setRenameAccount(a)
+											setRenameNew(a.name)
+										}}
+										>{a.name === "" ? "____" : a.name}</Button>
+									}
 									<Typography className={classes.accountText}>{a.address}</Typography>
 								</div>
 								{a.type === "local" &&

@@ -16,6 +16,8 @@ const UnlockAccount = (props: {
 	const handleUnlock = () => {
 		props.onPassword(password)
 	}
+	const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => { setPassword(e.target.value) }
+	const handleOnKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => { (e.key === "Enter") && handleUnlock() }
 	return (
 		<Dialog open={true} onClose={props.onCancel}>
 			<DialogTitle>Unlock account</DialogTitle>
@@ -32,11 +34,11 @@ const UnlockAccount = (props: {
 					value={password}
 					size="medium"
 					fullWidth={true}
-					onChange={(e) => { setPassword(e.target.value) }}
+					onChange={handleOnChange}
+					onKeyPress={handleOnKeyPress}
 				/>
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={props.onCancel}>Cancel</Button>
 				<Button onClick={handleUnlock}>Unlock</Button>
 			</DialogActions>
 		</Dialog>

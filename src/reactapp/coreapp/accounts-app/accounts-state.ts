@@ -36,6 +36,10 @@ export const useAccounts = () => {
 		accountsDB().removeAccount(a)
 		refreshAccounts()
 	}
+	const renameAccount = (a: Account, name: string) => {
+		accountsDB().renameAccount(a, name)
+		refreshAccounts()
+	}
 	const selectedAccount =
 		!accounts ? _selectedAccount :
 		accounts.length === 0 ? undefined :
@@ -48,6 +52,7 @@ export const useAccounts = () => {
 		selectedAccount,
 		addAccount,
 		removeAccount,
+		renameAccount,
 		setSelectedAccount,
 	}
 }

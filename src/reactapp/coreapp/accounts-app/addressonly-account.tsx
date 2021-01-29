@@ -61,7 +61,6 @@ const AddAddressOnlyAccount = (props: {
 					/>
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={props.onCancel}>Cancel</Button>
 				<Button onClick={handleAdd} disabled={!canAdd}>Add</Button>
 			</DialogActions>
 		</Dialog>

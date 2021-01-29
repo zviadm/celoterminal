@@ -25,6 +25,7 @@ const App = () => {
 		accounts,
 		addAccount,
 		removeAccount,
+		renameAccount,
 		selectedAccount,
 		setSelectedAccount} = useAccounts()
 	const [txFunc, setTXFunc] = React.useState<
@@ -49,6 +50,7 @@ const App = () => {
 			accounts={accounts}
 			onAdd={addAccount}
 			onRemove={removeAccount}
+			onRename={renameAccount}
 			onError={setError}
 		/>
 	} else {
@@ -59,6 +61,7 @@ const App = () => {
 					accounts={accounts}
 					onAdd={addAccount}
 					onRemove={removeAccount}
+					onRename={renameAccount}
 					onError={setError}
 				/> :
 				<terminalApp.renderApp

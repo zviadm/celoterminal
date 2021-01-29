@@ -158,6 +158,13 @@ class AccountsDB {
 			.bind(a.address.toLowerCase(), a.type)
 			.run()
 	}
+
+	public renameAccount = (a: Account, name: string) => {
+		this.db
+			.prepare("UPDATE accounts SET name = ? WHERE address = ? AND type = ?")
+			.bind(name, a.address.toLowerCase(), a.type)
+			.run()
+	}
 }
 
 export interface LocalKey {
