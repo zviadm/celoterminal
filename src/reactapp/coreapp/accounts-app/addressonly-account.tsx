@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { isValidAddress } from 'ethereumjs-util'
 
+import { makeStyles } from '@material-ui/core/styles'
 import Dialog from '@material-ui/core/Dialog'
 import Button from '@material-ui/core/Button'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -11,10 +12,17 @@ import Alert from '@material-ui/lab/Alert'
 
 import { AddressOnlyAccount } from '../../state/accounts'
 
+const useStyles = makeStyles(() => ({
+	address: {
+		fontFamily: "monospace",
+	}
+}))
+
 const AddAddressOnlyAccount = (props: {
 	onAdd: (a: AddressOnlyAccount) => void,
 	onCancel: () => void,
 }): JSX.Element => {
+	const classes = useStyles()
 	const [name, setName] = React.useState("")
 	const [address, setAddress] = React.useState("")
 	const canAdd = isValidAddress(address)
@@ -36,7 +44,6 @@ const AddAddressOnlyAccount = (props: {
 						autoFocus
 						margin="dense"
 						label={`Name`}
-						variant="outlined"
 						value={name}
 						size="medium"
 						fullWidth={true}
@@ -45,12 +52,11 @@ const AddAddressOnlyAccount = (props: {
 				<TextField
 						margin="dense"
 						label={`Address`}
-						variant="outlined"
 						value={address}
 						placeholder="0x..."
 						size="medium"
 						fullWidth={true}
-						inputProps={{style: {fontFamily: "monospace"}}}
+						inputProps={{className: classes.address}}
 						onChange={(e) => { setAddress(e.target.value) }}
 					/>
 			</DialogContent>

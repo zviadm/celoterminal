@@ -49,7 +49,6 @@ const AddNewLocalAccount = (props: {
 						autoFocus
 						margin="dense"
 						label={`Name`}
-						variant="outlined"
 						value={name}
 						size="medium"
 						fullWidth={true}
@@ -66,7 +65,6 @@ const AddNewLocalAccount = (props: {
 						margin="dense"
 						type="password"
 						label={`Password`}
-						variant="outlined"
 						value={password}
 						size="medium"
 						fullWidth={true}

@@ -33,7 +33,6 @@ const ConfirmRemove = (props: {
 					autoFocus
 					margin="dense"
 					label={`Address`}
-					variant="outlined"
 					value={address}
 					placeholder="0x..."
 					size="medium"
