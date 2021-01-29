@@ -3,9 +3,13 @@ import * as React from 'react'
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 import Box from '@material-ui/core/Box'
+import VpnKeyIcon from '@material-ui/icons/VpnKey'
+import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet'
+import VisibilityIcon from '@material-ui/icons/Visibility'
+import Typography from '@material-ui/core/Typography'
 
 import { Account } from '../state/accounts'
-import { Typography } from '@material-ui/core'
+import { fmtAddress } from '../../common/utils'
 
 const AccountsBar = (props: {
 	accounts: Account[],
@@ -14,8 +18,8 @@ const AccountsBar = (props: {
 }): JSX.Element => {
 	return (
 		<Box
+			p={2}
 			style={{display: "flex", flexDirection: "row", justifyContent: "flex-end"}}
-			px={2}
 			>
 			<Select
 				value={props.selectedAccount?.address || ""}
@@ -28,9 +32,25 @@ const AccountsBar = (props: {
 				{
 					props.accounts.map((a) => (
 						<MenuItem value={a.address} key={a.address}>
-							<Typography style={{fontFamily: "monospace"}}>
-							{`${a.name}: ${a.address.slice(0,6)}...${a.address.slice(a.address.length-4)}`}
-							</Typography>
+							<div style={{display: "flex", alignItems: "center"}}>
+								<div style={{marginRight: 5, display: "flex", alignSelf: "end"}}>
+								{
+								a.type === "local" ? <VpnKeyIcon /> :
+								a.type === "ledger" ? <AccountBalanceWalletIcon style={{paddingRight: 5}} /> :
+								a.type === "address-only" ? <VisibilityIcon /> : <></>
+								}
+								</div>
+								<Typography style={{
+									width: 120,
+									fontFamily: "monospace",
+									textOverflow: "ellipsis",
+									overflow: "hidden",
+									marginRight: 20,
+									}}>{a.name}</Typography>
+								<Typography style={{fontFamily: "monospace"}}>
+									{fmtAddress(a.address)}
+								</Typography>
+							</div>
 						</MenuItem>
 					))
 				}

@@ -24,15 +24,16 @@ const UnlockAccount = (props: {
 					Password is required to unlock your local account.
 				</Alert>
 				<TextField
-						margin="dense"
-						type="password"
-						label={`Password`}
-						variant="outlined"
-						value={password}
-						size="medium"
-						fullWidth={true}
-						onChange={(e) => { setPassword(e.target.value) }}
-					/>
+					autoFocus
+					margin="dense"
+					type="password"
+					label={`Password`}
+					variant="outlined"
+					value={password}
+					size="medium"
+					fullWidth={true}
+					onChange={(e) => { setPassword(e.target.value) }}
+				/>
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.onCancel}>Cancel</Button>

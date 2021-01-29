@@ -156,7 +156,7 @@ class AccountsDB {
 }
 
 export interface LocalKey {
-	mnemonic: string
+	mnemonic?: string
 	privateKey: string
 }
 
