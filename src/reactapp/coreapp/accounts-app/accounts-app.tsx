@@ -29,8 +29,34 @@ import DialogContent from '@material-ui/core/DialogContent'
 import { decryptLocalKey, LocalKey } from '../accountsdb'
 import { Account, LocalAccount } from '../../state/accounts'
 import Alert from '@material-ui/lab/Alert'
+import { makeStyles } from '@material-ui/core/styles'
 
 export const accountsAppName = "Accounts"
+
+const useStyles = makeStyles(() => ({
+	accountCard: {
+		marginTop: 10,
+		width: 500,
+	},
+	accountText: {
+		display: "flex",
+		flexDirection: "column",
+		flex: 1,
+		marginLeft: 20,
+	},
+	buttonGroup: {
+		display: "flex",
+		flexDirection: "row",
+		marginTop: 10,
+	},
+	buttonAdd: {
+		width: 200,
+		marginRight: 10,
+	},
+	buttonPassword: {
+		width: 410,
+	}
+}))
 
 export const AccountsApp = (props: {
 	accounts: Account[],
@@ -38,6 +64,7 @@ export const AccountsApp = (props: {
 	onRemove: (a: Account) => void,
 	onError: (e: Error) => void,
 }): JSX.Element => {
+	const classes = useStyles()
 	const [openedAdd, setOpenedAdd] = React.useState<
 		undefined | "add-ledger" | "add-addressonly" | "add-newlocal">()
 	const [confirmRemove, setConfirmRemove] = React.useState<Account | undefined>()
@@ -74,7 +101,7 @@ export const AccountsApp = (props: {
 				{
 				props.accounts.map((a) => {
 					return (
-						<Card key={a.address} style={{marginTop: 10, width: 500}}>
+						<Card className={classes.accountCard} key={a.address}>
 							<CardContent>
 								<div style={{
 									display: "flex",
@@ -85,11 +112,7 @@ export const AccountsApp = (props: {
 									a.type === "ledger" ? <AccountBalanceWalletIcon /> :
 									a.type === "address-only" ? <VisibilityIcon /> : <></>
 									}
-									<div style={{
-										display: "flex",
-										flexDirection: "column",
-										flex: 1,
-										marginLeft: 20}}>
+									<div className={classes.accountText}>
 										<Typography style={{fontFamily: "monospace"}}>{a.name}</Typography>
 										<Typography style={{fontFamily: "monospace"}}>{a.address}</Typography>
 									</div>
@@ -107,50 +130,42 @@ export const AccountsApp = (props: {
 				}
 			</Box>
 			<Box py={2} style={{display: "flex", flexDirection: "column"}}>
-				<div style={{display: "flex", flexDirection: "row", marginTop: 10}}>
-					<Box style={{marginRight: 10}}>
-						<Button
-							color="primary"
-							variant="contained"
-							style={{width: 200}}
-							startIcon={<VpnKeyIcon />}
-							onClick={() => { setOpenedAdd("add-newlocal") }}>Create Local Account</Button>
-					</Box>
-					<Box>
-						<Button
-							color="primary"
-							variant="contained"
-							style={{width: 200}}
-							startIcon={<GetAppIcon />}
-							>Import Local Account</Button>
-					</Box>
-				</div>
-				<div style={{display: "flex", flexDirection: "row", marginTop: 10}}>
-					<Box style={{marginRight: 10}}>
-						<Button
-							color="primary"
-							variant="contained"
-							style={{width: 200}}
-							startIcon={<AccountBalanceWalletIcon />}
-							onClick={() => { setOpenedAdd("add-ledger") }}>Add Ledger Account</Button>
-					</Box>
-					<Box>
-						<Button
-							color="primary"
-							variant="contained"
-							style={{width: 200}}
-							startIcon={<VisibilityIcon />}
-							onClick={() => { setOpenedAdd("add-addressonly") }}>Add ReadOnly Account</Button>
-					</Box>
-				</div>
-				<Box style={{marginTop: 10}}>
+				<div  className={classes.buttonGroup}>
 					<Button
+						className={classes.buttonAdd}
+						color="primary"
+						variant="contained"
+						startIcon={<VpnKeyIcon />}
+						onClick={() => { setOpenedAdd("add-newlocal") }}>Create Local Account</Button>
+					<Button
+						className={classes.buttonAdd}
+						color="primary"
+						variant="contained"
+						startIcon={<GetAppIcon />}
+						>Import Local Account</Button>
+				</div>
+				<div className={classes.buttonGroup}>
+					<Button
+						className={classes.buttonAdd}
+						color="primary"
+						variant="contained"
+						startIcon={<AccountBalanceWalletIcon />}
+						onClick={() => { setOpenedAdd("add-ledger") }}>Add Ledger Account</Button>
+					<Button
+						className={classes.buttonAdd}
+						color="primary"
+						variant="contained"
+						startIcon={<VisibilityIcon />}
+						onClick={() => { setOpenedAdd("add-addressonly") }}>Add ReadOnly Account</Button>
+				</div>
+				<div className={classes.buttonGroup}>
+					<Button
+						className={classes.buttonPassword}
 						color="secondary"
 						variant="outlined"
-						style={{width: 410}}
 						startIcon={<LockOpenIcon />}
 						>Change Password</Button>
-				</Box>
+				</div>
 			</Box>
 		</div>
 	)
@@ -180,19 +195,19 @@ const RevealPrivateKey = (props: {
 		)
 	} else {
 		return (
-			<Dialog open={true}>
+			<Dialog open={true} onClose={props.onClose}>
 				<DialogContent>
 					<Alert severity="warning">
 						Never share your mnemonic or private key with anyone else.
 					</Alert>
 					{localKey.mnemonic &&
-					<Card title="Mnemonic" style={{marginTop: 10}}>
+					<Card style={{marginTop: 10}}>
 						<CardContent>
 							<Typography color="textSecondary" gutterBottom>Mnemonic (24 words, BIP39, compatible with the Valora app)</Typography>
 							<Typography style={{fontWeight: "bold"}}>{localKey.mnemonic}</Typography>
 						</CardContent>
 					</Card>}
-					<Card title="Private Key" style={{marginTop: 10}}>
+					<Card style={{marginTop: 10}}>
 						<CardContent>
 							<Typography color="textSecondary" gutterBottom>Private Key</Typography>
 							<Typography style={{
