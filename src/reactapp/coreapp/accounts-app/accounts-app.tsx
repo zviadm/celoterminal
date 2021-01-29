@@ -19,6 +19,8 @@ import AddNewLocalAccount from './local-account'
 import AddLedgerAccount from './ledger-account'
 import ConfirmRemove from './confirm-remove'
 
+import { makeStyles } from '@material-ui/core/styles'
+import Alert from '@material-ui/lab/Alert'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import UnlockAccount from '../tx-runner/unlock-account'
@@ -28,8 +30,6 @@ import DialogContent from '@material-ui/core/DialogContent'
 
 import { decryptLocalKey, LocalKey } from '../accountsdb'
 import { Account, LocalAccount } from '../../state/accounts'
-import Alert from '@material-ui/lab/Alert'
-import { makeStyles } from '@material-ui/core/styles'
 
 export const accountsAppName = "Accounts"
 
@@ -38,11 +38,19 @@ const useStyles = makeStyles(() => ({
 		marginTop: 10,
 		width: 500,
 	},
-	accountText: {
+	accountCardContent: {
+		display: "flex",
+		flexDirection: "row",
+		alignItems: "center"
+	},
+	accountTextGroup: {
 		display: "flex",
 		flexDirection: "column",
 		flex: 1,
 		marginLeft: 20,
+	},
+	accountText: {
+		fontFamily: "monospace",
 	},
 	buttonGroup: {
 		display: "flex",
@@ -89,7 +97,7 @@ export const AccountsApp = (props: {
 	}
 	const handleRefetch = () => { props.onAdd() }
 	return (
-		<div style={{display: "flex", flex: 1, flexDirection: "column"}}>
+		<div style={{display: "flex", flexDirection: "column"}}>
 			{confirmRemove && <ConfirmRemove account={confirmRemove} onRemove={handleRemove} onCancel={handleCancel} />}
 			{openedAdd === "add-newlocal" && <AddNewLocalAccount onAdd={handleAdd} onCancel={handleCancel} />}
 			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
@@ -102,28 +110,23 @@ export const AccountsApp = (props: {
 				props.accounts.map((a) => {
 					return (
 						<Card className={classes.accountCard} key={a.address}>
-							<CardContent>
-								<div style={{
-									display: "flex",
-									flexDirection: "row",
-									alignItems: "center"}}>
-									{
-									a.type === "local" ? <VpnKeyIcon /> :
-									a.type === "ledger" ? <AccountBalanceWalletIcon /> :
-									a.type === "address-only" ? <VisibilityIcon /> : <></>
-									}
-									<div className={classes.accountText}>
-										<Typography style={{fontFamily: "monospace"}}>{a.name}</Typography>
-										<Typography style={{fontFamily: "monospace"}}>{a.address}</Typography>
-									</div>
-									{a.type === "local" &&
-									<IconButton onClick={() => setRevealAccount(a)}>
-										<DescriptionIcon />
-									</IconButton>}
-									<IconButton color="secondary" onClick={() => setConfirmRemove(a)}>
-										<DeleteIcon />
-									</IconButton>
+							<CardContent className={classes.accountCardContent}>
+								{
+								a.type === "local" ? <VpnKeyIcon /> :
+								a.type === "ledger" ? <AccountBalanceWalletIcon /> :
+								a.type === "address-only" ? <VisibilityIcon /> : <></>
+								}
+								<div className={classes.accountTextGroup}>
+									<Typography className={classes.accountText}>{a.name}</Typography>
+									<Typography className={classes.accountText}>{a.address}</Typography>
 								</div>
+								{a.type === "local" &&
+								<IconButton onClick={() => setRevealAccount(a)}>
+									<DescriptionIcon />
+								</IconButton>}
+								<IconButton color="secondary" onClick={() => setConfirmRemove(a)}>
+									<DeleteIcon />
+								</IconButton>
 							</CardContent>
 						</Card>
 					)})
@@ -171,11 +174,27 @@ export const AccountsApp = (props: {
 	)
 }
 
+const useRevealKeyStyles = makeStyles(() => ({
+	card: {
+		marginTop: 10,
+	},
+	textMnemonic: {
+		fontWeight: "bold"
+	},
+	textPrivateKey: {
+		overflowWrap: "anywhere",
+		fontWeight: "bold",
+		fontFamily: "monospace",
+		fontSize: 12,
+	}
+}))
+
 const RevealPrivateKey = (props: {
 	account: LocalAccount,
 	onClose: () => void,
 	onError: (e: Error) => void,
 }) => {
+	const classes = useRevealKeyStyles()
 	const [localKey, setLocalKey] = React.useState<LocalKey | undefined>()
 	const handlePassword = (p: string) => {
 		try {
@@ -201,20 +220,16 @@ const RevealPrivateKey = (props: {
 						Never share your mnemonic or private key with anyone else.
 					</Alert>
 					{localKey.mnemonic &&
-					<Card style={{marginTop: 10}}>
+					<Card className={classes.card}>
 						<CardContent>
 							<Typography color="textSecondary" gutterBottom>Mnemonic (24 words, BIP39, compatible with the Valora app)</Typography>
-							<Typography style={{fontWeight: "bold"}}>{localKey.mnemonic}</Typography>
+							<Typography className={classes.textMnemonic}>{localKey.mnemonic}</Typography>
 						</CardContent>
 					</Card>}
-					<Card style={{marginTop: 10}}>
+					<Card className={classes.card}>
 						<CardContent>
 							<Typography color="textSecondary" gutterBottom>Private Key</Typography>
-							<Typography style={{
-								overflowWrap: "anywhere",
-								fontWeight: "bold",
-								fontFamily: "monospace",
-								fontSize: 12}}>{ensureLeading0x(localKey.privateKey)}</Typography>
+							<Typography className={classes.textPrivateKey}>{ensureLeading0x(localKey.privateKey)}</Typography>
 						</CardContent>
 					</Card>
 				</DialogContent>
