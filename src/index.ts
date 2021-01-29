@@ -9,22 +9,27 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 
 const createWindow = (): void => {
   // Create the browser window.
+  const enableDevTools = !app.isPackaged
   const mainWindow = new BrowserWindow({
     height: 800,
-    minWidth: 666,
-    width: 1050,
+    minWidth: 800,
+    width: 1200,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
+      devTools: enableDevTools,
     }
   });
 
   // Load the index.html of the app.
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY).then(() => {
-    // Open the DevTools.
-    mainWindow.webContents.openDevTools();
-  })
+  mainWindow
+    .loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
+    .then(() => {
+      if (enableDevTools) {
+        mainWindow.webContents.openDevTools();
+      }
+    })
 };
 
 // This method will be called when Electron has finished

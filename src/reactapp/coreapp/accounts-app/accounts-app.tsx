@@ -34,14 +34,23 @@ import { Account, LocalAccount } from '../../state/accounts'
 export const accountsAppName = "Accounts"
 
 const useStyles = makeStyles(() => ({
+	root: {
+		display: "flex",
+		flexDirection: "column",
+		flex: 1,
+	},
+	box: {
+		display: "flex",
+		flexDirection: "column",
+	},
 	accountCard: {
 		marginTop: 10,
-		width: 500,
+		minWidth: 500,
 	},
 	accountCardContent: {
 		display: "flex",
 		flexDirection: "row",
-		alignItems: "center"
+		alignItems: "center",
 	},
 	accountTextGroup: {
 		display: "flex",
@@ -97,7 +106,7 @@ export const AccountsApp = (props: {
 	}
 	const handleRefetch = () => { props.onAdd() }
 	return (
-		<div style={{display: "flex", flexDirection: "column"}}>
+		<div className={classes.root}>
 			{confirmRemove && <ConfirmRemove account={confirmRemove} onRemove={handleRemove} onCancel={handleCancel} />}
 			{openedAdd === "add-newlocal" && <AddNewLocalAccount onAdd={handleAdd} onCancel={handleCancel} />}
 			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
@@ -105,7 +114,7 @@ export const AccountsApp = (props: {
 			{revealAccount && <RevealPrivateKey account={revealAccount} onClose={handleCancel} onError={props.onError} />}
 
 			<AppHeader title={"Accounts"} refetch={handleRefetch} isFetching={false} />
-			<Box py={2} style={{display: "flex", flexDirection: "column", alignSelf: "start"}}>
+			<Box py={2} className={classes.box}>
 				{
 				props.accounts.map((a) => {
 					return (
@@ -132,7 +141,7 @@ export const AccountsApp = (props: {
 					)})
 				}
 			</Box>
-			<Box py={2} style={{display: "flex", flexDirection: "column"}}>
+			<Box py={2} className={classes.box}>
 				<div  className={classes.buttonGroup}>
 					<Button
 						className={classes.buttonAdd}
