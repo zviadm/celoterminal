@@ -32,9 +32,6 @@ const useStyles = makeStyles(() => ({
 	address: {
 		fontFamily: "monospace",
 	},
-	verify: {
-		alignSelf: "flex-end",
-	},
 }))
 
 const AddLedgerAccount = (props: {
@@ -126,50 +123,52 @@ const AddLedgerAccount = (props: {
 	return (
 		<Dialog open={true} onClose={props.onCancel}>
 			<DialogTitle>Choose a Ledger account</DialogTitle>
-			<DialogContent className={classes.content}>
-				{
-				!addresses ?
-				<Box>
-					<Typography
-						className={classes.progressText}
-						color="textSecondary">Loading addresses...</Typography>
-					<LinearProgress color="secondary" />
-				</Box>
-				:
-				<Box>
-					<RadioGroup value={selected} onChange={handleSelect}>
-						{addresses.map((v, idx) => (
+			<DialogContent>
+				<Box display="flex" flexDirection="column">
+					{
+					!addresses ?
+					<Box>
+						<Typography
+							className={classes.progressText}
+							color="textSecondary">Loading addresses...</Typography>
+						<LinearProgress color="secondary" />
+					</Box>
+					:
+					<Box>
+						<RadioGroup value={selected} onChange={handleSelect}>
+							{addresses.map((v, idx) => (
+								<FormControlLabel
+									key={`${idx}`}
+									value={`${idx}`}
+									control={<Radio disabled={verifyPath !== undefined} />}
+									label={<Typography className={classes.address}>{v}</Typography>}
+									/>
+							))}
 							<FormControlLabel
-								key={`${idx}`}
-								value={`${idx}`}
+								value={`custom`}
 								control={<Radio disabled={verifyPath !== undefined} />}
-								label={<Typography className={classes.address}>{v}</Typography>}
+								label={<Typography color="textSecondary">Custom</Typography>}
 								/>
-						))}
-						<FormControlLabel
-							value={`custom`}
-							control={<Radio disabled={verifyPath !== undefined} />}
-							label={<Typography color="textSecondary">Custom</Typography>}
+						</RadioGroup>
+						{selected === "custom" &&
+						<TextField
+								autoFocus
+								margin="dense"
+								label={`Derivation Path`}
+								value={customPath}
+								size="medium"
+								fullWidth={true}
+								inputProps={{className: classes.address}}
+								onChange={(e) => { setCustomPath(e.target.value) }}
 							/>
-					</RadioGroup>
-					{selected === "custom" &&
-					<TextField
-							autoFocus
-							margin="dense"
-							label={`Derivation Path`}
-							value={customPath}
-							size="medium"
-							fullWidth={true}
-							inputProps={{className: classes.address}}
-							onChange={(e) => { setCustomPath(e.target.value) }}
-						/>
+						}
+					</Box>
 					}
+					{verifyPath !== undefined &&
+					<Box alignSelf="flex-end">
+						<PromptLedgerAction text="Verify address on Ledger..." />
+					</Box>}
 				</Box>
-				}
-				{verifyPath !== undefined &&
-				<Box className={classes.verify}>
-					<PromptLedgerAction text="Verify address on Ledger..." />
-				</Box>}
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={handleAdd} disabled={!addresses || verifyPath !== undefined}>Add</Button>

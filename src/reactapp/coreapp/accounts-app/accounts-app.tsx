@@ -34,27 +34,6 @@ import { Account, LocalAccount } from '../../state/accounts'
 export const accountsAppName = "Accounts"
 
 const useStyles = makeStyles((theme) => ({
-	root: {
-		display: "flex",
-		flexDirection: "column",
-		flex: 1,
-	},
-	section: {
-		display: "flex",
-		flexDirection: "column",
-	},
-	accountCard: {
-		display: "flex",
-		flexDirection: "row",
-		alignItems: "center",
-		minWidth: 500,
-	},
-	accountTextGroup: {
-		display: "flex",
-		flexDirection: "column",
-		alignItems: "flex-start",
-		flex: 1,
-	},
 	accountText: {
 		fontFamily: "monospace",
 	},
@@ -66,10 +45,6 @@ const useStyles = makeStyles((theme) => ({
 		fontFamily: "monospace",
 		textTransform: "none",
 		fontSize: theme.typography.body1.fontSize,
-	},
-	buttonGroup: {
-		display: "flex",
-		flexDirection: "row",
 	},
 	buttonAdd: {
 		width: 200,
@@ -121,7 +96,7 @@ export const AccountsApp = (props: {
 	}
 	const handleRefetch = () => { props.onAdd() }
 	return (
-		<Box className={classes.root}>
+		<Box display="flex" flexDirection="column" flex={1}>
 			{confirmRemove && <ConfirmRemove account={confirmRemove} onRemove={handleRemove} onCancel={handleCancel} />}
 			{openedAdd === "add-newlocal" && <AddNewLocalAccount onAdd={handleAdd} onCancel={handleCancel} />}
 			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
@@ -130,19 +105,29 @@ export const AccountsApp = (props: {
 			{/* {renameAccount && <RenameAccount account={renameAccount} onRename={handleRename} onClose={handleCancel} />} */}
 
 			<AppHeader title={"Accounts"} refetch={handleRefetch} isFetching={false} />
-			<Box className={classes.section} marginTop={2}>
+			<Box display="flex" flexDirection="column" marginTop={2}>
 				{
 				props.accounts.map((a) => {
 					return (
 						<Box key={a.address} my={0.5}>
 							<Paper>
-								<Box className={classes.accountCard} p={2}>
+								<Box
+									display="flex"
+									flexDirection="row"
+									alignItems="center"
+									minWidth={500}
+									p={2}>
 								{
 								a.type === "local" ? <LocalAccountIcon /> :
 								a.type === "ledger" ? <LedgerAccountIcon /> :
 								a.type === "address-only" ? <AddressOnlyAccountIcon /> : <></>
 								}
-								<Box className={classes.accountTextGroup} marginLeft={2}>
+								<Box
+									display="flex"
+									flexDirection="column"
+									alignItems="flex-start"
+									flex={1}
+									marginLeft={2}>
 									{
 									renameAccount === a ?
 									<TextField
@@ -181,8 +166,8 @@ export const AccountsApp = (props: {
 					)})
 				}
 			</Box>
-			<Box className={classes.section} marginTop={2}>
-				<Box className={classes.buttonGroup} marginTop={1}>
+			<Box display="flex" flexDirection="column" marginTop={2}>
+				<Box display="flex" flexDirection="row" marginTop={1}>
 					<Button
 						className={classes.buttonAdd}
 						color="primary"
@@ -196,7 +181,7 @@ export const AccountsApp = (props: {
 						startIcon={<GetAppIcon />}
 						>Import Local Account</Button>
 				</Box>
-				<Box className={classes.buttonGroup} marginTop={1}>
+				<Box display="flex" flexDirection="row" marginTop={1}>
 					<Button
 						className={classes.buttonAdd}
 						color="primary"
@@ -210,7 +195,7 @@ export const AccountsApp = (props: {
 						startIcon={<AddressOnlyAccountIcon />}
 						onClick={() => { setOpenedAdd("add-addressonly") }}>Add ReadOnly Account</Button>
 				</Box>
-				<Box className={classes.buttonGroup} my={1}>
+				<Box display="flex" flexDirection="row" my={1}>
 					<Button
 						className={classes.buttonPassword}
 						color="secondary"
