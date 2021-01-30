@@ -119,7 +119,7 @@ const App = () => {
         onClose={onCloseError}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}>
         <Alert
-          style={{maxWidth: 1000}}
+          style={{width: "min-content", maxWidth: 700, overflowWrap: "break-word"}}
           severity="error"
           onClose={onCloseError}>{error?.message}</Alert>
       </Snackbar>

@@ -10,7 +10,13 @@ import Typography from '@material-ui/core/Typography'
 import DialogActions from '@material-ui/core/DialogActions'
 import UnlockAccount from './unlock-account'
 import Box from '@material-ui/core/Box'
-import { LinearProgress } from '@material-ui/core'
+import LinearProgress from '@material-ui/core/LinearProgress'
+import List from '@material-ui/core/List'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import CheckCircleIcon from '@material-ui/icons/CheckCircle'
+import SendIcon from '@material-ui/icons/Send'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
 
 import { Account } from '../../state/accounts'
 import { CFG } from '../../../common/cfg'
@@ -18,7 +24,9 @@ import useSessionState from '../../state/session-state'
 import { decryptLocalKey } from '../accountsdb'
 import { canDecryptLocalKey, createWallet } from './wallet'
 import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definition'
-import { sleep } from '../../../common/utils'
+import { fmtAddress, sleep } from '../../../common/utils'
+import PromptLedgerAction from './prompt-ledger-action'
+import Paper from '@material-ui/core/Paper'
 
 function TXRunner(props: {
 	selectedAccount: Account,
@@ -71,9 +79,18 @@ function TXRunner(props: {
 }
 export default TXRunner
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
+	root: {
+		minWidth: 600,
+		display: "flex",
+		flexDirection: "column",
+	},
 	progressText: {
 		fontStyle: "italic",
+	},
+	successText: {
+		fontStyle: "italic",
+		color: theme.palette.success.main,
 	},
 	address: {
 		fontFamily: "monospace",
@@ -81,6 +98,9 @@ const useStyles = makeStyles(() => ({
 	box: {
 		display: "flex",
 		flexDirection: "column",
+	},
+	confirm: {
+		alignSelf: "flex-end",
 	},
 }))
 
@@ -91,14 +111,16 @@ const RunTXs = (props: {
 	onFinish: TXFinishFunc,
 }) => {
 	const classes = useStyles()
+	const [preparedTXs, setPreparedTXs] = React.useState<Transaction[]>([])
 	const [currentTX, setCurrentTX] = React.useState<{
-		tx: Transaction,
+		idx: number,
 		confirm: () => void,
 		cancel: () => void,
 	} | undefined>()
 	const [stage, setStage] = React.useState<
-		"preparing" |
-		"executing" |
+		"preparing"  |
+		"confirming" |
+		"sending"    |
 		"finishing">("preparing")
 	const [txSendMS, setTXSendMS] = React.useState(0)
 
@@ -107,6 +129,7 @@ const RunTXs = (props: {
 	const selectedAccount = props.selectedAccount
 	const password = props.password
 	React.useEffect(() => {
+		const startMS = Date.now();
 		(async () => {
 			try {
 				const w = await createWallet(selectedAccount, password)
@@ -127,33 +150,37 @@ const RunTXs = (props: {
 							`Refusing to run transactions.`)
 					}
 					const txs = await txFunc(kit)
+					setPreparedTXs(txs)
+					await sleep(Date.now() - startMS + 500)
+
 					const r: CeloTxReceipt[] = []
-					for (const tx of txs) {
+					for (let idx = 0; idx < txs.length; idx += 1) {
 						const txPromise = new Promise<void>((resolve, reject) => {
 							setCurrentTX({
-								tx: tx,
+								idx: idx,
 								confirm: () => {
-									setCurrentTX(undefined)
+									setStage("sending")
 									resolve()
 								},
 								cancel: () => {
-									setCurrentTX(undefined)
+									setStage("sending")
 									reject(new Error(`Cancelled`))
 								}
 							})
 						})
+						const tx = txs[idx]
 						console.info(`TX: args`, tx.tx.txo._parent.options.address, tx.tx.txo.arguments)
 
 						setTXSendMS(0)
 						setTXProgress(0)
-						setStage("executing")
+						setStage("confirming")
 						if (selectedAccount.type === "local") {
 							// No need to show confirmation dialog for Ledger accounts.
 							await txPromise
 						}
 						const result = await tx.tx.send({value: tx.value})
 						const txHash = await result.getHash()
-						setCurrentTX(undefined)
+						setStage("sending")
 						setTXSendMS(Date.now())
 						console.info(`TX: sent`, txHash)
 
@@ -163,7 +190,7 @@ const RunTXs = (props: {
 						r.push(receipt)
 					}
 					setStage("finishing")
-					await sleep(500)
+					await sleep(1000)
 					onFinish(undefined, r)
 				} finally {
 					kit.stop()
@@ -181,7 +208,7 @@ const RunTXs = (props: {
 	}, [])
 	const [txProgress, setTXProgress] = React.useState(0)
 	React.useEffect(() => {
-		if (stage !== "executing") {
+		if (stage !== "sending") {
 			return
 		}
     const timer = setInterval(() => {
@@ -195,36 +222,67 @@ const RunTXs = (props: {
   }, [stage, txSendMS]);
 	return (
 		<Dialog open={true}>
-			<DialogContent>
+			<DialogContent className={classes.root}>
 				{
-				stage === "preparing" ?
-				<Box className={classes.box}>
+				stage === "preparing" || !currentTX ?
+				<>
 					<Typography className={classes.progressText}>Preparing transactions...</Typography>
 					<LinearProgress color="primary" />
-				</Box>
+				</>
 				:
-				currentTX ?
-				<div>
-					<Typography>TXInfo: Contract: {`${currentTX.tx.tx.txo._parent.options.address}`}</Typography>
-
-					{props.selectedAccount.type === "local" ?
-					<Typography>Confirm transaction to proceed</Typography>
-					:
-					<Typography>Confirm transaction on Ledger device</Typography>
-					}
-				</div>
-				:
-				<Box className={classes.box}>
-					<Typography className={classes.progressText}>Sending transaction...</Typography>
-					<LinearProgress color="primary" variant="determinate" value={txProgress} />
-				</Box>
+				<>
+					<Paper>
+						<List dense={true}>
+							{preparedTXs.map((tx, idx) => (
+								<ListItem key={`${idx}`}>
+									<ListItemIcon>
+										{
+										(idx < currentTX.idx || stage === "finishing") ?
+										<CheckCircleIcon /> :
+										(idx === currentTX.idx) ? <SendIcon /> : <></>
+										}
+									</ListItemIcon>
+									<ListItemText>
+										{txSummary(preparedTXs[currentTX.idx])}
+									</ListItemText>
+								</ListItem>
+							))}
+						</List>
+					</Paper>
+					<Box marginTop={1}>
+						<Paper>
+							<Box p={2}>
+								<Typography>TXInfo: Contract: {`${preparedTXs[currentTX.idx].tx.txo._parent.options.address}`}</Typography>
+							</Box>
+						</Paper>
+					</Box>
+					<Box marginTop={1}>
+						<LinearProgress
+							style={{visibility: stage === "confirming" ? "hidden" : undefined}}
+							color="primary"
+							variant="determinate"
+							value={txProgress}
+							/>
+					</Box>
+				</>
 				}
 			</DialogContent>
-			{props.selectedAccount.type === "local" &&
 			<DialogActions>
-				<Button onClick={currentTX?.cancel} disabled={!currentTX}>Cancel</Button>
-				<Button onClick={currentTX?.confirm} disabled={!currentTX}>Confirm</Button>
-			</DialogActions>}
+				{props.selectedAccount.type === "ledger" ?
+				stage === "confirming" &&
+				<PromptLedgerAction text="Confirm transaction on Ledger..." />
+				:
+				<>
+					<Button onClick={currentTX?.cancel} disabled={stage !== "confirming"}>Cancel</Button>
+					<Button onClick={currentTX?.confirm} disabled={stage !== "confirming"}>Confirm</Button>
+				</>
+				}
+			</DialogActions>
 		</Dialog>
 	)
+}
+
+const txSummary = (tx: Transaction) => {
+	const contractAddress = tx.tx.txo._parent.options.address
+	return `contract: ${fmtAddress(contractAddress)}`
 }

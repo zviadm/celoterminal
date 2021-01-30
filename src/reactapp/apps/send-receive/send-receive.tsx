@@ -82,12 +82,14 @@ const SendReceiveApp = (props: {
 	const handleSend = () => { runTXs(txsSend) }
 	const canSend = isValidAddress(toAddress) && (toSend !== "")
 	const toAddresses = props.accounts.map((a) => ({
-		render:
-			<React.Fragment>
-				<Typography className={classes.address}>{a.name}: {a.address}</Typography>
-			</React.Fragment>,
 		address: a.address,
+		account: a,
 	}))
+	const renderOption = (o: {account?: Account, address: string}) => (
+		<React.Fragment>
+			<Typography className={classes.address}>{o.account?.name}: {o.address}</Typography>
+		</React.Fragment>
+	)
 	return (
 		<div className={classes.root}>
 			<AppHeader title={"Send/Receive"} isFetching={isFetching} refetch={refetch} />
@@ -121,17 +123,17 @@ const SendReceiveApp = (props: {
 							can lead to permanent loss of your funds.
 						</Alert>
 						<Autocomplete
-							autoHighlight
 							freeSolo
+							autoSelect
 							options={toAddresses}
-							renderOption={(o) => o.render }
-							getOptionLabel={(o) => o.address }
+							renderOption={renderOption}
+							getOptionLabel={(o) => o?.address || "" }
+							getOptionSelected={(o, v) => { return o.address === v.address }}
 							renderInput={(params) => (
 								<TextField
 									{...params}
 									margin="normal"
 									label={`Destination address`}
-									value={toAddress}
 									placeholder="0x..."
 									size="medium"
 									fullWidth={true}
@@ -139,11 +141,16 @@ const SendReceiveApp = (props: {
 										...params.inputProps,
 										className: classes.address,
 										spellCheck: false,
-										autoComplete: 'new-password',
 									}}
 								/>
 							)}
-							onInputChange={(e, value) => { setToAddress(value) }}
+							inputValue={toAddress}
+							onInputChange={(e, value, reason) => {
+								if (reason !== "reset" || value !== "") {
+									setToAddress(value)
+								}
+								return value
+							}}
 							/>
 						<TextField
 							margin="normal"
