@@ -14,7 +14,7 @@ import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import AppHeader from '../../components/app-header'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const LockerApp = (props: {
+const LockerApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
 	onError: (e: Error) => void,
@@ -130,3 +130,4 @@ export const LockerApp = (props: {
 		</div>
 	)
 }
+export default LockerApp

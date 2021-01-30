@@ -1,15 +1,7 @@
-import { AppDefinition } from '../components/app-definition'
+import { Locker } from './locker/def'
+import { SendReceive } from './send-receive/def'
 
-import { LockerApp } from './locker/locker'
-import SendReceiveApp from './send-receive/send-receive'
-
-export const AppList: AppDefinition[] = [
-	{
-		name: "Send/Receive",
-		renderApp: SendReceiveApp,
-	},
-	{
-		name: "Locker",
-		renderApp: LockerApp,
-	}
+export const AppList = [
+	SendReceive,
+	Locker,
 ]
