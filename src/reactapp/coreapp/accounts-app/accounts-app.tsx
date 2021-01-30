@@ -7,10 +7,7 @@ import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import Typography from '@material-ui/core/Typography'
 import GetAppIcon from '@material-ui/icons/GetApp'
-import VpnKeyIcon from '@material-ui/icons/VpnKey'
 import LockOpenIcon from '@material-ui/icons/LockOpen'
-import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet'
-import VisibilityIcon from '@material-ui/icons/Visibility'
 import DeleteIcon from '@material-ui/icons/Delete'
 import DescriptionIcon from '@material-ui/icons/Description'
 
@@ -28,10 +25,11 @@ import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import TextField from '@material-ui/core/TextField'
+import Paper from '@material-ui/core/Paper'
+import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon } from './account-icons'
 
 import { decryptLocalKey, LocalKey } from '../accountsdb'
 import { Account, LocalAccount } from '../../state/accounts'
-import Paper from '@material-ui/core/Paper'
 
 export const accountsAppName = "Accounts"
 
@@ -140,9 +138,9 @@ export const AccountsApp = (props: {
 							<Paper>
 								<Box className={classes.accountCard} p={2}>
 								{
-								a.type === "local" ? <VpnKeyIcon /> :
-								a.type === "ledger" ? <AccountBalanceWalletIcon /> :
-								a.type === "address-only" ? <VisibilityIcon /> : <></>
+								a.type === "local" ? <LocalAccountIcon /> :
+								a.type === "ledger" ? <LedgerAccountIcon /> :
+								a.type === "address-only" ? <AddressOnlyAccountIcon /> : <></>
 								}
 								<Box className={classes.accountTextGroup} marginLeft={2}>
 									{
@@ -189,7 +187,7 @@ export const AccountsApp = (props: {
 						className={classes.buttonAdd}
 						color="primary"
 						variant="contained"
-						startIcon={<VpnKeyIcon />}
+						startIcon={<LocalAccountIcon />}
 						onClick={() => { setOpenedAdd("add-newlocal") }}>Create Local Account</Button>
 					<Button
 						className={classes.buttonAdd}
@@ -203,13 +201,13 @@ export const AccountsApp = (props: {
 						className={classes.buttonAdd}
 						color="primary"
 						variant="contained"
-						startIcon={<AccountBalanceWalletIcon />}
+						startIcon={<LedgerAccountIcon />}
 						onClick={() => { setOpenedAdd("add-ledger") }}>Add Ledger Account</Button>
 					<Button
 						className={classes.buttonAdd}
 						color="primary"
 						variant="contained"
-						startIcon={<VisibilityIcon />}
+						startIcon={<AddressOnlyAccountIcon />}
 						onClick={() => { setOpenedAdd("add-addressonly") }}>Add ReadOnly Account</Button>
 				</Box>
 				<Box className={classes.buttonGroup} my={1}>

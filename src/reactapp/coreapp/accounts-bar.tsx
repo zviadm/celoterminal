@@ -3,10 +3,8 @@ import * as React from 'react'
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 import Box from '@material-ui/core/Box'
-import VpnKeyIcon from '@material-ui/icons/VpnKey'
-import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet'
-import VisibilityIcon from '@material-ui/icons/Visibility'
 import Typography from '@material-ui/core/Typography'
+import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon } from './accounts-app/account-icons'
 
 import { Account } from '../state/accounts'
 import { fmtAddress } from '../../common/utils'
@@ -35,9 +33,9 @@ const AccountsBar = (props: {
 							<div style={{display: "flex", alignItems: "center"}}>
 								<div style={{marginRight: 5, display: "flex", alignSelf: "end"}}>
 								{
-								a.type === "local" ? <VpnKeyIcon /> :
-								a.type === "ledger" ? <AccountBalanceWalletIcon style={{paddingRight: 5}} /> :
-								a.type === "address-only" ? <VisibilityIcon /> : <></>
+								a.type === "local" ? <LocalAccountIcon /> :
+								a.type === "ledger" ? <LedgerAccountIcon style={{paddingRight: 5}} /> :
+								a.type === "address-only" ? <AddressOnlyAccountIcon /> : <></>
 								}
 								</div>
 								<Typography style={{

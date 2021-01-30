@@ -14,7 +14,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Radio from '@material-ui/core/Radio'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import TextField from '@material-ui/core/TextField'
-import PromptLedgerAction from '../prompt-ledger-action'
+import PromptLedgerAction from '../tx-runner/prompt-ledger-action'
 import Box from '@material-ui/core/Box'
 
 import { LedgerAccount } from '../../state/accounts'
