@@ -65,15 +65,16 @@ const SendReceiveApp = (props: {
 		})
 	}
 	const txsSend = async (kit: ContractKit) => {
+		if (!fetched?.decimals) {
+			throw new Error(`Unknown decimals for ERC20: ${erc20}.`)
+		}
 		const contract = await newERC20(kit, erc20)
-		const tx1 = contract.transfer(
-			toAddress, new BigNumber(toSend).multipliedBy(0.5e18))
-		const tx2 = contract.transfer(
-			toAddress, new BigNumber(toSend).multipliedBy(0.5e18))
-		return [{tx: tx1}, {tx: tx2}]
+		const tx = contract.transfer(
+			toAddress, new BigNumber(toSend).shiftedBy(fetched?.decimals))
+		return [{tx: tx}]
 	}
 	const handleSend = () => { runTXs(txsSend) }
-	const canSend = isValidAddress(toAddress) && (toSend !== "")
+	const canSend = isValidAddress(toAddress) && (toSend !== "") && fetched
 	const toAddresses = props.accounts.map((a) => ({
 		address: a.address,
 		account: a,

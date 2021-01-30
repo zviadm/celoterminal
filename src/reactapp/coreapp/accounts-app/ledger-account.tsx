@@ -19,7 +19,7 @@ import Box from '@material-ui/core/Box'
 
 import { LedgerAccount } from '../../state/accounts'
 import { CELO_BASE_DERIVATION_PATH } from '@celo/wallet-ledger'
-import { expressLedgerErr } from '../ledger-utils'
+import { transformError } from '../ledger-utils'
 
 const useStyles = makeStyles(() => ({
 	content: {
@@ -64,7 +64,7 @@ const AddLedgerAccount = (props: {
 			}
 		})()
 		.catch((e) => {
-			onError(expressLedgerErr(e))
+			onError(transformError(e))
 			onCancel()
 		})
 	// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -104,7 +104,7 @@ const AddLedgerAccount = (props: {
 		})()
 		.catch((e) => {
 			setVerifyPath(undefined)
-			onError(expressLedgerErr(e))
+			onError(transformError(e))
 		})
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [verifyPath])

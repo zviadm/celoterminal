@@ -25,6 +25,9 @@ import Table from '@material-ui/core/Table'
 import TableContainer from '@material-ui/core/TableContainer'
 import PromptLedgerAction from './prompt-ledger-action'
 import Paper from '@material-ui/core/Paper'
+import IconButton from '@material-ui/core/IconButton'
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 
 import { Account } from '../../state/accounts'
 import { CFG } from '../../../common/cfg'
@@ -33,6 +36,7 @@ import { decryptLocalKey } from '../accountsdb'
 import { canDecryptLocalKey, createWallet } from './wallet'
 import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { fmtAddress, sleep } from '../../../common/utils'
+import { transformError } from '../ledger-utils'
 
 function TXRunner(props: {
 	selectedAccount: Account,
@@ -171,7 +175,7 @@ const RunTXs = (props: {
 							})
 						})
 						const tx = txs[idx]
-						console.info(`TX: args`, tx.tx.txo._parent.options.address, tx.tx.txo.arguments)
+						console.info(`TX:`, parsedTXs[idx], tx.tx.txo.arguments)
 
 						setTXSendMS(0)
 						setTXProgress(0)
@@ -188,11 +192,11 @@ const RunTXs = (props: {
 						const txHash = await result.getHash()
 						setStage("sending")
 						setTXSendMS(Date.now())
-						console.info(`TX: sent`, txHash)
+						console.info(`TX-HASH:`, txHash)
 
 						const receipt = await result.waitReceipt()
 						setTXProgress(100)
-						console.info(`TX: receipt`, receipt)
+						console.info(`TX-RECEIPT:`, receipt)
 						r.push(receipt)
 					}
 					setStage("finishing")
@@ -205,7 +209,7 @@ const RunTXs = (props: {
 					}
 				}
 			} catch (e) {
-				onFinish(e)
+				onFinish(transformError(e))
 			}
 		})()
 	// NOTE: This effect is expected to run only once on first render and it is expected
@@ -288,6 +292,7 @@ const RunTXs = (props: {
 
 interface ParsedTransaction {
 	estimatedGas: BigNumber, // Gas price in WEI
+	encodedABI: string,
 
 	// Human readable values.
 	contractName: string,
@@ -313,6 +318,8 @@ const parseTransaction = async (
 	const estimatedFee = estimatedGas.multipliedBy(gasPrice).div(1e18)
 	return {
 		estimatedGas,
+		encodedABI: tx.tx.txo.encodeABI(),
+
 		contractName,
 		estimatedFee,
 		feeCurrency: "CELO",
@@ -323,6 +330,7 @@ const parseTransaction = async (
 const TransactionInfo = (props: {
 	tx: ParsedTransaction
 }) => {
+	const [open, setOpen] = React.useState(false)
 	return (
 		<TableContainer component={Paper}>
 			<Table size="small">
@@ -330,15 +338,30 @@ const TransactionInfo = (props: {
 					<TableRow>
 						<TableCell width="20%">Contract</TableCell>
 						<TableCell>{props.tx.contractName}</TableCell>
+						<TableCell width="1%">
+							<IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
+								{open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+							</IconButton>
+						</TableCell>
 					</TableRow>
+					{open &&
+					<TableRow>
+						<TableCell></TableCell>
+						<TableCell
+							colSpan={2}
+							style={{
+								fontFamily: "monospace",
+								textTransform: "uppercase",
+								overflowWrap: "anywhere"}}>calldata: {props.tx.encodedABI}</TableCell>
+					</TableRow>}
 					{props.tx.transferValue &&
 					<TableRow>
 						<TableCell>Transfer</TableCell>
-						<TableCell>{props.tx.transferValue.toFixed(4)} CELO</TableCell>
+						<TableCell colSpan={2}>{props.tx.transferValue.toFixed(4)} CELO</TableCell>
 					</TableRow>}
 					<TableRow>
 						<TableCell>Fee</TableCell>
-						<TableCell>~{props.tx.estimatedFee.toFixed(4, BigNumber.ROUND_UP)} {props.tx.feeCurrency}</TableCell>
+						<TableCell colSpan={2}>~{props.tx.estimatedFee.toFixed(4, BigNumber.ROUND_UP)} {props.tx.feeCurrency}</TableCell>
 					</TableRow>
 				</TableBody>
 			</Table>
