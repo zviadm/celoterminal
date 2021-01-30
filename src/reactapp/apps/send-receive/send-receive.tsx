@@ -10,6 +10,10 @@ import Typography from '@material-ui/core/Typography'
 import AppHeader from '../../components/app-header'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
+import Box from '@material-ui/core/Box'
+import Paper from '@material-ui/core/Paper'
+import Alert from '@material-ui/lab/Alert'
+import Autocomplete from '@material-ui/lab/Autocomplete'
 
 import { Account } from '../../state/accounts'
 import useOnChainState from '../../state/onchain-state'
@@ -18,9 +22,6 @@ import { fmtAmount } from '../../../common/utils'
 import ERC20 from './erc20'
 import { CFG } from '../../../common/cfg'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
-import Box from '@material-ui/core/Box'
-import Paper from '@material-ui/core/Paper'
-import Alert from '@material-ui/lab/Alert'
 
 const useStyles = makeStyles(() => ({
 	root: {
@@ -80,6 +81,13 @@ const SendReceiveApp = (props: {
 	}
 	const handleSend = () => { runTXs(txsSend) }
 	const canSend = isValidAddress(toAddress) && (toSend !== "")
+	const toAddresses = props.accounts.map((a) => ({
+		render:
+			<React.Fragment>
+				<Typography className={classes.address}>{a.name}: {a.address}</Typography>
+			</React.Fragment>,
+		address: a.address,
+	}))
 	return (
 		<div className={classes.root}>
 			<AppHeader title={"Send/Receive"} isFetching={isFetching} refetch={refetch} />
@@ -112,29 +120,43 @@ const SendReceiveApp = (props: {
 							Transfers are non-reversible. Transfering funds to an incorrect address
 							can lead to permanent loss of your funds.
 						</Alert>
-						<TextField
-								margin="normal"
-								label={`Destination address`}
-								value={toAddress}
-								placeholder="0x..."
-								size="medium"
-								fullWidth={true}
-								inputProps={{className: classes.address, spellCheck: false}}
-								onChange={(e) => { setToAddress(e.target.value) }}
+						<Autocomplete
+							autoHighlight
+							freeSolo
+							options={toAddresses}
+							renderOption={(o) => o.render }
+							getOptionLabel={(o) => o.address }
+							renderInput={(params) => (
+								<TextField
+									{...params}
+									margin="normal"
+									label={`Destination address`}
+									value={toAddress}
+									placeholder="0x..."
+									size="medium"
+									fullWidth={true}
+									inputProps={{
+										...params.inputProps,
+										className: classes.address,
+										spellCheck: false,
+										autoComplete: 'new-password',
+									}}
+									onChange={(e) => { setToAddress(e.target.value) }}
+								/>
+							)}
 							/>
 						<TextField
-								autoFocus
-								margin="normal"
-								label={
-									!fetched ? `Amount` :
-									`Amount (max: ${fmtAmount(fetched.balance, fetched.decimals)})`
-								}
-								value={toSend}
-								size="medium"
-								type="number"
-								fullWidth={true}
-								onChange={(e) => { setToSend(e.target.value) }}
-							/>
+							margin="normal"
+							label={
+								!fetched ? `Amount` :
+								`Amount (max: ${fmtAmount(fetched.balance, fetched.decimals)})`
+							}
+							value={toSend}
+							size="medium"
+							type="number"
+							fullWidth={true}
+							onChange={(e) => { setToSend(e.target.value) }}
+						/>
 						<Button
 							variant="outlined" color="primary"
 							disabled={!canSend}
