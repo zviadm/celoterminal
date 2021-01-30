@@ -64,17 +64,22 @@ const SendReceiveApp = (props: {
 	const [toSend, setToSend] = React.useState("")
 	const [toAddress, setToAddress] = React.useState("")
 
-	const runTXs = (f: TXFunc) => { props.runTXs(f, () => { refetch() }) }
+	const runTXs = (f: TXFunc) => {
+		props.runTXs(f, (e?: Error) => {
+			refetch()
+			if (!e) {
+				setToSend("")
+			}
+		})
+	}
 	const txsSend = async (kit: ContractKit) => {
-		if (!isValidAddress(toAddress)) {
-			throw new Error(`Invalid destination address: ${toAddress}.`)
-		}
 		const contract = await newERC20(kit, erc20)
 		const tx = contract.transfer(
 			toAddress, new BigNumber(toSend).multipliedBy(1e18))
 		return [{tx: tx}]
 	}
 	const handleSend = () => { runTXs(txsSend) }
+	const canSend = isValidAddress(toAddress) && (toSend !== "")
 	return (
 		<div className={classes.root}>
 			<AppHeader title={"Send/Receive"} isFetching={isFetching} refetch={refetch} />
@@ -132,6 +137,7 @@ const SendReceiveApp = (props: {
 							/>
 						<Button
 							variant="outlined" color="primary"
+							disabled={!canSend}
 							onClick={handleSend}>Send</Button>
 					</Box>
 				</Paper>
