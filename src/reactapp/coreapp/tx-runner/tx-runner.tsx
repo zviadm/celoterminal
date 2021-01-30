@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { ContractKit, newKit } from '@celo/contractkit'
 import { CeloTxReceipt } from '@celo/connect'
+import BigNumber from 'bignumber.js'
 
 import { makeStyles } from '@material-ui/core/styles'
 import Dialog from '@material-ui/core/Dialog'
@@ -17,6 +18,13 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle'
 import SendIcon from '@material-ui/icons/Send'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
+import TableCell from '@material-ui/core/TableCell'
+import TableRow from '@material-ui/core/TableRow'
+import TableBody from '@material-ui/core/TableBody'
+import Table from '@material-ui/core/Table'
+import TableContainer from '@material-ui/core/TableContainer'
+import PromptLedgerAction from './prompt-ledger-action'
+import Paper from '@material-ui/core/Paper'
 
 import { Account } from '../../state/accounts'
 import { CFG } from '../../../common/cfg'
@@ -25,9 +33,6 @@ import { decryptLocalKey } from '../accountsdb'
 import { canDecryptLocalKey, createWallet } from './wallet'
 import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { fmtAddress, sleep } from '../../../common/utils'
-import PromptLedgerAction from './prompt-ledger-action'
-import Paper from '@material-ui/core/Paper'
-import BigNumber from 'bignumber.js'
 
 function TXRunner(props: {
 	selectedAccount: Account,
@@ -252,7 +257,7 @@ const RunTXs = (props: {
 							</List>
 						</Paper>
 						<Box marginTop={1}>
-							<Paper><Box p={2}><TransactionInfo tx={preparedTXs[currentTX.idx]}/></Box></Paper>
+							<TransactionInfo tx={preparedTXs[currentTX.idx]}/>
 						</Box>
 						<Box marginTop={1}>
 							<LinearProgress
@@ -294,7 +299,11 @@ interface ParsedTransaction {
 const parseTransaction = async (
 	kit: ContractKit,
 	tx: Transaction): Promise<ParsedTransaction> => {
-	const contractName = tx.tx.txo._parent.options.address
+	const contractAddress = tx.tx.txo._parent.options.address
+	const addressMapping = await kit.registry.addressMapping()
+	const match = Array.from(
+		addressMapping.entries()).find((i) => i[1].toLowerCase() === contractAddress.toLowerCase())
+	const contractName = match ? `${match[0]} (${fmtAddress(contractAddress)})` : contractAddress
 	const estimatedGas =
 		tx.tx.defaultParams?.gas ?
 		new BigNumber(tx.tx.defaultParams?.gas) :
@@ -314,10 +323,25 @@ const parseTransaction = async (
 const TransactionInfo = (props: {
 	tx: ParsedTransaction
 }) => {
-	return <Box>
-		<Typography>Contract: {props.tx.contractName}</Typography>
-		{props.tx.transferValue &&
-		<Typography>Transfering: {props.tx.transferValue.toFixed(4)} CELO</Typography>}
-		<Typography>Fee: ~{props.tx.estimatedFee.toFixed(4, BigNumber.ROUND_UP)} {props.tx.feeCurrency}</Typography>
-	</Box>
+	return (
+		<TableContainer component={Paper}>
+			<Table size="small">
+				<TableBody>
+					<TableRow>
+						<TableCell width="20%">Contract</TableCell>
+						<TableCell>{props.tx.contractName}</TableCell>
+					</TableRow>
+					{props.tx.transferValue &&
+					<TableRow>
+						<TableCell>Transfer</TableCell>
+						<TableCell>{props.tx.transferValue.toFixed(4)} CELO</TableCell>
+					</TableRow>}
+					<TableRow>
+						<TableCell>Fee</TableCell>
+						<TableCell>~{props.tx.estimatedFee.toFixed(4, BigNumber.ROUND_UP)} {props.tx.feeCurrency}</TableCell>
+					</TableRow>
+				</TableBody>
+			</Table>
+		</TableContainer>
+	)
 }
