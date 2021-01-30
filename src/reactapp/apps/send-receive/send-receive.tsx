@@ -24,17 +24,8 @@ import { CFG } from '../../../common/cfg'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 
 const useStyles = makeStyles(() => ({
-	root: {
-		display: "flex",
-		flexDirection: "column",
-		flex: 1,
-	},
 	address: {
 		fontFamily: "monospace",
-	},
-	box: {
-		display: "flex",
-		flexDirection: "column",
 	},
 }))
 
@@ -93,7 +84,7 @@ const SendReceiveApp = (props: {
 		</React.Fragment>
 	)
 	return (
-		<div className={classes.root}>
+		<Box display="flex" flexDirection="column" flex={1}>
 			<AppHeader title={"Send/Receive"} isFetching={isFetching} refetch={refetch} />
 			<Box marginTop={2}>
 				<Paper>
@@ -119,7 +110,7 @@ const SendReceiveApp = (props: {
 			</Box>
 			<Box marginTop={2}>
 				<Paper>
-					<Box className={classes.box} p={2}>
+					<Box display="flex" flexDirection="column" p={2}>
 						<Alert severity="warning">
 							Transfers are non-reversible. Transfering funds to an incorrect address
 							can lead to permanent loss of your funds.
@@ -173,7 +164,7 @@ const SendReceiveApp = (props: {
 					</Box>
 				</Paper>
 			</Box>
-		</div>
+		</Box>
 	)
 }
 export default SendReceiveApp

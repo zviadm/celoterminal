@@ -2,13 +2,10 @@ import * as React from 'react'
 
 import { makeStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
+import Box from '@material-ui/core/Box'
 import { LedgerAccountIcon } from '../accounts-app/account-icons'
 
 const useStyles = makeStyles(() => ({
-	root: {
-		display: "flex",
-		flexDirection: "row",
-	},
 	text: {
 		fontStyle: "italic",
 	},
@@ -27,12 +24,12 @@ const useStyles = makeStyles(() => ({
 const PromptLedgerAction = (props: {text: string}): JSX.Element => {
 	const classes = useStyles()
 	return (
-		<div className={classes.root}>
+		<Box display="flex" flexDirection="row">
 			<Typography className={classes.text} color="textSecondary">
 				{props.text}
 			</Typography>
 			<LedgerAccountIcon className={classes.icon} />
-		</div>
+		</Box>
 	)
 }
 export default PromptLedgerAction

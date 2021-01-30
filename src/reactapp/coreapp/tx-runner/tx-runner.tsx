@@ -81,11 +81,6 @@ function TXRunner(props: {
 export default TXRunner
 
 const useStyles = makeStyles((theme) => ({
-	root: {
-		minWidth: 600,
-		display: "flex",
-		flexDirection: "column",
-	},
 	progressText: {
 		fontStyle: "italic",
 	},
@@ -95,13 +90,6 @@ const useStyles = makeStyles((theme) => ({
 	},
 	address: {
 		fontFamily: "monospace",
-	},
-	box: {
-		display: "flex",
-		flexDirection: "column",
-	},
-	confirm: {
-		alignSelf: "flex-end",
 	},
 }))
 
@@ -232,46 +220,48 @@ const RunTXs = (props: {
   }, [stage, txSendMS]);
 	return (
 		<Dialog open={true}>
-			<DialogContent className={classes.root}>
-				{
-				stage === "preparing" || !currentTX ?
-				<>
-					<Typography className={classes.progressText}>Preparing transactions...</Typography>
-					<LinearProgress color="primary" />
-				</>
-				:
-				<>
-					<Paper>
-						<List dense={true}>
-							{preparedTXs.map((tx, idx) => (
-								<ListItem key={`${idx}`}>
-									<ListItemIcon>
-										{
-										(idx < currentTX.idx || stage === "finishing") ?
-										<CheckCircleIcon /> :
-										(idx === currentTX.idx) ? <SendIcon /> : <></>
-										}
-									</ListItemIcon>
-									<ListItemText primaryTypographyProps={{className: classes.address}}>
-										Contract: {preparedTXs[idx].contractName}
-									</ListItemText>
-								</ListItem>
-							))}
-						</List>
-					</Paper>
-					<Box marginTop={1}>
-						<Paper><Box p={2}><TransactionInfo tx={preparedTXs[currentTX.idx]}/></Box></Paper>
-					</Box>
-					<Box marginTop={1}>
-						<LinearProgress
-							style={{visibility: stage === "confirming" ? "hidden" : undefined}}
-							color="primary"
-							variant="determinate"
-							value={txProgress}
-							/>
-					</Box>
-				</>
-				}
+			<DialogContent>
+				<Box display="flex" flexDirection="column" minWidth={600}>
+					{
+					stage === "preparing" || !currentTX ?
+					<>
+						<Typography className={classes.progressText}>Preparing transactions...</Typography>
+						<LinearProgress color="primary" />
+					</>
+					:
+					<>
+						<Paper>
+							<List dense={true}>
+								{preparedTXs.map((tx, idx) => (
+									<ListItem key={`${idx}`}>
+										<ListItemIcon>
+											{
+											(idx < currentTX.idx || stage === "finishing") ?
+											<CheckCircleIcon /> :
+											(idx === currentTX.idx) ? <SendIcon /> : <></>
+											}
+										</ListItemIcon>
+										<ListItemText primaryTypographyProps={{className: classes.address}}>
+											Contract: {preparedTXs[idx].contractName}
+										</ListItemText>
+									</ListItem>
+								))}
+							</List>
+						</Paper>
+						<Box marginTop={1}>
+							<Paper><Box p={2}><TransactionInfo tx={preparedTXs[currentTX.idx]}/></Box></Paper>
+						</Box>
+						<Box marginTop={1}>
+							<LinearProgress
+								style={{visibility: stage === "confirming" ? "hidden" : undefined}}
+								color="primary"
+								variant="determinate"
+								value={txProgress}
+								/>
+						</Box>
+					</>
+					}
+				</Box>
 			</DialogContent>
 			<DialogActions>
 				{props.selectedAccount.type === "ledger" ?
