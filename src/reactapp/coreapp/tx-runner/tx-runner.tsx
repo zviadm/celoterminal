@@ -81,6 +81,9 @@ function TXRunner(props: {
 export default TXRunner
 
 const useStyles = makeStyles((theme) => ({
+	root: {
+		minWidth: 600,
+	},
 	progressText: {
 		fontStyle: "italic",
 	},
@@ -220,8 +223,8 @@ const RunTXs = (props: {
   }, [stage, txSendMS]);
 	return (
 		<Dialog open={true}>
-			<DialogContent>
-				<Box display="flex" flexDirection="column" minWidth={600}>
+			<DialogContent className={classes.root}>
+				<Box display="flex" flexDirection="column">
 					{
 					stage === "preparing" || !currentTX ?
 					<>
