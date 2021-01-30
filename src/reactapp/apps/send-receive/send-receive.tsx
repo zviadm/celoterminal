@@ -141,9 +141,9 @@ const SendReceiveApp = (props: {
 										spellCheck: false,
 										autoComplete: 'new-password',
 									}}
-									onChange={(e) => { setToAddress(e.target.value) }}
 								/>
 							)}
+							onInputChange={(e, value) => { setToAddress(value) }}
 							/>
 						<TextField
 							margin="normal"
