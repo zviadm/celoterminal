@@ -225,10 +225,7 @@ export const AccountsApp = (props: {
 	)
 }
 
-const useRevealKeyStyles = makeStyles(() => ({
-	card: {
-		marginTop: 10,
-	},
+const useRevealKeyStyles = makeStyles((theme) => ({
 	textMnemonic: {
 		fontWeight: "bold"
 	},
@@ -236,7 +233,7 @@ const useRevealKeyStyles = makeStyles(() => ({
 		overflowWrap: "anywhere",
 		fontWeight: "bold",
 		fontFamily: "monospace",
-		fontSize: 12,
+		fontSize: theme.typography.body2.fontSize,
 	}
 }))
 
@@ -271,18 +268,22 @@ const RevealPrivateKey = (props: {
 						Never share your mnemonic or private key with anyone else.
 					</Alert>
 					{localKey.mnemonic &&
-					<Card className={classes.card}>
-						<CardContent>
-							<Typography color="textSecondary" gutterBottom>Mnemonic (24 words, BIP39, compatible with the Valora app)</Typography>
-							<Typography className={classes.textMnemonic}>{localKey.mnemonic}</Typography>
-						</CardContent>
-					</Card>}
-					<Card className={classes.card}>
-						<CardContent>
-							<Typography color="textSecondary" gutterBottom>Private Key</Typography>
-							<Typography className={classes.textPrivateKey}>{ensureLeading0x(localKey.privateKey)}</Typography>
-						</CardContent>
-					</Card>
+					<Box my={1}>
+						<Card>
+							<CardContent>
+								<Typography color="textSecondary" gutterBottom>Mnemonic (24 words, BIP39, compatible with the Valora app)</Typography>
+								<Typography className={classes.textMnemonic}>{localKey.mnemonic}</Typography>
+							</CardContent>
+						</Card>
+					</Box>}
+					<Box my={1}>
+						<Card>
+							<CardContent>
+								<Typography color="textSecondary" gutterBottom>Private Key</Typography>
+								<Typography className={classes.textPrivateKey}>{ensureLeading0x(localKey.privateKey)}</Typography>
+							</CardContent>
+						</Card>
+					</Box>
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={props.onClose}>Close</Button>
