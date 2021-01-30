@@ -75,9 +75,11 @@ const SendReceiveApp = (props: {
 	}
 	const txsSend = async (kit: ContractKit) => {
 		const contract = await newERC20(kit, erc20)
-		const tx = contract.transfer(
-			toAddress, new BigNumber(toSend).multipliedBy(1e18))
-		return [{tx: tx}]
+		const tx1 = contract.transfer(
+			toAddress, new BigNumber(toSend).multipliedBy(0.5e18))
+		const tx2 = contract.transfer(
+			toAddress, new BigNumber(toSend).multipliedBy(0.5e18))
+		return [{tx: tx1}, {tx: tx2}]
 	}
 	const handleSend = () => { runTXs(txsSend) }
 	const canSend = isValidAddress(toAddress) && (toSend !== "")

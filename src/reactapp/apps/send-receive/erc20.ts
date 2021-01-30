@@ -12,10 +12,10 @@ class ERC20 {
 		this.contract = new kit.web3.eth.Contract(erc20abi as AbiItem[], erc20address)
 	}
 
-	public transfer = (to: string, value: BigNumber): CeloTransactionObject<unknown> => {
+	public transfer = (to: string, value: BigNumber.Value): CeloTransactionObject<unknown> => {
 		return toTransactionObject(
 			this.kit.connection,
-			this.contract.methods.transfer(to, value.toString(10))
+			this.contract.methods.transfer(to, new BigNumber(value).toString(10))
 		)
 	}
 

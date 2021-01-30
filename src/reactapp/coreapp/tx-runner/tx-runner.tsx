@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { newKit } from '@celo/contractkit'
+import { ContractKit, newKit } from '@celo/contractkit'
 import { CeloTxReceipt } from '@celo/connect'
 
 import { makeStyles } from '@material-ui/core/styles'
@@ -27,6 +27,7 @@ import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definiti
 import { fmtAddress, sleep } from '../../../common/utils'
 import PromptLedgerAction from './prompt-ledger-action'
 import Paper from '@material-ui/core/Paper'
+import BigNumber from 'bignumber.js'
 
 function TXRunner(props: {
 	selectedAccount: Account,
@@ -111,7 +112,7 @@ const RunTXs = (props: {
 	onFinish: TXFinishFunc,
 }) => {
 	const classes = useStyles()
-	const [preparedTXs, setPreparedTXs] = React.useState<Transaction[]>([])
+	const [preparedTXs, setPreparedTXs] = React.useState<ParsedTransaction[]>([])
 	const [currentTX, setCurrentTX] = React.useState<{
 		idx: number,
 		confirm: () => void,
@@ -150,7 +151,12 @@ const RunTXs = (props: {
 							`Refusing to run transactions.`)
 					}
 					const txs = await txFunc(kit)
-					setPreparedTXs(txs)
+					const parsedTXs: ParsedTransaction[] = []
+					for (const tx of txs) {
+						const parsedTX = await parseTransaction(kit, tx)
+						parsedTXs.push(parsedTX)
+					}
+					setPreparedTXs(parsedTXs)
 					await sleep(Date.now() - startMS + 500)
 
 					const r: CeloTxReceipt[] = []
@@ -178,7 +184,11 @@ const RunTXs = (props: {
 							// No need to show confirmation dialog for Ledger accounts.
 							await txPromise
 						}
-						const result = await tx.tx.send({value: tx.value})
+						const result = await tx.tx.send({
+							value: tx.value,
+							// perf improvement, avoid re-estimating gas again.
+							gas: parsedTXs[idx].estimatedGas.toNumber(),
+						})
 						const txHash = await result.getHash()
 						setStage("sending")
 						setTXSendMS(Date.now())
@@ -242,19 +252,15 @@ const RunTXs = (props: {
 										(idx === currentTX.idx) ? <SendIcon /> : <></>
 										}
 									</ListItemIcon>
-									<ListItemText>
-										{txSummary(preparedTXs[currentTX.idx])}
+									<ListItemText primaryTypographyProps={{className: classes.address}}>
+										Contract: {preparedTXs[idx].contractName}
 									</ListItemText>
 								</ListItem>
 							))}
 						</List>
 					</Paper>
 					<Box marginTop={1}>
-						<Paper>
-							<Box p={2}>
-								<Typography>TXInfo: Contract: {`${preparedTXs[currentTX.idx].tx.txo._parent.options.address}`}</Typography>
-							</Box>
-						</Paper>
+						<Paper><Box p={2}><TransactionInfo tx={preparedTXs[currentTX.idx]}/></Box></Paper>
 					</Box>
 					<Box marginTop={1}>
 						<LinearProgress
@@ -282,7 +288,43 @@ const RunTXs = (props: {
 	)
 }
 
-const txSummary = (tx: Transaction) => {
-	const contractAddress = tx.tx.txo._parent.options.address
-	return `contract: ${fmtAddress(contractAddress)}`
+interface ParsedTransaction {
+	estimatedGas: BigNumber, // Gas price in WEI
+
+	// Human readable values.
+	contractName: string,
+	estimatedFee: BigNumber,
+	feeCurrency: string,
+	transferValue?: BigNumber, // Amount of directly transfering CELO.
+}
+
+const parseTransaction = async (
+	kit: ContractKit,
+	tx: Transaction): Promise<ParsedTransaction> => {
+	const contractName = tx.tx.txo._parent.options.address
+	const estimatedGas =
+		tx.tx.defaultParams?.gas ?
+		new BigNumber(tx.tx.defaultParams?.gas) :
+		new BigNumber(await tx.tx.txo.estimateGas()).multipliedBy(kit.gasInflationFactor).integerValue()
+	// TODO(zviad): Add support for other fee currencies.
+	const gasPrice = await kit.connection.gasPrice()
+	const estimatedFee = estimatedGas.multipliedBy(gasPrice).div(1e18)
+	return {
+		estimatedGas,
+		contractName,
+		estimatedFee,
+		feeCurrency: "CELO",
+		transferValue: tx.value ? new BigNumber(tx.value.toString()).div(1e18) : undefined,
+	}
+}
+
+const TransactionInfo = (props: {
+	tx: ParsedTransaction
+}) => {
+	return <Box>
+		<Typography>Contract: {props.tx.contractName}</Typography>
+		{props.tx.transferValue &&
+		<Typography>Transfering: {props.tx.transferValue.toFixed(4)} CELO</Typography>}
+		<Typography>Fee: ~{props.tx.estimatedFee.toFixed(4, BigNumber.ROUND_UP)} {props.tx.feeCurrency}</Typography>
+	</Box>
 }
