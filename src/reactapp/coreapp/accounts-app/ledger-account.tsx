@@ -15,6 +15,7 @@ import Radio from '@material-ui/core/Radio'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import TextField from '@material-ui/core/TextField'
 import PromptLedgerAction from '../prompt-ledger-action'
+import Box from '@material-ui/core/Box'
 
 import { LedgerAccount } from '../../state/accounts'
 import { CELO_BASE_DERIVATION_PATH } from '@celo/wallet-ledger'
@@ -128,14 +129,14 @@ const AddLedgerAccount = (props: {
 			<DialogContent className={classes.content}>
 				{
 				!addresses ?
-				<div>
+				<Box>
 					<Typography
 						className={classes.progressText}
 						color="textSecondary">Loading addresses...</Typography>
 					<LinearProgress color="secondary" />
-				</div>
+				</Box>
 				:
-				<div>
+				<Box>
 					<RadioGroup value={selected} onChange={handleSelect}>
 						{addresses.map((v, idx) => (
 							<FormControlLabel
@@ -163,12 +164,12 @@ const AddLedgerAccount = (props: {
 							onChange={(e) => { setCustomPath(e.target.value) }}
 						/>
 					}
-				</div>
+				</Box>
 				}
 				{verifyPath !== undefined &&
-				<div className={classes.verify}>
+				<Box className={classes.verify}>
 					<PromptLedgerAction text="Verify address on Ledger..." />
-				</div>}
+				</Box>}
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={handleAdd} disabled={!addresses || verifyPath !== undefined}>Add</Button>

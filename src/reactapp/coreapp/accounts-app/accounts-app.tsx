@@ -31,6 +31,7 @@ import TextField from '@material-ui/core/TextField'
 
 import { decryptLocalKey, LocalKey } from '../accountsdb'
 import { Account, LocalAccount } from '../../state/accounts'
+import Paper from '@material-ui/core/Paper'
 
 export const accountsAppName = "Accounts"
 
@@ -40,25 +41,21 @@ const useStyles = makeStyles((theme) => ({
 		flexDirection: "column",
 		flex: 1,
 	},
-	box: {
+	section: {
 		display: "flex",
 		flexDirection: "column",
 	},
 	accountCard: {
-		marginTop: 10,
-		minWidth: 500,
-	},
-	accountCardContent: {
 		display: "flex",
 		flexDirection: "row",
 		alignItems: "center",
+		minWidth: 500,
 	},
 	accountTextGroup: {
 		display: "flex",
 		flexDirection: "column",
 		alignItems: "flex-start",
 		flex: 1,
-		marginLeft: 20,
 	},
 	accountText: {
 		fontFamily: "monospace",
@@ -75,7 +72,6 @@ const useStyles = makeStyles((theme) => ({
 	buttonGroup: {
 		display: "flex",
 		flexDirection: "row",
-		marginTop: 10,
 	},
 	buttonAdd: {
 		width: 200,
@@ -127,7 +123,7 @@ export const AccountsApp = (props: {
 	}
 	const handleRefetch = () => { props.onAdd() }
 	return (
-		<div className={classes.root}>
+		<Box className={classes.root}>
 			{confirmRemove && <ConfirmRemove account={confirmRemove} onRemove={handleRemove} onCancel={handleCancel} />}
 			{openedAdd === "add-newlocal" && <AddNewLocalAccount onAdd={handleAdd} onCancel={handleCancel} />}
 			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
@@ -136,25 +132,25 @@ export const AccountsApp = (props: {
 			{/* {renameAccount && <RenameAccount account={renameAccount} onRename={handleRename} onClose={handleCancel} />} */}
 
 			<AppHeader title={"Accounts"} refetch={handleRefetch} isFetching={false} />
-			<Box py={2} className={classes.box}>
+			<Box className={classes.section} my={2}>
 				{
 				props.accounts.map((a) => {
 					return (
-						<Card className={classes.accountCard} key={a.address}>
-							<CardContent className={classes.accountCardContent}>
+						<Box key={a.address} my={0.5}>
+							<Paper>
+								<Box className={classes.accountCard} p={2}>
 								{
 								a.type === "local" ? <VpnKeyIcon /> :
 								a.type === "ledger" ? <AccountBalanceWalletIcon /> :
 								a.type === "address-only" ? <VisibilityIcon /> : <></>
 								}
-								<div className={classes.accountTextGroup}>
+								<Box className={classes.accountTextGroup} marginLeft={2}>
 									{
 									renameAccount === a ?
 									<TextField
 										autoFocus
 										multiline
 										margin="dense"
-										// label={`Name`}
 										value={renameNew}
 										size="medium"
 										fullWidth={true}
@@ -173,7 +169,7 @@ export const AccountsApp = (props: {
 										>{a.name === "" ? "____" : a.name}</Button>
 									}
 									<Typography className={classes.accountText}>{a.address}</Typography>
-								</div>
+								</Box>
 								{a.type === "local" &&
 								<IconButton onClick={() => setRevealAccount(a)}>
 									<DescriptionIcon />
@@ -181,13 +177,14 @@ export const AccountsApp = (props: {
 								<IconButton color="secondary" onClick={() => setConfirmRemove(a)}>
 									<DeleteIcon />
 								</IconButton>
-							</CardContent>
-						</Card>
+								</Box>
+							</Paper>
+						</Box>
 					)})
 				}
 			</Box>
-			<Box py={2} className={classes.box}>
-				<div  className={classes.buttonGroup}>
+			<Box className={classes.section} my={2}>
+				<Box className={classes.buttonGroup} my={1}>
 					<Button
 						className={classes.buttonAdd}
 						color="primary"
@@ -200,8 +197,8 @@ export const AccountsApp = (props: {
 						variant="contained"
 						startIcon={<GetAppIcon />}
 						>Import Local Account</Button>
-				</div>
-				<div className={classes.buttonGroup}>
+				</Box>
+				<Box className={classes.buttonGroup} my={1}>
 					<Button
 						className={classes.buttonAdd}
 						color="primary"
@@ -214,17 +211,17 @@ export const AccountsApp = (props: {
 						variant="contained"
 						startIcon={<VisibilityIcon />}
 						onClick={() => { setOpenedAdd("add-addressonly") }}>Add ReadOnly Account</Button>
-				</div>
-				<div className={classes.buttonGroup}>
+				</Box>
+				<Box className={classes.buttonGroup} my={1}>
 					<Button
 						className={classes.buttonPassword}
 						color="secondary"
 						variant="outlined"
 						startIcon={<LockOpenIcon />}
 						>Change Password</Button>
-				</div>
+				</Box>
 			</Box>
-		</div>
+		</Box>
 	)
 }
 

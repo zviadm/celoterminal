@@ -3,6 +3,7 @@ import { CeloContract, ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
 import { isValidAddress } from 'ethereumjs-util'
 
+import { makeStyles } from '@material-ui/core/styles'
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 import Typography from '@material-ui/core/Typography'
@@ -19,8 +20,8 @@ import { fmtAmount } from '../../../common/utils'
 import ERC20 from './erc20'
 import { CFG } from '../../../common/cfg'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
-import { makeStyles } from '@material-ui/core/styles'
-import { LinearProgress } from '@material-ui/core'
+import Box from '@material-ui/core/Box'
+import Paper from '@material-ui/core/Paper'
 
 const useStyles = makeStyles(() => ({
 	root: {
@@ -75,26 +76,24 @@ const SendReceiveApp = (props: {
 	return (
 		<div className={classes.root}>
 			<AppHeader title={"Send/Receive"} isFetching={isFetching} refetch={refetch} />
-			<Card className={classes.card}>
-				<CardContent>
-					<Select
-						autoFocus
-						label="ERC20"
-						value={erc20}
-						onChange={(event) => { setErc20(event.target.value as string) }}>
-						{
-							CFG.erc20s.map(({name}) => (
-								<MenuItem value={name} key={name}>{name}</MenuItem>
-							))
-						}
-					</Select>
-					{!fetched ? <LinearProgress color="primary" /> :
-					<Typography>
-						Balance: {fmtAmount(fetched.balance, fetched.decimals)} {erc20}
-					</Typography>
+			<Paper className={classes.card}>
+				<Select
+					autoFocus
+					label="ERC20"
+					value={erc20}
+					onChange={(event) => { setErc20(event.target.value as string) }}>
+					{
+						CFG.erc20s.map(({name}) => (
+							<MenuItem value={name} key={name}>{name}</MenuItem>
+						))
 					}
-				</CardContent>
-			</Card>
+				</Select>
+				<Box marginTop={1}>
+					<Typography>
+						Balance: {!fetched ? "?" : fmtAmount(fetched.balance, fetched.decimals)} {erc20}
+					</Typography>
+				</Box>
+			</Paper>
 			<Card className={classes.card}>
 				<CardContent>
 					<div style={{display: "flex", flexDirection: "column", width: 400}}>
