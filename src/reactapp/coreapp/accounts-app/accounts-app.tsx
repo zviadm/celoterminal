@@ -132,7 +132,7 @@ export const AccountsApp = (props: {
 			{/* {renameAccount && <RenameAccount account={renameAccount} onRename={handleRename} onClose={handleCancel} />} */}
 
 			<AppHeader title={"Accounts"} refetch={handleRefetch} isFetching={false} />
-			<Box className={classes.section} my={2}>
+			<Box className={classes.section} marginTop={2}>
 				{
 				props.accounts.map((a) => {
 					return (
@@ -183,8 +183,8 @@ export const AccountsApp = (props: {
 					)})
 				}
 			</Box>
-			<Box className={classes.section} my={2}>
-				<Box className={classes.buttonGroup} my={1}>
+			<Box className={classes.section} marginTop={2}>
+				<Box className={classes.buttonGroup} marginTop={1}>
 					<Button
 						className={classes.buttonAdd}
 						color="primary"
@@ -198,7 +198,7 @@ export const AccountsApp = (props: {
 						startIcon={<GetAppIcon />}
 						>Import Local Account</Button>
 				</Box>
-				<Box className={classes.buttonGroup} my={1}>
+				<Box className={classes.buttonGroup} marginTop={1}>
 					<Button
 						className={classes.buttonAdd}
 						color="primary"
@@ -268,7 +268,7 @@ const RevealPrivateKey = (props: {
 						Never share your mnemonic or private key with anyone else.
 					</Alert>
 					{localKey.mnemonic &&
-					<Box my={1}>
+					<Box marginTop={1}>
 						<Card>
 							<CardContent>
 								<Typography color="textSecondary" gutterBottom>Mnemonic (24 words, BIP39, compatible with the Valora app)</Typography>
@@ -276,7 +276,7 @@ const RevealPrivateKey = (props: {
 							</CardContent>
 						</Card>
 					</Box>}
-					<Box my={1}>
+					<Box marginTop={1}>
 						<Card>
 							<CardContent>
 								<Typography color="textSecondary" gutterBottom>Private Key</Typography>

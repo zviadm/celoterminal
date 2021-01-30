@@ -10,8 +10,6 @@ import Typography from '@material-ui/core/Typography'
 import AppHeader from '../../components/app-header'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
 
 import { Account } from '../../state/accounts'
 import useOnChainState from '../../state/onchain-state'
@@ -22,6 +20,7 @@ import { CFG } from '../../../common/cfg'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import Box from '@material-ui/core/Box'
 import Paper from '@material-ui/core/Paper'
+import Alert from '@material-ui/lab/Alert'
 
 const useStyles = makeStyles(() => ({
 	root: {
@@ -29,9 +28,12 @@ const useStyles = makeStyles(() => ({
 		flexDirection: "column",
 		flex: 1,
 	},
-	card: {
-		marginTop: 10,
-		alignSelf: "flex-start",
+	address: {
+		fontFamily: "monospace",
+	},
+	box: {
+		display: "flex",
+		flexDirection: "column",
 	},
 }))
 
@@ -76,27 +78,35 @@ const SendReceiveApp = (props: {
 	return (
 		<div className={classes.root}>
 			<AppHeader title={"Send/Receive"} isFetching={isFetching} refetch={refetch} />
-			<Paper className={classes.card}>
-				<Select
-					autoFocus
-					label="ERC20"
-					value={erc20}
-					onChange={(event) => { setErc20(event.target.value as string) }}>
-					{
-						CFG.erc20s.map(({name}) => (
-							<MenuItem value={name} key={name}>{name}</MenuItem>
-						))
-					}
-				</Select>
-				<Box marginTop={1}>
-					<Typography>
-						Balance: {!fetched ? "?" : fmtAmount(fetched.balance, fetched.decimals)} {erc20}
-					</Typography>
-				</Box>
-			</Paper>
-			<Card className={classes.card}>
-				<CardContent>
-					<div style={{display: "flex", flexDirection: "column", width: 400}}>
+			<Box marginTop={2}>
+				<Paper>
+					<Box p={2}>
+						<Select
+							autoFocus
+							label="ERC20"
+							value={erc20}
+							onChange={(event) => { setErc20(event.target.value as string) }}>
+							{
+								CFG.erc20s.map(({name}) => (
+									<MenuItem value={name} key={name}>{name}</MenuItem>
+								))
+							}
+						</Select>
+						<Box marginTop={1}>
+							<Typography>
+								Balance: {!fetched ? "?" : fmtAmount(fetched.balance, fetched.decimals)} {erc20}
+							</Typography>
+						</Box>
+					</Box>
+				</Paper>
+			</Box>
+			<Box marginTop={2}>
+				<Paper>
+					<Box className={classes.box} p={2}>
+						<Alert severity="warning">
+							Transfers are non-reversible. Transfering funds to an incorrect address
+							can lead to permanent loss of your funds.
+						</Alert>
 						<TextField
 								margin="normal"
 								label={`Destination address`}
@@ -104,7 +114,7 @@ const SendReceiveApp = (props: {
 								placeholder="0x..."
 								size="medium"
 								fullWidth={true}
-								inputProps={{style: {fontFamily: "monospace"}, spellCheck: false}}
+								inputProps={{className: classes.address, spellCheck: false}}
 								onChange={(e) => { setToAddress(e.target.value) }}
 							/>
 						<TextField
@@ -123,9 +133,9 @@ const SendReceiveApp = (props: {
 						<Button
 							variant="outlined" color="primary"
 							onClick={handleSend}>Send</Button>
-					</div>
-				</CardContent>
-			</Card>
+					</Box>
+				</Paper>
+			</Box>
 		</div>
 	)
 }
