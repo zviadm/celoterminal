@@ -70,11 +70,14 @@ const SendReceiveApp = (props: {
 		}
 		const contract = await newERC20(kit, erc20)
 		const tx = contract.transfer(
-			toAddress, new BigNumber(toSend).shiftedBy(fetched?.decimals))
+			toAddress, new BigNumber(toSend).shiftedBy(fetched.decimals))
 		return [{tx: tx}]
 	}
 	const handleSend = () => { runTXs(txsSend) }
-	const canSend = isValidAddress(toAddress) && (toSend !== "") && fetched
+	const canSend = (
+		isValidAddress(toAddress) && (toSend !== "") &&
+		fetched &&
+		fetched.balance.gte(new BigNumber(toSend).shiftedBy(fetched.decimals)))
 	const toAddresses = props.accounts.map((a) => ({
 		address: a.address,
 		account: a,
