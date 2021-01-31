@@ -45,12 +45,8 @@ const useStyles = makeStyles((theme) => ({
 		fontSize: theme.typography.body1.fontSize,
 	},
 	buttonAdd: {
-		width: 200,
-		marginRight: 10,
+		marginTop: 10,
 	},
-	buttonPassword: {
-		width: 410,
-	}
 }))
 
 const AccountsApp = (props: {
@@ -164,42 +160,44 @@ const AccountsApp = (props: {
 					)})
 				}
 			</Box>
-			<Box display="flex" flexDirection="column" marginTop={2}>
-				<Box display="flex" flexDirection="row" marginTop={1}>
-					<Button
-						className={classes.buttonAdd}
-						color="primary"
-						variant="contained"
-						startIcon={<LocalAccountIcon />}
-						onClick={() => { setOpenedAdd("add-newlocal") }}>Create Local Account</Button>
-					<Button
-						className={classes.buttonAdd}
-						color="primary"
-						variant="contained"
-						startIcon={<GetAppIcon />}
-						>Import Local Account</Button>
-				</Box>
-				<Box display="flex" flexDirection="row" marginTop={1}>
-					<Button
-						className={classes.buttonAdd}
-						color="primary"
-						variant="contained"
-						startIcon={<LedgerAccountIcon />}
-						onClick={() => { setOpenedAdd("add-ledger") }}>Add Ledger Account</Button>
-					<Button
-						className={classes.buttonAdd}
-						color="primary"
-						variant="contained"
-						startIcon={<AddressOnlyAccountIcon />}
-						onClick={() => { setOpenedAdd("add-addressonly") }}>Add ReadOnly Account</Button>
-				</Box>
-				<Box display="flex" flexDirection="row" my={1}>
-					<Button
-						className={classes.buttonPassword}
-						color="secondary"
-						variant="outlined"
-						startIcon={<LockOpenIcon />}
-						>Change Password</Button>
+			<Box marginTop={2}>
+				<Paper>
+					<Box display="flex" flexDirection="column" p={2}>
+						<Button
+							color="primary"
+							variant="outlined"
+							startIcon={<LocalAccountIcon />}
+							onClick={() => { setOpenedAdd("add-newlocal") }}>Create Local Account</Button>
+						<Button
+							className={classes.buttonAdd}
+							color="primary"
+							variant="outlined"
+							startIcon={<GetAppIcon />}
+							>Import Local Account</Button>
+						<Button
+							className={classes.buttonAdd}
+							color="primary"
+							variant="outlined"
+							startIcon={<LedgerAccountIcon />}
+							onClick={() => { setOpenedAdd("add-ledger") }}>Add Ledger Account</Button>
+						<Button
+							className={classes.buttonAdd}
+							color="primary"
+							variant="outlined"
+							startIcon={<AddressOnlyAccountIcon />}
+							onClick={() => { setOpenedAdd("add-addressonly") }}>Add ReadOnly Account</Button>
+					</Box>
+				</Paper>
+				<Box marginTop={2}>
+					<Paper>
+						<Box display="flex" flexDirection="column" p={2}>
+							<Button
+								color="secondary"
+								variant="outlined"
+								startIcon={<LockOpenIcon />}
+								>Change Password</Button>
+						</Box>
+					</Paper>
 				</Box>
 			</Box>
 		</Box>

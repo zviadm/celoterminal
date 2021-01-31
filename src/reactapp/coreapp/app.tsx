@@ -102,7 +102,12 @@ const App = () => {
 					setSelectedApp={setSelectedApp}
 					appList={AppList}
 				/>
-				<Box display="flex" flex={1} paddingLeft={2} paddingRight={2}>
+				<Box
+					display="flex"
+					flex={1}
+					paddingLeft={2}
+					paddingRight={2}
+					marginBottom={2}>
 					{renderedApp}
 				</Box>
 			</Box>
