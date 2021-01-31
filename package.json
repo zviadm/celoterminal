@@ -1,8 +1,8 @@
 {
   "name": "celoterminal",
-  "productName": "celoterminal",
+  "productName": "CeloTerminal",
   "version": "1.0.0",
-  "description": "Celo Terminal: One-stop-shop to interact with the decentralized apps on the Celo ecosystem.",
+  "description": "Celo Terminal: One-stop-shop to interact with the decentralized apps in the Celo ecosystem.",
   "main": ".webpack/main",
   "scripts": {
     "start": "npx cross-env CELOTERMINAL_NETWORK_ID=62320 CELOTERMINAL_ACCOUNTS_DB=home/.celoterminal/celoaccounts-test.db npx electron-forge start",
@@ -24,7 +24,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "celoterminal"
+            "name": "CeloTerminal"
           }
         },
         {
