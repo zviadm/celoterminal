@@ -21,6 +21,7 @@ const createWindow = (): void => {
       contextIsolation: false,
       enableRemoteModule: true,
       devTools: enableDevTools,
+      partition: "persist:default",
     }
   });
 

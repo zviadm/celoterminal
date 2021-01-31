@@ -6,7 +6,15 @@ import * as React from 'react'
 // State stored in LocalStorage must be JSON encodable.
 const useLocalStorageState = <T>(key: string, initial: T): [T, (v: T) => void] => {
 	const storedV = localStorage.getItem(key)
-	const [v, setV] = React.useState<T>(storedV && storedV !== "undefined" ? JSON.parse(storedV) as T : initial)
+	let parsedV: T | undefined = undefined
+	try {
+		if (storedV && storedV !== "undefined") {
+			parsedV = JSON.parse(storedV)
+		}
+	} catch (e) {
+		console.error(`LocalStorage: unable to parse: ${key} - ${storedV}`)
+	}
+	const [v, setV] = React.useState<T>(parsedV !== undefined ? parsedV : initial)
 	const storeAndSetV = (newV: T) => {
 		localStorage.setItem(key, JSON.stringify(newV))
 		setV(newV)

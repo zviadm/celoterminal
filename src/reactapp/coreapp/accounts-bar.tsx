@@ -12,10 +12,17 @@ import WifiOffIcon from '@material-ui/icons/WifiOff'
 
 import { Account } from '../state/accounts'
 import { fmtAddress } from '../../common/utils'
-import kit from './tx-runner/kit'
+import kit, { useNetworkURL } from './kit'
 import { CFG, networkName } from '../../common/cfg'
 import Tooltip from '@material-ui/core/Tooltip'
-
+import Button from '@material-ui/core/Button'
+import Dialog from '@material-ui/core/Dialog'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogActions from '@material-ui/core/DialogActions'
+import TextField from '@material-ui/core/TextField'
+import { newKit } from '@celo/contractkit'
+import LinearProgress from '@material-ui/core/LinearProgress'
 
 const useStyles = makeStyles((theme) => ({
 	name: {
@@ -40,6 +47,7 @@ const AccountsBar = (props: {
 	accounts: Account[],
 	selectedAccount?: Account,
 	onSelectAccount: (a: Account) => void,
+	onError: (e: Error) => void,
 }): JSX.Element => {
 	const classes = useStyles()
 	const [connected, setConnected] = React.useState(true)
@@ -65,18 +73,32 @@ const AccountsBar = (props: {
     }, maxBlockDelaySecs/6)
     return () => { clearInterval(timer) }
 	}, [])
+	const [networkURL, setNetworkURL] = useNetworkURL()
+	const [openNetworkURL, setOpenNetworkURL] = React.useState(false)
 
-	const cfg = CFG()
+	const handleOpenNetworkURL = () => { setOpenNetworkURL(true) }
+	const handleCloseNetworkURL = (v: string) => {
+		if (v !== networkURL) {
+			setNetworkURL(v)
+		}
+		setOpenNetworkURL(false)
+	}
+	const netName = networkName(CFG().networkId)
 	return (
 		<Box display="flex" flexDirection="row" justifyContent="flex-end" p={2}>
+			{openNetworkURL &&
+			<ChangeNetworkURL
+				networkURL={networkURL}
+				onClose={handleCloseNetworkURL}
+				onError={props.onError} />}
 			<Box display="flex" flexDirection="row" flex={1}>
-				<Tooltip title={cfg.defaultNetworkURL}>
-					<Box display="flex" flexDirection="row"  alignItems="center">
-						<Typography>{networkName(cfg.networkId)}</Typography>
-						<Box marginLeft={1}>
-							{connected ? <WifiIcon className={classes.connected} /> : <WifiOffIcon className={classes.disconnected} />}
-						</Box>
-					</Box>
+				<Tooltip title={networkURL}>
+					<Button
+						endIcon={connected ?
+							<WifiIcon className={classes.connected} /> :
+							<WifiOffIcon className={classes.disconnected} />}
+						onClick={handleOpenNetworkURL}
+						>{netName}</Button>
 				</Tooltip>
 			</Box>
 			<Select
@@ -106,6 +128,65 @@ const AccountsBar = (props: {
 				}
 			</Select>
 		</Box>
+	)
+}
+
+const ChangeNetworkURL = (props: {
+	networkURL: string
+	onClose: (v: string) => void
+	onError: (e: Error) => void
+}) => {
+	const [networkURL, setNetworkURL] = React.useState(props.networkURL)
+	const [isTesting, setIsTesting] = React.useState(false)
+	const onError = props.onError
+	const onClose = props.onClose
+	React.useEffect(() => {
+		if (!isTesting) {
+			return
+		}
+		const kit = newKit(networkURL)
+		kit.web3.eth.net
+			.getId()
+			.then((networkId) => {
+				const cfgNetworkId = CFG().networkId
+				if (networkId.toString() !== cfgNetworkId) {
+					onError(new Error(`NetworkId doesn't match. Expected: ${cfgNetworkId}, Got: ${networkId}.`))
+					setIsTesting(false)
+				} else {
+					onClose(networkURL)
+				}
+			})
+			.catch((e) => {
+				onError(e)
+				setIsTesting(false)
+			})
+			.finally(() => {
+				kit.stop()
+			})
+	}, [onError, onClose, isTesting, networkURL])
+	const handleCancel = () => { onClose(props.networkURL) }
+	const handleConnect = () => { setIsTesting(true) }
+	return (
+		<Dialog open={true} onClose={handleCancel}>
+			<DialogTitle>Change Network</DialogTitle>
+			<DialogContent style={{minWidth: 500}}>
+				<TextField
+					autoFocus
+					margin="dense"
+					label={`Network URL`}
+					value={networkURL}
+					size="medium"
+					fullWidth={true}
+					onChange={(e) => { setNetworkURL(e.target.value) }}
+				/>
+				<LinearProgress
+					style={{visibility: !isTesting ? "hidden" : undefined}} color="primary" />
+			</DialogContent>
+			<DialogActions>
+				<Button onClick={handleCancel}>Cancel</Button>
+				<Button onClick={handleConnect} disabled={isTesting}>Connect</Button>
+			</DialogActions>
+		</Dialog>
 	)
 }
 

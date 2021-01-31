@@ -37,6 +37,7 @@ import { canDecryptLocalKey, createWallet } from './wallet'
 import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { fmtAddress, sleep } from '../../../common/utils'
 import { transformError } from '../ledger-utils'
+import { cfgNetworkURL } from '../kit'
 
 function TXRunner(props: {
 	selectedAccount: Account,
@@ -142,7 +143,7 @@ const RunTXs = (props: {
 						`Refusing to run transactions.`)
 				}
 				const cfg = CFG()
-				const kit = newKit(cfg.defaultNetworkURL, w.wallet)
+				const kit = newKit(cfgNetworkURL(), w.wallet)
 				kit.defaultAccount = selectedAccount.address
 				try {
 					const networkId = (await kit.web3.eth.net.getId()).toString()

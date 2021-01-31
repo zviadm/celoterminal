@@ -95,6 +95,7 @@ const App = () => {
 				accounts={accounts}
 				selectedAccount={selectedAccount}
 				onSelectAccount={setSelectedAccount}
+				onError={setError}
 			/>
 			<Box display="flex" flexDirection="row" >
 				<AppMenu

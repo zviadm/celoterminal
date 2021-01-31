@@ -46,14 +46,14 @@ const AddNewLocalAccount = (props: {
 					Name is used to identify your account in the app. You can change it at any time later on.
 				</Alert>
 				<TextField
-						autoFocus
-						margin="dense"
-						label={`Name`}
-						value={name}
-						size="medium"
-						fullWidth={true}
-						onChange={(e) => { setName(e.target.value) }}
-					/>
+					autoFocus
+					margin="dense"
+					label={`Name`}
+					value={name}
+					size="medium"
+					fullWidth={true}
+					onChange={(e) => { setName(e.target.value) }}
+				/>
 				<Alert severity="info">
 					Account address and private key are generated automatically and stored in a local database
 					encrypted by your password.
@@ -62,14 +62,14 @@ const AddNewLocalAccount = (props: {
 					Same password must be used for all your local accounts.
 				</Alert>
 				<TextField
-						margin="dense"
-						type="password"
-						label={`Password`}
-						value={password}
-						size="medium"
-						fullWidth={true}
-						onChange={(e) => { setPassword(e.target.value) }}
-					/>
+					margin="dense"
+					type="password"
+					label={`Password`}
+					value={password}
+					size="medium"
+					fullWidth={true}
+					onChange={(e) => { setPassword(e.target.value) }}
+				/>
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.onCancel}>Cancel</Button>
