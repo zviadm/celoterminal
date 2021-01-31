@@ -11,7 +11,7 @@ const createWindow = (): void => {
   // Create the browser window.
   const enableDevTools = !app.isPackaged
   const minWidth = 800
-  const width = app.isPackaged ? minWidth : minWidth + 400
+  const width = app.isPackaged ? minWidth : minWidth + 270
   const mainWindow = new BrowserWindow({
     height: 800,
     minWidth: minWidth,
