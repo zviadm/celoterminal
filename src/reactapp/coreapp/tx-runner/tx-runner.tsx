@@ -226,9 +226,7 @@ const RunTXs = (props: {
 				txSendMS === 0 ? 0 : Math.min(99, (Date.now() - txSendMS) / 5000 * 100.0))
       setTXProgress((txProgress) => Math.max(progress, txProgress))
     }, 200)
-    return () => {
-      clearInterval(timer);
-    };
+    return () => { clearInterval(timer) }
   }, [stage, txSendMS]);
 	return (
 		<Dialog open={true}>

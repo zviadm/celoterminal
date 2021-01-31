@@ -12,3 +12,12 @@ export const CFG = {
 		path: [".celoterminal"],
 	},
 }
+
+export const networkName = (networkId: number): string => {
+	switch (networkId) {
+	case 62320:
+		return "Baklava"
+	default:
+		return `NetworkId: ${networkId}`
+	}
+}
