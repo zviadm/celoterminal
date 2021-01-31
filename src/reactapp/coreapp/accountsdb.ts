@@ -106,7 +106,8 @@ class AccountsDB {
 			if (!password) {
 				throw new Error(`Password must be provided when adding local accounts.`)
 			}
-			decryptLocalKey(a, password)
+			// Sanity check to make sure encryptedData is decryptable.
+			decryptLocalKey(encryptedData, password)
 			break
 		case "address-only":
 			data = ""
@@ -143,8 +144,7 @@ class AccountsDB {
 				// make sure it is the same password as the one that is stored.
 				try {
 					const existingPassword = decryptAES(
-						password,
-						pws[0].encrypted_password)
+						pws[0].encrypted_password, password)
 					if (existingPassword !== password) {
 						throw new Error()
 					}
@@ -187,13 +187,13 @@ export interface LocalKey {
 export const encryptLocalKey = (
 	data: LocalKey,
 	password: string): string => {
-	return encryptAES(password, JSON.stringify(data))
+	return encryptAES(JSON.stringify(data), password)
 }
 export const decryptLocalKey = (
-	a: LocalAccount,
+	encryptedData: string,
 	password: string): LocalKey => {
 	try {
-		return JSON.parse(decryptAES(password, a.encryptedData))
+		return JSON.parse(decryptAES(encryptedData, password))
 	} catch (e) {
 		throw new Error(`Incorrect password, can not decrypt local account.`)
 	}
@@ -201,14 +201,14 @@ export const decryptLocalKey = (
 
 const IV_LENGTH = 16
 const AES_KEY_LEN = 32
-function encryptAES(password: string, data: string) {
+function encryptAES(plainData: string, password: string) {
 	const iv = crypto.randomBytes(IV_LENGTH);
 	const key = crypto.scryptSync(password, iv, AES_KEY_LEN)
 	const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
-	return iv.toString('hex') + ":" + cipher.update(data).toString('hex') + cipher.final().toString('hex')
+	return iv.toString('hex') + ":" + cipher.update(plainData).toString('hex') + cipher.final().toString('hex')
 }
-function decryptAES(password: string, data: string) {
-	const parts = data.split(":")
+function decryptAES(encryptedData: string, password: string) {
+	const parts = encryptedData.split(":")
 	const iv = Buffer.from(parts[0], 'hex')
 	const key = crypto.scryptSync(password, iv, AES_KEY_LEN)
 	const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);

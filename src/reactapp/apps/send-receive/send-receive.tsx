@@ -135,10 +135,10 @@ const SendReceiveApp = (props: {
 									placeholder="0x..."
 									size="medium"
 									fullWidth={true}
+									spellCheck={false}
 									inputProps={{
 										...params.inputProps,
 										className: classes.address,
-										spellCheck: false,
 									}}
 								/>
 							)}

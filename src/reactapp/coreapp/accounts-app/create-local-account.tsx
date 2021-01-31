@@ -16,9 +16,10 @@ import Alert from '@material-ui/lab/Alert'
 import { LocalAccount } from '../../state/accounts'
 import { encryptLocalKey } from '../accountsdb'
 
-const AddNewLocalAccount = (props: {
+const CreateLocalAccount = (props: {
 	onAdd: (a: LocalAccount, password?: string) => void,
 	onCancel: () => void,
+	onError: (e: Error) => void,
 }): JSX.Element => {
 	const [name, setName] = React.useState("")
 	const [password, setPassword] = React.useState("")
@@ -35,8 +36,11 @@ const AddNewLocalAccount = (props: {
 				address: keys.address,
 				encryptedData: encryptedData,
 			}, password)
-			setIsAdding(false)
 		})()
+		.catch((e) => {
+			props.onError(e)
+			setIsAdding(false)
+		})
 	}
 	return (
 		<Dialog open={true} onClose={props.onCancel}>
@@ -78,4 +82,4 @@ const AddNewLocalAccount = (props: {
 		</Dialog>
 	)
 }
-export default AddNewLocalAccount
+export default CreateLocalAccount

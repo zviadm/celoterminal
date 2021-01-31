@@ -37,7 +37,7 @@ const RevealLocalKey = (props: {
 	const [localKey, setLocalKey] = React.useState<LocalKey | undefined>()
 	const handlePassword = (p: string) => {
 		try {
-			const k = decryptLocalKey(props.account, p)
+			const k = decryptLocalKey(props.account.encryptedData, p)
 			setLocalKey(k)
 		} catch (e) {
 			props.onError(e)
@@ -79,7 +79,7 @@ const RevealLocalKey = (props: {
 						<Card>
 							<CardContent>
 								<Typography color="textSecondary" gutterBottom>Password Encrypted Key</Typography>
-								<Typography className={classes.textPrivateKey}>{ensureLeading0x(props.account.encryptedData)}</Typography>
+								<Typography className={classes.textPrivateKey}>{props.account.encryptedData}</Typography>
 							</CardContent>
 						</Card>
 					</Box>

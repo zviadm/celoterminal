@@ -15,9 +15,10 @@ import TextField from '@material-ui/core/TextField'
 import Paper from '@material-ui/core/Paper'
 
 import AppHeader from '../../components/app-header'
-import AddAddressOnlyAccount from './addressonly-account'
-import AddNewLocalAccount from './local-account'
+import CreateLocalAccount from './create-local-account'
+import ImportLocalAccount from './import-local-account'
 import AddLedgerAccount from './ledger-account'
+import AddAddressOnlyAccount from './addressonly-account'
 import ConfirmRemove from './confirm-remove'
 import RevealLocalKey from './reveal-local-key'
 import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon } from './account-icons'
@@ -52,19 +53,15 @@ const AccountsApp = (props: {
 }): JSX.Element => {
 	const classes = useStyles()
 	const [openedAdd, setOpenedAdd] = React.useState<
-		undefined | "add-ledger" | "add-addressonly" | "add-newlocal">()
+		undefined | "add-ledger" | "add-addressonly" | "create-local" | "import-local">()
 	const [confirmRemove, setConfirmRemove] = React.useState<Account | undefined>()
 	const [revealAccount, setRevealAccount] = React.useState<LocalAccount | undefined>()
 	const [renameAccount, setRenameAccount] = React.useState<Account | undefined>()
 	const [renameNew, setRenameNew] = React.useState("")
 
 	const handleAdd = (a: Account, password?: string) => {
-		try {
-			props.onAdd(a, password)
-			setOpenedAdd(undefined)
-		} catch (e) {
-			props.onError(e)
-		}
+		props.onAdd(a, password)
+		setOpenedAdd(undefined)
 	}
 	const handleRemove = (a: Account) => {
 		props.onRemove(a)
@@ -90,11 +87,11 @@ const AccountsApp = (props: {
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
 			{confirmRemove && <ConfirmRemove account={confirmRemove} onRemove={handleRemove} onCancel={handleCancel} />}
-			{openedAdd === "add-newlocal" && <AddNewLocalAccount onAdd={handleAdd} onCancel={handleCancel} />}
+			{openedAdd === "create-local" && <CreateLocalAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
+			{openedAdd === "import-local" && <ImportLocalAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
 			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
-			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} />}
+			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
 			{revealAccount && <RevealLocalKey account={revealAccount} onClose={handleCancel} onError={props.onError} />}
-			{/* {renameAccount && <RenameAccount account={renameAccount} onRename={handleRename} onClose={handleCancel} />} */}
 
 			<AppHeader title={"Accounts"} refetch={handleRefetch} isFetching={false} />
 			<Box display="flex" flexDirection="column" marginTop={2}>
@@ -165,13 +162,13 @@ const AccountsApp = (props: {
 							color="primary"
 							variant="outlined"
 							startIcon={<LocalAccountIcon />}
-							onClick={() => { setOpenedAdd("add-newlocal") }}>Create Local Account</Button>
+							onClick={() => { setOpenedAdd("create-local") }}>Create Local Account</Button>
 						<Button
 							className={classes.buttonAdd}
 							color="primary"
 							variant="outlined"
 							startIcon={<GetAppIcon />}
-							>Import Local Account</Button>
+							onClick={() => { setOpenedAdd("import-local") }}>Import Local Account</Button>
 						<Button
 							className={classes.buttonAdd}
 							color="primary"

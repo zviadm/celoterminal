@@ -16,7 +16,7 @@ export async function createWallet(a: Account, password?: string): Promise<{
 				throw new Error("Password must be entered to unlock local accounts.")
 			}
 			const wallet = new LocalWallet()
-			const localKey = decryptLocalKey(a, password)
+			const localKey = decryptLocalKey(a.encryptedData, password)
 			wallet.addAccount(localKey.privateKey)
 			return {wallet}
 		}
@@ -43,7 +43,7 @@ export const canDecryptLocalKey = (
 	account: LocalAccount,
 	password: string): boolean => {
 	try {
-		decryptLocalKey(account, password)
+		decryptLocalKey(account.encryptedData, password)
 		return true
 	} catch (e) {
 		return false

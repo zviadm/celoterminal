@@ -68,7 +68,7 @@ function TXRunner(props: {
 			return
 		}
 		try {
-			decryptLocalKey(props.selectedAccount, p)
+			decryptLocalKey(props.selectedAccount.encryptedData, p)
 			setPW({password: p, expireMS: Date.now() + 60 * 60 * 1000})
 		} catch (e) {
 			props.onError(e)

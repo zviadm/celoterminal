@@ -21,17 +21,22 @@ const useStyles = makeStyles(() => ({
 const AddAddressOnlyAccount = (props: {
 	onAdd: (a: AddressOnlyAccount) => void,
 	onCancel: () => void,
+	onError: (e: Error) => void,
 }): JSX.Element => {
 	const classes = useStyles()
 	const [name, setName] = React.useState("")
 	const [address, setAddress] = React.useState("")
 	const canAdd = isValidAddress(address)
 	const handleAdd = () => {
-		props.onAdd({
-			type: "address-only",
-			name: name,
-			address: address,
-		})
+		try {
+			props.onAdd({
+				type: "address-only",
+				name: name,
+				address: address,
+			})
+		} catch (e) {
+			props.onError(e)
+		}
 	}
 	return (
 		<Dialog open={true} onClose={props.onCancel}>

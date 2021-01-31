@@ -1,6 +1,7 @@
 import * as React from 'react'
 import TransportNodeHid from '@ledgerhq/hw-transport-node-hid-noevents'
 import LedgerApp from '@ledgerhq/hw-app-eth'
+import { CELO_BASE_DERIVATION_PATH } from '@celo/wallet-ledger'
 
 import { makeStyles } from '@material-ui/core/styles'
 import Dialog from '@material-ui/core/Dialog'
@@ -18,7 +19,6 @@ import PromptLedgerAction from '../tx-runner/prompt-ledger-action'
 import Box from '@material-ui/core/Box'
 
 import { LedgerAccount } from '../../state/accounts'
-import { CELO_BASE_DERIVATION_PATH } from '@celo/wallet-ledger'
 import { transformError } from '../ledger-utils'
 
 const useStyles = makeStyles(() => ({
@@ -93,7 +93,6 @@ const AddLedgerAccount = (props: {
 			} finally {
 				transport.close()
 			}
-			setVerifyPath(undefined)
 			onAdd({
 				type: "ledger",
 				name: `Ledger/${pathIdx}`,
@@ -109,9 +108,7 @@ const AddLedgerAccount = (props: {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [verifyPath])
 
-	const handleSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelected(event.target.value);
-	};
+	const handleSelect = (event: React.ChangeEvent<HTMLInputElement>) => { setSelected(event.target.value) }
 	const handleAdd = () => {
 		if (selected === "custom") {
 			setVerifyPath(customPath)
