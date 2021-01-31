@@ -6,7 +6,7 @@ import { accountsDB } from '../accountsdb'
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useAccounts = () => {
-	const [accounts, setAccounts] = React.useState<Account[] | undefined>()
+	const [_accounts, setAccounts] = React.useState<Account[] | undefined>()
 	const [_selectedAccount, setSelectedAccount] =
 		useLocalStorageState<Account | undefined>("terminal/core/selected-account", undefined)
 	const refreshAccounts = () => {
@@ -24,8 +24,11 @@ export const useAccounts = () => {
 			return 0
 		})
 		setAccounts(accounts)
+		return accounts
 	}
-	React.useEffect(() => { refreshAccounts() }, [])
+	// _accounts will be undefined only once. Load accounts synchronously since
+	// all database access is synchronous anyways.
+	const accounts = _accounts || refreshAccounts()
 	const addAccount = (a?: Account, password?: string) => {
 		if (a) {
 			accountsDB().addAccount(a, password)
