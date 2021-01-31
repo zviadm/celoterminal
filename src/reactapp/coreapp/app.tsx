@@ -8,7 +8,8 @@ import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
 import AccountsBar from './accounts-bar'
 import AppMenu from './app-menu'
-import { AccountsApp, accountsAppName } from './accounts-app/accounts-app'
+import AccountsApp from './accounts-app/accounts-app'
+import Accounts from './accounts-app/def'
 import { AppList } from '../apps/apps'
 import TXRunner from './tx-runner/tx-runner'
 import theme from './theme'
@@ -20,7 +21,7 @@ import { accountsDB } from './accountsdb'
 
 
 const App = () => {
-	const [_selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", accountsAppName)
+	const [_selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", Accounts.name)
 	const {
 		accounts,
 		addAccount,
@@ -45,7 +46,7 @@ const App = () => {
 	let renderedApp
 	let selectedApp = _selectedApp
 	if (!selectedAccount) {
-		selectedApp = accountsAppName
+		selectedApp = Accounts.name
 		renderedApp = <AccountsApp
 			accounts={accounts}
 			onAdd={addAccount}
@@ -56,7 +57,7 @@ const App = () => {
 	} else {
 		const terminalApp = AppList.find((a) => a.name === selectedApp)
 		try {
-			renderedApp = (selectedApp === accountsAppName || !terminalApp) ?
+			renderedApp = (selectedApp === Accounts.name || !terminalApp) ?
 				<AccountsApp
 					accounts={accounts}
 					onAdd={addAccount}

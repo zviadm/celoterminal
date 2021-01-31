@@ -31,8 +31,6 @@ import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon } from './a
 import { decryptLocalKey, LocalKey } from '../accountsdb'
 import { Account, LocalAccount } from '../../state/accounts'
 
-export const accountsAppName = "Accounts"
-
 const useStyles = makeStyles((theme) => ({
 	accountText: {
 		fontFamily: "monospace",
@@ -55,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
 	}
 }))
 
-export const AccountsApp = (props: {
+const AccountsApp = (props: {
 	accounts: Account[],
 	onAdd: (a?: Account, password?: string) => void,
 	onRemove: (a: Account) => void,
@@ -207,6 +205,7 @@ export const AccountsApp = (props: {
 		</Box>
 	)
 }
+export default AccountsApp
 
 const useRevealKeyStyles = makeStyles((theme) => ({
 	textMnemonic: {

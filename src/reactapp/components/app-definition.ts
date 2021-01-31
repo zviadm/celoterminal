@@ -14,6 +14,7 @@ export type TXFinishFunc = (e?: Error, r?: CeloTxReceipt[]) => void
 
 export interface AppDefinition {
 	name: string
+	icon: <T>(props: T) => JSX.Element
 	renderApp: (props: {
 		accounts: Account[],
 		selectedAccount: Account,
