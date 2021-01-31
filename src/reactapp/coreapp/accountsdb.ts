@@ -6,7 +6,7 @@ import crypto from 'crypto'
 import { ensureLeading0x, toChecksumAddress } from '@celo/utils/lib/address'
 import { isValidAddress } from 'ethereumjs-util'
 
-import { Account, LocalAccount } from '../state/accounts'
+import { Account, AddressOnlyAccount, LedgerAccount, LocalAccount } from '../state/accounts'
 import { CFG } from '../../common/cfg'
 
 // Supported `account` row versions. Last version is the current version.
@@ -54,8 +54,16 @@ class AccountsDB {
 	}
 
 	public readAccounts = (): Account[] => {
-		const rows = this.db.prepare(`SELECT * FROM accounts`).all()
-		const accounts = rows.filter((r) => supportedVersions.indexOf(r.version) >= 0).map((r) => {
+		const rows: {
+			address: string
+			name: string
+			type: string
+			version: number
+			data: string
+			encrypted_data: string
+		}[] = this.db.prepare(`SELECT * FROM accounts`).all()
+		const accounts: Account[] = rows.filter(
+			(r) => supportedVersions.indexOf(r.version) >= 0).map((r) => {
 			const base = {
 				type: r.type,
 				name: r.name,
@@ -63,20 +71,20 @@ class AccountsDB {
 			}
 			switch (r.type) {
 			case "address-only":
-				return base
+				return base as AddressOnlyAccount
 			case "ledger": {
 				const ledgerData = JSON.parse(r.data)
 				return {
 					...base,
 					baseDerivationPath: ledgerData.baseDerivationPath,
 					derivationPathIndex: ledgerData.derivationPathIndex,
-				}
+				} as LedgerAccount
 			}
 			case "local":
 				return {
 					...base,
 					encryptedData: r.encrypted_data,
-				}
+				} as LocalAccount
 			default:
 				throw new Error(`Unrecognized account type: ${r.type}.`)
 			}
