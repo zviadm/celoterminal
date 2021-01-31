@@ -1,8 +1,7 @@
 import * as React from 'react'
 import { shell } from 'electron'
-import { ensureLeading0x } from '@celo/utils/lib/address'
 
-import AppHeader from '../../components/app-header'
+import { makeStyles } from '@material-ui/core/styles'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
@@ -12,24 +11,18 @@ import LockOpenIcon from '@material-ui/icons/LockOpen'
 import DeleteIcon from '@material-ui/icons/Delete'
 import BackupIcon from '@material-ui/icons/Backup'
 import DescriptionIcon from '@material-ui/icons/Description'
-import { makeStyles } from '@material-ui/core/styles'
-import Alert from '@material-ui/lab/Alert'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import UnlockAccount from '../tx-runner/unlock-account'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
 import TextField from '@material-ui/core/TextField'
 import Paper from '@material-ui/core/Paper'
 
+import AppHeader from '../../components/app-header'
 import AddAddressOnlyAccount from './addressonly-account'
 import AddNewLocalAccount from './local-account'
 import AddLedgerAccount from './ledger-account'
 import ConfirmRemove from './confirm-remove'
+import RevealLocalKey from './reveal-local-key'
 import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon } from './account-icons'
 
-import { accountsDB, decryptLocalKey, LocalKey } from '../accountsdb'
+import { accountsDB } from '../accountsdb'
 import { Account, LocalAccount } from '../../state/accounts'
 
 const useStyles = makeStyles((theme) => ({
@@ -100,7 +93,7 @@ const AccountsApp = (props: {
 			{openedAdd === "add-newlocal" && <AddNewLocalAccount onAdd={handleAdd} onCancel={handleCancel} />}
 			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
 			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} />}
-			{revealAccount && <RevealPrivateKey account={revealAccount} onClose={handleCancel} onError={props.onError} />}
+			{revealAccount && <RevealLocalKey account={revealAccount} onClose={handleCancel} onError={props.onError} />}
 			{/* {renameAccount && <RenameAccount account={renameAccount} onRename={handleRename} onClose={handleCancel} />} */}
 
 			<AppHeader title={"Accounts"} refetch={handleRefetch} isFetching={false} />
@@ -219,71 +212,3 @@ const AccountsApp = (props: {
 	)
 }
 export default AccountsApp
-
-const useRevealKeyStyles = makeStyles((theme) => ({
-	textMnemonic: {
-		fontWeight: "bold"
-	},
-	textPrivateKey: {
-		overflowWrap: "anywhere",
-		fontWeight: "bold",
-		fontFamily: "monospace",
-		fontSize: theme.typography.body2.fontSize,
-	}
-}))
-
-const RevealPrivateKey = (props: {
-	account: LocalAccount,
-	onClose: () => void,
-	onError: (e: Error) => void,
-}) => {
-	const classes = useRevealKeyStyles()
-	const [localKey, setLocalKey] = React.useState<LocalKey | undefined>()
-	const handlePassword = (p: string) => {
-		try {
-			const k = decryptLocalKey(props.account, p)
-			setLocalKey(k)
-		} catch (e) {
-			props.onError(e)
-		}
-	}
-
-	if (!localKey) {
-		return (
-			<UnlockAccount
-				onPassword={handlePassword}
-				onCancel={props.onClose}
-			/>
-		)
-	} else {
-		return (
-			<Dialog open={true} onClose={props.onClose}>
-				<DialogContent>
-					<Alert severity="warning">
-						Never share your mnemonic or private key with anyone else.
-					</Alert>
-					{localKey.mnemonic &&
-					<Box marginTop={1}>
-						<Card>
-							<CardContent>
-								<Typography color="textSecondary" gutterBottom>Mnemonic (24 words, BIP39, compatible with the Valora app)</Typography>
-								<Typography className={classes.textMnemonic}>{localKey.mnemonic}</Typography>
-							</CardContent>
-						</Card>
-					</Box>}
-					<Box marginTop={1}>
-						<Card>
-							<CardContent>
-								<Typography color="textSecondary" gutterBottom>Private Key</Typography>
-								<Typography className={classes.textPrivateKey}>{ensureLeading0x(localKey.privateKey)}</Typography>
-							</CardContent>
-						</Card>
-					</Box>
-				</DialogContent>
-				<DialogActions>
-					<Button onClick={props.onClose}>Close</Button>
-				</DialogActions>
-			</Dialog>
-		)
-	}
-}
