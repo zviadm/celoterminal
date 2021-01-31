@@ -72,6 +72,7 @@ const AddNewLocalAccount = (props: {
 					/>
 			</DialogContent>
 			<DialogActions>
+				<Button onClick={props.onCancel}>Cancel</Button>
 				<Button onClick={handleAdd} disabled={isAdding}>Add</Button>
 			</DialogActions>
 		</Dialog>

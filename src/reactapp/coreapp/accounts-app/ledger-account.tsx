@@ -171,6 +171,7 @@ const AddLedgerAccount = (props: {
 				</Box>
 			</DialogContent>
 			<DialogActions>
+				<Button onClick={props.onCancel}>Cancel</Button>
 				<Button onClick={handleAdd} disabled={!addresses || verifyPath !== undefined}>Add</Button>
 			</DialogActions>
 		</Dialog>
