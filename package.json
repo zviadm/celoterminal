@@ -5,7 +5,7 @@
   "description": "Celo Terminal: One-stop-shop to interact with the decentralized apps on the Celo ecosystem.",
   "main": ".webpack/main",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "npx cross-env CELOTERMINAL_NETWORK_ID=62320 CELOTERMINAL_ACCOUNTS_DB=home/.celoterminal/celoaccounts-test.db npx electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
@@ -76,6 +76,7 @@
     "@types/react-dom": "^17.0.0",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
+    "cross-env": "^7.0.3",
     "css-loader": "^4.2.1",
     "electron": "11.2.0",
     "eslint": "^7.6.0",

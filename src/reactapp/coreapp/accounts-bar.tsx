@@ -66,12 +66,13 @@ const AccountsBar = (props: {
     return () => { clearInterval(timer) }
 	}, [])
 
+	const cfg = CFG()
 	return (
 		<Box display="flex" flexDirection="row" justifyContent="flex-end" p={2}>
 			<Box display="flex" flexDirection="row" flex={1}>
-				<Tooltip title={CFG.networkURL}>
+				<Tooltip title={cfg.defaultNetworkURL}>
 					<Box display="flex" flexDirection="row"  alignItems="center">
-						<Typography>{networkName(CFG.networkId)}</Typography>
+						<Typography>{networkName(cfg.networkId)}</Typography>
 						<Box marginLeft={1}>
 							{connected ? <WifiIcon className={classes.connected} /> : <WifiOffIcon className={classes.disconnected} />}
 						</Box>

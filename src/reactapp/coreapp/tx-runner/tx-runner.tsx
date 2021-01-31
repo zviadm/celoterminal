@@ -141,13 +141,14 @@ const RunTXs = (props: {
 						`Unexpected Account. Expected: ${selectedAccount.address}, Got: ${accounts[0]}. ` +
 						`Refusing to run transactions.`)
 				}
-				const kit = newKit(CFG.networkURL, w.wallet)
+				const cfg = CFG()
+				const kit = newKit(cfg.defaultNetworkURL, w.wallet)
 				kit.defaultAccount = selectedAccount.address
 				try {
-					const networkId = await kit.web3.eth.net.getId()
-					if (networkId !== CFG.networkId) {
+					const networkId = (await kit.web3.eth.net.getId()).toString()
+					if (networkId !== cfg.networkId) {
 						throw new Error(
-							`Unexpected NetworkId. Expected: ${CFG.networkId}, Got: ${networkId}. ` +
+							`Unexpected NetworkId. Expected: ${cfg.networkId}, Got: ${networkId}. ` +
 							`Refusing to run transactions.`)
 					}
 					const txs = await txFunc(kit)

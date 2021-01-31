@@ -1,23 +1,67 @@
-import { erc20Baklava } from "./erc20-baklava";
+const defaultNetworkId = "42220"
+const defaultAccountsDB = "home/.celoterminal/celoaccounts.db"
 
-export const CFG = {
-	networkId: 62320,
-	networkURL: "https://baklava-forno.celo-testnet.org",
-	erc20s: [
-		{name: "CELO"},
-		{name: "cUSD"},
-		...erc20Baklava],
-	accountsDBDir: {
-		root: "home" as const,
-		path: [".celoterminal"],
-	},
+const defaultNetworks: {[key: string]: string} = {
+	"42220": "wss://forno.celo.org/ws",
+	"62320": "https://baklava-forno.celo-testnet.org",
+	"44787": "wss://alfajores-forno.celo-testnet.org/ws",
+}
+const fallbackNetworkURL = "http://localhost:7545"
+
+const networkNames: {[key: string]: string} = {
+	"42220": "Mainnet",
+	"62320": "Baklava",
+	"44787": "Alfajores",
 }
 
-export const networkName = (networkId: number): string => {
-	switch (networkId) {
-	case 62320:
-		return "Baklava"
-	default:
-		return `NetworkId: ${networkId}`
+type PathRoot = "home" | "userData"
+
+interface Config {
+	networkId: string,
+	defaultNetworkURL: string,
+	accountsDBPath: {
+		root: PathRoot,
+		path: string[],
+	},
+	erc20s: {
+		name: string,
+		address?: string,
+	}[],
+}
+
+let _CFG: Config
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const CFG = (): Config => {
+	if (!_CFG) {
+		const networkId =
+			process.env["CELOTERMINAL_NETWORK_ID"] ||
+			defaultNetworkId
+		const defaultNetworkURL =
+			process.env["CELOTERMINAL_NETWORK_URL"] ||
+			defaultNetworks[networkId] ||
+			fallbackNetworkURL
+		const accountsDBPath =
+			process.env["CELOTERMINAL_ACCOUNTS_DB"] ||
+			defaultAccountsDB
+		const accountsDBPathParts = accountsDBPath.split("/")
+
+		_CFG = {
+			networkId,
+			defaultNetworkURL,
+			accountsDBPath: {
+				root: accountsDBPathParts[0] as PathRoot,
+				path: accountsDBPathParts.slice(1),
+			},
+			// TODO(zviad): Predefined ERC20 lists for different networks.
+			erc20s: [
+				{name: "CELO"},
+				{name: "cUSD"},
+			],
+		}
 	}
+	return _CFG
+}
+
+export const networkName = (networkId: string): string => {
+	return networkNames[networkId] || `NetworkId: ${networkId}`
 }

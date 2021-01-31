@@ -12,7 +12,6 @@ import { CFG } from '../../common/cfg'
 // Supported `account` row versions. Last version is the current version.
 const supportedVersions = [1]
 const currentVersion = supportedVersions[supportedVersions.length - 1]
-const accountsDBFile = "celoaccounts-v0.db"
 
 let _db: AccountsDB
 
@@ -26,8 +25,11 @@ export const accountsDB = (): AccountsDB => {
 class AccountsDB {
 	private db
 	constructor() {
+		const cfg = CFG()
 		const dbdir = path.join(
-			electron.remote.app.getPath(CFG.accountsDBDir.root), ...CFG.accountsDBDir.path)
+			electron.remote.app.getPath(cfg.accountsDBPath.root),
+			...cfg.accountsDBPath.path.slice(0, cfg.accountsDBPath.path.length - 1))
+		const accountsDBFile = cfg.accountsDBPath.path[cfg.accountsDBPath.path.length - 1]
 		fs.mkdirSync(dbdir, {recursive: true})
 		const dbpath = path.join(dbdir, accountsDBFile)
 		console.info(`DB: opening database`, dbpath)

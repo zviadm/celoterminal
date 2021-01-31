@@ -37,8 +37,9 @@ const SendReceiveApp = (props: {
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
 	const classes = useStyles()
+	const erc20s = CFG().erc20s
 	const [erc20, setErc20] = useLocalStorageState(
-		"terminal/send-receive/erc20", CFG.erc20s[0].name)
+		"terminal/send-receive/erc20", erc20s[0].name)
 	const selectedAddress = props.selectedAccount.address
 	const {
 		isFetching,
@@ -99,7 +100,7 @@ const SendReceiveApp = (props: {
 							value={erc20}
 							onChange={(event) => { setErc20(event.target.value as string) }}>
 							{
-								CFG.erc20s.map(({name}) => (
+								erc20s.map(({name}) => (
 									<MenuItem value={name} key={name}>{name}</MenuItem>
 								))
 							}
