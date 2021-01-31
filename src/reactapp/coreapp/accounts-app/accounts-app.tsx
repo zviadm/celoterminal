@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { shell } from 'electron'
 import { ensureLeading0x } from '@celo/utils/lib/address'
 
 import AppHeader from '../../components/app-header'
@@ -9,13 +10,8 @@ import Typography from '@material-ui/core/Typography'
 import GetAppIcon from '@material-ui/icons/GetApp'
 import LockOpenIcon from '@material-ui/icons/LockOpen'
 import DeleteIcon from '@material-ui/icons/Delete'
+import BackupIcon from '@material-ui/icons/Backup'
 import DescriptionIcon from '@material-ui/icons/Description'
-
-import AddAddressOnlyAccount from './addressonly-account'
-import AddNewLocalAccount from './local-account'
-import AddLedgerAccount from './ledger-account'
-import ConfirmRemove from './confirm-remove'
-
 import { makeStyles } from '@material-ui/core/styles'
 import Alert from '@material-ui/lab/Alert'
 import Card from '@material-ui/core/Card'
@@ -26,9 +22,14 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import TextField from '@material-ui/core/TextField'
 import Paper from '@material-ui/core/Paper'
+
+import AddAddressOnlyAccount from './addressonly-account'
+import AddNewLocalAccount from './local-account'
+import AddLedgerAccount from './ledger-account'
+import ConfirmRemove from './confirm-remove'
 import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon } from './account-icons'
 
-import { decryptLocalKey, LocalKey } from '../accountsdb'
+import { accountsDB, decryptLocalKey, LocalKey } from '../accountsdb'
 import { Account, LocalAccount } from '../../state/accounts'
 
 const useStyles = makeStyles((theme) => ({
@@ -89,6 +90,10 @@ const AccountsApp = (props: {
 		setRenameAccount(undefined)
 	}
 	const handleRefetch = () => { props.onAdd() }
+
+	const handleBackup = () => {
+		shell.showItemInFolder(accountsDB().dbPath)
+	}
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
 			{confirmRemove && <ConfirmRemove account={confirmRemove} onRemove={handleRemove} onCancel={handleCancel} />}
@@ -190,12 +195,22 @@ const AccountsApp = (props: {
 				</Paper>
 				<Box marginTop={2}>
 					<Paper>
-						<Box display="flex" flexDirection="column" p={2}>
-							<Button
-								color="secondary"
-								variant="outlined"
-								startIcon={<LockOpenIcon />}
-								>Change Password</Button>
+						<Box display="flex" flexDirection="row" p={2}>
+							<Box display="flex" flexDirection="column" flex={1} marginRight={1}>
+								<Button
+									color="secondary"
+									variant="outlined"
+									startIcon={<LockOpenIcon />}
+									>Change Password</Button>
+							</Box>
+							<Box display="flex" flexDirection="column" flex={1} marginLeft={1}>
+								<Button
+									color="secondary"
+									variant="outlined"
+									startIcon={<BackupIcon />}
+									onClick={handleBackup}
+									>Backup Database</Button>
+							</Box>
 						</Box>
 					</Paper>
 				</Box>

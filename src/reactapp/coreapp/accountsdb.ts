@@ -23,6 +23,8 @@ export const accountsDB = (): AccountsDB => {
 }
 
 class AccountsDB {
+	public readonly dbPath: string
+
 	private db
 	constructor() {
 		const cfg = CFG()
@@ -31,9 +33,9 @@ class AccountsDB {
 			...cfg.accountsDBPath.path.slice(0, cfg.accountsDBPath.path.length - 1))
 		const accountsDBFile = cfg.accountsDBPath.path[cfg.accountsDBPath.path.length - 1]
 		fs.mkdirSync(dbdir, {recursive: true})
-		const dbpath = path.join(dbdir, accountsDBFile)
-		console.info(`DB: opening database`, dbpath)
-		this.db = new sqlite3(dbpath, {fileMustExist: false, readonly: false})
+		this.dbPath = path.join(dbdir, accountsDBFile)
+		console.info(`DB: opening database`, this.dbPath)
+		this.db = new sqlite3(this.dbPath, {fileMustExist: false, readonly: false})
 		this.db.exec(`
 			CREATE TABLE IF NOT EXISTS accounts (
 				address TEXT PRIMARY KEY,
