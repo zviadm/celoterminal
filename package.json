@@ -9,9 +9,8 @@
       "npx cross-env CELOTERMINAL_NETWORK_ID=62320 CELOTERMINAL_ACCOUNTS_DB=home/.celoterminal/celoaccounts-test.db npx electron-forge start",
     "mainnet":
       "npx cross-env CELOTERMINAL_ACCOUNTS_DB=home/.celoterminal/celoaccounts-test.db npx electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
+    "build": "electron-forge publish --dry-run",
+    "publish": "electron-forge publish --from-dry-run",
     "lint": "eslint --ext .ts ."
   },
   "keywords": [],
