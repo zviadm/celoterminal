@@ -32,24 +32,36 @@ class AccountsDB {
 			electron.remote.app.getPath(cfg.accountsDBPath.root),
 			...cfg.accountsDBPath.path.slice(0, cfg.accountsDBPath.path.length - 1))
 		const accountsDBFile = cfg.accountsDBPath.path[cfg.accountsDBPath.path.length - 1]
-		fs.mkdirSync(dbdir, {recursive: true})
 		this.dbPath = path.join(dbdir, accountsDBFile)
-		console.info(`DB: opening database`, this.dbPath)
-		this.db = new sqlite3(this.dbPath, {fileMustExist: false, readonly: false})
-		this.db.exec(`
-			CREATE TABLE IF NOT EXISTS accounts (
-				address TEXT PRIMARY KEY,
-				version NUMBER,
-				type TEXT,
-				name TEXT,
-				data TEXT,
-				encrypted_data TEXT
-			) WITHOUT ROWID;`)
-		this.db.exec(`
-			CREATE TABLE IF NOT EXISTS password (
-				id INTEGER PRIMARY KEY CHECK (id = 0),
-				encrypted_password TEXT
-			) WITHOUT ROWID;`)
+		try {
+			fs.mkdirSync(dbdir, {recursive: true})
+			console.info(`DB: opening database`, this.dbPath)
+			this.db = new sqlite3(this.dbPath, {fileMustExist: false, readonly: false})
+			this.db.exec(`
+				CREATE TABLE IF NOT EXISTS accounts (
+					address TEXT PRIMARY KEY,
+					version NUMBER,
+					type TEXT,
+					name TEXT,
+					data TEXT,
+					encrypted_data TEXT
+				) WITHOUT ROWID;`)
+			this.db.exec(`
+				CREATE TABLE IF NOT EXISTS password (
+					id INTEGER PRIMARY KEY CHECK (id = 0),
+					encrypted_password TEXT
+				) WITHOUT ROWID;`)
+		} catch (e) {
+			electron.remote.dialog.showMessageBoxSync({
+				type: "error",
+				title: "CRASH",
+				message:
+					`Accounts database: ${this.dbPath} can not be created or opened.\n` +
+					`CeloTerminal can not start.\n\n${e}`,
+			})
+			electron.remote.app.quit()
+			throw e
+		}
 	}
 
 	public close = () => {
