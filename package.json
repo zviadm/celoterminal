@@ -1,7 +1,7 @@
 {
   "name": "celoterminal",
   "productName": "CeloTerminal",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Celo Terminal: One-stop-shop to interact with the decentralized apps in the Celo ecosystem.",
   "main": ".webpack/main",
   "scripts": {
@@ -20,6 +20,9 @@
     "email": "thezviad@gmail.com"
   },
   "license": "MIT",
+  "config": {
+    "forge": "./forge.config.js"
+  },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.54",
     "@electron-forge/maker-deb": "^6.0.0-beta.54",

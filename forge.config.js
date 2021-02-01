@@ -3,15 +3,14 @@ const config = {
 		name: "Celo Terminal",
 		executableName: "celo-terminal",
 		appBundleId: "com.celoterminal",
-		asar: true,
 		appCategoryType: "public.app-category.finance",
 		osxSign: {
-			identity: "Developer ID Application: Zviad Metreveli",
-			hardenedRuntime: true,
+			"identity": "Developer ID Application: Zviad Metreveli",
+			"hardened-runtime": true,
 			"gatekeeper-assess": false,
-      entitlements: "static/entitlements.plist",
-      "entitlements-inherit": "static/entitlements.plist",
-      "signature-flags": "library",
+			"entitlements": "./static/entitlements.plist",
+			"entitlements-inherit": "./static/entitlements.plist",
+			"signature-flags": "library",
 		},
 		osxNotarize: {
 			appBundleId: "com.celoterminal",
@@ -39,7 +38,7 @@ const config = {
 		{
 			"name": "@electron-forge/maker-rpm",
 			"config": {}
-		}
+		},
 	],
 	"publishers": [
 		{
@@ -49,7 +48,8 @@ const config = {
 					"owner": "zviadm",
 					"name": "celoterminal"
 				},
-				"prerelease": true
+				"prerelease": true,
+				"draft": true,
 			}
 		}
 	],
