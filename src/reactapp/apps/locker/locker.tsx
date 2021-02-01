@@ -40,20 +40,18 @@ const LockerApp = (props: {
 		const goldToken = await kit.contracts.getGoldToken()
 		const lockedGold = await kit.contracts.getLockedGold()
 		const accounts = await kit.contracts.getAccounts()
-		const config = await kit.getNetworkConfig()
-
 		const isAccount = await accounts.isAccount(props.selectedAccount.address)
 		if (!isAccount) {
 			return { isAccount }
 		}
-		const unlockingPeriod = config.lockedGold.unlockingPeriod
+		const config = lockedGold.getConfig()
 		const totalCELO = goldToken.balanceOf(props.selectedAccount.address)
 		const totalLocked = lockedGold.getAccountTotalLockedGold(props.selectedAccount.address)
 		const nonvotingLocked = lockedGold.getAccountNonvotingLockedGold(props.selectedAccount.address)
 		const pendingWithdrawals = lockedGold.getPendingWithdrawals(props.selectedAccount.address)
 		return {
 			isAccount,
-			unlockingPeriod,
+			unlockingPeriod: (await config).unlockingPeriod,
 			totalCELO: await totalCELO,
 			totalLocked: await totalLocked,
 			nonvotingLocked: await nonvotingLocked,

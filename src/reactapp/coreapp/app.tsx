@@ -7,6 +7,10 @@ import CssBaseline from '@material-ui/core/CssBaseline'
 import Box from '@material-ui/core/Box'
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
+import Button from '@material-ui/core/Button'
+import GetAppIcon from '@material-ui/icons/GetApp'
+import LinearProgress from '@material-ui/core/LinearProgress'
+import Tooltip from '@material-ui/core/Tooltip'
 
 import AccountsBar from './accounts-bar'
 import AppMenu from './app-menu'
@@ -100,11 +104,16 @@ const App = () => {
 				onError={setError}
 			/>
 			<Box display="flex" flexDirection="row" >
-				<AppMenu
-					selectedApp={selectedApp}
-					setSelectedApp={setSelectedApp}
-					appList={AppList}
-				/>
+				<Box display="flex" flexDirection="column" >
+					<AppMenu
+						selectedApp={selectedApp}
+						setSelectedApp={setSelectedApp}
+						appList={AppList}
+					/>
+					<Box m={2} alignSelf="flex-end">
+						<CheckUpdateButton />
+					</Box>
+				</Box>
 				<Box
 					display="flex"
 					flex={1}
@@ -115,6 +124,28 @@ const App = () => {
 				</Box>
 			</Box>
 			<ErrorSnack error={error} onClose={clearError} />
+		</Box>
+	)
+}
+
+const CheckUpdateButton = (props: {
+
+}) => {
+	const [isChecking, setIsChecking] = React.useState(false)
+	return (
+		<Box
+			display="flex"
+			flexDirection="column">
+			<Box>
+				<Tooltip title="Check and download updates">
+					<Button
+						style={{textTransform: "none"}}
+						startIcon={<GetAppIcon />}
+						onClick={() => { setIsChecking((isChecking) => !isChecking) }}
+						>v1.0.0</Button>
+				</Tooltip>
+			</Box>
+			<LinearProgress style={{visibility: isChecking ? undefined : "hidden"}} />
 		</Box>
 	)
 }
