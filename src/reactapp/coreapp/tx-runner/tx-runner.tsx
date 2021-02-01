@@ -315,7 +315,7 @@ const parseTransaction = async (
 	const estimatedGas =
 		tx.tx.defaultParams?.gas ?
 		new BigNumber(tx.tx.defaultParams?.gas) :
-		new BigNumber(await tx.tx.txo.estimateGas()).multipliedBy(kit.gasInflationFactor).integerValue()
+		new BigNumber(await tx.tx.txo.estimateGas({value: tx.value})).multipliedBy(kit.gasInflationFactor).integerValue()
 	// TODO(zviad): Add support for other fee currencies.
 	const gasPrice = await kit.connection.gasPrice()
 	const estimatedFee = estimatedGas.multipliedBy(gasPrice).div(1e18)
@@ -347,7 +347,7 @@ const TransactionInfo = (props: {
 							</IconButton>
 						</TableCell>
 					</TableRow>
-					{open &&
+					{open && <>
 					<TableRow>
 						<TableCell></TableCell>
 						<TableCell
@@ -356,7 +356,17 @@ const TransactionInfo = (props: {
 								fontFamily: "monospace",
 								textTransform: "uppercase",
 								overflowWrap: "anywhere"}}>calldata: {props.tx.encodedABI}</TableCell>
-					</TableRow>}
+					</TableRow>
+					<TableRow>
+						<TableCell></TableCell>
+						<TableCell
+							colSpan={2}
+							style={{
+								fontFamily: "monospace",
+								textTransform: "uppercase",
+								overflowWrap: "anywhere"}}>gas: {props.tx.estimatedGas.toFixed(0)}</TableCell>
+					</TableRow>
+					</>}
 					{props.tx.transferValue &&
 					<TableRow>
 						<TableCell>Transfer</TableCell>
@@ -364,7 +374,9 @@ const TransactionInfo = (props: {
 					</TableRow>}
 					<TableRow>
 						<TableCell>Fee</TableCell>
-						<TableCell colSpan={2}>~{props.tx.estimatedFee.toFixed(4, BigNumber.ROUND_UP)} {props.tx.feeCurrency}</TableCell>
+						<TableCell colSpan={2}>
+							~{props.tx.estimatedFee.toFixed(4, BigNumber.ROUND_UP)} {props.tx.feeCurrency}
+						</TableCell>
 					</TableRow>
 				</TableBody>
 			</Table>

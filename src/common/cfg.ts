@@ -2,9 +2,9 @@ const defaultNetworkId = "42220"
 const defaultAccountsDB = "home/.celoterminal/celoaccounts.db"
 
 const defaultNetworks: {[key: string]: string} = {
-	"42220": "wss://forno.celo.org/ws",
+	"42220": "https://forno.celo.org",
 	"62320": "https://baklava-forno.celo-testnet.org",
-	"44787": "wss://alfajores-forno.celo-testnet.org/ws",
+	"44787": "https://alfajores-forno.celo-testnet.org",
 }
 const fallbackNetworkURL = "http://localhost:7545"
 

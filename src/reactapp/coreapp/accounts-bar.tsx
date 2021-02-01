@@ -80,6 +80,7 @@ const AccountsBar = (props: {
 	const handleCloseNetworkURL = (v: string) => {
 		if (v !== networkURL) {
 			setNetworkURL(v)
+			setConnected(true)
 		}
 		setOpenNetworkURL(false)
 	}

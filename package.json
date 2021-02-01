@@ -5,7 +5,10 @@
   "description": "Celo Terminal: One-stop-shop to interact with the decentralized apps in the Celo ecosystem.",
   "main": ".webpack/main",
   "scripts": {
-    "start": "npx cross-env CELOTERMINAL_NETWORK_ID=62320 CELOTERMINAL_ACCOUNTS_DB=home/.celoterminal/celoaccounts-test.db npx electron-forge start",
+    "start":
+      "npx cross-env CELOTERMINAL_NETWORK_ID=62320 CELOTERMINAL_ACCOUNTS_DB=home/.celoterminal/celoaccounts-test.db npx electron-forge start",
+    "mainnet":
+      "npx cross-env CELOTERMINAL_ACCOUNTS_DB=home/.celoterminal/celoaccounts-test.db npx electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
