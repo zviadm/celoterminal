@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, autoUpdater } from 'electron'
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string
 
@@ -59,3 +59,7 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+if (app.isPackaged) {
+  // TODO(zviad): Configure auto updater.
+  // autoUpdater.setFeedURL()
+}
