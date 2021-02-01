@@ -5,12 +5,10 @@
   "description": "Celo Terminal: One-stop-shop to interact with the decentralized apps in the Celo ecosystem.",
   "main": ".webpack/main",
   "scripts": {
-    "start":
-      "npx cross-env CELOTERMINAL_NETWORK_ID=62320 CELOTERMINAL_ACCOUNTS_DB=home/.celoterminal/celoaccounts-test.db npx electron-forge start",
-    "mainnet":
-      "npx cross-env CELOTERMINAL_ACCOUNTS_DB=home/.celoterminal/celoaccounts-test.db npx electron-forge start",
-    "build": "electron-forge publish --dry-run",
-    "publish": "electron-forge publish --from-dry-run",
+    "start": "npx cross-env CELOTERMINAL_NETWORK_ID=62320 CELOTERMINAL_ACCOUNTS_DB=home/.celoterminal/celoaccounts-test.db npx electron-forge start",
+    "mainnet": "npx cross-env CELOTERMINAL_ACCOUNTS_DB=home/.celoterminal/celoaccounts-test.db npx electron-forge start",
+    "build": "npx env-cmd -f ./.publish.env electron-forge publish --dry-run",
+    "publish": "npx env-cmd -f ./.publish.env electron-forge publish --from-dry-run",
     "lint": "eslint --ext .ts ."
   },
   "keywords": [],
@@ -40,6 +38,7 @@
     "cross-env": "^7.0.3",
     "css-loader": "^4.2.1",
     "electron": "11.2.0",
+    "env-cmd": "^10.1.0",
     "eslint": "^7.6.0",
     "eslint-plugin-import": "^2.20.0",
     "eslint-plugin-react": "^7.22.0",
@@ -65,6 +64,7 @@
     "better-sqlite3": "^7.1.2",
     "bignumber.js": "^9.0.1",
     "electron-squirrel-startup": "^1.0.0",
+    "electron-updater": "^4.3.5",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
   }

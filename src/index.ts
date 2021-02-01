@@ -1,4 +1,5 @@
-import { app, BrowserWindow, autoUpdater } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
+import { autoUpdater, UpdateInfo } from 'electron-updater'
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string
 
@@ -20,7 +21,8 @@ const createWindow = (): void => {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
-      devTools: enableDevTools,
+      // For now, always enable DevTools for debugging.
+      devTools: true, //enableDevTools,
       partition: "persist:default",
     }
   });
@@ -59,7 +61,35 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+let updateReady: UpdateInfo | undefined = undefined
 if (app.isPackaged) {
-  // TODO(zviad): Configure auto updater.
-  // autoUpdater.setFeedURL()
+  // const versionURL = `${process.platform}-${process.arch}/${app.getVersion()}`
+  // const feedURL = `https://update.electronjs.org/zviadm/celoterminal/${versionURL}`
+  autoUpdater.autoInstallOnAppQuit = false
+  autoUpdater.allowPrerelease = true
+  autoUpdater.setFeedURL({
+    provider: "github",
+    owner: "zviadm",
+    repo: "celoterminal",
+    token: "7ee4ccfd7e9404ceb59323ee3cb38e6bede63508",
+    private: true,
+  })
+  autoUpdater.checkForUpdates()
+  setInterval(() => {
+    autoUpdater.checkForUpdates()
+  }, 60 * 1000) // Check every 10 minutes.
+  autoUpdater.on("error", (e: Error) => {
+    console.error("autoupdater:", e)
+  })
+  autoUpdater.on("update-downloaded", (info: UpdateInfo) => {
+    console.error("autoupdater: update available", info)
+    updateReady = info
+  })
 }
+
+ipcMain.on("check-update-ready", (event) => {
+  event.returnValue = updateReady?.version
+})
+ipcMain.on("quit-and-install", () => {
+  autoUpdater.quitAndInstall()
+})

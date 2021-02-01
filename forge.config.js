@@ -1,3 +1,14 @@
+const osxNotarize = () => {
+	if (!process.env.OSX_NOTARIZE) {
+		return undefined
+	}
+	return {
+		appBundleId: "com.celoterminal",
+		appleId: process.env.APPLE_ID,
+		appleIdPassword: process.env.APPLE_ID_PASSWORD,
+	}
+}
+
 const config = {
 	packagerConfig: {
 		name: "Celo Terminal",
@@ -12,11 +23,7 @@ const config = {
 			"entitlements-inherit": "./static/entitlements.plist",
 			"signature-flags": "library",
 		},
-		osxNotarize: {
-			appBundleId: "com.celoterminal",
-			appleId: process.env.APPLE_ID,
-			appleIdPassword: process.env.APPLE_ID_PASSWORD,
-		}
+		osxNotarize: osxNotarize(),
 	},
 	"makers": [
 		{
