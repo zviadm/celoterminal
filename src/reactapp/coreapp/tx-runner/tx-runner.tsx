@@ -35,7 +35,7 @@ import useSessionState from '../../state/session-state'
 import { decryptLocalKey } from '../accountsdb'
 import { canDecryptLocalKey, createWallet } from './wallet'
 import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definition'
-import { fmtAddress, sleep } from '../../../common/utils'
+import { fmtAddress, fmtAmount, sleep } from '../../../common/utils'
 import { transformError } from '../ledger-utils'
 import { cfgNetworkURL } from '../kit'
 
@@ -153,13 +153,16 @@ const RunTXs = (props: {
 							`Refusing to run transactions.`)
 					}
 					const txs = await txFunc(kit)
+					if (txs.length === 0) {
+						throw new Error(`No transactions to run.`)
+					}
 					const parsedTXs: ParsedTransaction[] = []
 					for (const tx of txs) {
 						const parsedTX = await parseTransaction(kit, tx)
 						parsedTXs.push(parsedTX)
 					}
 					setPreparedTXs(parsedTXs)
-					await sleep(Date.now() - startMS + 500)
+					await sleep(Date.now() - startMS + 200)
 
 					const r: CeloTxReceipt[] = []
 					for (let idx = 0; idx < txs.length; idx += 1) {
@@ -202,7 +205,7 @@ const RunTXs = (props: {
 						r.push(receipt)
 					}
 					setStage("finishing")
-					await sleep(1000)
+					await sleep(500)
 					onFinish(undefined, r)
 				} finally {
 					kit.stop()
@@ -293,12 +296,12 @@ const RunTXs = (props: {
 interface ParsedTransaction {
 	estimatedGas: BigNumber, // Gas price in WEI
 	encodedABI: string,
+	transferValue?: BigNumber, // Amount of directly transfering CELO.
 
 	// Human readable values.
 	contractName: string,
 	estimatedFee: BigNumber,
 	feeCurrency: string,
-	transferValue?: BigNumber, // Amount of directly transfering CELO.
 }
 
 const parseTransaction = async (
@@ -319,11 +322,11 @@ const parseTransaction = async (
 	return {
 		estimatedGas,
 		encodedABI: tx.tx.txo.encodeABI(),
+		transferValue: tx.value ? new BigNumber(tx.value.toString()) : undefined,
 
 		contractName,
 		estimatedFee,
 		feeCurrency: "CELO",
-		transferValue: tx.value ? new BigNumber(tx.value.toString()).div(1e18) : undefined,
 	}
 }
 
@@ -357,7 +360,7 @@ const TransactionInfo = (props: {
 					{props.tx.transferValue &&
 					<TableRow>
 						<TableCell>Transfer</TableCell>
-						<TableCell colSpan={2}>{props.tx.transferValue.toFixed(4)} CELO</TableCell>
+						<TableCell colSpan={2}>{fmtAmount(props.tx.transferValue, 18)} CELO</TableCell>
 					</TableRow>}
 					<TableRow>
 						<TableCell>Fee</TableCell>

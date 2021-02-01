@@ -69,11 +69,13 @@ const App = () => {
 		} catch (e) {
 			setError(e)
 			renderedApp = <div></div>
+			console.error(`renderApp`, e)
 		}
 	}
 	const txOnFinish: TXFinishFunc = (e, r) => {
-		if (e) {
+		if (e && e.message !== "Cancelled") {
 			setError(e)
+			console.error(`TX:`, e)
 		}
 		if (txFunc?.onFinish) {
 			txFunc.onFinish(e, r)
