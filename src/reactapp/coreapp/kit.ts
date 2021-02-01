@@ -1,19 +1,21 @@
 import { ContractKit, newKit } from '@celo/contractkit'
 import { CFG } from '../../common/cfg'
 
-const networkURLKey = "terminal/core/network-url"
+const networkURLKeyPrefix = "terminal/core/network-url/"
 let _cfgNetworkURL: string | undefined
 export const cfgNetworkURL = (): string => {
 	if (!_cfgNetworkURL) {
 		const cfg = CFG()
-		const networkURL: string | null = localStorage.getItem(networkURLKey)
-		_cfgNetworkURL = networkURL || cfg.defaultNetworkURL
+		const networkURL: string | null = localStorage.getItem(networkURLKeyPrefix + cfg.networkId)
+		_cfgNetworkURL = (networkURL && networkURL !== "") ? networkURL : cfg.defaultNetworkURL
 	}
 	return _cfgNetworkURL
 }
 const setCFGNetworkURL = (v: string) => {
 	_cfgNetworkURL = v
-	localStorage.setItem(networkURLKey, v)
+	const cfg = CFG()
+	const cfgValue = v === cfg.defaultNetworkURL ? "" : v
+	localStorage.setItem(networkURLKeyPrefix + CFG().networkId, cfgValue)
 }
 
 let _kit: ContractKit | undefined
