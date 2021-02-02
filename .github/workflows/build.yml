@@ -1,0 +1,33 @@
+name: Build/release
+
+on: push
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10
+
+      - name: Build/release Electron app
+        run: ./buildcfg/build-action.js
+        env:
+          # If the commit is tagged with a version (e.g. "v1.0.0"),
+          # release the app after building
+          RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          OSX_CSC_LINK: ${{ secrets.OSX_CSC_LINK }}
+          OSX_CSC_KEY_PASSWORD: ${{ secrets.OSX_CSC_KEY_PASSWORD }}
+          OSX_NOTARIZE: "TRUE"
+          OSX_APPLE_ID: ${{ secrets.OSX_APPLE_ID }}
+          OSX_APPLE_ID_PASSWORD: ${{ secrets.OSX_APPLE_ID_PASSWORD }}

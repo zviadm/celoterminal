@@ -3,4 +3,4 @@ dist/
 node_modules/
 thumbs.db
 .idea/
-.publish.env
+.release.env

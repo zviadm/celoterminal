@@ -1,9 +1,12 @@
 appId: "com.celoterminal"
 productName: "Celo Terminal"
+afterSign: ./buildcfg/notarize.js
 mac:
+  artifactName: ${productName}-${version}-${os}-${arch}.${ext}
   category: "public.app-category.finance"
-  entitlements: ./static/entitlements.plist
-  entitlementsInherit: ./static/entitlements.plist
+  hardenedRuntime: true
+  entitlements: ./buildcfg/mac/entitlements.plist
+  entitlementsInherit: ./buildcfg/mac/entitlements.plist
   target: ["dmg", "zip"]
   publish: ["github"]
 publish:
