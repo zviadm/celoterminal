@@ -15,12 +15,7 @@ async function notarizeApp(context) {
     return;
   }
 
-  info(
-    "Don't mind electron-builder error 'Cannot find module 'buildcfg/notarize.js', it definitively found me",
-  );
-
   const { OSX_APPLE_ID, OSX_APPLE_ID_PASSWORD } = process.env;
-
   if (!OSX_APPLE_ID || !OSX_APPLE_ID_PASSWORD) {
     throw new Error("OSX_APPLE_ID and OSX_APPLE_ID_PASSWORD env variables are required for notarization.");
   }
@@ -28,7 +23,6 @@ async function notarizeApp(context) {
   const { appOutDir } = context;
   const appName = context.packager.appInfo.productFilename;
   const path = `${appOutDir}/${appName}.app`;
-
   await notarize({
     appBundleId: "com.celoterminal",
     appPath: path,
