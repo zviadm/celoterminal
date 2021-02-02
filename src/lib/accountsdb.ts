@@ -1,8 +1,8 @@
-import sqlite3 from 'better-sqlite3'
-import fs from 'fs'
-import path from 'path'
-import crypto from 'crypto'
-import log from 'electron-log'
+import * as sqliteDB from 'better-sqlite3'
+import * as fs from 'fs'
+import * as path from 'path'
+import * as crypto from 'crypto'
+import * as log from 'electron-log'
 import { ensureLeading0x, toChecksumAddress } from '@celo/utils/lib/address'
 import { isValidAddress } from 'ethereumjs-util'
 
@@ -29,7 +29,7 @@ class AccountsDB {
 		const dbdir = path.dirname(dbPath)
 		fs.mkdirSync(dbdir, {recursive: true})
 		log.info(`DB: opening database`, this.dbPath)
-		this.db = new sqlite3(this.dbPath, {fileMustExist: false, readonly: false})
+		this.db = sqliteDB(this.dbPath, {fileMustExist: false, readonly: false})
 		this.db.exec(`
 			CREATE TABLE IF NOT EXISTS accounts (
 				address TEXT PRIMARY KEY,
