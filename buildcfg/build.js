@@ -73,13 +73,14 @@ const runAction = () => {
 	// Disable console advertisements during install phase
 	setEnv("ADBLOCK", true);
 	run("yarn");
+	run("yarn test");
 	run("yarn compile");
 
 	// Run NPM build script if it exists
 	log(`Building the Electron app...`);
 	for (let i = 0; i < maxAttempts; i += 1) {
 		try {
-			run(`npx electron-builder --${platform} --publish onTagOrDraft`);
+			run(`yarn electron-builder --${platform} --publish onTagOrDraft`);
 			break;
 		} catch (err) {
 			if (i < maxAttempts - 1) {

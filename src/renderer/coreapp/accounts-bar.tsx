@@ -10,10 +10,10 @@ import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon } from './a
 import WifiIcon from '@material-ui/icons/Wifi'
 import WifiOffIcon from '@material-ui/icons/WifiOff'
 
-import { Account } from '../state/accounts'
-import { fmtAddress } from '../../common/utils'
+import { Account } from '../../lib/accounts'
+import { fmtAddress } from '../../lib/utils'
 import kit, { useNetworkURL } from './kit'
-import { CFG, networkName } from '../../common/cfg'
+import { CFG, networkName } from '../../lib/cfg'
 import Tooltip from '@material-ui/core/Tooltip'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'

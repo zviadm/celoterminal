@@ -21,10 +21,11 @@ import AddLedgerAccount from './ledger-account'
 import AddAddressOnlyAccount from './addressonly-account'
 import ConfirmRemove from './confirm-remove'
 import RevealLocalKey from './reveal-local-key'
+import ChangePassword from './change-password'
 import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon } from './account-icons'
 
-import { accountsDB } from '../accountsdb'
-import { Account, LocalAccount } from '../../state/accounts'
+import { Account, LocalAccount } from '../../../lib/accounts'
+import { accountsDBFilePath } from './accounts-state'
 
 const useStyles = makeStyles((theme) => ({
 	accountText: {
@@ -49,6 +50,7 @@ const AccountsApp = (props: {
 	onAdd: (a?: Account, password?: string) => void,
 	onRemove: (a: Account) => void,
 	onRename: (a: Account, name: string) => void,
+	onChangePassword: (oldPassword: string, newPassword: string) => void,
 	onError: (e: Error) => void,
 }): JSX.Element => {
 	const classes = useStyles()
@@ -57,6 +59,7 @@ const AccountsApp = (props: {
 	const [confirmRemove, setConfirmRemove] = React.useState<Account | undefined>()
 	const [revealAccount, setRevealAccount] = React.useState<LocalAccount | undefined>()
 	const [renameAccount, setRenameAccount] = React.useState<Account | undefined>()
+	const [changePassword, setChangePassword] = React.useState(false)
 	const [renameNew, setRenameNew] = React.useState("")
 
 	const handleAdd = (a: Account, password?: string) => {
@@ -73,16 +76,20 @@ const AccountsApp = (props: {
 		}
 		setRenameAccount(undefined)
 	}
+	const handleChangePassword = (oldPassword: string, newPassword: string) => {
+		props.onChangePassword(oldPassword, newPassword)
+		setChangePassword(false)
+	}
 	const handleCancel = () => {
-		setConfirmRemove(undefined)
 		setOpenedAdd(undefined)
+		setConfirmRemove(undefined)
 		setRevealAccount(undefined)
-		setRenameAccount(undefined)
+		setChangePassword(false)
 	}
 	const handleRefetch = () => { props.onAdd() }
 
 	const handleBackup = () => {
-		shell.showItemInFolder(accountsDB().dbPath)
+		shell.showItemInFolder(accountsDBFilePath())
 	}
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
@@ -92,6 +99,7 @@ const AccountsApp = (props: {
 			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
 			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
 			{revealAccount && <RevealLocalKey account={revealAccount} onClose={handleCancel} onError={props.onError} />}
+			{changePassword && <ChangePassword onChangePassword={handleChangePassword} onClose={handleCancel} onError={props.onError} />}
 
 			<AppHeader title={"Accounts"} refetch={handleRefetch} isFetching={false} />
 			<Box display="flex" flexDirection="column" marginTop={2}>
@@ -191,6 +199,7 @@ const AccountsApp = (props: {
 									color="secondary"
 									variant="outlined"
 									startIcon={<LockOpenIcon />}
+									onClick={ () => { setChangePassword(true) } }
 									>Change Password</Button>
 							</Box>
 							<Box display="flex" flexDirection="column" flex={1} marginLeft={1}>

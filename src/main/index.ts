@@ -20,13 +20,13 @@ function createMainWindow() {
       contextIsolation: false,
       enableRemoteModule: true,
       partition: "persist:default",
+      devTools: !app.isPackaged,
     },
   })
 
   if (!app.isPackaged) {
     window.webContents.openDevTools()
   }
-
   if (!app.isPackaged) {
     window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
   }

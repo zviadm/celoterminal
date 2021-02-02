@@ -1,8 +1,39 @@
 import * as React from 'react'
+import electron from 'electron'
+import path from 'path'
 
 import useLocalStorageState from '../../state/localstorage-state'
-import { Account } from '../../state/accounts'
-import { accountsDB } from '../accountsdb'
+import { Account } from '../../../lib/accounts'
+import AccountsDB from '../../../lib/accountsdb'
+import { CFG } from './../../../lib/cfg'
+
+let _db: AccountsDB
+
+const accountsDB = (): AccountsDB => {
+	if (!_db) {
+		const cfg = CFG()
+		const dbdir = path.join(
+			electron.remote.app.getPath(cfg.accountsDBPath.root),
+			...cfg.accountsDBPath.path.slice(0, cfg.accountsDBPath.path.length - 1))
+		const accountsDBFile = cfg.accountsDBPath.path[cfg.accountsDBPath.path.length - 1]
+		const dbPath = path.join(dbdir, accountsDBFile)
+		try {
+			_db = new AccountsDB(dbPath)
+		} catch (e) {
+			electron.remote.dialog.showMessageBoxSync({
+				type: "error",
+				title: "CRASH",
+				message:
+					`Accounts database: ${dbPath} can not be created or opened.\n` +
+					`CeloTerminal can not start.\n\n${e}`,
+			})
+			electron.remote.app.quit()
+			throw e
+		}
+		window.addEventListener('unload', () => { _db.close() })
+	}
+	return _db
+}
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useAccounts = () => {
@@ -43,6 +74,10 @@ export const useAccounts = () => {
 		accountsDB().renameAccount(a, name)
 		refreshAccounts()
 	}
+	const changePassword = (oldPassword: string, newPassword: string) => {
+		accountsDB().changePassword(oldPassword, newPassword)
+		refreshAccounts()
+	}
 	const selectedAccount =
 		!accounts ? _selectedAccount :
 		accounts.length === 0 ? undefined :
@@ -56,8 +91,16 @@ export const useAccounts = () => {
 		addAccount,
 		removeAccount,
 		renameAccount,
+		changePassword,
 		setSelectedAccount,
 	}
+}
+
+export const accountsDBHasPassword = (): boolean => {
+	return accountsDB().hasPassword()
+}
+export const accountsDBFilePath = (): string => {
+	return accountsDB().dbPath
 }
 
 const accountRank = (a: Account) => {
