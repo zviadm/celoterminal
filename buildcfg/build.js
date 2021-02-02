@@ -80,8 +80,7 @@ const runAction = () => {
 	log(`Building${release ? " and releasing" : ""} the Electron app…`);
 	for (let i = 0; i < maxAttempts; i += 1) {
 		try {
-			run(
-				`npx electron-builder --${platform} ${release ? "--publish always" : ""}`);
+			run(`npx`, `electron-builder --${platform} ${release ? "--publish always" : ""}`);
 			break;
 		} catch (err) {
 			if (i < maxAttempts - 1) {
