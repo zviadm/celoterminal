@@ -18,7 +18,7 @@ const exit = (msg) => {
 /**
  * Executes the provided shell command and redirects stdout/stderr to the console
  */
-const run = (cmd, cwd) => execSync(cmd, { encoding: "utf8", stdio: "inherit", cwd });
+const run = (cmd) => execSync(cmd, { encoding: "utf8", stdio: "inherit"});
 
 /**
  * Determines the current operating system (one of ["mac", "windows", "linux"])
@@ -74,13 +74,13 @@ const runAction = () => {
 	// Disable console advertisements during install phase
 	setEnv("ADBLOCK", true);
 	run("yarn");
-	run("yarn", "compile");
+	run("yarn compile");
 
 	// Run NPM build script if it exists
 	log(`Building${release ? " and releasing" : ""} the Electron app…`);
 	for (let i = 0; i < maxAttempts; i += 1) {
 		try {
-			run(`npx`, `electron-builder --${platform} ${release ? "--publish always" : ""}`);
+			run(`npx electron-builder --${platform} ${release ? "--publish always" : ""}`);
 			break;
 		} catch (err) {
 			if (i < maxAttempts - 1) {
