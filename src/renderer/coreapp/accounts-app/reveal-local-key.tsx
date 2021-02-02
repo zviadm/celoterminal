@@ -14,7 +14,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import Typography from '@material-ui/core/Typography'
 
 import { decryptLocalKey, LocalKey } from '../../../lib/accountsdb'
-import { LocalAccount } from '../../state/accounts'
+import { LocalAccount } from '../../../lib/accounts'
 
 const useStyles = makeStyles((theme) => ({
 	textMnemonic: {

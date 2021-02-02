@@ -2,7 +2,7 @@ import BN from 'bn.js'
 import { ContractKit } from '@celo/contractkit'
 import { CeloTransactionObject, CeloTxReceipt } from '@celo/connect'
 
-import { Account } from '../state/accounts'
+import { Account } from '../../lib/accounts'
 
 export interface Transaction {
 	tx: CeloTransactionObject<unknown>

@@ -73,6 +73,7 @@ const runAction = () => {
 	// Disable console advertisements during install phase
 	setEnv("ADBLOCK", true);
 	run("yarn");
+	run("yarn test");
 	run("yarn compile");
 
 	// Run NPM build script if it exists

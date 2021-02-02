@@ -6,7 +6,7 @@ import * as log from 'electron-log'
 import { ensureLeading0x, toChecksumAddress } from '@celo/utils/lib/address'
 import { isValidAddress } from 'ethereumjs-util'
 
-import { Account, AddressOnlyAccount, LedgerAccount, LocalAccount } from '../renderer/state/accounts'
+import { Account, AddressOnlyAccount, LedgerAccount, LocalAccount } from './accounts'
 
 // Supported `account` row versions. Last version is the current version.
 const supportedVersions = [1]
@@ -146,10 +146,17 @@ class AccountsDB {
 				this._verifyAndUpdatePassword(password, password)
 			}
 			log.info(`accounts-db: adding account: ${a.type}/${address}.`)
-			const result = this.pInsertAccount.run(
-				address, currentVersion, a.type, a.name, data, encryptedData)
-			if (result.changes !== 1) {
-				throw new Error(`Unexpected error while adding account. Is Database corrupted?`)
+			try {
+				const result = this.pInsertAccount.run(
+					address, currentVersion, a.type, a.name, data, encryptedData)
+				if (result.changes !== 1) {
+					throw new Error(`Unexpected error while adding account. Is Database corrupted?`)
+				}
+			} catch (e) {
+				if (e instanceof Error && e.message.startsWith("UNIQUE")) {
+					throw new Error(`Account with address: ${a.address} already exists.`)
+				}
+				throw e
 			}
 		})()
 	}

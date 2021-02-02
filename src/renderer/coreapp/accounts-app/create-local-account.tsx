@@ -13,7 +13,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 import Alert from '@material-ui/lab/Alert'
 
-import { LocalAccount } from '../../state/accounts'
+import { LocalAccount } from '../../../lib/accounts'
 import { encryptLocalKey } from '../../../lib/accountsdb'
 
 const CreateLocalAccount = (props: {

@@ -15,7 +15,7 @@ import Paper from '@material-ui/core/Paper'
 import Alert from '@material-ui/lab/Alert'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 
-import { Account } from '../../state/accounts'
+import { Account } from '../../../lib/accounts'
 import useOnChainState from '../../state/onchain-state'
 import useLocalStorageState from '../../state/localstorage-state'
 import { fmtAmount } from '../../../lib/utils'

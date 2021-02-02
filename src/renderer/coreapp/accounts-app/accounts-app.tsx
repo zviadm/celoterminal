@@ -24,7 +24,7 @@ import RevealLocalKey from './reveal-local-key'
 import ChangePassword from './change-password'
 import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon } from './account-icons'
 
-import { Account, LocalAccount } from '../../state/accounts'
+import { Account, LocalAccount } from '../../../lib/accounts'
 import { accountsDBFilePath } from './accounts-state'
 
 const useStyles = makeStyles((theme) => ({
