@@ -10,6 +10,9 @@
     "dist": "yarn compile && electron-builder",
     "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"
   },
+  "electronWebpack": {
+    "whiteListedModules": ["@material-ui/core", "@material-ui/lab"]
+  },
   "dependencies": {
     "@celo/connect": "^1.0.1",
     "@celo/contractkit": "^1.0.1",
