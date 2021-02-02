@@ -1,6 +1,15 @@
 name: Build/release
 
-on: push
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  release:
+    types:
+      - created
 
 jobs:
   release:
@@ -24,7 +33,6 @@ jobs:
         env:
           # If the commit is tagged with a version (e.g. "v1.0.0"),
           # release the app after building
-          RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           OSX_CSC_LINK: ${{ secrets.OSX_CSC_LINK }}
           OSX_CSC_KEY_PASSWORD: ${{ secrets.OSX_CSC_KEY_PASSWORD }}
