@@ -148,7 +148,7 @@ const ThemedApp = () => (
 	</ThemeProvider>
 )
 
-ReactDOM.render(<ThemedApp />, document.getElementById('root'))
+ReactDOM.render(<ThemedApp />, document.getElementById('app'))
 window.addEventListener('unload', () => {
 	accountsDB().close()
 	return

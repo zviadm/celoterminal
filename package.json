@@ -1,54 +1,14 @@
 {
   "name": "celoterminal",
-  "productName": "CeloTerminal",
-  "version": "1.0.1",
-  "description": "Celo Terminal: One-stop-shop to interact with the decentralized apps in the Celo ecosystem.",
-  "main": ".webpack/main",
-  "scripts": {
-    "start": "npx cross-env CELOTERMINAL_NETWORK_ID=62320 CELOTERMINAL_ACCOUNTS_DB=home/.celoterminal/celoaccounts-test.db npx electron-forge start",
-    "mainnet": "npx cross-env CELOTERMINAL_ACCOUNTS_DB=home/.celoterminal/celoaccounts-test.db npx electron-forge start",
-    "build": "npx env-cmd -f ./.publish.env electron-forge publish --dry-run",
-    "publish": "npx env-cmd -f ./.publish.env electron-forge publish --from-dry-run",
-    "lint": "eslint --ext .ts ."
-  },
-  "keywords": [],
-  "author": {
-    "name": "Zviad Metreveli",
-    "email": "thezviad@gmail.com"
-  },
+  "version": "1.0.3",
   "license": "MIT",
-  "config": {
-    "forge": "./forge.config.js"
-  },
-  "devDependencies": {
-    "@electron-forge/cli": "^6.0.0-beta.54",
-    "@electron-forge/maker-deb": "^6.0.0-beta.54",
-    "@electron-forge/maker-rpm": "^6.0.0-beta.54",
-    "@electron-forge/maker-squirrel": "^6.0.0-beta.54",
-    "@electron-forge/maker-zip": "^6.0.0-beta.54",
-    "@electron-forge/plugin-webpack": "6.0.0-beta.54",
-    "@electron-forge/publisher-github": "^6.0.0-beta.54",
-    "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
-    "@types/better-sqlite3": "^5.4.1",
-    "@types/node-hid": "^1.3.0",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
-    "@typescript-eslint/eslint-plugin": "^4.0.1",
-    "@typescript-eslint/parser": "^4.0.1",
-    "cross-env": "^7.0.3",
-    "css-loader": "^4.2.1",
-    "electron": "11.2.0",
-    "env-cmd": "^10.1.0",
-    "eslint": "^7.6.0",
-    "eslint-plugin-import": "^2.20.0",
-    "eslint-plugin-react": "^7.22.0",
-    "eslint-plugin-react-hooks": "^4.2.0",
-    "fork-ts-checker-webpack-plugin": "^5.0.14",
-    "hook-shell-script-webpack-plugin": "^0.1.3",
-    "node-loader": "^1.0.1",
-    "style-loader": "^1.2.1",
-    "ts-loader": "^8.0.2",
-    "typescript": "^4.0.2"
+  "scripts": {
+    "postinstall": "electron-builder install-app-deps",
+    "dev:baklava": "npx env-cmd -f env.dev.baklava electron-webpack dev",
+    "dev:mainnet": "npx env-cmd -f env.dev.mainnet electron-webpack dev",
+    "compile": "electron-webpack",
+    "dist": "yarn compile && electron-builder",
+    "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"
   },
   "dependencies": {
     "@celo/connect": "^1.0.1",
@@ -63,9 +23,27 @@
     "@material-ui/lab": "^4.0.0-alpha.57",
     "better-sqlite3": "^7.1.2",
     "bignumber.js": "^9.0.1",
-    "electron-squirrel-startup": "^1.0.0",
-    "electron-updater": "^4.3.5",
     "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "react-dom": "^17.0.1",
+    "source-map-support": "^0.5.16"
+  },
+  "devDependencies": {
+    "@babel/preset-react": "^7.12.10",
+    "@types/better-sqlite3": "^5.4.1",
+    "@types/node-hid": "^1.3.0",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "electron": "8.2.0",
+    "electron-builder": "^22.4.1",
+    "electron-rebuild": "^2.3.4",
+    "electron-webpack": "^2.8.2",
+    "electron-webpack-ts": "^4.0.1",
+    "env-cmd": "^10.1.0",
+    "typescript": "^4.1.3",
+    "eslint": "^7.6.0",
+    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-react": "^7.22.0",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "webpack": "~4.42.1"
   }
 }

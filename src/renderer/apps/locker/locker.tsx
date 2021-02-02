@@ -194,7 +194,7 @@ const LockerApp = (props: {
 					</Box>
 				</Paper>
 			</Box>
-			{fetched.pendingWithdrawals.length > 0 &&
+			{/* {fetched.pendingWithdrawals.length > 0 &&
 			<Box marginTop={2}>
 				<PendingWithdrawals
 					pendingWithdrawals={fetched.pendingWithdrawals}
@@ -202,7 +202,7 @@ const LockerApp = (props: {
 					onWithdraw={handleWithdraw}
 					onCancel={handleCancelWithdraw}
 				/>
-			</Box>}
+			</Box>} */}
 			</>)}
 		</Box>
 	)

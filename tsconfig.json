@@ -1,20 +1,10 @@
 {
+	"extends": "./node_modules/electron-webpack/tsconfig-base.json",
 	"compilerOptions": {
-		"allowJs": true,
-		"module": "commonjs",
 		"skipLibCheck": true,
-		"esModuleInterop": true,
-		"noImplicitAny": true,
-		"sourceMap": true,
-		"baseUrl": ".",
-		"outDir": "dist",
-		"moduleResolution": "node",
 		"resolveJsonModule": true,
-		"strict": true,
-		"jsx": "react",
-		"paths": {
-		  "*": ["node_modules/*"]
-		}
+    "noUnusedLocals": false,
+		"jsx": "react"
 	},
 	"include": [
 		"src/**/*"

@@ -1,7 +1,7 @@
-import { AbiItem, CeloTransactionObject, toTransactionObject } from "@celo/connect";
-import { ContractKit } from "@celo/contractkit";
-import { valueToBigNumber } from "@celo/contractkit/lib/wrappers/BaseWrapper";
-import BigNumber from "bignumber.js";
+import { AbiItem, CeloTransactionObject, toTransactionObject } from "@celo/connect"
+import { ContractKit } from "@celo/contractkit"
+import { valueToBigNumber } from "@celo/contractkit/lib/wrappers/BaseWrapper"
+import BigNumber from "bignumber.js"
 import erc20abi from "./erc20abi.json"
 
 class ERC20 {

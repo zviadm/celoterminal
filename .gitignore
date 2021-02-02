@@ -1,5 +1,5 @@
 .DS_Store
+dist/
 node_modules/
-.webpack/
-out/
-.publish.env
+thumbs.db
+.idea/
