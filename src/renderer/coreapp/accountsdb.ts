@@ -3,6 +3,7 @@ import electron from 'electron'
 import fs from 'fs'
 import path from 'path'
 import crypto from 'crypto'
+import log from 'electron-log'
 import { ensureLeading0x, toChecksumAddress } from '@celo/utils/lib/address'
 import { isValidAddress } from 'ethereumjs-util'
 
@@ -35,7 +36,7 @@ class AccountsDB {
 		this.dbPath = path.join(dbdir, accountsDBFile)
 		try {
 			fs.mkdirSync(dbdir, {recursive: true})
-			console.info(`DB: opening database`, this.dbPath)
+			log.info(`DB: opening database`, this.dbPath)
 			this.db = new sqlite3(this.dbPath, {fileMustExist: false, readonly: false})
 			this.db.exec(`
 				CREATE TABLE IF NOT EXISTS accounts (
@@ -65,7 +66,7 @@ class AccountsDB {
 	}
 
 	public close = () => {
-		console.info(`DB: closing database`)
+		log.info(`DB: closing database`)
 		this.db.close()
 	}
 

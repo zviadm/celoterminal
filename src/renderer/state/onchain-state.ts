@@ -1,5 +1,7 @@
 import * as React from 'react'
+import log from 'electron-log'
 import { ContractKit } from '@celo/contractkit'
+
 import { CancelPromise } from '../../common/utils'
 import kit from '../coreapp/kit'
 
@@ -17,7 +19,7 @@ const useOnChainState = <T>(
 	const [fetchN, setFetchN] = React.useState(0)
 	const [fetchedN, setFetchedN] = React.useState(0)
 	React.useEffect(() => {
-		console.info(`useOnChainState[${fetchN}]: fetching...`)
+		log.info(`useOnChainState[${fetchN}]: fetching...`)
 		const c = new CancelPromise()
 		if (fetchN === fetchedN) {
 			setFetched(undefined)
@@ -29,13 +31,13 @@ const useOnChainState = <T>(
 		fetch(kit(), c)
 		.then((a: T) => {
 			if (!c.isCancelled()) {
-				console.info(`useOnChainState[${fetchN}]`, a)
+				log.info(`useOnChainState[${fetchN}]`, a)
 				setFetched(a)
 			}
 		})
 		.catch((e) => {
 			if (!c.isCancelled()) {
-				console.error(`useOnChainState[${fetchN}]`, e)
+				log.error(`useOnChainState[${fetchN}]`, e)
 				setFetchError(e)
 				onError && onError(e)
 				setFetched(undefined)
@@ -49,7 +51,7 @@ const useOnChainState = <T>(
 		})
 		return () => {
 			if (!c.isCancelled()) {
-				console.info(`useOnChainState[${fetchN}]: cancelled`)
+				log.info(`useOnChainState[${fetchN}]: cancelled`)
 				c.cancel()
 			}
 		}

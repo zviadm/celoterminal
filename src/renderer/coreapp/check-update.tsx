@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { ipcRenderer, remote } from 'electron'
+import log from 'electron-log'
 
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
@@ -19,7 +20,7 @@ const CheckUpdate = (): JSX.Element => {
 	React.useEffect(() => {
 		const timer = setInterval(() => {
 			const updateReady: string | undefined = ipcRenderer.sendSync("check-update-ready")
-			console.info(`autoupdater[renderer]: `, updateReady)
+			log.info(`autoupdater[renderer]: `, updateReady)
 			if (updateReady) {
 				setNewVersion(updateReady)
 			}

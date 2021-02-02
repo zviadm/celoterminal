@@ -1,4 +1,5 @@
 import * as React from 'react'
+import log from 'electron-log'
 import TransportNodeHid from '@ledgerhq/hw-transport-node-hid-noevents'
 import LedgerApp from '@ledgerhq/hw-app-eth'
 import { CELO_BASE_DERIVATION_PATH } from '@celo/wallet-ledger'
@@ -50,7 +51,7 @@ const AddLedgerAccount = (props: {
 	React.useEffect(() => {
 		(async () => {
 			const transport = await TransportNodeHid.open()
-			console.info(`LEDGER: transport created to load addresses`)
+			log.info(`LEDGER: transport created to load addresses`)
 			try {
 				const ledgerApp = new LedgerApp(transport)
 				const addrs: string[] = []
@@ -86,7 +87,7 @@ const AddLedgerAccount = (props: {
 			let addr
 			const transport = await TransportNodeHid.open()
 			try {
-				console.info(`LEDGER: transport created to verify address`)
+				log.info(`LEDGER: transport created to verify address`)
 				const ledgerApp = new LedgerApp(transport)
 				addr = await ledgerApp.getAddress(
 					`${basePath}/${pathIdx}`, true)

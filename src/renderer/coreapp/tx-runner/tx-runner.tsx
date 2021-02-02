@@ -1,4 +1,5 @@
 import * as React from 'react'
+import log from 'electron-log'
 import { ContractKit, newKit } from '@celo/contractkit'
 import { CeloTxReceipt } from '@celo/connect'
 import BigNumber from 'bignumber.js'
@@ -180,7 +181,7 @@ const RunTXs = (props: {
 							})
 						})
 						const tx = txs[idx]
-						console.info(`TX:`, parsedTXs[idx], tx.tx.txo.arguments)
+						log.info(`TX:`, parsedTXs[idx], tx.tx.txo.arguments)
 
 						setTXSendMS(0)
 						setTXProgress(0)
@@ -197,11 +198,11 @@ const RunTXs = (props: {
 						const txHash = await result.getHash()
 						setStage("sending")
 						setTXSendMS(Date.now())
-						console.info(`TX-HASH:`, txHash)
+						log.info(`TX-HASH:`, txHash)
 
 						const receipt = await result.waitReceipt()
 						setTXProgress(100)
-						console.info(`TX-RECEIPT:`, receipt)
+						log.info(`TX-RECEIPT:`, receipt)
 						r.push(receipt)
 					}
 					setStage("finishing")

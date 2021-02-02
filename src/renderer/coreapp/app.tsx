@@ -1,6 +1,7 @@
+import log from 'electron-log'
+
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-
 import { ThemeProvider } from '@material-ui/core/styles'
 import theme from './theme'
 import CssBaseline from '@material-ui/core/CssBaseline'
@@ -70,13 +71,13 @@ const App = () => {
 		} catch (e) {
 			setError(e)
 			renderedApp = <div></div>
-			console.error(`renderApp`, e)
+			log.error(`renderApp:`, e)
 		}
 	}
 	const txOnFinish: TXFinishFunc = (e, r) => {
 		if (e && e.message !== "Cancelled") {
 			setError(e)
-			console.error(`TX:`, e)
+			log.error(`TX:`, e)
 		}
 		if (txFunc?.onFinish) {
 			txFunc.onFinish(e, r)
