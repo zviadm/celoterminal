@@ -18,9 +18,9 @@ import Autocomplete from '@material-ui/lab/Autocomplete'
 import { Account } from '../../state/accounts'
 import useOnChainState from '../../state/onchain-state'
 import useLocalStorageState from '../../state/localstorage-state'
-import { fmtAmount } from '../../../common/utils'
+import { fmtAmount } from '../../../lib/utils'
 import ERC20 from './erc20'
-import { CFG } from '../../../common/cfg'
+import { CFG } from '../../../lib/cfg'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 
 const useStyles = makeStyles(() => ({

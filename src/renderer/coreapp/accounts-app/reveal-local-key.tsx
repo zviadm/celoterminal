@@ -13,7 +13,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import Typography from '@material-ui/core/Typography'
 
-import { decryptLocalKey, LocalKey } from '../accountsdb'
+import { decryptLocalKey, LocalKey } from '../../../lib/accountsdb'
 import { LocalAccount } from '../../state/accounts'
 
 const useStyles = makeStyles((theme) => ({

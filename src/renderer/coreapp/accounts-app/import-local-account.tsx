@@ -19,7 +19,7 @@ import Paper from '@material-ui/core/Paper'
 import Box from '@material-ui/core/Box'
 
 import { LocalAccount } from '../../state/accounts'
-import { decryptLocalKey, encryptLocalKey, LocalKey } from '../accountsdb'
+import { decryptLocalKey, encryptLocalKey, LocalKey } from '../../../lib/accountsdb'
 
 const useStyles = makeStyles(() => ({
 	secretText: {

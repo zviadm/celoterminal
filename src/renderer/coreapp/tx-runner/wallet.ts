@@ -4,7 +4,7 @@ import { AddressValidation, newLedgerWalletWithSetup } from '@celo/wallet-ledger
 import { LocalWallet } from '@celo/wallet-local'
 
 import { Account, LocalAccount } from '../../state/accounts'
-import { decryptLocalKey } from '../accountsdb'
+import { decryptLocalKey } from '../../../lib/accountsdb'
 
 export async function createWallet(a: Account, password?: string): Promise<{
 	wallet: ReadOnlyWallet

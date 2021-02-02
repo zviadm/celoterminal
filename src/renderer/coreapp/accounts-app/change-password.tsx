@@ -1,83 +1,82 @@
 import * as React from 'react'
-import {
-  generateKeys,
-  generateMnemonic,
-  MnemonicStrength,
-} from '@celo/utils/lib/account'
-
 import Dialog from '@material-ui/core/Dialog'
 import Button from '@material-ui/core/Button'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
-import Alert from '@material-ui/lab/Alert'
-
-import { LocalAccount } from '../../state/accounts'
-import { encryptLocalKey } from '../accountsdb'
+import { accountsDBHasPassword } from './accounts-state'
 
 const ChangePassword = (props: {
-	onAdd: (a: LocalAccount, password?: string) => void,
-	onCancel: () => void,
+	onChangePassword: (oldPassword: string, newPassword: string) => void
+	onClose: () => void,
 	onError: (e: Error) => void,
 }): JSX.Element => {
-	const [name, setName] = React.useState("")
-	const [password, setPassword] = React.useState("")
-	const [isAdding, setIsAdding] = React.useState(false)
-	const handleAdd = () => {
-		setIsAdding(true);
-		(async () => {
-			const mnemonic = await generateMnemonic(MnemonicStrength.s256_24words)
-			const keys = await generateKeys(mnemonic)
-			const encryptedData = encryptLocalKey({mnemonic: mnemonic, privateKey: keys.privateKey}, password)
-			props.onAdd({
-				type: "local",
-				name: name,
-				address: keys.address,
-				encryptedData: encryptedData,
-			}, password)
-		})()
-		.catch((e) => {
+	const [_hasPassword, setHasPassword] = React.useState<boolean | undefined>(undefined)
+	let hasPassword = _hasPassword
+	if (_hasPassword === undefined) {
+		// This will cause synchronouse read from the database and a double
+		// render, but this is ok, perf should still be completely fine.
+		hasPassword = accountsDBHasPassword()
+		setHasPassword(hasPassword)
+	}
+
+	const [oldPassword, setOldPassword] = React.useState("")
+	const [newPassword1, setNewPassword1] = React.useState("")
+	const [newPassword2, setNewPassword2] = React.useState("")
+
+	const handleChange = () => {
+		try {
+			if (newPassword1 !== newPassword2) {
+				throw new Error(`Passwords do not match.`)
+			}
+			props.onChangePassword(oldPassword, newPassword1)
+		} catch (e) {
 			props.onError(e)
-			setIsAdding(false)
-		})
+		}
 	}
 	return (
-		<Dialog open={true} onClose={props.onCancel}>
-			<DialogTitle>Create a new local account</DialogTitle>
+		<Dialog open={true} onClose={props.onClose}>
+			<DialogTitle>Change password</DialogTitle>
 			<DialogContent>
-				<Alert severity="info">
-					Name is used to identify your account in the app. You can change it at any time later on.
-				</Alert>
+				{hasPassword &&
 				<TextField
 					autoFocus
 					margin="dense"
-					label={`Name`}
-					value={name}
+					type="password"
+					label={`Current password`}
+					value={oldPassword}
 					size="medium"
 					fullWidth={true}
-					onChange={(e) => { setName(e.target.value) }}
+					onChange={(e) => { setOldPassword(e.target.value) }}
+				/>}
+				<TextField
+					autoFocus={!hasPassword}
+					margin="dense"
+					type="password"
+					label={`New password`}
+					value={newPassword1}
+					size="medium"
+					fullWidth={true}
+					onChange={(e) => { setNewPassword1(e.target.value) }}
 				/>
-				<Alert severity="info">
-					Account address and private key are generated automatically and stored in a local database
-					encrypted by your password.
-				</Alert>
-				<Alert severity="info">
-					Same password must be used for all your local accounts.
-				</Alert>
 				<TextField
 					margin="dense"
 					type="password"
-					label={`Password`}
-					value={password}
+					label={`Confirm new password`}
+					value={newPassword2}
 					size="medium"
 					fullWidth={true}
-					onChange={(e) => { setPassword(e.target.value) }}
+					onChange={(e) => { setNewPassword2(e.target.value) }}
 				/>
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={props.onCancel}>Cancel</Button>
-				<Button onClick={handleAdd} disabled={isAdding}>Create</Button>
+				<Button onClick={props.onClose}>Cancel</Button>
+				<Button
+					color="secondary"
+					disabled={newPassword1 === "" || newPassword1 !== newPassword2}
+					onClick={handleChange}
+					>Change</Button>
 			</DialogActions>
 		</Dialog>
 	)

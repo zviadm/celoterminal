@@ -20,7 +20,6 @@ import Accounts from './accounts-app/def'
 import { useAccounts } from './accounts-app/accounts-state'
 import useLocalStorageState from '../state/localstorage-state'
 import { TXFinishFunc, TXFunc } from '../components/app-definition'
-import { accountsDB } from './accountsdb'
 
 const App = () => {
 	const [_selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", Accounts.name)
@@ -29,6 +28,7 @@ const App = () => {
 		addAccount,
 		removeAccount,
 		renameAccount,
+		changePassword,
 		selectedAccount,
 		setSelectedAccount} = useAccounts()
 	const [txFunc, setTXFunc] = React.useState<
@@ -49,6 +49,7 @@ const App = () => {
 			onAdd={addAccount}
 			onRemove={removeAccount}
 			onRename={renameAccount}
+			onChangePassword={changePassword}
 			onError={setError}
 		/>
 	} else {
@@ -60,6 +61,7 @@ const App = () => {
 					onAdd={addAccount}
 					onRemove={removeAccount}
 					onRename={renameAccount}
+					onChangePassword={changePassword}
 					onError={setError}
 				/> :
 				<terminalApp.renderApp
@@ -150,7 +152,3 @@ const ThemedApp = () => (
 )
 
 ReactDOM.render(<ThemedApp />, document.getElementById('app'))
-window.addEventListener('unload', () => {
-	accountsDB().close()
-	return
-})

@@ -31,12 +31,12 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 
 import { Account } from '../../state/accounts'
-import { CFG } from '../../../common/cfg'
+import { CFG } from '../../../lib/cfg'
 import useSessionState from '../../state/session-state'
-import { decryptLocalKey } from '../accountsdb'
+import { decryptLocalKey } from '../../../lib/accountsdb'
 import { canDecryptLocalKey, createWallet } from './wallet'
 import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definition'
-import { fmtAddress, fmtAmount, sleep } from '../../../common/utils'
+import { fmtAddress, fmtAmount, sleep } from '../../../lib/utils'
 import { transformError } from '../ledger-utils'
 import { cfgNetworkURL } from '../kit'
 

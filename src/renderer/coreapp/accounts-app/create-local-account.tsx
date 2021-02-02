@@ -14,7 +14,7 @@ import TextField from '@material-ui/core/TextField'
 import Alert from '@material-ui/lab/Alert'
 
 import { LocalAccount } from '../../state/accounts'
-import { encryptLocalKey } from '../accountsdb'
+import { encryptLocalKey } from '../../../lib/accountsdb'
 
 const CreateLocalAccount = (props: {
 	onAdd: (a: LocalAccount, password?: string) => void,
