@@ -4,5 +4,9 @@ mac:
   category: "public.app-category.finance"
   entitlements: ./static/entitlements.plist
   entitlementsInherit: ./static/entitlements.plist
-
-
+  target: ["dmg", "zip"]
+  publish: ["github"]
+publish:
+  provider: "github"
+  owner: "zviadm"
+  private: "true"

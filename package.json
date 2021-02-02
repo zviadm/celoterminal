@@ -2,13 +2,18 @@
   "name": "celoterminal",
   "version": "1.0.3",
   "license": "MIT",
+  "repository": {
+    "url": "https://github.com/zviadm/celoterminal"
+  },
+  "author": "Zviad Metreveli",
+  "description": "Celo Terminal: Manage accounts and interact with the decentralized apps on Celo platform.",
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "dev:baklava": "env-cmd -f env.dev.baklava electron-webpack dev",
     "dev:mainnet": "env-cmd -f env.dev.mainnet electron-webpack dev",
     "compile": "electron-webpack",
-    "dist": "yarn compile && electron-builder",
-    "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"
+    "build:mac": "yarn compile && electron-builder --mac",
+    "publish:mac": "yarn compile && env-cmd -f .publish.env electron-builder --publish --mac"
   },
   "electronWebpack": {
     "whiteListedModules": [
