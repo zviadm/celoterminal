@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron'
 import * as path from 'path'
 import { format as formatUrl } from 'url'
+import { setupAutoUpdater } from './auto-updater'
 
 app.allowRendererProcessReuse = true
 
@@ -70,3 +71,5 @@ app.on('activate', () => {
 app.on('ready', () => {
   mainWindow = createMainWindow()
 })
+
+setupAutoUpdater()
