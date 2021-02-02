@@ -39,3 +39,4 @@ jobs:
           OSX_NOTARIZE: "TRUE"
           OSX_APPLE_ID: ${{ secrets.OSX_APPLE_ID }}
           OSX_APPLE_ID_PASSWORD: ${{ secrets.OSX_APPLE_ID_PASSWORD }}
+          MAX_ATTEMPTS: 2
