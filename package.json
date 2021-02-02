@@ -3,9 +3,9 @@
   "version": "1.0.3",
   "license": "MIT",
   "scripts": {
-    "postinstall": "npx electron-builder install-app-deps",
-    "dev:baklava": "npx env-cmd -f env.dev.baklava electron-webpack dev",
-    "dev:mainnet": "npx env-cmd -f env.dev.mainnet electron-webpack dev",
+    "postinstall": "electron-builder install-app-deps",
+    "dev:baklava": "env-cmd -f env.dev.baklava electron-webpack dev",
+    "dev:mainnet": "env-cmd -f env.dev.mainnet electron-webpack dev",
     "compile": "electron-webpack",
     "dist": "yarn compile && electron-builder",
     "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"

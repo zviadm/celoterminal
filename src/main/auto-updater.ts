@@ -12,7 +12,6 @@ export const setupAutoUpdater = () => {
 			provider: "github",
 			owner: "zviadm",
 			repo: "celoterminal",
-			token: "7ee4ccfd7e9404ceb59323ee3cb38e6bede63508",
 			private: true,
 		})
 		autoUpdater.checkForUpdates()
