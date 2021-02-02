@@ -1,0 +1,8 @@
+appId: "com.celoterminal"
+productName: "Celo Terminal"
+mac:
+  category: "public.app-category.finance"
+  entitlements: ./static/entitlements.plist
+  entitlementsInherit: ./static/entitlements.plist
+
+
