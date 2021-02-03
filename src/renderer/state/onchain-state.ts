@@ -2,7 +2,7 @@ import * as React from 'react'
 import log from 'electron-log'
 import { ContractKit } from '@celo/contractkit'
 
-import { CancelPromise } from '../../common/utils'
+import { CancelPromise } from '../../lib/utils'
 import kit from '../coreapp/kit'
 
 // TODO(zviad): Document OnChainState behaviour.

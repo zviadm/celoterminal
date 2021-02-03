@@ -1,5 +1,5 @@
 import { ContractKit, newKit } from '@celo/contractkit'
-import { CFG } from '../../common/cfg'
+import { CFG } from '../../lib/cfg'
 
 const networkURLKeyPrefix = "terminal/core/network-url/"
 let _cfgNetworkURL: string | undefined

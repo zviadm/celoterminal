@@ -19,9 +19,9 @@ import Tooltip from '@material-ui/core/Tooltip'
 
 import AppHeader from '../../components/app-header'
 
-import { Account } from '../../state/accounts'
+import { Account } from '../../../lib/accounts'
 import useOnChainState from '../../state/onchain-state'
-import { fmtAmount } from '../../../common/utils'
+import { fmtAmount } from '../../../lib/utils'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { toTransactionObject } from '@celo/connect'
 

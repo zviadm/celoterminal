@@ -7,7 +7,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 import Alert from '@material-ui/lab/Alert'
 
-import { Account } from '../../state/accounts'
+import { Account } from '../../../lib/accounts'
 
 const ConfirmRemove = (props: {
 	account: Account,
