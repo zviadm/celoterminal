@@ -23,7 +23,7 @@ const version = () => {
 	return _version
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
 	versionButton: {
 		textTransform: "none",
 	},
@@ -38,15 +38,18 @@ const CheckUpdate = (): JSX.Element => {
 	const [beta, setBeta] = useLocalStorageState<boolean>("terminal/auto-update/beta", false)
 	const [newVersion, setNewVersion] = React.useState("")
 	const [isUpdating, setIsUpdating] = React.useState(false)
+	const checkUpdate = () => {
+		const updateReady: string | undefined = ipcRenderer.sendSync("check-update-ready")
+		log.info(`autoupdater[renderer]: `, updateReady)
+		if (updateReady) {
+			setNewVersion(updateReady)
+		}
+	}
 	React.useEffect(() => {
+		checkUpdate()
 		const timer = setInterval(() => {
-			const updateReady: string | undefined = ipcRenderer.sendSync("check-update-ready")
-			log.info(`autoupdater[renderer]: `, updateReady)
-			if (updateReady) {
-				setNewVersion(updateReady)
-			}
+			checkUpdate()
 		}, 30*1000) // Check it often, why not.
-
 		return () => { clearInterval(timer) }
 	}, [])
 	React.useEffect(() => {
