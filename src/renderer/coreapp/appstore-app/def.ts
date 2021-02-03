@@ -1,7 +1,8 @@
 import AppsIcon from '@material-ui/icons/Apps'
 
 const MoreApps = {
-	name: "More Apps",
+	id: "appstore",
+	title: "More Apps",
 	icon: AppsIcon,
 }
 export default MoreApps

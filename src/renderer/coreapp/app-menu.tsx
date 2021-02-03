@@ -25,7 +25,7 @@ const AppMenu = (props: {
 	disableApps: boolean,
 }): JSX.Element => {
 	const classes = useStyles()
-	const apps: Pick<AppDefinition, "name" | "icon">[] = []
+	const apps: Pick<AppDefinition, "id" | "title" | "icon">[] = []
 	apps.push(Accounts)
 	apps.push(...props.appList)
 	apps.push(MoreApps)
@@ -36,13 +36,13 @@ const AppMenu = (props: {
 					apps.map((a) => (
 						<ListItem
 							button
-							key={a.name}
-							selected={props.selectedApp === a.name}
-							disabled={a.name !== Accounts.name && props.disableApps}
-							onClick={() => { props.setSelectedApp(a.name) }}>
+							key={a.id}
+							selected={props.selectedApp === a.id}
+							disabled={a.id !== Accounts.id && props.disableApps}
+							onClick={() => { props.setSelectedApp(a.id) }}>
 							{a.icon &&
 							<ListItemIcon className={classes.listIcon}><a.icon /></ListItemIcon>}
-							<ListItemText>{a.name}</ListItemText>
+							<ListItemText>{a.title}</ListItemText>
 						</ListItem>
 					))
 				}

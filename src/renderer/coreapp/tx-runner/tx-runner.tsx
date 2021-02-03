@@ -38,7 +38,7 @@ import { canDecryptLocalKey, createWallet } from './wallet'
 import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { fmtAddress, fmtAmount, sleep } from '../../../lib/utils'
 import { transformError } from '../ledger-utils'
-import { cfgNetworkURL } from '../kit'
+import { cfgNetworkURL } from '../../state/kit'
 
 function TXRunner(props: {
 	selectedAccount: Account,

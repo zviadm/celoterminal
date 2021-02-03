@@ -20,9 +20,11 @@ import Accounts from './accounts-app/def'
 import { useAccounts } from './accounts-app/accounts-state'
 import useLocalStorageState from '../state/localstorage-state'
 import { TXFinishFunc, TXFunc } from '../components/app-definition'
+import AppStore from './appstore-app/def'
+import AppStoreApp from './appstore-app/appstore-app'
 
 const App = () => {
-	const [_selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", Accounts.name)
+	const [_selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", Accounts.id)
 	const {
 		accounts,
 		addAccount,
@@ -38,12 +40,13 @@ const App = () => {
 		onFinish?: TXFinishFunc) => {
 		setTXFunc({f, onFinish})
 	}
+	const [pinnedApps, setPinnedApps] = useLocalStorageState<{id: string}[]>("terminal/core/pinned-apps", [])
 	const [error, setError] = React.useState<Error | undefined>()
 
 	let renderedApp
 	let selectedApp = _selectedApp
 	if (!selectedAccount) {
-		selectedApp = Accounts.name
+		selectedApp = Accounts.id
 		renderedApp = <AccountsApp
 			accounts={accounts}
 			onAdd={addAccount}
@@ -53,16 +56,21 @@ const App = () => {
 			onError={setError}
 		/>
 	} else {
-		const terminalApp = AppList.find((a) => a.name === selectedApp)
+		const terminalApp = AppList.find((a) => a.id === selectedApp)
 		try {
 			switch (selectedApp) {
-			case Accounts.name:
+			case Accounts.id:
 				renderedApp = <AccountsApp
 					accounts={accounts}
 					onAdd={addAccount}
 					onRemove={removeAccount}
 					onRename={renameAccount}
 					onChangePassword={changePassword}
+					onError={setError}
+				/>
+				break
+			case AppStore.id:
+				renderedApp = <AppStoreApp
 					onError={setError}
 				/>
 				break

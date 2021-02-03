@@ -1,7 +1,8 @@
 import AccountCircle from '@material-ui/icons/AccountCircle'
 
 const Accounts = {
-	name: "Accounts",
+	id: "accounts",
+	title: "Accounts",
 	icon: AccountCircle,
 }
 export default Accounts

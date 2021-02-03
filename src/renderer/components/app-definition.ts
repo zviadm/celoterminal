@@ -13,8 +13,12 @@ export type TXFunc = (kit: ContractKit) => Promise<Transaction[]>
 export type TXFinishFunc = (e?: Error, r?: CeloTxReceipt[]) => void
 
 export interface AppDefinition {
-	name: string
+	id: string
+	title: string
 	icon: <T>(props: T) => JSX.Element
+	core?: boolean
+	url?: string
+
 	renderApp: (props: {
 		accounts: Account[],
 		selectedAccount: Account,
