@@ -198,7 +198,6 @@ const LockerApp = (props: {
 			<Box marginTop={2}>
 				<PendingWithdrawals
 					pendingWithdrawals={fetched.pendingWithdrawals}
-					unlockingPeriod={fetched.unlockingPeriod}
 					onWithdraw={handleWithdraw}
 					onCancel={handleCancelWithdraw}
 				/>
@@ -211,7 +210,6 @@ export default LockerApp
 
 const PendingWithdrawals = (props: {
 	pendingWithdrawals: PendingWithdrawal[],
-	unlockingPeriod: BigNumber,
 	onWithdraw: (idx: number) => void,
 	onCancel: (idx: number, pending: PendingWithdrawal) => void,
 }) => {
@@ -237,7 +235,7 @@ const PendingWithdrawals = (props: {
 					<TableBody>
 					{pendingWithdrawals.map((p) => {
 						const date = new Date(p[0].time.multipliedBy(1000).toNumber())
-						const pendingMinutes = p[0].time.plus(props.unlockingPeriod).minus(Date.now()/1000).div(60)
+						const pendingMinutes = p[0].time.minus(Date.now()/1000).div(60)
 						const pendingText = pendingMinutes.lte(90) ?
 							`in ${pendingMinutes.toFixed(0)} minutes...` :
 							`in ${pendingMinutes.div(60).toFixed(0)} hours...`
@@ -250,7 +248,7 @@ const PendingWithdrawals = (props: {
 							<TableCell>{fmtAmount(p[0].value, 18)}</TableCell>
 							<TableCell>
 								<Button
-									style={{width: 150}}
+									style={{width: 100}}
 									variant="outlined"
 									color="primary"
 									disabled={!canWithdraw}
@@ -259,7 +257,7 @@ const PendingWithdrawals = (props: {
 							</TableCell>
 							<TableCell>
 								<Button
-									style={{width: 150}}
+									style={{width: 100}}
 									variant="outlined"
 									color="secondary"
 									onClick={() => { props.onCancel(p[1], p[0]) }}
