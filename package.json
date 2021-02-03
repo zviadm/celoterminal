@@ -1,6 +1,6 @@
 {
   "name": "celoterminal",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "license": "MIT",
   "repository": {
     "url": "https://github.com/zviadm/celoterminal"
@@ -28,6 +28,7 @@
     "@celo/wallet-ledger": "^1.0.1",
     "@celo/wallet-local": "^1.0.1",
     "@fontsource/roboto": "^4.1.0",
+    "@ledgerhq/electron-updater": "^4.2.2",
     "@ledgerhq/hw-app-eth": "^5.11.0",
     "@ledgerhq/hw-transport-node-hid-noevents": "^5.40.0",
     "@material-ui/core": "^4.11.2",
@@ -36,7 +37,6 @@
     "better-sqlite3": "^7.1.2",
     "bignumber.js": "^9.0.1",
     "electron-log": "^4.3.1",
-    "electron-updater": "^4.3.5",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "source-map-support": "^0.5.16",
