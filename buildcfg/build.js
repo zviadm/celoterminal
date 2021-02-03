@@ -87,6 +87,7 @@ const runAction = () => {
 
 	// Disable console advertisements during install phase
 	setEnv("ADBLOCK", true);
+	run("yarn config set network-timeout 600000 -g")
 	run("yarn");
 	run("yarn test");
 	run("yarn compile");
