@@ -14,4 +14,3 @@ mac:
 publish:
   provider: "github"
   owner: "zviadm"
-  private: "true"
