@@ -48,7 +48,7 @@ const CheckUpdate = (): JSX.Element => {
 				<Box>
 						<Button
 							style={{textTransform: "none"}}
-							startIcon={<GetAppIcon />}
+							endIcon={canUpdate ? <GetAppIcon /> : undefined}
 							color={canUpdate ? "secondary" : "default"}
 							disabled={!canUpdate}
 							onClick={handleClick}

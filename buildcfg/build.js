@@ -54,6 +54,7 @@ const setEnv = (name, value) => {
 const runAction = () => {
 	const platform = getPlatform();
 	const maxAttempts = Number(getEnv("MAX_ATTEMPTS") || "1");
+	const PUBLISH = getEnv("PUBLISH") || false
 
 	// Make sure `package.json` file exists
 	if (!existsSync("./package.json")) {
@@ -79,7 +80,7 @@ const runAction = () => {
 	log(`Building the Electron app...`);
 	for (let i = 0; i < maxAttempts; i += 1) {
 		try {
-			run(`npx electron-builder --${platform} --publish onTagOrDraft`);
+			run(`npx electron-builder --${platform} ${PUBLISH ? "--publish always" : ""}`);
 			break;
 		} catch (err) {
 			if (i < maxAttempts - 1) {
