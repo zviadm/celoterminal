@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const { execSync } = require("child_process");
-const { existsSync } = require("fs");
+const { existsSync, readFileSync, writeFileSync } = require("fs");
 
 /**
  * Logs to the console
@@ -48,18 +48,32 @@ const setEnv = (name, value) => {
 	}
 };
 
+const semVerRegex = /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+
 /**
  * Installs NPM dependencies and builds/releases the Electron app
  */
 const runAction = () => {
 	const platform = getPlatform();
 	const maxAttempts = Number(getEnv("MAX_ATTEMPTS") || "1");
-	const PUBLISH = getEnv("PUBLISH") || false
+	const publish = getEnv("PUBLISH") || false
 
 	// Make sure `package.json` file exists
 	if (!existsSync("./package.json")) {
 		exit(`\`package.json\` file not found!"`);
 	}
+
+	const packageJSON = JSON.parse(readFileSync("./package.json"))
+	const tags = execSync("git tag --list --sort=version:refname").toString()
+		.split("\n").map((t) => t.trim()).filter((t) => t.match(semVerRegex))
+	const matchingTag = tags.find((v) => v === "v" + packageJSON.version)
+	if (publish && matchingTag) {
+		exit(`Version ${packageJSON.version} already published as ${matchingTag}!`)
+	}
+	const range = tags.length === 0 ? "" : `${tags[tags.length-1]}..HEAD`
+	const commits = execSync(`git log ${range} --pretty=format:%s --no-merges`).toString().trim()
+	console.info(`COMMITS (since: ${tags[tags.length-1]}):\n${commits}`)
+	writeFileSync(".tmp.releasenotes.txt", commits)
 
 	// Require code signing certificate and password if building for macOS. Export them to environment
 	// variables (required by `electron-builder`)
@@ -81,7 +95,11 @@ const runAction = () => {
 	log(`Building the Electron app...`);
 	for (let i = 0; i < maxAttempts; i += 1) {
 		try {
-			run(`yarn electron-builder --${platform} ${PUBLISH ? "--publish always" : ""}`);
+			run(
+				`yarn electron-builder --${platform} ${publish ?
+					"--publish always --c.releaseInfo.releaseNotesFile=.tmp.releasenotes.txt"
+					:
+					""}`);
 			break;
 		} catch (err) {
 			if (i < maxAttempts - 1) {
