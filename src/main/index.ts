@@ -15,6 +15,7 @@ function createMainWindow() {
     height: 800,
     minWidth: minWidth,
     width: width,
+    title: "Celo Terminal",
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -29,8 +30,7 @@ function createMainWindow() {
   }
   if (!app.isPackaged) {
     window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
-  }
-  else {
+  } else {
     window.loadURL(formatUrl({
       pathname: path.join(__dirname, 'index.html'),
       protocol: 'file',
