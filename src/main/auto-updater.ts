@@ -1,5 +1,5 @@
 import { app, ipcMain } from 'electron'
-import { autoUpdater, UpdateInfo } from 'electron-updater'
+import { autoUpdater, UpdateInfo } from '@ledgerhq/electron-updater'
 import log from 'electron-log'
 
 let _updateReady: UpdateInfo | undefined
