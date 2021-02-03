@@ -11,6 +11,7 @@
     "postinstall": "electron-builder install-app-deps",
     "dev:baklava": "env-cmd -f env.dev.baklava electron-webpack dev",
     "dev:mainnet": "env-cmd -f env.dev.mainnet electron-webpack dev",
+    "dev:fresh": "./env.dev.fresh.sh",
     "compile": "electron-webpack",
     "dist": "yarn compile && electron-builder",
     "lint": "yarn eslint src/",

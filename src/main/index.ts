@@ -5,8 +5,9 @@ import { setupAutoUpdater } from './auto-updater'
 
 app.allowRendererProcessReuse = true
 
-// global reference to mainWindow (necessary to prevent window from being garbage collected)
+// Global reference to mainWindow (necessary to prevent window from being garbage collected).
 let mainWindow: BrowserWindow | null
+let willQuitApp = false
 
 function createMainWindow() {
   const minWidth = 850
@@ -39,8 +40,12 @@ function createMainWindow() {
   }
 
   window.on('close', (event) => {
-    event.preventDefault()
-    window.hide()
+    if (willQuitApp) {
+      mainWindow = null
+    } else {
+      event.preventDefault()
+      window.hide()
+    }
   })
 
   window.webContents.on('devtools-opened', () => {
@@ -53,16 +58,19 @@ function createMainWindow() {
   return window
 }
 
-// quit application when all windows are closed
+// Before quit fires when app needs to actually exit.
+app.on('before-quit', () => willQuitApp = true);
+
+// Quit application when all windows are closed (except for macOS).
 app.on('window-all-closed', () => {
-  // on macOS it is common for applications to stay open until the user explicitly quits
+  // on macOS it is common for applications to stay open until the user explicitly quits.
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
 
 app.on('activate', () => {
-  // on macOS it is common to re-create a window even after all windows have been closed
+  // on macOS it is common to re-create a window even after all windows have been closed.
   if (mainWindow === null) {
     mainWindow = createMainWindow()
   } else {
@@ -70,7 +78,7 @@ app.on('activate', () => {
   }
 })
 
-// create main BrowserWindow when electron is ready
+// Create main BrowserWindow when electron is ready.
 app.on('ready', () => {
   mainWindow = createMainWindow()
 })

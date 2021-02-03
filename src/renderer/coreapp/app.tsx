@@ -110,6 +110,7 @@ const App = () => {
 						selectedApp={selectedApp}
 						setSelectedApp={setSelectedApp}
 						appList={AppList}
+						disableApps={!selectedAccount}
 					/>
 					<Box m={2} alignSelf="flex-end">
 						<CheckUpdate />

@@ -9,6 +9,7 @@ import Box from '@material-ui/core/Box'
 
 import { AppDefinition } from '../components/app-definition'
 import Accounts from './accounts-app/def'
+import MoreApps from './appstore-app/def'
 
 const useStyles = makeStyles(() => ({
 	listIcon: {
@@ -21,11 +22,13 @@ const AppMenu = (props: {
 	selectedApp: string,
 	setSelectedApp: (selectedApp: string) => void,
 	appList: AppDefinition[],
+	disableApps: boolean,
 }): JSX.Element => {
 	const classes = useStyles()
 	const apps: Pick<AppDefinition, "name" | "icon">[] = []
 	apps.push(Accounts)
 	apps.push(...props.appList)
+	apps.push(MoreApps)
 	return (
 		<Box mx={2}>
 			<List>
@@ -35,6 +38,7 @@ const AppMenu = (props: {
 							button
 							key={a.name}
 							selected={props.selectedApp === a.name}
+							disabled={a.name !== Accounts.name && props.disableApps}
 							onClick={() => { props.setSelectedApp(a.name) }}>
 							{a.icon &&
 							<ListItemIcon className={classes.listIcon}><a.icon /></ListItemIcon>}
