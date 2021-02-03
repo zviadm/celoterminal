@@ -248,7 +248,7 @@ const PendingWithdrawals = (props: {
 							<TableCell>{fmtAmount(p[0].value, 18)}</TableCell>
 							<TableCell>
 								<Button
-									style={{width: 100}}
+									style={{width: 130}}
 									variant="outlined"
 									color="primary"
 									disabled={!canWithdraw}
@@ -257,7 +257,7 @@ const PendingWithdrawals = (props: {
 							</TableCell>
 							<TableCell>
 								<Button
-									style={{width: 100}}
+									style={{width: 130}}
 									variant="outlined"
 									color="secondary"
 									onClick={() => { props.onCancel(p[1], p[0]) }}
