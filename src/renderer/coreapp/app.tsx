@@ -90,6 +90,7 @@ const App = () => {
 
 	return (
 		<Box>
+			<ErrorSnack error={error} onClose={clearError} />
 			{selectedAccount &&
 			<TXRunner
 				selectedAccount={selectedAccount}
@@ -123,7 +124,6 @@ const App = () => {
 					{renderedApp}
 				</Box>
 			</Box>
-			<ErrorSnack error={error} onClose={clearError} />
 		</Box>
 	)
 }
