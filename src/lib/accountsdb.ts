@@ -65,7 +65,7 @@ class AccountsDB {
 		this.pInsertPassword = this.db.prepare<[string]>(`INSERT INTO password (id, encrypted_password) VALUES (0, ?)`)
 	}
 
-	public close = () => {
+	public close = (): void => {
 		log.info(`DB: closing database`)
 		this.db.close()
 	}
@@ -161,12 +161,12 @@ class AccountsDB {
 		})()
 	}
 
-	public removeAccount = (a: Account) => {
+	public removeAccount = (a: Account): void => {
 		log.info(`accounts-db: removing account: ${a.type}/${a.address}.`)
 		this.pRemoveAccount.run(a.address.toLowerCase(), a.type)
 	}
 
-	public renameAccount = (a: Account, name: string) => {
+	public renameAccount = (a: Account, name: string): void => {
 		this.pRenameAccount.run(name, a.address.toLowerCase(), a.type)
 	}
 
@@ -175,7 +175,7 @@ class AccountsDB {
 		return pws.length > 0
 	}
 
-	public changePassword = (oldPassword: string, newPassword: string) => {
+	public changePassword = (oldPassword: string, newPassword: string): void => {
 		this.db.transaction(() => {
 			this._verifyAndUpdatePassword(oldPassword, newPassword)
 			log.info(`accounts-db: updating password...`)

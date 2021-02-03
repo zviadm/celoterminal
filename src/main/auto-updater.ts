@@ -3,10 +3,10 @@ import { autoUpdater, UpdateInfo } from 'electron-updater'
 import log from 'electron-log'
 
 let _updateReady: UpdateInfo | undefined
-export const setupAutoUpdater = () => {
+export const setupAutoUpdater = (): void => {
 	if (app.isPackaged) {
 		autoUpdater.autoInstallOnAppQuit = false
-		autoUpdater.allowPrerelease = true
+		autoUpdater.allowPrerelease = false
 		autoUpdater.checkForUpdates()
 		setInterval(() => {
 			autoUpdater.checkForUpdates()
@@ -20,10 +20,17 @@ export const setupAutoUpdater = () => {
 		})
 	}
 
+	ipcMain.on("set-allow-prerelease", (event, allow) => {
+		autoUpdater.allowPrerelease = allow
+		log.info(`autoupdater: allow-prerelease = ${allow}`)
+		event.returnValue = null
+	})
 	ipcMain.on("check-update-ready", (event) => {
 		event.returnValue = _updateReady?.version
 	})
-	ipcMain.on("quit-and-install", () => {
+	ipcMain.on("quit-and-install", (event) => {
+		app.relaunch()
 		autoUpdater.quitAndInstall()
+		event.returnValue = null
 	})
 }
