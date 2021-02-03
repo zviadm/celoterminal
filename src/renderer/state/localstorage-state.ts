@@ -1,4 +1,3 @@
-import * as React from 'react'
 import log from 'electron-log'
 import useSessionState from './session-state'
 

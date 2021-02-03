@@ -1,11 +1,19 @@
-import * as React from 'react'
 import { ipcRenderer, remote } from 'electron'
 import log from 'electron-log'
 
+import * as React from 'react'
+import { makeStyles } from '@material-ui/core/styles'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
-import GetAppIcon from '@material-ui/icons/GetApp'
 import Tooltip from '@material-ui/core/Tooltip'
+import LinearProgress from '@material-ui/core/LinearProgress'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import Checkbox from '@material-ui/core/Checkbox'
+import CheckBoxIcon from '@material-ui/icons/CheckBox'
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
+
+import useLocalStorageState from '../state/localstorage-state'
+import Typography from '@material-ui/core/Typography'
 
 let _version: string
 const version = () => {
@@ -15,8 +23,21 @@ const version = () => {
 	return _version
 }
 
+const useStyles = makeStyles((theme) => ({
+	versionButton: {
+		textTransform: "none",
+	},
+	checkbox: {
+		padding: 0,
+		paddingLeft: 5,
+	},
+}))
+
 const CheckUpdate = (): JSX.Element => {
+	const classes = useStyles()
+	const [beta, setBeta] = useLocalStorageState<boolean>("terminal/auto-update/beta", false)
 	const [newVersion, setNewVersion] = React.useState("")
+	const [isUpdating, setIsUpdating] = React.useState(false)
 	React.useEffect(() => {
 		const timer = setInterval(() => {
 			const updateReady: string | undefined = ipcRenderer.sendSync("check-update-ready")
@@ -27,34 +48,56 @@ const CheckUpdate = (): JSX.Element => {
 		}, 30*1000) // Check it often, why not.
 
 		return () => { clearInterval(timer) }
-	})
+	}, [])
+	React.useEffect(() => {
+		ipcRenderer.sendSync("set-allow-prerelease", beta)
+	}, [beta])
 
-	const canUpdate = newVersion !== ""
+	const canUpdate = newVersion !== "" && !isUpdating
 	const handleClick = () => {
 		if (!canUpdate) {
 			return
 		}
-		ipcRenderer.sendSync("quit-and-install")
+		setIsUpdating(true)
+		ipcRenderer.send("quit-and-install")
 	}
 	const tooltipText =
-		canUpdate ? "Click to install new version" : "Automatically checking for updates..."
+		newVersion !== "" ? "Click to install new version" : "Terminal automatically checks for updates in the background"
 	const buttonText =
-		canUpdate ? `v${version()} -> v${newVersion}` : `v${version()}`
+		newVersion !== "" ? `v${version()} \u2192 v${newVersion}` : `v${version()}`
 	return (
-		<Box
-			display="flex"
-			flexDirection="column">
+		<Box display="flex" flexDirection="column" alignItems="flex-end">
 			<Tooltip title={tooltipText}>
 				<Box>
 						<Button
-							style={{textTransform: "none"}}
-							endIcon={canUpdate ? <GetAppIcon /> : undefined}
+							className={classes.versionButton}
 							color={canUpdate ? "secondary" : "default"}
 							disabled={!canUpdate}
 							onClick={handleClick}
 							>{buttonText}</Button>
 				</Box>
 			</Tooltip>
+			<Tooltip title="Subscribe to Beta updates">
+				<Box marginRight={2}>
+					<FormControlLabel
+						control={
+							<Checkbox
+								className={classes.checkbox}
+								icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
+								checkedIcon={<CheckBoxIcon fontSize="small" />}
+								checked={beta}
+								onChange={() => { setBeta(!beta) } }
+							/>
+						}
+						label={<Typography variant="caption" color="textSecondary">beta</Typography>}
+						labelPlacement="start"
+					/>
+				</Box>
+			</Tooltip>
+			{isUpdating &&
+			<Box alignSelf="stretch" mx={1}>
+				<LinearProgress color="secondary" />
+			</Box>}
 		</Box>
 	)
 }
