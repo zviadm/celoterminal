@@ -55,24 +55,31 @@ const App = () => {
 	} else {
 		const terminalApp = AppList.find((a) => a.name === selectedApp)
 		try {
-			renderedApp = (selectedApp === Accounts.name || !terminalApp) ?
-				<AccountsApp
+			switch (selectedApp) {
+			case Accounts.name:
+				renderedApp = <AccountsApp
 					accounts={accounts}
 					onAdd={addAccount}
 					onRemove={removeAccount}
 					onRename={renameAccount}
 					onChangePassword={changePassword}
 					onError={setError}
-				/> :
-				<terminalApp.renderApp
+				/>
+				break
+			default:
+				if (!terminalApp) {
+					throw new Error(`Unknown app: '${selectedApp}'`)
+				}
+				renderedApp = <terminalApp.renderApp
 					accounts={accounts}
 					selectedAccount={selectedAccount}
 					runTXs={runTXs}
 					onError={setError}
 				/>
+				break
+			}
 		} catch (e) {
-			setError(e)
-			renderedApp = <div></div>
+			renderedApp = <Box><Alert severity="error">{e?.message}</Alert></Box>
 			log.error(`renderApp:`, e)
 		}
 	}
