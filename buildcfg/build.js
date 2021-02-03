@@ -98,7 +98,7 @@ const runAction = () => {
 		try {
 			run(
 				`yarn electron-builder --${platform} ${publish ?
-					"--publish always --c.releaseInfo.releaseNotesFile=.tmp.releasenotes.txt"
+					"--publish always -c.releaseInfo.releaseNotesFile=.tmp.releasenotes.txt"
 					:
 					""}`);
 			break;
