@@ -54,9 +54,13 @@ const App = () => {
 		}
 		const pinnedAppsCopy = pinnedApps.concat({id: id})
 		setPinnedApps(pinnedAppsCopy)
+		setSelectedApp(id)
 	}
 	const handleRemoveApp = (id: string) => {
 		const pinnedAppsCopy = pinnedApps.filter((p) => p.id !== id)
+		if (selectedApp === id) {
+			setSelectedApp(Accounts.id)
+		}
 		setPinnedApps(pinnedAppsCopy)
 	}
 
