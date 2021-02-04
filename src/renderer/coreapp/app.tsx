@@ -19,9 +19,11 @@ import { AppList } from '../apps/apps'
 import Accounts from './accounts-app/def'
 import { useAccounts } from './accounts-app/accounts-state'
 import useLocalStorageState from '../state/localstorage-state'
-import { TXFinishFunc, TXFunc } from '../components/app-definition'
+import { AppDefinition, TXFinishFunc, TXFunc } from '../components/app-definition'
 import AppStore from './appstore-app/def'
-import AppStoreApp from './appstore-app/appstore-app'
+import AppStoreApp, { PinnedApp } from './appstore-app/appstore-app'
+
+const appsById = new Map(AppList.map((a) => [a.id, a]))
 
 const App = () => {
 	const [_selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", Accounts.id)
@@ -40,8 +42,23 @@ const App = () => {
 		onFinish?: TXFinishFunc) => {
 		setTXFunc({f, onFinish})
 	}
-	const [pinnedApps, setPinnedApps] = useLocalStorageState<{id: string}[]>("terminal/core/pinned-apps", [])
+	const [pinnedApps, setPinnedApps] = useLocalStorageState<PinnedApp[]>("terminal/core/pinned-apps", [])
 	const [error, setError] = React.useState<Error | undefined>()
+
+	const appListAll = AppList
+	const pinnedAppList = pinnedApps.map((p) => appsById.get(p.id)).filter((p) => p) as AppDefinition[]
+	const appList = AppList.filter((a) => a.core).concat(...pinnedAppList)
+	const handleAddApp = (id: string) => {
+		if (pinnedApps.find((p) => p.id === id)) {
+			return
+		}
+		const pinnedAppsCopy = pinnedApps.concat({id: id})
+		setPinnedApps(pinnedAppsCopy)
+	}
+	const handleRemoveApp = (id: string) => {
+		const pinnedAppsCopy = pinnedApps.filter((p) => p.id !== id)
+		setPinnedApps(pinnedAppsCopy)
+	}
 
 	let renderedApp
 	let selectedApp = _selectedApp
@@ -56,7 +73,7 @@ const App = () => {
 			onError={setError}
 		/>
 	} else {
-		const terminalApp = AppList.find((a) => a.id === selectedApp)
+		const terminalApp = appListAll.find((a) => a.id === selectedApp)
 		try {
 			switch (selectedApp) {
 			case Accounts.id:
@@ -71,6 +88,8 @@ const App = () => {
 				break
 			case AppStore.id:
 				renderedApp = <AppStoreApp
+					pinnedApps={pinnedApps}
+					onAddApp={handleAddApp}
 					onError={setError}
 				/>
 				break
@@ -124,8 +143,9 @@ const App = () => {
 					<AppMenu
 						selectedApp={selectedApp}
 						setSelectedApp={setSelectedApp}
-						appList={AppList}
+						appList={appList}
 						disableApps={!selectedAccount}
+						onRemoveApp={handleRemoveApp}
 					/>
 					<Box m={2} alignSelf="flex-end">
 						<CheckUpdate />

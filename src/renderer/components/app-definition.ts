@@ -18,6 +18,7 @@ export interface AppDefinition {
 	icon: <T>(props: T) => JSX.Element
 	core?: boolean
 	url?: string
+	description?: string
 
 	renderApp: (props: {
 		accounts: Account[],
