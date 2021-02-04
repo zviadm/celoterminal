@@ -3,6 +3,10 @@ import { ContractKit } from '@celo/contractkit'
 
 import * as React from 'react'
 import Box from '@material-ui/core/Box'
+import Paper from '@material-ui/core/Paper'
+import Button from '@material-ui/core/Button'
+import BigNumber from 'bignumber.js'
+import Alert from '@material-ui/lab/Alert'
 
 import AppHeader from '../../components/app-header'
 
@@ -10,12 +14,7 @@ import { Account } from '../../../lib/accounts'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { Celovote } from './def'
 import useOnChainState from '../../state/onchain-state'
-import { Typography } from '@material-ui/core'
 import { CFG, mainnetNetworkId } from '../../../lib/cfg'
-import Paper from '@material-ui/core/Paper'
-import Button from '@material-ui/core/Button'
-import BigNumber from 'bignumber.js'
-import Alert from '@material-ui/lab/Alert'
 import { fmtAmount } from '../../../lib/utils'
 
 let _client: AxiosInstance
@@ -121,7 +120,10 @@ const CelovoteApp = (props: {
 			<Box marginTop={2}>
 				<Paper>
 					<Box p={2}>
-						<Alert severity="success">Account authorized with Celovote.</Alert>
+						<Alert severity="success">
+						Account authorized with Celovote. Votes will be automatically cast
+						and activated for all your locked CELO to earn rewards.
+						</Alert>
 					</Box>
 				</Paper>
 			</Box>
