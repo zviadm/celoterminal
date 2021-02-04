@@ -26,7 +26,7 @@ jobs:
           node-version: 10
 
       - name: Test & Build Electron app
-        run: ./buildcfg/build.js
+        run: node ./buildcfg/build.js
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           OSX_CSC_LINK: ${{ secrets.OSX_CSC_LINK }}
