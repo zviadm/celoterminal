@@ -16,6 +16,11 @@ import { Celovote } from './def'
 import useOnChainState from '../../state/onchain-state'
 import { CFG, mainnetNetworkId } from '../../../lib/cfg'
 import { fmtAmount } from '../../../lib/utils'
+import TableContainer from '@material-ui/core/TableContainer'
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableRow from '@material-ui/core/TableRow'
+import TableCell from '@material-ui/core/TableCell'
 
 let _client: AxiosInstance
 const gql = () => {
@@ -28,7 +33,6 @@ const gql = () => {
 async function promiseGQL<T extends {errors?: {message: string}[]}>(p: Promise<AxiosResponse<T>>) {
 	try {
 		const resp = await p
-		console.info(`response`, resp.data)
 		if (resp.data.errors && resp.data.errors.length > 0) {
 			throw new Error(resp.data.errors[0].message)
 		}
@@ -58,14 +62,22 @@ const CelovoteApp = (props: {
 			throw new Error(`Celovote APP only works with Mainnet.`)
 		}
 		const accounts = await kit.contracts.getAccounts()
+		const isAccount = await accounts.isAccount(account.address)
+		if (!isAccount) {
+			return {
+				isAuthorized: false,
+				totalLocked: new BigNumber(0),
+				nonvoting: new BigNumber(0),
+				votesActive: new BigNumber(0),
+				votesPending: new BigNumber(0),
+			}
+		}
 		const lockedGold = await kit.contracts.getLockedGold()
-		const totalLocked = accounts.isAccount(account.address)
-			.then((isAccount) => {
-				if (!isAccount) {
-					return new BigNumber(0)
-				}
-				return lockedGold.getAccountTotalLockedGold(account.address)
-			})
+		const election = await kit.contracts.getElection()
+		const totalLocked = lockedGold.getAccountTotalLockedGold(account.address)
+		const nonvoting = lockedGold.getAccountNonvotingLockedGold(account.address)
+		const votesP = election.getVoter(account.address)
+
 		const respP = gql().post<{
 			errors?: {message: string}[],
 			data: {
@@ -74,21 +86,24 @@ const CelovoteApp = (props: {
 				}[],
 			}
 		}>(
-			'/',
-			{query: `{ addresses(addresses:["${account.address}"]) { authorized } }`}
-		)
+			'/', {
+			query: `{ addresses(addresses:["${account.address}"]) { authorized } }`
+		})
 		const resp = await promiseGQL(respP)
+		const votes = await votesP
+		const votesActive = BigNumber.sum(0, ...votes.votes.map((v) => v.active))
+		const votesPending = BigNumber.sum(0, ...votes.votes.map((v) => v.pending))
 		return {
 			isAuthorized: resp.data.data.addresses[0].authorized,
 			totalLocked: await totalLocked,
+			nonvoting: await nonvoting,
+			votesActive,
+			votesPending,
 		}
 	}, [account], props.onError)
 
-	const runTXs = (f: TXFunc) => {
-		props.runTXs(f, () => { refetch() })
-	}
 	const handleAuthorize = () => {
-		runTXs(async (kit: ContractKit) => {
+		props.runTXs(async (kit: ContractKit) => {
 			const resp = await promiseGQL(gql().post<{
 				errors?: {message: string}[],
 				data: {
@@ -96,17 +111,26 @@ const CelovoteApp = (props: {
 					signature: {v: number, r: string, s: string},
 				},
 			}>(
-				'/',
-				{query: `mutation {
+				'/', {
+				query: `mutation {
 					signPOP(address:"${account.address}") {
 						signer
 						signature { v r s }
 					}
-				}`}
-			))
+				}`
+			}))
 			const accounts = await kit.contracts.getAccounts()
 			const tx = await accounts.authorizeVoteSigner(resp.data.data.signer, resp.data.data.signature)
 			return [{tx: tx}]
+		},
+		(e?: Error) => {
+			refetch()
+			if (!e) {
+				gql().post('/', {
+					query: `mutation { autoVote(addresses:["${account.address}"]) {} }`,
+				})
+				.then(() => { refetch() })
+			}
 		})
 	}
 
@@ -127,6 +151,7 @@ const CelovoteApp = (props: {
 					</Box>
 				</Paper>
 			</Box>
+			<Box marginTop={2}><SummaryTable {...fetched} /></Box>
 			</> : <>
 			<Box marginTop={2}>
 				<Paper>
@@ -150,9 +175,42 @@ const CelovoteApp = (props: {
 					</Box>
 				</Paper>
 			</Box>
+			<Box marginTop={2}><SummaryTable {...fetched} /></Box>
 			</>
 			)}
 		</Box>
 	)
 }
 export default CelovoteApp
+
+const SummaryTable = (props: {
+	totalLocked: BigNumber,
+	nonvoting: BigNumber,
+	votesActive: BigNumber,
+	votesPending: BigNumber,
+}) => {
+	return (
+		<TableContainer component={Paper}>
+		<Table size="small">
+			<TableBody>
+				<TableRow>
+					<TableCell style={{whiteSpace: "nowrap"}}>Locked CELO</TableCell>
+					<TableCell width="100%">{fmtAmount(props.totalLocked, 18)}</TableCell>
+				</TableRow>
+				<TableRow>
+					<TableCell style={{whiteSpace: "nowrap"}}>Votes (active)</TableCell>
+					<TableCell>{fmtAmount(props.votesActive, 18)}</TableCell>
+				</TableRow>
+				<TableRow>
+					<TableCell style={{whiteSpace: "nowrap"}}>Votes (pending)</TableCell>
+					<TableCell>{fmtAmount(props.votesPending, 18)}</TableCell>
+				</TableRow>
+				<TableRow>
+					<TableCell style={{whiteSpace: "nowrap"}}>Nonvoting</TableCell>
+					<TableCell>{fmtAmount(props.nonvoting, 18)}</TableCell>
+				</TableRow>
+			</TableBody>
+		</Table>
+		</TableContainer>
+	)
+}
