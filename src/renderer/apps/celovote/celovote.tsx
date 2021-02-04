@@ -5,6 +5,7 @@ import AppHeader from '../../components/app-header'
 
 import { Account } from '../../../lib/accounts'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
+import { Celovote } from './def'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CelovoteApp = (props: {
@@ -15,7 +16,7 @@ const CelovoteApp = (props: {
 }): JSX.Element => {
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
-			<AppHeader title={"Celovote"} />
+			<AppHeader title={Celovote.title} url={Celovote.url} />
 		</Box>
 	)
 }

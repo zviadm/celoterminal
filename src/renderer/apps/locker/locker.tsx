@@ -24,6 +24,7 @@ import useOnChainState from '../../state/onchain-state'
 import { fmtAmount } from '../../../lib/utils'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { toTransactionObject } from '@celo/connect'
+import { Locker } from './def'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const LockerApp = (props: {
@@ -115,7 +116,7 @@ const LockerApp = (props: {
 		fetched.nonvotingLocked.gte(toWei(toUnlock, 'ether')))
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
-			<AppHeader title={"Locker"} isFetching={isFetching} refetch={refetch} />
+			<AppHeader title={Locker.title} isFetching={isFetching} refetch={refetch} />
 			{fetched &&
 			(!fetched.isAccount ?
 			<Box marginTop={2}>
