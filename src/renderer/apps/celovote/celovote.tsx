@@ -1,15 +1,8 @@
+import { shell } from 'electron'
 import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios'
 import { ContractKit } from '@celo/contractkit'
 import log from 'electron-log'
-
-import * as React from 'react'
-import Box from '@material-ui/core/Box'
-import Paper from '@material-ui/core/Paper'
-import Button from '@material-ui/core/Button'
-import BigNumber from 'bignumber.js'
-import Alert from '@material-ui/lab/Alert'
-
-import AppHeader from '../../components/app-header'
+import { GroupVote } from '@celo/contractkit/lib/wrappers/Election'
 
 import { Account } from '../../../lib/accounts'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
@@ -17,11 +10,22 @@ import { Celovote } from './def'
 import useOnChainState from '../../state/onchain-state'
 import { CFG, mainnetNetworkId } from '../../../lib/cfg'
 import { fmtAmount } from '../../../lib/utils'
+
+import * as React from 'react'
+import Box from '@material-ui/core/Box'
+import Paper from '@material-ui/core/Paper'
+import Button from '@material-ui/core/Button'
+import BigNumber from 'bignumber.js'
+import Alert from '@material-ui/lab/Alert'
 import TableContainer from '@material-ui/core/TableContainer'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
+import TableHead from '@material-ui/core/TableHead'
+import Link from '@material-ui/core/Link'
+
+import AppHeader from '../../components/app-header'
 
 let _client: AxiosInstance
 const gql = () => {
@@ -70,8 +74,7 @@ const CelovoteApp = (props: {
 				isAuthorized: false,
 				totalLocked: new BigNumber(0),
 				nonvoting: new BigNumber(0),
-				votesActive: new BigNumber(0),
-				votesPending: new BigNumber(0),
+				votes: [],
 			}
 		}
 		const lockedGold = await kit.contracts.getLockedGold()
@@ -93,14 +96,11 @@ const CelovoteApp = (props: {
 		})
 		const resp = await promiseGQL(respP)
 		const votes = await votesP
-		const votesActive = BigNumber.sum(0, ...votes.votes.map((v) => v.active))
-		const votesPending = BigNumber.sum(0, ...votes.votes.map((v) => v.pending))
 		return {
 			isAuthorized: resp.data.data.addresses[0].authorized,
 			totalLocked: await totalLocked,
 			nonvoting: await nonvoting,
-			votesActive,
-			votesPending,
+			votes: votes.votes,
 		}
 	}, [account], props.onError)
 
@@ -157,7 +157,7 @@ const CelovoteApp = (props: {
 					</Box>
 				</Paper>
 			</Box>
-			<Box marginTop={2}><SummaryTable {...fetched} /></Box>
+			<SummaryTable {...fetched} />
 			</> : <>
 			<Box marginTop={2}>
 				<Paper>
@@ -181,7 +181,7 @@ const CelovoteApp = (props: {
 					</Box>
 				</Paper>
 			</Box>
-			<Box marginTop={2}><SummaryTable {...fetched} /></Box>
+			<SummaryTable {...fetched} />
 			</>
 			)}
 		</Box>
@@ -192,31 +192,82 @@ export default CelovoteApp
 const SummaryTable = (props: {
 	totalLocked: BigNumber,
 	nonvoting: BigNumber,
-	votesActive: BigNumber,
-	votesPending: BigNumber,
+	votes: GroupVote[],
 }) => {
+	const votesActive = BigNumber.sum(0, ...props.votes.map((v) => v.active))
+	const votesPending = BigNumber.sum(0, ...props.votes.map((v) => v.pending))
+	const votesSorted = [...props.votes].sort(
+		(a, b) =>
+			a.active.plus(a.pending)
+			.minus(b.active.plus(b.pending))
+			.negated().toNumber())
 	return (
-		<TableContainer component={Paper}>
-		<Table size="small">
-			<TableBody>
-				<TableRow>
-					<TableCell style={{whiteSpace: "nowrap"}}>Locked CELO</TableCell>
-					<TableCell width="100%">{fmtAmount(props.totalLocked, 18)}</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell style={{whiteSpace: "nowrap"}}>Votes (active)</TableCell>
-					<TableCell>{fmtAmount(props.votesActive, 18)}</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell style={{whiteSpace: "nowrap"}}>Votes (pending)</TableCell>
-					<TableCell>{fmtAmount(props.votesPending, 18)}</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell style={{whiteSpace: "nowrap"}}>Nonvoting</TableCell>
-					<TableCell>{fmtAmount(props.nonvoting, 18)}</TableCell>
-				</TableRow>
-			</TableBody>
-		</Table>
-		</TableContainer>
+		<Box display="flex" flexDirection="column">
+			<Box marginTop={2}>
+				<TableContainer component={Paper}>
+				<Table size="small">
+					<TableBody>
+						<TableRow>
+							<TableCell style={{whiteSpace: "nowrap"}}>Locked CELO</TableCell>
+							<TableCell width="100%">{fmtAmount(props.totalLocked, 18)}</TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell style={{whiteSpace: "nowrap"}}>Votes (active)</TableCell>
+							<TableCell>{fmtAmount(votesActive, 18)}</TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell style={{whiteSpace: "nowrap"}}>Votes (pending)</TableCell>
+							<TableCell>{fmtAmount(votesPending, 18)}</TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell style={{whiteSpace: "nowrap"}}>Nonvoting</TableCell>
+							<TableCell>{fmtAmount(props.nonvoting, 18)}</TableCell>
+						</TableRow>
+					</TableBody>
+				</Table>
+				</TableContainer>
+			</Box>
+			{votesSorted.length > 0 &&
+			<Box marginTop={2}>
+				<TableContainer component={Paper}>
+				<Table size="small">
+					<TableHead>
+						<TableRow>
+							<TableCell width="100%">Group</TableCell>
+							<TableCell style={{whiteSpace: "nowrap"}} align="right">Votes (active)</TableCell>
+							<TableCell style={{whiteSpace: "nowrap"}} align="right">Votes (pending)</TableCell>
+						</TableRow>
+					</TableHead>
+					<TableBody>
+						{
+						votesSorted.map((v) => (
+							<TableRow key={v.group}>
+								<TableCell><GroupAddress address={v.group} /></TableCell>
+								<TableCell align="right">{fmtAmount(v.active, 18)}</TableCell>
+								<TableCell align="right">{fmtAmount(v.pending, 18)}</TableCell>
+							</TableRow>
+						))
+						}
+					</TableBody>
+				</Table>
+				</TableContainer>
+			</Box>}
+		</Box>
+	)
+}
+
+const GroupAddress = (props: {address: string}) => {
+	const url = `https://thecelo.com/group/${props.address}`
+	const handleClick = () => { shell.openExternal(url) }
+	return (
+		<Link
+			component="button"
+			variant="body2"
+			underline="hover"
+			onClick={handleClick}
+			style={{fontFamily: "monospace"}}
+			>
+			{props.address}
+		</Link>
 	)
 }
