@@ -48,6 +48,7 @@ const useStyles = makeStyles((theme) => ({
 
 const AccountsApp = (props: {
 	accounts: Account[],
+	hasPassword: boolean,
 	onAdd: (a?: Account, password?: string) => void,
 	onRemove: (a: Account) => void,
 	onRename: (a: Account, name: string) => void,
@@ -100,7 +101,11 @@ const AccountsApp = (props: {
 			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
 			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
 			{revealAccount && <RevealLocalKey account={revealAccount} onClose={handleCancel} onError={props.onError} />}
-			{changePassword && <ChangePassword onChangePassword={handleChangePassword} onClose={handleCancel} onError={props.onError} />}
+			{changePassword && <ChangePassword
+				hasPassword={props.hasPassword}
+				onChangePassword={handleChangePassword}
+				onClose={handleCancel}
+				onError={props.onError} />}
 
 			<AppHeader title={Accounts.title} refetch={handleRefetch} isFetching={false} />
 			<Box display="flex" flexDirection="column" marginTop={2}>
@@ -201,7 +206,7 @@ const AccountsApp = (props: {
 									variant="outlined"
 									startIcon={<LockOpenIcon />}
 									onClick={ () => { setChangePassword(true) } }
-									>Change Password</Button>
+									>{props.hasPassword ? "Change" : "Setup"} Password</Button>
 							</Box>
 							<Box display="flex" flexDirection="column" flex={1} marginLeft={1}>
 								<Button

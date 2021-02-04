@@ -29,6 +29,7 @@ const App = () => {
 	const [_selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", Accounts.id)
 	const {
 		accounts,
+		hasPassword,
 		addAccount,
 		removeAccount,
 		renameAccount,
@@ -70,6 +71,7 @@ const App = () => {
 		selectedApp = Accounts.id
 		renderedApp = <AccountsApp
 			accounts={accounts}
+			hasPassword={hasPassword}
 			onAdd={addAccount}
 			onRemove={removeAccount}
 			onRename={renameAccount}
@@ -83,6 +85,7 @@ const App = () => {
 			case Accounts.id:
 				renderedApp = <AccountsApp
 					accounts={accounts}
+					hasPassword={hasPassword}
 					onAdd={addAccount}
 					onRemove={removeAccount}
 					onRename={renameAccount}

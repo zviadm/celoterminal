@@ -5,22 +5,13 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
-import { accountsDBHasPassword } from './accounts-state'
 
 const ChangePassword = (props: {
+	hasPassword: boolean,
 	onChangePassword: (oldPassword: string, newPassword: string) => void
 	onClose: () => void,
 	onError: (e: Error) => void,
 }): JSX.Element => {
-	const [_hasPassword, setHasPassword] = React.useState<boolean | undefined>(undefined)
-	let hasPassword = _hasPassword
-	if (_hasPassword === undefined) {
-		// This will cause synchronouse read from the database and a double
-		// render, but this is ok, perf should still be completely fine.
-		hasPassword = accountsDBHasPassword()
-		setHasPassword(hasPassword)
-	}
-
 	const [oldPassword, setOldPassword] = React.useState("")
 	const [newPassword1, setNewPassword1] = React.useState("")
 	const [newPassword2, setNewPassword2] = React.useState("")
@@ -37,9 +28,9 @@ const ChangePassword = (props: {
 	}
 	return (
 		<Dialog open={true} onClose={props.onClose}>
-			<DialogTitle>Change password</DialogTitle>
+			<DialogTitle>{props.hasPassword ? "Change" : "Setup"} password</DialogTitle>
 			<DialogContent>
-				{hasPassword &&
+				{props.hasPassword &&
 				<TextField
 					autoFocus
 					margin="dense"
@@ -51,7 +42,7 @@ const ChangePassword = (props: {
 					onChange={(e) => { setOldPassword(e.target.value) }}
 				/>}
 				<TextField
-					autoFocus={!hasPassword}
+					autoFocus={!props.hasPassword}
 					margin="dense"
 					type="password"
 					label={`New password`}

@@ -40,6 +40,7 @@ export const useAccounts = () => {
 	const [_accounts, setAccounts] = React.useState<Account[] | undefined>()
 	const [_selectedAccount, setSelectedAccount] =
 		useLocalStorageState<Account | undefined>("terminal/core/selected-account", undefined)
+	const [_hasPassword, setHasPassword] = React.useState(false)
 	const refreshAccounts = () => {
 		const accounts = accountsDB().readAccounts()
 		accounts.sort((a, b) => {
@@ -54,12 +55,22 @@ export const useAccounts = () => {
 			}
 			return 0
 		})
+		const hasPassword = _hasPassword || accountsDB().hasPassword()
+		if (hasPassword !== _hasPassword) {
+			setHasPassword(hasPassword)
+		}
 		setAccounts(accounts)
-		return accounts
+		return {accounts, hasPassword}
 	}
 	// _accounts will be undefined only once. Load accounts synchronously since
 	// all database access is synchronous anyways.
-	const accounts = _accounts || refreshAccounts()
+	let accounts = _accounts
+	let hasPassword = _hasPassword
+	if (!accounts) {
+		const initial = refreshAccounts()
+		accounts = initial.accounts
+		hasPassword = initial.hasPassword
+	}
 	const addAccount = (a?: Account, password?: string) => {
 		if (a) {
 			accountsDB().addAccount(a, password)
@@ -88,6 +99,7 @@ export const useAccounts = () => {
 	return {
 		accounts,
 		selectedAccount,
+		hasPassword,
 		addAccount,
 		removeAccount,
 		renameAccount,
@@ -96,9 +108,6 @@ export const useAccounts = () => {
 	}
 }
 
-export const accountsDBHasPassword = (): boolean => {
-	return accountsDB().hasPassword()
-}
 export const accountsDBFilePath = (): string => {
 	return accountsDB().dbPath
 }
