@@ -15,7 +15,7 @@
     "compile": "electron-webpack",
     "dist": "yarn compile && electron-builder",
     "lint": "yarn eslint src/",
-    "test": "env-cmd -f env.test yarn electron ./node_modules/.bin/jest"
+    "test": "ELECTRON_RUN_AS_NODE=true yarn electron ./node_modules/.bin/jest"
   },
   "electronWebpack": {
     "whiteListedModules": [
