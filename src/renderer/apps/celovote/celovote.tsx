@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios'
 import { ContractKit } from '@celo/contractkit'
+import log from 'electron-log'
 
 import * as React from 'react'
 import Box from '@material-ui/core/Box'
@@ -36,6 +37,7 @@ async function promiseGQL<T extends {errors?: {message: string}[]}>(p: Promise<A
 		if (resp.data.errors && resp.data.errors.length > 0) {
 			throw new Error(resp.data.errors[0].message)
 		}
+		log.info(`celovote[GQL]:`, resp.data)
 		return resp
 	} catch (e) {
 		if (e?.response) {
