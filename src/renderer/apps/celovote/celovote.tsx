@@ -168,7 +168,7 @@ const CelovoteApp = (props: {
 						{!canAuthorize &&
 						<Box marginBottom={1}>
 							<Alert severity="warning">
-							Minimum {fmtAmount(minLocked, 18, 0)} CELO must be locked to use Celovote service.
+							Minimum {fmtAmount(minLocked, "CELO", 0)} CELO must be locked to use Celovote service.
 							</Alert>
 						</Box>
 						}
@@ -196,7 +196,7 @@ const SummaryTable = (props: {
 }) => {
 	const votesActive = BigNumber.sum(0, ...props.votes.map((v) => v.active))
 	const votesPending = BigNumber.sum(0, ...props.votes.map((v) => v.pending))
-	const votesSorted = [...props.votes].sort(
+	const votesDESC = [...props.votes].sort(
 		(a, b) =>
 			a.active.plus(a.pending)
 			.minus(b.active.plus(b.pending))
@@ -209,25 +209,25 @@ const SummaryTable = (props: {
 					<TableBody>
 						<TableRow>
 							<TableCell style={{whiteSpace: "nowrap"}}>Locked CELO</TableCell>
-							<TableCell width="100%">{fmtAmount(props.totalLocked, 18)}</TableCell>
+							<TableCell width="100%">{fmtAmount(props.totalLocked, "CELO")}</TableCell>
 						</TableRow>
 						<TableRow>
 							<TableCell style={{whiteSpace: "nowrap"}}>Votes (active)</TableCell>
-							<TableCell>{fmtAmount(votesActive, 18)}</TableCell>
+							<TableCell>{fmtAmount(votesActive, "CELO")}</TableCell>
 						</TableRow>
 						<TableRow>
 							<TableCell style={{whiteSpace: "nowrap"}}>Votes (pending)</TableCell>
-							<TableCell>{fmtAmount(votesPending, 18)}</TableCell>
+							<TableCell>{fmtAmount(votesPending, "CELO")}</TableCell>
 						</TableRow>
 						<TableRow>
 							<TableCell style={{whiteSpace: "nowrap"}}>Nonvoting</TableCell>
-							<TableCell>{fmtAmount(props.nonvoting, 18)}</TableCell>
+							<TableCell>{fmtAmount(props.nonvoting, "CELO")}</TableCell>
 						</TableRow>
 					</TableBody>
 				</Table>
 				</TableContainer>
 			</Box>
-			{votesSorted.length > 0 &&
+			{votesDESC.length > 0 &&
 			<Box marginTop={2}>
 				<TableContainer component={Paper}>
 				<Table size="small">
@@ -240,11 +240,11 @@ const SummaryTable = (props: {
 					</TableHead>
 					<TableBody>
 						{
-						votesSorted.map((v) => (
+						votesDESC.map((v) => (
 							<TableRow key={v.group}>
 								<TableCell><GroupAddress address={v.group} /></TableCell>
-								<TableCell align="right">{fmtAmount(v.active, 18)}</TableCell>
-								<TableCell align="right">{fmtAmount(v.pending, 18)}</TableCell>
+								<TableCell align="right">{fmtAmount(v.active, "CELO")}</TableCell>
+								<TableCell align="right">{fmtAmount(v.pending, "CELO")}</TableCell>
 							</TableRow>
 						))
 						}

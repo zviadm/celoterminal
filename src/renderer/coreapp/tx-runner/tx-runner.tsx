@@ -1,9 +1,19 @@
-import * as React from 'react'
 import log from 'electron-log'
 import { ContractKit, newKit } from '@celo/contractkit'
 import { CeloTxReceipt } from '@celo/connect'
-import BigNumber from 'bignumber.js'
 
+import BigNumber from 'bignumber.js'
+import { Account } from '../../../lib/accounts'
+import { CFG } from '../../../lib/cfg'
+import useSessionState from '../../state/session-state'
+import { decryptLocalKey } from '../../../lib/accountsdb'
+import { canDecryptLocalKey, createWallet } from './wallet'
+import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definition'
+import { fmtAddress, fmtAmount, sleep } from '../../../lib/utils'
+import { transformError } from '../ledger-utils'
+import { cfgNetworkURL } from '../../state/kit'
+
+import * as React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
@@ -29,16 +39,6 @@ import Paper from '@material-ui/core/Paper'
 import IconButton from '@material-ui/core/IconButton'
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
-
-import { Account } from '../../../lib/accounts'
-import { CFG } from '../../../lib/cfg'
-import useSessionState from '../../state/session-state'
-import { decryptLocalKey } from '../../../lib/accountsdb'
-import { canDecryptLocalKey, createWallet } from './wallet'
-import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definition'
-import { fmtAddress, fmtAmount, sleep } from '../../../lib/utils'
-import { transformError } from '../ledger-utils'
-import { cfgNetworkURL } from '../../state/kit'
 
 function TXRunner(props: {
 	selectedAccount: Account,
@@ -117,6 +117,7 @@ const RunTXs = (props: {
 	const [preparedTXs, setPreparedTXs] = React.useState<ParsedTransaction[]>([])
 	const [currentTX, setCurrentTX] = React.useState<{
 		idx: number,
+		estimatedFee: EstimatedFee,
 		confirm: () => void,
 		cancel: () => void,
 	} | undefined>()
@@ -167,9 +168,23 @@ const RunTXs = (props: {
 
 					const r: CeloTxReceipt[] = []
 					for (let idx = 0; idx < txs.length; idx += 1) {
+						const tx = txs[idx]
+						const estimatedGas =
+							tx.tx.defaultParams?.gas ?
+							new BigNumber(tx.tx.defaultParams?.gas) :
+							new BigNumber(await tx.tx.txo.estimateGas({value: tx.value})).multipliedBy(kit.gasInflationFactor).integerValue()
+						// TODO(zviad): Add support for other fee currencies.
+						const gasPrice = await kit.connection.gasPrice()
+						const estimatedFee = {
+							estimatedGas,
+							feeCurrency: "CELO",
+							estimatedFee: estimatedGas.multipliedBy(gasPrice).shiftedBy(-18),
+						}
+
 						const txPromise = new Promise<void>((resolve, reject) => {
 							setCurrentTX({
 								idx: idx,
+								estimatedFee: estimatedFee,
 								confirm: () => {
 									setStage("sending")
 									resolve()
@@ -180,7 +195,6 @@ const RunTXs = (props: {
 								}
 							})
 						})
-						const tx = txs[idx]
 						log.info(`TX:`, parsedTXs[idx], tx.tx.txo.arguments)
 
 						setTXSendMS(0)
@@ -193,7 +207,7 @@ const RunTXs = (props: {
 						const result = await tx.tx.send({
 							value: tx.value,
 							// perf improvement, avoid re-estimating gas again.
-							gas: parsedTXs[idx].estimatedGas.toNumber(),
+							gas: estimatedGas.toNumber(),
 						})
 						const txHash = await result.getHash()
 						setStage("sending")
@@ -201,6 +215,13 @@ const RunTXs = (props: {
 						log.info(`TX-HASH:`, txHash)
 
 						const receipt = await result.waitReceipt()
+						if (idx !== txs.length - 1) {
+							// Wait a bit after transaction finishes, because Kit might be connecting
+							// to a load balancer, thus subsequent transactions can fail if they havent yet
+							// applied already completed transactions.
+							await sleep(500)
+						}
+
 						setTXProgress(100)
 						log.info(`TX-RECEIPT:`, receipt)
 						r.push(receipt)
@@ -265,7 +286,7 @@ const RunTXs = (props: {
 							</List>
 						</Paper>
 						<Box marginTop={1}>
-							<TransactionInfo tx={preparedTXs[currentTX.idx]}/>
+							<TransactionInfo tx={preparedTXs[currentTX.idx]} fee={currentTX.estimatedFee} />
 						</Box>
 						<Box marginTop={1}>
 							<LinearProgress
@@ -294,15 +315,20 @@ const RunTXs = (props: {
 	)
 }
 
-interface ParsedTransaction {
+interface EstimatedFee {
 	estimatedGas: BigNumber, // Gas price in WEI
+
+	// Human readable values.
+	estimatedFee: BigNumber,
+	feeCurrency: string,
+}
+
+interface ParsedTransaction {
 	encodedABI: string,
 	transferValue?: BigNumber, // Amount of directly transfering CELO.
 
 	// Human readable values.
 	contractName: string,
-	estimatedFee: BigNumber,
-	feeCurrency: string,
 }
 
 const parseTransaction = async (
@@ -313,26 +339,17 @@ const parseTransaction = async (
 	const match = Array.from(
 		addressMapping.entries()).find((i) => i[1].toLowerCase() === contractAddress.toLowerCase())
 	const contractName = match ? `${match[0]} (${fmtAddress(contractAddress)})` : contractAddress
-	const estimatedGas =
-		tx.tx.defaultParams?.gas ?
-		new BigNumber(tx.tx.defaultParams?.gas) :
-		new BigNumber(await tx.tx.txo.estimateGas({value: tx.value})).multipliedBy(kit.gasInflationFactor).integerValue()
-	// TODO(zviad): Add support for other fee currencies.
-	const gasPrice = await kit.connection.gasPrice()
-	const estimatedFee = estimatedGas.multipliedBy(gasPrice).div(1e18)
 	return {
-		estimatedGas,
 		encodedABI: tx.tx.txo.encodeABI(),
 		transferValue: tx.value ? new BigNumber(tx.value.toString()) : undefined,
 
 		contractName,
-		estimatedFee,
-		feeCurrency: "CELO",
 	}
 }
 
 const TransactionInfo = (props: {
 	tx: ParsedTransaction
+	fee: EstimatedFee
 }) => {
 	const [open, setOpen] = React.useState(false)
 	return (
@@ -365,18 +382,18 @@ const TransactionInfo = (props: {
 							style={{
 								fontFamily: "monospace",
 								textTransform: "uppercase",
-								overflowWrap: "anywhere"}}>gas: {props.tx.estimatedGas.toFixed(0)}</TableCell>
+								overflowWrap: "anywhere"}}>gas: {props.fee.estimatedGas.toFixed(0)}</TableCell>
 					</TableRow>
 					</>}
 					{props.tx.transferValue &&
 					<TableRow>
 						<TableCell>Transfer</TableCell>
-						<TableCell colSpan={2}>{fmtAmount(props.tx.transferValue, 18)} CELO</TableCell>
+						<TableCell colSpan={2}>{fmtAmount(props.tx.transferValue, "CELO")} CELO</TableCell>
 					</TableRow>}
 					<TableRow>
 						<TableCell>Fee</TableCell>
 						<TableCell colSpan={2}>
-							~{props.tx.estimatedFee.toFixed(4, BigNumber.ROUND_UP)} {props.tx.feeCurrency}
+							~{props.fee.estimatedFee.toFixed(4, BigNumber.ROUND_UP)} {props.fee.feeCurrency}
 						</TableCell>
 					</TableRow>
 				</TableBody>

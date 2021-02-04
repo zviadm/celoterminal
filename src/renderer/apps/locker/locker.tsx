@@ -1,9 +1,16 @@
-import * as React from 'react'
 import BigNumber from 'bignumber.js'
 import { ContractKit } from '@celo/contractkit'
 import { PendingWithdrawal } from '@celo/contractkit/lib/wrappers/LockedGold'
-import { toWei } from "web3-utils"
 
+import { Account } from '../../../lib/accounts'
+import useOnChainState from '../../state/onchain-state'
+import { fmtAmount } from '../../../lib/utils'
+import { TXFunc, TXFinishFunc } from '../../components/app-definition'
+import { toTransactionObject } from '@celo/connect'
+import { Locker } from './def'
+import { GroupVote } from '@celo/contractkit/lib/wrappers/Election'
+
+import * as React from 'react'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
@@ -12,44 +19,40 @@ import Paper from '@material-ui/core/Paper'
 import Alert from '@material-ui/lab/Alert'
 import Table from '@material-ui/core/Table'
 import TableHead from '@material-ui/core/TableHead'
-import { TableBody, TableContainer } from '@material-ui/core'
+import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
 import TableRow from '@material-ui/core/TableRow'
 import Tooltip from '@material-ui/core/Tooltip'
 
 import AppHeader from '../../components/app-header'
 
-import { Account } from '../../../lib/accounts'
-import useOnChainState from '../../state/onchain-state'
-import { fmtAmount } from '../../../lib/utils'
-import { TXFunc, TXFinishFunc } from '../../components/app-definition'
-import { toTransactionObject } from '@celo/connect'
-import { Locker } from './def'
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const LockerApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
 	onError: (e: Error) => void,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
+	const account = props.selectedAccount
+	const onError = props.onError
 	const {
 		isFetching,
 		fetched,
 		refetch,
 	} = useOnChainState(async (kit: ContractKit) => {
-		const goldToken = await kit.contracts.getGoldToken()
-		const lockedGold = await kit.contracts.getLockedGold()
 		const accounts = await kit.contracts.getAccounts()
-		const isAccount = await accounts.isAccount(props.selectedAccount.address)
+		const isAccount = await accounts.isAccount(account.address)
 		if (!isAccount) {
 			return { isAccount }
 		}
+		const goldToken = await kit.contracts.getGoldToken()
+		const lockedGold = await kit.contracts.getLockedGold()
+		const election = await kit.contracts.getElection()
 		const config = lockedGold.getConfig()
-		const totalCELO = goldToken.balanceOf(props.selectedAccount.address)
-		const totalLocked = lockedGold.getAccountTotalLockedGold(props.selectedAccount.address)
-		const nonvotingLocked = lockedGold.getAccountNonvotingLockedGold(props.selectedAccount.address)
-		const pendingWithdrawals = lockedGold.getPendingWithdrawals(props.selectedAccount.address)
+		const totalCELO = goldToken.balanceOf(account.address)
+		const totalLocked = lockedGold.getAccountTotalLockedGold(account.address)
+		const nonvotingLocked = lockedGold.getAccountNonvotingLockedGold(account.address)
+		const pendingWithdrawals = lockedGold.getPendingWithdrawals(account.address)
+		const votes = election.getVoter(account.address)
 		return {
 			isAccount,
 			unlockingPeriod: (await config).unlockingPeriod,
@@ -57,10 +60,12 @@ const LockerApp = (props: {
 			totalLocked: await totalLocked,
 			nonvotingLocked: await nonvotingLocked,
 			pendingWithdrawals: await pendingWithdrawals,
+			votes: (await votes).votes,
 		}
-	}, [props.selectedAccount.address], props.onError)
-	const [toUnlock, setToUnlock] = React.useState("")
+	}, [account], onError)
 	const [toLock, setToLock] = React.useState("")
+	const [toUnlock, setToUnlock] = React.useState("")
+	const toLockWEI = new BigNumber(toLock).shiftedBy(18)
 
 	const runTXs = (f: TXFunc) => {
 		props.runTXs(f, (e?: Error) => {
@@ -82,14 +87,23 @@ const LockerApp = (props: {
 		runTXs(async (kit: ContractKit) => {
 			const lockedGold = await kit.contracts.getLockedGold()
 			const tx = lockedGold.lock()
-			return [{tx: tx, value: toWei(toLock, 'ether')}]
+			return [{tx: tx, value: toLockWEI.toFixed(0)}]
 		})
 	}
-	const handleUnlock = () => {
+	const handleUnlock = (
+		toUnlock: BigNumber,
+		revoke?: {group: string, amount: BigNumber},
+		) => {
 		runTXs(async (kit: ContractKit) => {
 			const lockedGold = await kit.contracts.getLockedGold()
-			const tx = lockedGold.unlock(toWei(toUnlock, 'ether'))
-			return [{tx: tx}]
+			const election = await kit.contracts.getElection()
+			const txs = []
+			if (revoke) {
+				const revokeTXs = await election.revoke(account.address, revoke.group, revoke.amount)
+				txs.push(...revokeTXs)
+			}
+			txs.push(lockedGold.unlock(toUnlock))
+			return txs.map((tx) => ({tx: tx}))
 		})
 	}
 	const handleWithdraw = (idx: number) => {
@@ -110,10 +124,7 @@ const LockerApp = (props: {
 
 	const canLock = (
 		toLock !== "" && fetched && fetched.isAccount &&
-		fetched.totalCELO.gte(toWei(toLock, 'ether')))
-	const canUnlock = (
-		toUnlock !== "" && fetched && fetched.isAccount &&
-		fetched.nonvotingLocked.gte(toWei(toUnlock, 'ether')))
+		toLockWEI.gt(0) && fetched.totalCELO.gte(toLockWEI))
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
 			<AppHeader title={Locker.title} isFetching={isFetching} refetch={refetch} />
@@ -140,11 +151,11 @@ const LockerApp = (props: {
 			<Box marginTop={2}>
 				<Paper>
 					<Box display="flex" flexDirection="column" p={2}>
-						<Typography>Balance: {fmtAmount(fetched.totalCELO, 18)} CELO</Typography>
+						<Typography>Balance: {fmtAmount(fetched.totalCELO, "CELO")} CELO</Typography>
 						<TextField
 								autoFocus
 								margin="dense"
-								label={`Lock (max: ${fmtAmount(fetched.totalCELO, 18)})`}
+								label={`Lock (max: ${fmtAmount(fetched.totalCELO, "CELO")})`}
 								variant="outlined"
 								value={toLock}
 								size="medium"
@@ -162,38 +173,12 @@ const LockerApp = (props: {
 				</Paper>
 			</Box>
 			<Box marginTop={2}>
-				<Paper>
-					<Box display="flex" flexDirection="column" p={2}>
-						<Box marginBottom={1}>
-							<Alert severity="info">
-								Locked CELO has a delay of {fetched.unlockingPeriod.div(24*60*60).toString()} days
-								before it can be recovered from the escrow after unlock is initiated.
-							</Alert>
-						</Box>
-						<Box marginBottom={1}>
-							<Alert severity="info">
-								Only non-voting CELO can be unlocked.
-							</Alert>
-						</Box>
-						<Typography>Locked: {fmtAmount(fetched.totalLocked, 18)} CELO</Typography>
-						<Typography>Nonvoting: {fmtAmount(fetched.nonvotingLocked, 18)} CELO</Typography>
-						<TextField
-								margin="dense"
-								label={`Unlock (max: ${fmtAmount(fetched.nonvotingLocked, 18)})`}
-								variant="outlined"
-								value={toUnlock}
-								size="medium"
-								type="number"
-								fullWidth={true}
-								onChange={(e) => { setToUnlock(e.target.value) }}
-							/>
-						<Button
-							variant="outlined"
-							color="primary"
-							disabled={!canUnlock}
-							onClick={handleUnlock}>Unlock</Button>
-					</Box>
-				</Paper>
+				<UnlockWithRevoke
+					{...fetched}
+					toUnlock={toUnlock}
+					onSetToUnlock={setToUnlock}
+					onUnlock={handleUnlock}
+				/>
 			</Box>
 			{fetched.pendingWithdrawals.length > 0 &&
 			<Box marginTop={2}>
@@ -209,6 +194,96 @@ const LockerApp = (props: {
 }
 export default LockerApp
 
+const UnlockWithRevoke = (props: {
+	toUnlock: string
+	onSetToUnlock: (v: string) => void,
+	totalLocked: BigNumber,
+	nonvotingLocked: BigNumber,
+	unlockingPeriod: BigNumber,
+	votes: GroupVote[],
+	onUnlock: (toUnlock: BigNumber, revoke?: {group: string, amount: BigNumber}) => void,
+}) => {
+	const toUnlockWEI = new BigNumber(props.toUnlock).shiftedBy(18)
+	const votesASC = [...props.votes].sort((a, b) =>
+		a.active.plus(a.pending)
+		.minus(b.active.plus(b.pending))
+		.toNumber())
+	const handleUnlock = () => {
+		const toRevoke = toUnlockWEI.minus(props.nonvotingLocked)
+		let revoke
+		let _toUnlock = toUnlockWEI
+		if (toRevoke.gt(0)) {
+			const v = votesASC.find((v) => v.active.plus(v.pending).gte(toRevoke))
+			if (v) {
+				revoke = {group: v.group, amount: toRevoke}
+			} else {
+				// This should never happen, but if it does for some reason, still go through with
+				// the unlock with maximum possible.
+				_toUnlock = _toUnlock.minus(toRevoke)
+			}
+		}
+		console.info(`tounlock`, _toUnlock.toString(), toRevoke.toString(), revoke)
+		props.onUnlock(_toUnlock, revoke)
+	}
+
+	const maxToUnlock = props.nonvotingLocked.plus(
+		votesASC.length === 0 ? 0 :
+		votesASC[votesASC.length - 1].active.plus(votesASC[votesASC.length - 1].pending))
+	const canUnlock = (
+		toUnlockWEI.gt(0) && maxToUnlock.gte(toUnlockWEI))
+	return (
+		<Paper>
+			<Box display="flex" flexDirection="column" p={2}>
+				<Box marginBottom={1}>
+					<Alert severity="info">
+						Locked CELO has a delay of {props.unlockingPeriod.div(24*60*60).toString()} days
+						before it can be recovered from the escrow after unlock is initiated.
+					</Alert>
+				</Box>
+				<Box marginBottom={1}>
+					<Alert severity="warning">
+						To unlock arleady voting CELO, multiple transactions might be needed to revoke votes
+						first. `Max to unlock` shows maximum amount that can be unlocked in a single transaction.
+					</Alert>
+				</Box>
+				<Table size="small">
+					<TableBody>
+						<TableRow>
+							<TableCell style={{whiteSpace: "nowrap"}}>Locked</TableCell>
+							<TableCell width="100%">{fmtAmount(props.totalLocked, "CELO")} CELO</TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell style={{whiteSpace: "nowrap"}}>Nonvoting</TableCell>
+							<TableCell>{fmtAmount(props.nonvotingLocked, "CELO")} CELO</TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell style={{whiteSpace: "nowrap"}}>Max to unlock</TableCell>
+							<TableCell>{fmtAmount(maxToUnlock, "CELO")} CELO</TableCell>
+						</TableRow>
+					</TableBody>
+				</Table>
+				<TextField
+						margin="dense"
+						label={`Unlock (max: ${fmtAmount(maxToUnlock, "CELO")})`}
+						variant="outlined"
+						value={props.toUnlock}
+						size="medium"
+						type="number"
+						fullWidth={true}
+						onChange={(e) => { props.onSetToUnlock(e.target.value) }}
+					/>
+				<Button
+					variant="outlined"
+					color="primary"
+					disabled={!canUnlock}
+					onClick={handleUnlock}>
+					{toUnlockWEI.gt(props.nonvotingLocked) ? "Revoke and Unlock" : "Unlock"}
+				</Button>
+			</Box>
+		</Paper>
+	)
+}
+
 const PendingWithdrawals = (props: {
 	pendingWithdrawals: PendingWithdrawal[],
 	onWithdraw: (idx: number) => void,
@@ -221,10 +296,9 @@ const PendingWithdrawals = (props: {
 		<Paper>
 			<Box display="flex" flexDirection="column" p={2}>
 				<Box marginBottom={1}>
-					<Typography>Pending withdrawals: {fmtAmount(pendingTotal, 18)} CELO</Typography>
+					<Typography>Pending withdrawals: {fmtAmount(pendingTotal, "CELO")} CELO</Typography>
 				</Box>
-				<TableContainer component={Paper}>
-				<Table>
+				<Table size="small">
 					<TableHead>
 						<TableRow>
 							<TableCell>Date</TableCell>
@@ -238,18 +312,18 @@ const PendingWithdrawals = (props: {
 						const date = new Date(p[0].time.multipliedBy(1000).toNumber())
 						const pendingMinutes = p[0].time.minus(Date.now()/1000).div(60)
 						const pendingText = pendingMinutes.lte(90) ?
-							`in ${pendingMinutes.toFixed(0)} minutes...` :
-							`in ${pendingMinutes.div(60).toFixed(0)} hours...`
+							`in ${pendingMinutes.toFixed(0)} minutes\u2026`:
+							`in ${pendingMinutes.div(60).toFixed(0)} hours\u2026`
 						const canWithdraw = pendingMinutes.lte(0)
 						return (
 						<TableRow key={`${p[1]}`}>
 							<Tooltip title={date.toLocaleString()}>
 								<TableCell>{date.toLocaleDateString()}</TableCell>
 							</Tooltip>
-							<TableCell>{fmtAmount(p[0].value, 18)}</TableCell>
+							<TableCell>{fmtAmount(p[0].value, "CELO")}</TableCell>
 							<TableCell>
 								<Button
-									style={{width: 130}}
+									style={{width: 140}}
 									variant="outlined"
 									color="primary"
 									disabled={!canWithdraw}
@@ -269,7 +343,6 @@ const PendingWithdrawals = (props: {
 					})}
 					</TableBody>
 				</Table>
-				</TableContainer>
 			</Box>
 		</Paper>
 	)
