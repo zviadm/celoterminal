@@ -30,7 +30,7 @@ export class CancelPromise {
 }
 
 export const fmtAmount = (v: BigNumber, decimals: number, precision?: number): string => {
-	return v.shiftedBy(-decimals).toFixed(precision || 4)
+	return v.shiftedBy(-decimals).toFixed(precision !== undefined ? precision : 4)
 }
 
 export const fmtAddress = (address: string): string => {

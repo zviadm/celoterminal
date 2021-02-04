@@ -14,6 +14,9 @@ import { Typography } from '@material-ui/core'
 import { CFG, mainnetNetworkId } from '../../../lib/cfg'
 import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
+import BigNumber from 'bignumber.js'
+import Alert from '@material-ui/lab/Alert'
+import { fmtAmount } from '../../../lib/utils'
 
 let _client: AxiosInstance
 const gql = () => {
@@ -55,6 +58,15 @@ const CelovoteApp = (props: {
 		if (CFG().networkId !== mainnetNetworkId) {
 			throw new Error(`Celovote APP only works with Mainnet.`)
 		}
+		const accounts = await kit.contracts.getAccounts()
+		const lockedGold = await kit.contracts.getLockedGold()
+		const totalLocked = accounts.isAccount(account.address)
+			.then((isAccount) => {
+				if (!isAccount) {
+					return new BigNumber(0)
+				}
+				return lockedGold.getAccountTotalLockedGold(account.address)
+			})
 		const respP = gql().post<{
 			errors?: {message: string}[],
 			data: {
@@ -69,6 +81,7 @@ const CelovoteApp = (props: {
 		const resp = await promiseGQL(respP)
 		return {
 			isAuthorized: resp.data.data.addresses[0].authorized,
+			totalLocked: await totalLocked,
 		}
 	}, [account], props.onError)
 
@@ -92,12 +105,14 @@ const CelovoteApp = (props: {
 					}
 				}`}
 			))
-			const accountsC = await kit.contracts.getAccounts()
-			const tx = await accountsC.authorizeVoteSigner(resp.data.data.signer, resp.data.data.signature)
+			const accounts = await kit.contracts.getAccounts()
+			const tx = await accounts.authorizeVoteSigner(resp.data.data.signer, resp.data.data.signature)
 			return [{tx: tx}]
 		})
 	}
 
+	const minLocked = new BigNumber(100e18)
+	const canAuthorize = fetched?.totalLocked.gte(minLocked)
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
 			<AppHeader title={Celovote.title} url={Celovote.url} isFetching={isFetching} refetch={refetch} />
@@ -106,7 +121,7 @@ const CelovoteApp = (props: {
 			<Box marginTop={2}>
 				<Paper>
 					<Box p={2}>
-						<Typography>Authorized</Typography>
+						<Alert severity="success">Account authorized with Celovote.</Alert>
 					</Box>
 				</Paper>
 			</Box>
@@ -114,10 +129,21 @@ const CelovoteApp = (props: {
 			<Box marginTop={2}>
 				<Paper>
 					<Box display="flex" flexDirection="column" p={2}>
+						<Box marginBottom={1}>
+							<Alert severity="info">{Celovote.description}</Alert>
+						</Box>
+						{!canAuthorize &&
+						<Box marginBottom={1}>
+							<Alert severity="warning">
+							Minimum {fmtAmount(minLocked, 18, 0)} CELO must be locked to use Celovote service.
+							</Alert>
+						</Box>
+						}
 						<Button
 							color="primary"
 							variant="outlined"
 							onClick={handleAuthorize}
+							disabled={!canAuthorize}
 							>Authorize</Button>
 					</Box>
 				</Paper>
