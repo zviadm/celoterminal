@@ -1,15 +1,16 @@
-const defaultNetworkId = "42220"
+export const mainnetNetworkId = "42220"
+const defaultNetworkId = mainnetNetworkId
 const defaultAccountsDB = "home/.celoterminal/celoaccounts.db"
 
 const defaultNetworks: {[key: string]: string} = {
-	"42220": "https://forno.celo.org",
+	[mainnetNetworkId]: "https://forno.celo.org",
 	"62320": "https://baklava-forno.celo-testnet.org",
 	"44787": "https://alfajores-forno.celo-testnet.org",
 }
 const fallbackNetworkURL = "http://localhost:7545"
 
 const networkNames: {[key: string]: string} = {
-	"42220": "Mainnet",
+	[mainnetNetworkId]: "Mainnet",
 	"62320": "Baklava",
 	"44787": "Alfajores",
 }
