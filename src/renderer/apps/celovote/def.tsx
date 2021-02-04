@@ -22,5 +22,6 @@ function icon <T>(props: T): JSX.Element {
 		{...props}
 		viewBox="0 0 500 400"
 		component={CelovoteIcon}
+		style={{paddingLeft: 5}}
 		/>
 }
