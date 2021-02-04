@@ -109,8 +109,10 @@ const CelovoteApp = (props: {
 			const resp = await promiseGQL(gql().post<{
 				errors?: {message: string}[],
 				data: {
-					signer: string,
-					signature: {v: number, r: string, s: string},
+					signPOP: {
+						signer: string,
+						signature: {v: number, r: string, s: string},
+					},
 				},
 			}>(
 				'/', {
@@ -122,15 +124,17 @@ const CelovoteApp = (props: {
 				}`
 			}))
 			const accounts = await kit.contracts.getAccounts()
-			const tx = await accounts.authorizeVoteSigner(resp.data.data.signer, resp.data.data.signature)
+			const tx = await accounts.authorizeVoteSigner(
+				resp.data.data.signPOP.signer,
+				resp.data.data.signPOP.signature)
 			return [{tx: tx}]
 		},
 		(e?: Error) => {
 			refetch()
 			if (!e) {
-				gql().post('/', {
-					query: `mutation { autoVote(addresses:["${account.address}"]) {} }`,
-				})
+				promiseGQL(gql().post('/', {
+					query: `mutation { autoVote(addresses:["${account.address}"]) }`,
+				}))
 				.then(() => { refetch() })
 			}
 		})
