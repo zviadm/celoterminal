@@ -3,7 +3,7 @@ import log from 'electron-log'
 import { ContractKit } from '@celo/contractkit'
 
 import { CancelPromise } from '../../lib/utils'
-import kit from '../coreapp/kit'
+import kit from './kit'
 
 // TODO(zviad): Document OnChainState behaviour.
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

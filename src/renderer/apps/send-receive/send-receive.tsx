@@ -22,6 +22,7 @@ import { fmtAmount } from '../../../lib/utils'
 import ERC20 from './erc20'
 import { CFG } from '../../../lib/cfg'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
+import { SendReceive } from './def'
 
 const useStyles = makeStyles(() => ({
 	address: {
@@ -90,7 +91,7 @@ const SendReceiveApp = (props: {
 	)
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
-			<AppHeader title={"Send/Receive"} isFetching={isFetching} refetch={refetch} />
+			<AppHeader title={SendReceive.title} isFetching={isFetching} refetch={refetch} />
 			<Box marginTop={2}>
 				<Paper>
 					<Box p={2}>

@@ -1,6 +1,6 @@
-import * as React from 'react'
 import { shell } from 'electron'
 
+import * as React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
@@ -26,6 +26,7 @@ import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon } from './a
 
 import { Account, LocalAccount } from '../../../lib/accounts'
 import { accountsDBFilePath } from './accounts-state'
+import Accounts from './def'
 
 const useStyles = makeStyles((theme) => ({
 	accountText: {
@@ -101,7 +102,7 @@ const AccountsApp = (props: {
 			{revealAccount && <RevealLocalKey account={revealAccount} onClose={handleCancel} onError={props.onError} />}
 			{changePassword && <ChangePassword onChangePassword={handleChangePassword} onClose={handleCancel} onError={props.onError} />}
 
-			<AppHeader title={"Accounts"} refetch={handleRefetch} isFetching={false} />
+			<AppHeader title={Accounts.title} refetch={handleRefetch} isFetching={false} />
 			<Box display="flex" flexDirection="column" marginTop={2}>
 				{
 				props.accounts.map((a) => {

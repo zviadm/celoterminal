@@ -19,10 +19,14 @@ import { AppList } from '../apps/apps'
 import Accounts from './accounts-app/def'
 import { useAccounts } from './accounts-app/accounts-state'
 import useLocalStorageState from '../state/localstorage-state'
-import { TXFinishFunc, TXFunc } from '../components/app-definition'
+import { AppDefinition, TXFinishFunc, TXFunc } from '../components/app-definition'
+import AppStore from './appstore-app/def'
+import AppStoreApp, { PinnedApp } from './appstore-app/appstore-app'
+
+const appsById = new Map(AppList.map((a) => [a.id, a]))
 
 const App = () => {
-	const [_selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", Accounts.name)
+	const [_selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", Accounts.id)
 	const {
 		accounts,
 		addAccount,
@@ -38,12 +42,32 @@ const App = () => {
 		onFinish?: TXFinishFunc) => {
 		setTXFunc({f, onFinish})
 	}
+	const [pinnedApps, setPinnedApps] = useLocalStorageState<PinnedApp[]>("terminal/core/pinned-apps", [])
 	const [error, setError] = React.useState<Error | undefined>()
+
+	const appListAll = AppList
+	const pinnedAppList = pinnedApps.map((p) => appsById.get(p.id)).filter((p) => p) as AppDefinition[]
+	const appList = AppList.filter((a) => a.core).concat(...pinnedAppList)
+	const handleAddApp = (id: string) => {
+		if (pinnedApps.find((p) => p.id === id)) {
+			return
+		}
+		const pinnedAppsCopy = pinnedApps.concat({id: id})
+		setPinnedApps(pinnedAppsCopy)
+		setSelectedApp(id)
+	}
+	const handleRemoveApp = (id: string) => {
+		const pinnedAppsCopy = pinnedApps.filter((p) => p.id !== id)
+		if (selectedApp === id) {
+			setSelectedApp(Accounts.id)
+		}
+		setPinnedApps(pinnedAppsCopy)
+	}
 
 	let renderedApp
 	let selectedApp = _selectedApp
 	if (!selectedAccount) {
-		selectedApp = Accounts.name
+		selectedApp = Accounts.id
 		renderedApp = <AccountsApp
 			accounts={accounts}
 			onAdd={addAccount}
@@ -53,26 +77,40 @@ const App = () => {
 			onError={setError}
 		/>
 	} else {
-		const terminalApp = AppList.find((a) => a.name === selectedApp)
+		const terminalApp = appListAll.find((a) => a.id === selectedApp)
 		try {
-			renderedApp = (selectedApp === Accounts.name || !terminalApp) ?
-				<AccountsApp
+			switch (selectedApp) {
+			case Accounts.id:
+				renderedApp = <AccountsApp
 					accounts={accounts}
 					onAdd={addAccount}
 					onRemove={removeAccount}
 					onRename={renameAccount}
 					onChangePassword={changePassword}
 					onError={setError}
-				/> :
-				<terminalApp.renderApp
+				/>
+				break
+			case AppStore.id:
+				renderedApp = <AppStoreApp
+					pinnedApps={pinnedApps}
+					onAddApp={handleAddApp}
+					onError={setError}
+				/>
+				break
+			default:
+				if (!terminalApp) {
+					throw new Error(`Unknown app: '${selectedApp}'`)
+				}
+				renderedApp = <terminalApp.renderApp
 					accounts={accounts}
 					selectedAccount={selectedAccount}
 					runTXs={runTXs}
 					onError={setError}
 				/>
+				break
+			}
 		} catch (e) {
-			setError(e)
-			renderedApp = <div></div>
+			renderedApp = <Box><Alert severity="error">{e?.message}</Alert></Box>
 			log.error(`renderApp:`, e)
 		}
 	}
@@ -90,6 +128,7 @@ const App = () => {
 
 	return (
 		<Box>
+			<ErrorSnack error={error} onClose={clearError} />
 			{selectedAccount &&
 			<TXRunner
 				selectedAccount={selectedAccount}
@@ -108,7 +147,9 @@ const App = () => {
 					<AppMenu
 						selectedApp={selectedApp}
 						setSelectedApp={setSelectedApp}
-						appList={AppList}
+						appList={appList}
+						disableApps={!selectedAccount}
+						onRemoveApp={handleRemoveApp}
 					/>
 					<Box m={2} alignSelf="flex-end">
 						<CheckUpdate />
@@ -123,7 +164,6 @@ const App = () => {
 					{renderedApp}
 				</Box>
 			</Box>
-			<ErrorSnack error={error} onClose={clearError} />
 		</Box>
 	)
 }

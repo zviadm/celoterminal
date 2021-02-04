@@ -12,7 +12,7 @@ import WifiOffIcon from '@material-ui/icons/WifiOff'
 
 import { Account } from '../../lib/accounts'
 import { fmtAddress } from '../../lib/utils'
-import kit, { useNetworkURL } from './kit'
+import kit, { useNetworkURL } from '../state/kit'
 import { CFG, networkName } from '../../lib/cfg'
 import Tooltip from '@material-ui/core/Tooltip'
 import Button from '@material-ui/core/Button'
