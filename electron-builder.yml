@@ -1,6 +1,7 @@
 appId: "com.celoterminal"
 productName: "Celo Terminal"
 afterSign: ./buildcfg/notarize.js
+
 mac:
   artifactName: ${productName}-${version}-${os}-${arch}.${ext}
   category: "public.app-category.finance"
@@ -11,6 +12,14 @@ mac:
     - dmg
     - zip
   publish: ["github"]
+
+win:
+  artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+  target:
+    - target: nsis
+      arch: ["x64"]
+  publish: ["github"]
+
 publish:
   provider: "github"
   owner: "zviadm"

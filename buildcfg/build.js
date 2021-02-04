@@ -89,7 +89,10 @@ const runAction = () => {
 	setEnv("ADBLOCK", true);
 	run("yarn config set network-timeout 600000 -g")
 	run("yarn");
-	run("yarn test");
+	if (platform === "mac") {
+		run("yarn test");
+		run("yarn lint");
+	}
 	run("yarn compile");
 
 	// Run NPM build script if it exists
