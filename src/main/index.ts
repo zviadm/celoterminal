@@ -48,6 +48,8 @@ function createMainWindow() {
 		height: 100,
 		width: 200,
 		frame: false,
+		resizable: false,
+		movable: false,
 	})
 	splash.loadURL(`file://${__static}/splash.html`)
 
