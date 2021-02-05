@@ -5,7 +5,8 @@ Desktop app to manage accounts and interact with the decentralized apps on the C
 MacOS and (Windows: coming soon) versions available:
 * https://github.com/zviadm/celoterminal/releases/latest
 
-![screenshot0](./docs/imgs/screenshot0.png) ![screenshot1](./docs/imgs/screenshot1.png) ![screenshot2](./docs/imgs/screenshot2.png)
+| ![screenshot0](./docs/imgs/screenshot0.png) | ![screenshot1](./docs/imgs/screenshot1.png) | ![screenshot2](./docs/imgs/screenshot2.png) |
+|:---:|:---:|:---:|
 
 ## App Framework
 
