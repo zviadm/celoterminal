@@ -103,7 +103,7 @@ const runAction = () => {
 				`yarn electron-builder --${platform} ${publish ?
 					"--publish always -c.releaseInfo.releaseNotesFile=.tmp.releasenotes.txt"
 					:
-					""}`);
+					"--publish never"}`);
 			break;
 		} catch (err) {
 			if (i < maxAttempts - 1) {
