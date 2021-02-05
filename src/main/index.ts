@@ -12,6 +12,20 @@ let mainWindow: BrowserWindow | null
 let willQuitApp = false
 export const setForceQuit = (): void => { willQuitApp = true }
 
+const gotLock = app.requestSingleInstanceLock()
+if (!gotLock) {
+	app.quit();
+} else {
+	app.on("second-instance", () => {
+		if (mainWindow) {
+			if (mainWindow.isMinimized()) {
+				mainWindow.restore()
+			}
+			mainWindow.focus()
+		}
+	})
+}
+
 function createMainWindow() {
 	const height = 800
 	const minWidth = 850
