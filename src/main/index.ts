@@ -3,6 +3,8 @@ import path from 'path'
 import { format as formatUrl } from 'url'
 import { setupAutoUpdater } from './auto-updater'
 
+declare const __static: string
+
 app.allowRendererProcessReuse = true
 
 // Global reference to mainWindow (necessary to prevent window from being garbage collected).
@@ -11,10 +13,11 @@ let willQuitApp = false
 export const setForceQuit = (): void => { willQuitApp = true }
 
 function createMainWindow() {
+	const height = 800
 	const minWidth = 850
 	const width = app.isPackaged ? minWidth : minWidth + 270
 	const window = new BrowserWindow({
-		height: 800,
+		height: height,
 		minWidth: minWidth,
 		width: width,
 		title: "Celo Terminal",
@@ -25,6 +28,7 @@ function createMainWindow() {
 			partition: "persist:default",
 			devTools: !app.isPackaged,
 		},
+		show: false,
 	})
 
 	if (!app.isPackaged) {
@@ -39,6 +43,18 @@ function createMainWindow() {
 			slashes: true
 		}))
 	}
+
+	const splash = new BrowserWindow({
+		height: 100,
+		width: 200,
+		frame: false,
+	})
+	splash.loadURL(`file://${__static}/splash.html`)
+
+	window.on('ready-to-show', () => {
+		window.show()
+		splash.destroy()
+	})
 
 	window.on('close', (event) => {
 		if (willQuitApp) {
