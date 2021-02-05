@@ -8,6 +8,7 @@ app.allowRendererProcessReuse = true
 // Global reference to mainWindow (necessary to prevent window from being garbage collected).
 let mainWindow: BrowserWindow | null
 let willQuitApp = false
+export const setForceQuit = (): void => { willQuitApp = true }
 
 function createMainWindow() {
   const minWidth = 850

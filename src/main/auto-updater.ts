@@ -2,6 +2,8 @@ import { app, ipcMain } from 'electron'
 import { autoUpdater, UpdateInfo } from '@ledgerhq/electron-updater'
 import log from 'electron-log'
 
+import { setForceQuit } from '.'
+
 let _updateReady: UpdateInfo | undefined
 export const setupAutoUpdater = (): void => {
 	if (app.isPackaged) {
@@ -29,6 +31,7 @@ export const setupAutoUpdater = (): void => {
 		event.returnValue = _updateReady?.version
 	})
 	ipcMain.on("quit-and-install", (event) => {
+		setForceQuit()
 		app.relaunch()
 		autoUpdater.quitAndInstall()
 		event.returnValue = null
