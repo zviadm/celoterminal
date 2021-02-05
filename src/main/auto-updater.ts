@@ -31,9 +31,12 @@ export const setupAutoUpdater = (): void => {
 		event.returnValue = _updateReady?.version
 	})
 	ipcMain.on("quit-and-install", (event) => {
+		log.info(`autoupdater: preparing to exit to install update...`)
 		setForceQuit()
 		app.relaunch()
+		log.info(`autoupdater: relaunch flag set...`)
 		autoUpdater.quitAndInstall()
+		log.info(`autoupdater: quit-and-install called`)
 		event.returnValue = null
 	})
 }

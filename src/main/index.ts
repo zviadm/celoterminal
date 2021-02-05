@@ -65,7 +65,7 @@ app.on('before-quit', () => willQuitApp = true);
 // Quit application when all windows are closed (except for macOS).
 app.on('window-all-closed', () => {
   // on macOS it is common for applications to stay open until the user explicitly quits.
-  if (process.platform !== 'darwin') {
+  if (willQuitApp || process.platform !== 'darwin') {
     app.quit()
   }
 })
