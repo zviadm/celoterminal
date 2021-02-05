@@ -1,3 +1,3 @@
 declare module "*.svg" {
-  export const ReactComponent: React.ElementType;
+	export const ReactComponent: React.ElementType;
 }

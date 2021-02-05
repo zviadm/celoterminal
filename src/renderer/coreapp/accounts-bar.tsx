@@ -54,7 +54,7 @@ const AccountsBar = (props: {
 	const maxBlockDelaySecs = 30000
 	React.useEffect(() => {
 		let errCnt = 0
-    const timer = setInterval(async () => {
+		const timer = setInterval(async () => {
 			const k = kit()
 			try {
 				const block = await k.web3.eth.getBlock('latest')
@@ -70,8 +70,8 @@ const AccountsBar = (props: {
 					setConnected(false)
 				}
 			}
-    }, maxBlockDelaySecs/6)
-    return () => { clearInterval(timer) }
+		}, maxBlockDelaySecs/6)
+		return () => { clearInterval(timer) }
 	}, [])
 	const [networkURL, setNetworkURL] = useNetworkURL()
 	const [openNetworkURL, setOpenNetworkURL] = React.useState(false)

@@ -1,8 +1,8 @@
 import * as React from 'react'
 import {
-  generateKeys,
-  generateMnemonic,
-  MnemonicStrength,
+	generateKeys,
+	generateMnemonic,
+	MnemonicStrength,
 } from '@celo/utils/lib/account'
 
 import Dialog from '@material-ui/core/Dialog'

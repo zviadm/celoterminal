@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {
-  generateKeys,
+	generateKeys,
 } from '@celo/utils/lib/account'
 import { privateKeyToAddress, trimLeading0x } from '@celo/utils/lib/address'
 
