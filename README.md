@@ -8,7 +8,7 @@ MacOS and Windows versions available:
 | ![screenshot0](./docs/imgs/screenshot0.png) | ![screenshot1](./docs/imgs/screenshot1.png) |
 |:---:|:---:|
 | ![screenshot2](./docs/imgs/screenshot2.png) | ![screenshot3](./docs/imgs/screenshot3.png) |
-|:---:|:---:|
+
 
 ## App Framework
 
