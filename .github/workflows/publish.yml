@@ -20,7 +20,7 @@ jobs:
           node-version: 10
 
       - name: Build & Publish Electron app
-        run: ./buildcfg/build.js
+        run: node ./buildcfg/build.js
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           PUBLISH: "TRUE"
