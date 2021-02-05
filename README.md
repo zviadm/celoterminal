@@ -2,7 +2,7 @@
 
 Desktop app to manage accounts and interact with the decentralized apps on the Celo blockchain.
 
-MacOS and (Windows: coming soon) versions available:
+MacOS and Windows versions available:
 * https://github.com/zviadm/celoterminal/releases/latest
 
 | ![screenshot0](./docs/imgs/screenshot0.png) | ![screenshot1](./docs/imgs/screenshot1.png) |
