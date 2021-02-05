@@ -169,10 +169,24 @@ const RunTXs = (props: {
 					const r: CeloTxReceipt[] = []
 					for (let idx = 0; idx < txs.length; idx += 1) {
 						const tx = txs[idx]
-						const estimatedGas =
-							tx.tx.defaultParams?.gas ?
-							new BigNumber(tx.tx.defaultParams?.gas) :
-							new BigNumber(await tx.tx.txo.estimateGas({value: tx.value})).multipliedBy(kit.gasInflationFactor).integerValue()
+						let estimatedGas
+						for (let tryN = 0; ; tryN++) {
+							try {
+								estimatedGas =
+									tx.tx.defaultParams?.gas ?
+									new BigNumber(tx.tx.defaultParams?.gas) :
+									new BigNumber(await tx.tx.txo.estimateGas({value: tx.value})).multipliedBy(kit.gasInflationFactor).integerValue()
+								break
+							} catch (e) {
+								// Gas estimation can temporarily fail for various reasons. Most common problem can
+								// be with subsequent transactions when a particular node hasn't yet caught up with
+								// the head chain. Retrying 3x is safe and reasonably cheap.
+								if (tryN >= 2) {
+									throw e
+								}
+								await sleep(500)
+							}
+						}
 						// TODO(zviad): Add support for other fee currencies.
 						const gasPrice = await kit.connection.gasPrice()
 						const estimatedFee = {
@@ -215,18 +229,13 @@ const RunTXs = (props: {
 						log.info(`TX-HASH:`, txHash)
 
 						const receipt = await result.waitReceipt()
-						if (idx !== txs.length - 1) {
-							// Wait a bit after transaction finishes, because Kit might be connecting
-							// to a load balancer, thus subsequent transactions can fail if they havent yet
-							// applied already completed transactions.
-							await sleep(500)
-						}
-
 						setTXProgress(100)
 						log.info(`TX-RECEIPT:`, receipt)
 						r.push(receipt)
 					}
 					setStage("finishing")
+					// Wait a bit after final TX so that it is more likely that blockchain state
+					// is now updated in most of the full nodes.
 					await sleep(500)
 					onFinish(undefined, r)
 				} finally {
