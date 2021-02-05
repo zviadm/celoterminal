@@ -11,6 +11,9 @@ app.allowRendererProcessReuse = true
 let mainWindow: BrowserWindow | null
 let willQuitApp = false
 export const setForceQuit = (): void => { willQuitApp = true }
+const hideInsteadOfQuit = () => {
+	return !willQuitApp && process.platform === 'darwin'
+}
 
 const gotLock = app.requestSingleInstanceLock()
 if (!gotLock) {
@@ -73,12 +76,14 @@ function createMainWindow() {
 	})
 
 	window.on('close', (event) => {
-		if (willQuitApp) {
-			mainWindow = null
-		} else {
+		if (hideInsteadOfQuit()) {
 			event.preventDefault()
 			window.hide()
 		}
+	})
+
+	window.on('closed', () => {
+		mainWindow = null
 	})
 
 	window.webContents.on('devtools-opened', () => {
@@ -97,7 +102,7 @@ app.on('before-quit', () => willQuitApp = true);
 // Quit application when all windows are closed (except for macOS).
 app.on('window-all-closed', () => {
 	// on macOS it is common for applications to stay open until the user explicitly quits.
-	if (willQuitApp || process.platform !== 'darwin') {
+	if (!hideInsteadOfQuit()) {
 		app.quit()
 	}
 })
