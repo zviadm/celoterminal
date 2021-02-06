@@ -36,7 +36,6 @@ const LockerApp = (props: {
 		isFetching,
 		fetched,
 		refetch,
-<<<<<<< HEAD
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
 			const accounts = await kit.contracts.getAccounts()
@@ -47,12 +46,14 @@ const LockerApp = (props: {
 			const goldToken = await kit.contracts.getGoldToken()
 			const lockedGold = await kit.contracts.getLockedGold()
 			const election = await kit.contracts.getElection()
+			const governance = await kit.contracts.getGovernance()
 			const config = lockedGold.getConfig()
 			const totalCELO = goldToken.balanceOf(account.address)
 			const totalLocked = lockedGold.getAccountTotalLockedGold(account.address)
 			const nonvotingLocked = lockedGold.getAccountNonvotingLockedGold(account.address)
 			const pendingWithdrawals = lockedGold.getPendingWithdrawals(account.address)
 			const votes = election.getVoter(account.address)
+			const isVotingInGovernance = governance.isVoting(account.address)
 			return {
 				isAccount,
 				unlockingPeriod: (await config).unlockingPeriod,
@@ -61,40 +62,11 @@ const LockerApp = (props: {
 				nonvotingLocked: await nonvotingLocked,
 				pendingWithdrawals: await pendingWithdrawals,
 				votes: (await votes).votes,
+				isVotingInGovernance: (await isVotingInGovernance),
 			}
 		},
 		[account]
 	))
-=======
-	} = useOnChainState(async (kit: ContractKit) => {
-		const accounts = await kit.contracts.getAccounts()
-		const isAccount = await accounts.isAccount(account.address)
-		if (!isAccount) {
-			return { isAccount }
-		}
-		const goldToken = await kit.contracts.getGoldToken()
-		const lockedGold = await kit.contracts.getLockedGold()
-		const election = await kit.contracts.getElection()
-		const governance = await kit.contracts.getGovernance()
-		const config = lockedGold.getConfig()
-		const totalCELO = goldToken.balanceOf(account.address)
-		const totalLocked = lockedGold.getAccountTotalLockedGold(account.address)
-		const nonvotingLocked = lockedGold.getAccountNonvotingLockedGold(account.address)
-		const pendingWithdrawals = lockedGold.getPendingWithdrawals(account.address)
-		const votes = election.getVoter(account.address)
-		const isVotingInGovernance = governance.isVoting(account.address)
-		return {
-			isAccount,
-			unlockingPeriod: (await config).unlockingPeriod,
-			totalCELO: await totalCELO,
-			totalLocked: await totalLocked,
-			nonvotingLocked: await nonvotingLocked,
-			pendingWithdrawals: await pendingWithdrawals,
-			votes: (await votes).votes,
-			isVotingInGovernance: (await isVotingInGovernance),
-		}
-	}, [account], onError)
->>>>>>> 63e4c8ba1bd8a6e7eca592ae286a16dcd12ae73f
 	const [toLock, setToLock] = React.useState("")
 	const [toUnlock, setToUnlock] = React.useState("")
 	const toLockWEI = new BigNumber(toLock).shiftedBy(18)
