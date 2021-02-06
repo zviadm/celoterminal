@@ -35,7 +35,7 @@ const useStyles = makeStyles(() => ({
 
 const CheckUpdate = (): JSX.Element => {
 	const classes = useStyles()
-	const [beta, setBeta] = useLocalStorageState<boolean>("terminal/auto-update/beta", false)
+	const [beta, setBeta] = useLocalStorageState<boolean>("terminal/core/update-beta", false)
 	const [newVersion, setNewVersion] = React.useState("")
 	const [isUpdating, setIsUpdating] = React.useState(false)
 	const checkUpdate = () => {
