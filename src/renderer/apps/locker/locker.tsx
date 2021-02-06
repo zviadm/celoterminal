@@ -36,6 +36,7 @@ const LockerApp = (props: {
 		isFetching,
 		fetched,
 		refetch,
+<<<<<<< HEAD
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
 			const accounts = await kit.contracts.getAccounts()
@@ -64,6 +65,36 @@ const LockerApp = (props: {
 		},
 		[account]
 	))
+=======
+	} = useOnChainState(async (kit: ContractKit) => {
+		const accounts = await kit.contracts.getAccounts()
+		const isAccount = await accounts.isAccount(account.address)
+		if (!isAccount) {
+			return { isAccount }
+		}
+		const goldToken = await kit.contracts.getGoldToken()
+		const lockedGold = await kit.contracts.getLockedGold()
+		const election = await kit.contracts.getElection()
+		const governance = await kit.contracts.getGovernance()
+		const config = lockedGold.getConfig()
+		const totalCELO = goldToken.balanceOf(account.address)
+		const totalLocked = lockedGold.getAccountTotalLockedGold(account.address)
+		const nonvotingLocked = lockedGold.getAccountNonvotingLockedGold(account.address)
+		const pendingWithdrawals = lockedGold.getPendingWithdrawals(account.address)
+		const votes = election.getVoter(account.address)
+		const isVotingInGovernance = governance.isVoting(account.address)
+		return {
+			isAccount,
+			unlockingPeriod: (await config).unlockingPeriod,
+			totalCELO: await totalCELO,
+			totalLocked: await totalLocked,
+			nonvotingLocked: await nonvotingLocked,
+			pendingWithdrawals: await pendingWithdrawals,
+			votes: (await votes).votes,
+			isVotingInGovernance: (await isVotingInGovernance),
+		}
+	}, [account], onError)
+>>>>>>> 63e4c8ba1bd8a6e7eca592ae286a16dcd12ae73f
 	const [toLock, setToLock] = React.useState("")
 	const [toUnlock, setToUnlock] = React.useState("")
 	const toLockWEI = new BigNumber(toLock).shiftedBy(18)
@@ -202,6 +233,7 @@ const UnlockWithRevoke = (props: {
 	nonvotingLocked: BigNumber,
 	unlockingPeriod: BigNumber,
 	votes: GroupVote[],
+	isVotingInGovernance: boolean,
 	onUnlock: (toUnlock: BigNumber, revoke?: {group: string, amount: BigNumber}) => void,
 }) => {
 	const toUnlockWEI = new BigNumber(props.toUnlock).shiftedBy(18)
@@ -223,13 +255,14 @@ const UnlockWithRevoke = (props: {
 				_toUnlock = _toUnlock.minus(toRevoke)
 			}
 		}
-		console.info(`tounlock`, _toUnlock.toString(), toRevoke.toString(), revoke)
 		props.onUnlock(_toUnlock, revoke)
 	}
 
-	const maxToUnlock = props.nonvotingLocked.plus(
-		votesASC.length === 0 ? 0 :
-		votesASC[votesASC.length - 1].active.plus(votesASC[votesASC.length - 1].pending))
+	const maxToUnlock =
+		props.isVotingInGovernance ? new BigNumber(0) :
+		props.nonvotingLocked.plus(
+			votesASC.length === 0 ? 0 :
+			votesASC[votesASC.length - 1].active.plus(votesASC[votesASC.length - 1].pending))
 	const canUnlock = (
 		toUnlockWEI.gt(0) && maxToUnlock.gte(toUnlockWEI))
 	return (
@@ -242,7 +275,7 @@ const UnlockWithRevoke = (props: {
 					</Alert>
 				</Box>
 				<Box marginBottom={1}>
-					<Alert severity="warning">
+					<Alert severity="info">
 						To unlock arleady voting CELO, multiple transactions might be needed to revoke votes
 						first. `Max to unlock` shows maximum amount that can be unlocked in a single transaction.
 					</Alert>
@@ -257,12 +290,21 @@ const UnlockWithRevoke = (props: {
 							<TableCell style={{whiteSpace: "nowrap"}}>Nonvoting</TableCell>
 							<TableCell>{fmtAmount(props.nonvotingLocked, "CELO")} CELO</TableCell>
 						</TableRow>
+						{!props.isVotingInGovernance &&
 						<TableRow>
 							<TableCell style={{whiteSpace: "nowrap"}}>Max to unlock</TableCell>
 							<TableCell>{fmtAmount(maxToUnlock, "CELO")} CELO</TableCell>
-						</TableRow>
+						</TableRow>}
 					</TableBody>
 				</Table>
+				{props.isVotingInGovernance ?
+				<Box marginTop={1}>
+					<Alert severity="error">
+						Account is participating in Governance voting. CELO can not be unlocked until Governance
+						process is complete.
+					</Alert>
+				</Box>
+				: <>
 				<TextField
 						margin="dense"
 						label={`Unlock (max: ${fmtAmount(maxToUnlock, "CELO")})`}
@@ -280,6 +322,7 @@ const UnlockWithRevoke = (props: {
 					onClick={handleUnlock}>
 					{toUnlockWEI.gt(props.nonvotingLocked) ? "Revoke and Unlock" : "Unlock"}
 				</Button>
+				</>}
 			</Box>
 		</Paper>
 	)
