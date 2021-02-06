@@ -15,14 +15,14 @@ Basics of React framework and understanding of React Hooks are a pre-requisite t
 
 ## Structure
 
-All Apps are located in [src/renderer/apps](./src/renderer/apps) folder. Each App is a react component
-that satisfies the [AppDefinition](./src/renderer/components/app-definition.ts) interface. Terminal provides
+All Apps are located in [src/renderer/apps](../src/renderer/apps) folder. Each App is a react component
+that satisfies the [AppDefinition](../src/renderer/components/app-definition.ts) interface. Terminal provides
 core libraries to help with fetching on-chain state and with running transactions.
 
 Core libraries:
-* Running TXs: [src/renderer/components/app-definition.ts](./src/renderer/components/app-definition.ts)
-* Fetching on-chain state: [src/renderer/state/onchain-state.ts](./src/renderer/state/onchain-state.ts)
-* Storing configuration: [src/renderer/state/localstorage-state.ts](./src/renderer/state/localstorage-state.ts)
+* Running TXs: [src/renderer/components/app-definition.ts](../src/renderer/components/app-definition.ts)
+* Fetching on-chain state: [src/renderer/state/onchain-state.ts](../src/renderer/state/onchain-state.ts)
+* Storing configuration: [src/renderer/state/localstorage-state.ts](../src/renderer/state/localstorage-state.ts)
 * Caching: TODO: not yet available...
 
 ## Error handling
