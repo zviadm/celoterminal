@@ -30,7 +30,6 @@ const useStyles = makeStyles(() => ({
 	},
 }))
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SendReceiveApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
@@ -46,15 +45,17 @@ const SendReceiveApp = (props: {
 		isFetching,
 		fetched,
 		refetch,
-	} = useOnChainState(async (kit: ContractKit) => {
-		const contract = await newERC20(kit, erc20)
-		const decimals = contract.decimals()
-		const balance = contract.balanceOf(selectedAddress)
-		return {
-			decimals: await decimals,
-			balance: await balance,
-		}
-	}, [selectedAddress, erc20], props.onError)
+	} = useOnChainState(React.useCallback(
+		async (kit: ContractKit) => {
+			const contract = await newERC20(kit, erc20)
+			const decimals = contract.decimals()
+			const balance = contract.balanceOf(selectedAddress)
+			return {
+				decimals: await decimals,
+				balance: await balance,
+			}
+		}, [selectedAddress, erc20]),
+		props.onError)
 	const [toSend, setToSend] = React.useState("")
 	const [toAddress, setToAddress] = React.useState("")
 

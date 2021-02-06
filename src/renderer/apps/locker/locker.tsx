@@ -38,31 +38,33 @@ const LockerApp = (props: {
 		isFetching,
 		fetched,
 		refetch,
-	} = useOnChainState(async (kit: ContractKit) => {
-		const accounts = await kit.contracts.getAccounts()
-		const isAccount = await accounts.isAccount(account.address)
-		if (!isAccount) {
-			return { isAccount }
-		}
-		const goldToken = await kit.contracts.getGoldToken()
-		const lockedGold = await kit.contracts.getLockedGold()
-		const election = await kit.contracts.getElection()
-		const config = lockedGold.getConfig()
-		const totalCELO = goldToken.balanceOf(account.address)
-		const totalLocked = lockedGold.getAccountTotalLockedGold(account.address)
-		const nonvotingLocked = lockedGold.getAccountNonvotingLockedGold(account.address)
-		const pendingWithdrawals = lockedGold.getPendingWithdrawals(account.address)
-		const votes = election.getVoter(account.address)
-		return {
-			isAccount,
-			unlockingPeriod: (await config).unlockingPeriod,
-			totalCELO: await totalCELO,
-			totalLocked: await totalLocked,
-			nonvotingLocked: await nonvotingLocked,
-			pendingWithdrawals: await pendingWithdrawals,
-			votes: (await votes).votes,
-		}
-	}, [account], onError)
+	} = useOnChainState(React.useCallback(
+		async (kit: ContractKit) => {
+			const accounts = await kit.contracts.getAccounts()
+			const isAccount = await accounts.isAccount(account.address)
+			if (!isAccount) {
+				return { isAccount }
+			}
+			const goldToken = await kit.contracts.getGoldToken()
+			const lockedGold = await kit.contracts.getLockedGold()
+			const election = await kit.contracts.getElection()
+			const config = lockedGold.getConfig()
+			const totalCELO = goldToken.balanceOf(account.address)
+			const totalLocked = lockedGold.getAccountTotalLockedGold(account.address)
+			const nonvotingLocked = lockedGold.getAccountNonvotingLockedGold(account.address)
+			const pendingWithdrawals = lockedGold.getPendingWithdrawals(account.address)
+			const votes = election.getVoter(account.address)
+			return {
+				isAccount,
+				unlockingPeriod: (await config).unlockingPeriod,
+				totalCELO: await totalCELO,
+				totalLocked: await totalLocked,
+				nonvotingLocked: await nonvotingLocked,
+				pendingWithdrawals: await pendingWithdrawals,
+				votes: (await votes).votes,
+			}
+		}, [account]),
+		onError)
 	const [toLock, setToLock] = React.useState("")
 	const [toUnlock, setToUnlock] = React.useState("")
 	const toLockWEI = new BigNumber(toLock).shiftedBy(18)
