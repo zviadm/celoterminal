@@ -4,6 +4,7 @@ import { ContractKit } from '@celo/contractkit'
 
 import { CancelPromise } from '../../lib/utils'
 import kit from './kit'
+import { ErrorContext } from './error-context'
 
 // useOnChainState provides react hook to help with on-chain data fetching.
 // fetchCallback must be wrapped in React.useCallback to be memoized based on its
@@ -11,13 +12,14 @@ import kit from './kit'
 const useOnChainState = <T>(
 	fetchCallback:
 		(kit: ContractKit, c: CancelPromise) => Promise<T>,
-	onError?: (e: Error) => void,
+	noErrorPropagation?: boolean,
 ): {
 	isFetching: boolean,
 	fetched?: T,
 	fetchError?: Error,
 	refetch: () => void,
 } => {
+	const {setError} = React.useContext(ErrorContext)
 	const [fetched, setFetched] = React.useState<T | undefined>(undefined)
 	const [fetchError, setFetchError] = React.useState<Error | undefined>(undefined)
 	const [isFetching, setIsFetching] = React.useState(true)
@@ -41,10 +43,11 @@ const useOnChainState = <T>(
 		})
 		.catch((e) => {
 			if (!c.isCancelled()) {
-				log.error(`useOnChainState[${fetchN}]`, e)
 				setFetchError(e)
-				onError && onError(e)
 				setFetched(undefined)
+				if (!noErrorPropagation) {
+					setError(e)
+				}
 			}
 		})
 		.finally(() => {
@@ -59,7 +62,7 @@ const useOnChainState = <T>(
 				c.cancel()
 			}
 		}
-	}, [fetchN, fetchCallback, onError])
+	}, [fetchN, fetchCallback, noErrorPropagation, setError])
 
 	const refetch = () => {
 		setFetchN((fetchN) => (fetchN + 1))

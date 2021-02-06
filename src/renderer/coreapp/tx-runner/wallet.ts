@@ -5,6 +5,7 @@ import { LocalWallet } from '@celo/wallet-local'
 
 import { Account, LocalAccount } from '../../../lib/accounts'
 import { decryptLocalKey } from '../../../lib/accountsdb'
+import { UserError } from '../../../lib/error'
 
 export async function createWallet(a: Account, password?: string): Promise<{
 	wallet: ReadOnlyWallet
@@ -13,7 +14,7 @@ export async function createWallet(a: Account, password?: string): Promise<{
 	switch (a.type) {
 		case "local": {
 			if (!password) {
-				throw new Error("Password must be entered to unlock local accounts.")
+				throw new UserError("Password must be entered to unlock local accounts.")
 			}
 			const wallet = new LocalWallet()
 			const localKey = decryptLocalKey(a.encryptedData, password)
@@ -35,7 +36,7 @@ export async function createWallet(a: Account, password?: string): Promise<{
 			}
 		}
 		default:
-			throw new Error(`Read-only accounts can not sign transactions.`)
+			throw new UserError(`Read-only accounts can not sign transactions.`)
 	}
 }
 

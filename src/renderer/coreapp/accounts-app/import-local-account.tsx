@@ -20,6 +20,7 @@ import Box from '@material-ui/core/Box'
 
 import { LocalAccount } from '../../../lib/accounts'
 import { decryptLocalKey, encryptLocalKey, LocalKey } from '../../../lib/accountsdb'
+import { UserError } from '../../../lib/error'
 
 const useStyles = makeStyles(() => ({
 	secretText: {
@@ -29,7 +30,6 @@ const useStyles = makeStyles(() => ({
 
 const ImportLocalAccount = (props: {
 	onAdd: (a: LocalAccount, password?: string) => void,
-	onError: (e: Error) => void,
 	onCancel: () => void,
 }): JSX.Element => {
 	const classes = useStyles()
@@ -51,7 +51,7 @@ const ImportLocalAccount = (props: {
 			switch (importType) {
 				case "mnemonic": {
 					if (mnemonic.split(" ").length !== 24) {
-						throw new Error(`Mnemonic must consist of 24 words.`)
+						throw new UserError(`Mnemonic must consist of 24 words.`)
 					}
 					const keys = await generateKeys(mnemonic)
 					key = {mnemonic: mnemonic, privateKey: keys.privateKey}
@@ -77,8 +77,8 @@ const ImportLocalAccount = (props: {
 			props.onAdd(account, password)
 		})()
 		.catch((e) => {
-			props.onError(e)
 			setIsAdding(false)
+			throw e
 		})
 	}
 

@@ -26,6 +26,7 @@ import TableHead from '@material-ui/core/TableHead'
 import Link from '@material-ui/core/Link'
 
 import AppHeader from '../../components/app-header'
+import { UserError } from '../../../lib/error'
 
 let _client: AxiosInstance
 const gql = () => {
@@ -54,7 +55,6 @@ async function promiseGQL<T extends {errors?: {message: string}[]}>(p: Promise<A
 const CelovoteApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
-	onError: (e: Error) => void,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
 	const account = props.selectedAccount
@@ -65,7 +65,7 @@ const CelovoteApp = (props: {
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
 			if (CFG().networkId !== mainnetNetworkId) {
-				throw new Error(`Celovote APP only works with Mainnet.`)
+				throw new UserError(`Celovote APP only works with Mainnet.`)
 			}
 			const accounts = await kit.contracts.getAccounts()
 			const isAccount = await accounts.isAccount(account.address)
@@ -102,8 +102,9 @@ const CelovoteApp = (props: {
 				nonvoting: await nonvoting,
 				votes: votes.votes,
 			}
-		}, [account]),
-		props.onError)
+		},
+		[account]
+	))
 
 	const handleAuthorize = () => {
 		props.runTXs(async (kit: ContractKit) => {

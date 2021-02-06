@@ -21,7 +21,6 @@ const optionalApps = AppList.filter((a) => !a.core)
 const AppStoreApp = (props: {
 	pinnedApps: PinnedApp[],
 	onAddApp: (id: string) => void,
-	onError: (e: Error) => void,
 }): JSX.Element => {
 	const pinnedIds = new Set(props.pinnedApps.map((p) => p.id))
 	const optionalAppList = optionalApps.filter((a) => !pinnedIds.has(a.id))

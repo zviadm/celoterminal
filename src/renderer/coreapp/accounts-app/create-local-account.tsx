@@ -19,7 +19,6 @@ import { encryptLocalKey } from '../../../lib/accountsdb'
 const CreateLocalAccount = (props: {
 	onAdd: (a: LocalAccount, password?: string) => void,
 	onCancel: () => void,
-	onError: (e: Error) => void,
 }): JSX.Element => {
 	const [name, setName] = React.useState("")
 	const [password, setPassword] = React.useState("")
@@ -38,8 +37,8 @@ const CreateLocalAccount = (props: {
 			}, password)
 		})()
 		.catch((e) => {
-			props.onError(e)
 			setIsAdding(false)
+			throw e
 		})
 	}
 	return (

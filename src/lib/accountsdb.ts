@@ -7,6 +7,7 @@ import { ensureLeading0x, toChecksumAddress } from '@celo/utils/lib/address'
 import { isValidAddress } from 'ethereumjs-util'
 
 import { Account, AddressOnlyAccount, LedgerAccount, LocalAccount } from './accounts'
+import { UserError } from './error'
 
 // Supported `account` row versions. Last version is the current version.
 const supportedVersions = [1]
@@ -117,7 +118,7 @@ class AccountsDB {
 			data = ""
 			encryptedData = a.encryptedData
 			if (!password) {
-				throw new Error(`Password must be provided when adding local accounts.`)
+				throw new UserError(`Password must be provided when adding local accounts.`)
 			}
 			// Sanity check to make sure encryptedData is decryptable.
 			decryptLocalKey(encryptedData, password)
@@ -138,7 +139,7 @@ class AccountsDB {
 		}
 
 		if (!isValidAddress(a.address)) {
-			throw new Error(`Invalid address: ${a.address}.`)
+			throw new UserError(`Invalid address: ${a.address}.`)
 		}
 		const address = ensureLeading0x(a.address).toLowerCase()
 		this.db.transaction(() => {
@@ -154,7 +155,7 @@ class AccountsDB {
 				}
 			} catch (e) {
 				if (e instanceof Error && e.message.startsWith("UNIQUE")) {
-					throw new Error(`Account with address: ${a.address} already exists.`)
+					throw new UserError(`Account with address: ${a.address} already exists.`)
 				}
 				throw e
 			}
@@ -211,7 +212,7 @@ class AccountsDB {
 					throw Error()
 				}
 			} catch (e) {
-				throw new Error(`Password does not match with the already existing password for local accounts.`)
+				throw new UserError(`Password does not match with the already existing password for local accounts.`)
 			}
 			if (newPassword !== oldPassword) {
 				const result = this.pUpdatePassword.run(newEncryptedPassword)
@@ -245,7 +246,7 @@ export const decryptLocalKey = (
 	try {
 		return JSON.parse(decryptAES(encryptedData, password))
 	} catch (e) {
-		throw new Error(`Incorrect password, can not decrypt local account.`)
+		throw new UserError(`Incorrect password, can not decrypt local account.`)
 	}
 }
 

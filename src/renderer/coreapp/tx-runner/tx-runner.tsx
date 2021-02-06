@@ -39,12 +39,16 @@ import Paper from '@material-ui/core/Paper'
 import IconButton from '@material-ui/core/IconButton'
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import { UserError } from '../../../lib/error'
+
+export class TXCancelled extends Error {
+	constructor() { super('Cancelled') }
+}
 
 function TXRunner(props: {
 	selectedAccount: Account,
 	txFunc?: TXFunc,
 	onFinish: TXFinishFunc,
-	onError: (e: Error) => void,
 }): JSX.Element {
 	const [pw, setPW] = useSessionState<{
 		password: string,
@@ -62,18 +66,14 @@ function TXRunner(props: {
 	}
 	const pwNeeded = props.selectedAccount.type === "local" && !pwValid
 	const pwOnCancel = () => {
-		props.onFinish(new Error(`Cancelled`), [])
+		props.onFinish(new UserError(`Cancelled`), [])
 	}
 	const pwOnPassword = (p: string) => {
 		if (props.selectedAccount.type !== "local") {
 			return
 		}
-		try {
-			decryptLocalKey(props.selectedAccount.encryptedData, p)
-			setPW({password: p, expireMS: Date.now() + 60 * 60 * 1000})
-		} catch (e) {
-			props.onError(e)
-		}
+		decryptLocalKey(props.selectedAccount.encryptedData, p)
+		setPW({password: p, expireMS: Date.now() + 60 * 60 * 1000})
 	}
 	return (<>{props.txFunc && (
 		pwNeeded ?
@@ -205,7 +205,7 @@ const RunTXs = (props: {
 								},
 								cancel: () => {
 									setStage("sending")
-									reject(new Error(`Cancelled`))
+									reject(new TXCancelled())
 								}
 							})
 						})

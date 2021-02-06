@@ -29,11 +29,9 @@ import AppHeader from '../../components/app-header'
 const LockerApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
-	onError: (e: Error) => void,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
 	const account = props.selectedAccount
-	const onError = props.onError
 	const {
 		isFetching,
 		fetched,
@@ -63,8 +61,9 @@ const LockerApp = (props: {
 				pendingWithdrawals: await pendingWithdrawals,
 				votes: (await votes).votes,
 			}
-		}, [account]),
-		onError)
+		},
+		[account]
+	))
 	const [toLock, setToLock] = React.useState("")
 	const [toUnlock, setToUnlock] = React.useState("")
 	const toLockWEI = new BigNumber(toLock).shiftedBy(18)
