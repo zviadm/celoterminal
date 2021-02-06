@@ -45,8 +45,14 @@ const AddLedgerAccount = (props: {
 	const [selected, setSelected] = React.useState("0")
 	const [customPath, setCustomPath] = React.useState(CELO_BASE_DERIVATION_PATH + "/")
 	const [verifyPath, setVerifyPath] = React.useState<string | undefined>()
-	const onCancel = props.onCancel
-	const onAdd = props.onAdd
+
+	// Parent is not expected to change onAdd/onCancel functions once this component is
+	// mounted. It is safer to memoize this stuff here since otherwise re-render can cause
+	// more issues since we are creating transports for Ledger device.
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const onCancel = React.useCallback(props.onCancel, [])
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const onAdd = React.useCallback(props.onAdd, [])
 	React.useEffect(() => {
 		(async () => {
 			const transport = await TransportNodeHid.open()
@@ -67,18 +73,16 @@ const AddLedgerAccount = (props: {
 			onCancel()
 			throw transformError(e)
 		})
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [onCancel])
 	React.useEffect(() => {
-		const derivationPath = verifyPath
-		if (derivationPath === undefined) {
+		if (verifyPath === undefined) {
 			return
 		}
 		(async () => {
-			const parts = derivationPath.split("/")
+			const parts = verifyPath.split("/")
 			if (parts.length < 2 ||
 				Number.parseInt(parts[parts.length - 1]).toString() !== parts[parts.length - 1]) {
-				throw new UserError(`Invalid derivation path: ${derivationPath}`)
+				throw new UserError(`Invalid derivation path: ${verifyPath}`)
 			}
 			const pathIdx = Number.parseInt(parts[parts.length - 1])
 			const basePath = parts.slice(0, parts.length - 1).join("/")
@@ -105,8 +109,7 @@ const AddLedgerAccount = (props: {
 			setVerifyPath(undefined)
 			throw transformError(e)
 		})
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [verifyPath])
+	}, [onAdd, verifyPath])
 
 	const handleSelect = (event: React.ChangeEvent<HTMLInputElement>) => { setSelected(event.target.value) }
 	const handleAdd = () => {
