@@ -175,7 +175,11 @@ const RunTXs = (props: {
 								estimatedGas =
 									tx.tx.defaultParams?.gas ?
 									new BigNumber(tx.tx.defaultParams?.gas) :
-									new BigNumber(await tx.tx.txo.estimateGas({value: tx.value})).multipliedBy(kit.gasInflationFactor).integerValue()
+									new BigNumber(
+										await tx.tx.txo
+											.estimateGas({value: tx.value}))
+											.multipliedBy(kit.gasInflationFactor)
+											.integerValue()
 								break
 							} catch (e) {
 								// Gas estimation can temporarily fail for various reasons. Most common problem can
