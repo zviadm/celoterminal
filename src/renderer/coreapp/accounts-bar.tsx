@@ -23,6 +23,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 import { newKit } from '@celo/contractkit'
 import LinearProgress from '@material-ui/core/LinearProgress'
+import { UserError } from '../../lib/error'
 
 const useStyles = makeStyles((theme) => ({
 	name: {
@@ -47,7 +48,6 @@ const AccountsBar = (props: {
 	accounts: Account[],
 	selectedAccount?: Account,
 	onSelectAccount: (a: Account) => void,
-	onError: (e: Error) => void,
 }): JSX.Element => {
 	const classes = useStyles()
 	const [connected, setConnected] = React.useState(true)
@@ -91,7 +91,7 @@ const AccountsBar = (props: {
 			<ChangeNetworkURL
 				networkURL={networkURL}
 				onClose={handleCloseNetworkURL}
-				onError={props.onError} />}
+				/>}
 			<Box display="flex" flexDirection="row" flex={1}>
 				<Tooltip title={networkURL}>
 					<Button
@@ -135,11 +135,9 @@ const AccountsBar = (props: {
 const ChangeNetworkURL = (props: {
 	networkURL: string
 	onClose: (v: string) => void
-	onError: (e: Error) => void
 }) => {
 	const [networkURL, setNetworkURL] = React.useState(props.networkURL)
 	const [isTesting, setIsTesting] = React.useState(false)
-	const onError = props.onError
 	const onClose = props.onClose
 	React.useEffect(() => {
 		if (!isTesting) {
@@ -151,20 +149,19 @@ const ChangeNetworkURL = (props: {
 			.then((networkId) => {
 				const cfgNetworkId = CFG().networkId
 				if (networkId.toString() !== cfgNetworkId) {
-					onError(new Error(`NetworkId doesn't match. Expected: ${cfgNetworkId}, Got: ${networkId}.`))
-					setIsTesting(false)
+					throw new UserError(`NetworkId doesn't match. Expected: ${cfgNetworkId}, Got: ${networkId}.`)
 				} else {
 					onClose(networkURL)
 				}
 			})
 			.catch((e) => {
-				onError(e)
 				setIsTesting(false)
+				throw e
 			})
 			.finally(() => {
 				kit.stop()
 			})
-	}, [onError, onClose, isTesting, networkURL])
+	}, [onClose, isTesting, networkURL])
 	const handleCancel = () => { onClose(props.networkURL) }
 	const handleConnect = () => { setIsTesting(true) }
 	return (

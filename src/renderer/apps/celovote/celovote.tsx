@@ -26,6 +26,7 @@ import TableHead from '@material-ui/core/TableHead'
 import Link from '@material-ui/core/Link'
 
 import AppHeader from '../../components/app-header'
+import { UserError } from '../../../lib/error'
 
 let _client: AxiosInstance
 const gql = () => {
@@ -51,11 +52,9 @@ async function promiseGQL<T extends {errors?: {message: string}[]}>(p: Promise<A
 	}
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CelovoteApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
-	onError: (e: Error) => void,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
 	const account = props.selectedAccount
@@ -63,46 +62,49 @@ const CelovoteApp = (props: {
 		isFetching,
 		fetched,
 		refetch,
-	} = useOnChainState(async (kit: ContractKit) => {
-		if (CFG().networkId !== mainnetNetworkId) {
-			throw new Error(`Celovote APP only works with Mainnet.`)
-		}
-		const accounts = await kit.contracts.getAccounts()
-		const isAccount = await accounts.isAccount(account.address)
-		if (!isAccount) {
-			return {
-				isAuthorized: false,
-				totalLocked: new BigNumber(0),
-				nonvoting: new BigNumber(0),
-				votes: [],
+	} = useOnChainState(React.useCallback(
+		async (kit: ContractKit) => {
+			if (CFG().networkId !== mainnetNetworkId) {
+				throw new UserError(`Celovote APP only works with Mainnet.`)
 			}
-		}
-		const lockedGold = await kit.contracts.getLockedGold()
-		const election = await kit.contracts.getElection()
-		const totalLocked = lockedGold.getAccountTotalLockedGold(account.address)
-		const nonvoting = lockedGold.getAccountNonvotingLockedGold(account.address)
-		const votesP = election.getVoter(account.address)
+			const accounts = await kit.contracts.getAccounts()
+			const isAccount = await accounts.isAccount(account.address)
+			if (!isAccount) {
+				return {
+					isAuthorized: false,
+					totalLocked: new BigNumber(0),
+					nonvoting: new BigNumber(0),
+					votes: [],
+				}
+			}
+			const lockedGold = await kit.contracts.getLockedGold()
+			const election = await kit.contracts.getElection()
+			const totalLocked = lockedGold.getAccountTotalLockedGold(account.address)
+			const nonvoting = lockedGold.getAccountNonvotingLockedGold(account.address)
+			const votesP = election.getVoter(account.address)
 
-		const respP = gql().post<{
-			errors?: {message: string}[],
-			data: {
-				addresses: {
-					authorized: boolean,
-				}[],
+			const respP = gql().post<{
+				errors?: {message: string}[],
+				data: {
+					addresses: {
+						authorized: boolean,
+					}[],
+				}
+			}>(
+				'/', {
+				query: `{ addresses(addresses:["${account.address}"]) { authorized } }`
+			})
+			const resp = await promiseGQL(respP)
+			const votes = await votesP
+			return {
+				isAuthorized: resp.data.data.addresses[0].authorized,
+				totalLocked: await totalLocked,
+				nonvoting: await nonvoting,
+				votes: votes.votes,
 			}
-		}>(
-			'/', {
-			query: `{ addresses(addresses:["${account.address}"]) { authorized } }`
-		})
-		const resp = await promiseGQL(respP)
-		const votes = await votesP
-		return {
-			isAuthorized: resp.data.data.addresses[0].authorized,
-			totalLocked: await totalLocked,
-			nonvoting: await nonvoting,
-			votes: votes.votes,
-		}
-	}, [account], props.onError)
+		},
+		[account]
+	))
 
 	const handleAuthorize = () => {
 		props.runTXs(async (kit: ContractKit) => {

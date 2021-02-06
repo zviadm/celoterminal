@@ -13,7 +13,7 @@ import AccountsBar from './accounts-bar'
 import AppMenu from './app-menu'
 import CheckUpdate from './check-update'
 import AccountsApp from './accounts-app/accounts-app'
-import TXRunner from './tx-runner/tx-runner'
+import TXRunner, { TXCancelled } from './tx-runner/tx-runner'
 
 import { AppList } from '../apps/apps'
 import Accounts from './accounts-app/def'
@@ -22,10 +22,12 @@ import useLocalStorageState from '../state/localstorage-state'
 import { AppDefinition, TXFinishFunc, TXFunc } from '../components/app-definition'
 import AppStore from './appstore-app/def'
 import AppStoreApp, { PinnedApp } from './appstore-app/appstore-app'
+import { ErrorContext, ErrorProvider } from '../state/error-context'
 
 const appsById = new Map(AppList.map((a) => [a.id, a]))
 
 const App = () => {
+	const {error, setError, clearError} = React.useContext(ErrorContext)
 	const [_selectedApp, setSelectedApp] = useLocalStorageState("terminal/core/selected-app", Accounts.id)
 	const {
 		accounts,
@@ -44,7 +46,6 @@ const App = () => {
 		setTXFunc({f, onFinish})
 	}
 	const [pinnedApps, setPinnedApps] = useLocalStorageState<PinnedApp[]>("terminal/core/pinned-apps", [])
-	const [error, setError] = React.useState<Error | undefined>()
 
 	const appListAll = AppList
 	const pinnedAppList = pinnedApps.map((p) => appsById.get(p.id)).filter((p) => p) as AppDefinition[]
@@ -76,7 +77,6 @@ const App = () => {
 			onRemove={removeAccount}
 			onRename={renameAccount}
 			onChangePassword={changePassword}
-			onError={setError}
 		/>
 	} else {
 		const terminalApp = appListAll.find((a) => a.id === selectedApp)
@@ -90,14 +90,12 @@ const App = () => {
 					onRemove={removeAccount}
 					onRename={renameAccount}
 					onChangePassword={changePassword}
-					onError={setError}
 				/>
 				break
 			case AppStore.id:
 				renderedApp = <AppStoreApp
 					pinnedApps={pinnedApps}
 					onAddApp={handleAddApp}
-					onError={setError}
 				/>
 				break
 			default:
@@ -108,7 +106,6 @@ const App = () => {
 					accounts={accounts}
 					selectedAccount={selectedAccount}
 					runTXs={runTXs}
-					onError={setError}
 				/>
 				break
 			}
@@ -118,7 +115,7 @@ const App = () => {
 		}
 	}
 	const txOnFinish: TXFinishFunc = (e, r) => {
-		if (e && e.message !== "Cancelled") {
+		if (e && !(e instanceof TXCancelled)) {
 			setError(e)
 			log.error(`TX:`, e)
 		}
@@ -127,7 +124,6 @@ const App = () => {
 		}
 		setTXFunc(undefined)
 	}
-	const clearError = () => { setError(undefined) }
 
 	return (
 		<Box>
@@ -137,13 +133,11 @@ const App = () => {
 				selectedAccount={selectedAccount}
 				txFunc={txFunc?.f}
 				onFinish={txOnFinish}
-				onError={setError}
 			/>}
 			<AccountsBar
 				accounts={accounts}
 				selectedAccount={selectedAccount}
 				onSelectAccount={setSelectedAccount}
-				onError={setError}
 			/>
 			<Box display="flex" flexDirection="row" >
 				<Box display="flex" flexDirection="column" >
@@ -189,8 +183,10 @@ const ErrorSnack = (props: {
 
 const ThemedApp = () => (
 	<ThemeProvider theme={theme}>
-		<CssBaseline />
-		<App />
+		<ErrorProvider>
+			<CssBaseline />
+			<App />
+		</ErrorProvider>
 	</ThemeProvider>
 )
 

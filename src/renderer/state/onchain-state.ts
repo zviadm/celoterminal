@@ -4,31 +4,37 @@ import { ContractKit } from '@celo/contractkit'
 
 import { CancelPromise } from '../../lib/utils'
 import kit from './kit'
+import { ErrorContext } from './error-context'
 
-// TODO(zviad): Document OnChainState behaviour.
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+// useOnChainState provides react hook to help with on-chain data fetching.
+// fetchCallback must be wrapped in React.useCallback to be memoized based on its
+// dependencies.
 const useOnChainState = <T>(
-	fetch:
+	fetchCallback:
 		(kit: ContractKit, c: CancelPromise) => Promise<T>,
-	deps: React.DependencyList,
-	onError?: (e: Error) => void,
-) => {
+	noErrorPropagation?: boolean,
+): {
+	isFetching: boolean,
+	fetched?: T,
+	fetchError?: Error,
+	refetch: () => void,
+} => {
+	const {setError} = React.useContext(ErrorContext)
 	const [fetched, setFetched] = React.useState<T | undefined>(undefined)
 	const [fetchError, setFetchError] = React.useState<Error | undefined>(undefined)
 	const [isFetching, setIsFetching] = React.useState(true)
 	const [fetchN, setFetchN] = React.useState(0)
-	const [fetchedN, setFetchedN] = React.useState(0)
+	React.useEffect(() => {
+		// Reset fetched data and error when `fetchCallback` changes.
+		setFetched(undefined)
+		setFetchError(undefined)
+	}, [fetchCallback])
 	React.useEffect(() => {
 		log.info(`useOnChainState[${fetchN}]: fetching...`)
 		const c = new CancelPromise()
-		if (fetchN === fetchedN) {
-			setFetched(undefined)
-		} else {
-			setFetchedN(fetchN)
-		}
 		setIsFetching(true)
 
-		fetch(kit(), c)
+		fetchCallback(kit(), c)
 		.then((a: T) => {
 			if (!c.isCancelled()) {
 				log.info(`useOnChainState[${fetchN}]`, a)
@@ -37,10 +43,11 @@ const useOnChainState = <T>(
 		})
 		.catch((e) => {
 			if (!c.isCancelled()) {
-				log.error(`useOnChainState[${fetchN}]`, e)
 				setFetchError(e)
-				onError && onError(e)
 				setFetched(undefined)
+				if (!noErrorPropagation) {
+					setError(e)
+				}
 			}
 		})
 		.finally(() => {
@@ -55,8 +62,7 @@ const useOnChainState = <T>(
 				c.cancel()
 			}
 		}
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [fetchN, ...deps])
+	}, [fetchN, fetchCallback, noErrorPropagation, setError])
 
 	const refetch = () => {
 		setFetchN((fetchN) => (fetchN + 1))

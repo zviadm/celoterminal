@@ -10,21 +10,16 @@ const ChangePassword = (props: {
 	hasPassword: boolean,
 	onChangePassword: (oldPassword: string, newPassword: string) => void
 	onClose: () => void,
-	onError: (e: Error) => void,
 }): JSX.Element => {
 	const [oldPassword, setOldPassword] = React.useState("")
 	const [newPassword1, setNewPassword1] = React.useState("")
 	const [newPassword2, setNewPassword2] = React.useState("")
 
 	const handleChange = () => {
-		try {
-			if (newPassword1 !== newPassword2) {
-				throw new Error(`Passwords do not match.`)
-			}
-			props.onChangePassword(oldPassword, newPassword1)
-		} catch (e) {
-			props.onError(e)
+		if (newPassword1 !== newPassword2) {
+			throw new Error(`Passwords do not match.`)
 		}
+		props.onChangePassword(oldPassword, newPassword1)
 	}
 	return (
 		<Dialog open={true} onClose={props.onClose}>

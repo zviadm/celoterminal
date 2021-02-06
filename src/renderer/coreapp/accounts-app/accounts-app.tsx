@@ -53,7 +53,6 @@ const AccountsApp = (props: {
 	onRemove: (a: Account) => void,
 	onRename: (a: Account, name: string) => void,
 	onChangePassword: (oldPassword: string, newPassword: string) => void,
-	onError: (e: Error) => void,
 }): JSX.Element => {
 	const classes = useStyles()
 	const [openedAdd, setOpenedAdd] = React.useState<
@@ -96,16 +95,15 @@ const AccountsApp = (props: {
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
 			{confirmRemove && <ConfirmRemove account={confirmRemove} onRemove={handleRemove} onCancel={handleCancel} />}
-			{openedAdd === "create-local" && <CreateLocalAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
-			{openedAdd === "import-local" && <ImportLocalAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
-			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
-			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} onError={props.onError} />}
-			{revealAccount && <RevealLocalKey account={revealAccount} onClose={handleCancel} onError={props.onError} />}
+			{openedAdd === "create-local" && <CreateLocalAccount onAdd={handleAdd} onCancel={handleCancel} />}
+			{openedAdd === "import-local" && <ImportLocalAccount onAdd={handleAdd} onCancel={handleCancel} />}
+			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} />}
+			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} />}
+			{revealAccount && <RevealLocalKey account={revealAccount} onClose={handleCancel} />}
 			{changePassword && <ChangePassword
 				hasPassword={props.hasPassword}
 				onChangePassword={handleChangePassword}
-				onClose={handleCancel}
-				onError={props.onError} />}
+				onClose={handleCancel} />}
 
 			<AppHeader title={Accounts.title} refetch={handleRefetch} isFetching={false} />
 			<Box display="flex" flexDirection="column" marginTop={2}>

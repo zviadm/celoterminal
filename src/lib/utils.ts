@@ -15,8 +15,7 @@ export class CancelPromise {
 	}
 
 	cancel = (): void => {
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		this.resolve!()
+		this.resolve && this.resolve()
 		this.cancelled = true
 	}
 

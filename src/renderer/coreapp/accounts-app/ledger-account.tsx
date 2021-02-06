@@ -21,6 +21,7 @@ import Box from '@material-ui/core/Box'
 
 import { LedgerAccount } from '../../../lib/accounts'
 import { transformError } from '../ledger-utils'
+import { UserError } from '../../../lib/error'
 
 const useStyles = makeStyles(() => ({
 	content: {
@@ -38,14 +39,12 @@ const useStyles = makeStyles(() => ({
 const AddLedgerAccount = (props: {
 	onAdd: (a: LedgerAccount) => void,
 	onCancel: () => void,
-	onError: (e: Error) => void,
 }): JSX.Element => {
 	const classes = useStyles()
 	const [addresses, setAddresses] = React.useState<string[] | undefined>()
 	const [selected, setSelected] = React.useState("0")
 	const [customPath, setCustomPath] = React.useState(CELO_BASE_DERIVATION_PATH + "/")
 	const [verifyPath, setVerifyPath] = React.useState<string | undefined>()
-	const onError = props.onError
 	const onCancel = props.onCancel
 	const onAdd = props.onAdd
 	React.useEffect(() => {
@@ -65,8 +64,8 @@ const AddLedgerAccount = (props: {
 			}
 		})()
 		.catch((e) => {
-			onError(transformError(e))
 			onCancel()
+			throw transformError(e)
 		})
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
@@ -79,7 +78,7 @@ const AddLedgerAccount = (props: {
 			const parts = derivationPath.split("/")
 			if (parts.length < 2 ||
 				Number.parseInt(parts[parts.length - 1]).toString() !== parts[parts.length - 1]) {
-				throw new Error(`Invalid derivation path: ${derivationPath}`)
+				throw new UserError(`Invalid derivation path: ${derivationPath}`)
 			}
 			const pathIdx = Number.parseInt(parts[parts.length - 1])
 			const basePath = parts.slice(0, parts.length - 1).join("/")
@@ -104,7 +103,7 @@ const AddLedgerAccount = (props: {
 		})()
 		.catch((e) => {
 			setVerifyPath(undefined)
-			onError(transformError(e))
+			throw transformError(e)
 		})
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [verifyPath])

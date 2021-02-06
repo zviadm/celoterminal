@@ -31,17 +31,12 @@ const useStyles = makeStyles((theme) => ({
 const RevealLocalKey = (props: {
 	account: LocalAccount,
 	onClose: () => void,
-	onError: (e: Error) => void,
 }): JSX.Element => {
 	const classes = useStyles()
 	const [localKey, setLocalKey] = React.useState<LocalKey | undefined>()
 	const handlePassword = (p: string) => {
-		try {
-			const k = decryptLocalKey(props.account.encryptedData, p)
-			setLocalKey(k)
-		} catch (e) {
-			props.onError(e)
-		}
+		const k = decryptLocalKey(props.account.encryptedData, p)
+		setLocalKey(k)
 	}
 
 	if (!localKey) {
