@@ -14,8 +14,10 @@ MacOS and Windows versions available:
 
 Celo Terminal is not just a wallet. Celo Terminal is an extensible platform to build secure and easy to use DApp UIs.
 It simplifies the development process for the builders and improves usability for the users. If you are building a
-smart-contract based protocol or a system on top of the Celo platform, check out how you can build your UI on top of
-Celo Terminal [here](./docs/building-apps.md).
+smart-contract based protocol or a system on top of the Celo network, you can utilize Celo Terminal platform to
+build and distribute your DApp UI.
+
+Learn more about how to build apps for Celo Terminal: [docs/building-apps.md](./docs/building-apps.md).
 
 ## Security & Privacy
 
