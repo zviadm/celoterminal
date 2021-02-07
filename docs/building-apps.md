@@ -1,7 +1,8 @@
 # Building apps for Celo Terminal
 
 For the most part, building a Celo Terminal app is as easy as building a simple website.
-There are three key open source technologies used in Terminal:
+There are four key open source technologies used in Terminal:
+* [Typescript](https://www.typescriptlang.org/docs/)
 * [Electron](https://www.electronjs.org/docs): Framework for building cross-platform desktop apps.
 * [React](https://reactjs.org/docs/getting-started.html): Framework for building user interfaces.
 * [Material-UI](https://material-ui.com/): Collection of UI components.
@@ -18,6 +19,14 @@ Basics of React framework and understanding of React Hooks are a pre-requisite t
 All Apps are located in [src/renderer/apps](../src/renderer/apps) folder. Each App is a react component
 that satisfies the [AppDefinition](../src/renderer/components/app-definition.ts) interface. Terminal provides
 core libraries to help with fetching on-chain state and with running transactions.
+
+Code structure relevant for App development:
+```
+ src/renderer/apps/<app id> - Application code, tests and assets
+ src/renderer/state         - Reusable React hooks for state management
+ src/renderer/components    - Shared/reusable UI components
+ src/lib                    - Shared/reusable non-UI libraries
+```
 
 Core libraries:
 * Running TXs: [src/renderer/components/app-definition.ts](../src/renderer/components/app-definition.ts)
