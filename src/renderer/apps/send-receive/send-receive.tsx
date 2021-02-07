@@ -92,7 +92,7 @@ const SendReceiveApp = (props: {
 	)
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
-			<AppHeader title={SendReceive.title} isFetching={isFetching} refetch={refetch} />
+			<AppHeader app={SendReceive} isFetching={isFetching} refetch={refetch} />
 			<Box marginTop={2}>
 				<Paper>
 					<Box p={2}>
