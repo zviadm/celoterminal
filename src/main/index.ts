@@ -15,20 +15,6 @@ const hideInsteadOfQuit = () => {
 	return !willQuitApp && process.platform === 'darwin'
 }
 
-const gotLock = app.requestSingleInstanceLock()
-if (!gotLock) {
-	app.quit();
-} else {
-	app.on("second-instance", () => {
-		if (mainWindow) {
-			if (mainWindow.isMinimized()) {
-				mainWindow.restore()
-			}
-			mainWindow.focus()
-		}
-	})
-}
-
 function createMainWindow() {
 	const height = 800
 	const minWidth = 850
@@ -97,29 +83,43 @@ function createMainWindow() {
 	return window
 }
 
-// Before quit fires when app needs to actually exit.
-app.on('before-quit', () => willQuitApp = true);
+const gotLock = app.requestSingleInstanceLock()
+if (!gotLock) {
+	app.quit();
+} else {
+	app.on("second-instance", () => {
+		if (mainWindow) {
+			if (mainWindow.isMinimized()) {
+				mainWindow.restore()
+			}
+			mainWindow.focus()
+		}
+	})
 
-// Quit application when all windows are closed (except for macOS).
-app.on('window-all-closed', () => {
-	// on macOS it is common for applications to stay open until the user explicitly quits.
-	if (!hideInsteadOfQuit()) {
-		app.quit()
-	}
-})
+	// Before quit fires when app needs to actually exit.
+	app.on('before-quit', () => willQuitApp = true);
 
-app.on('activate', () => {
-	// on macOS it is common to re-create a window even after all windows have been closed.
-	if (mainWindow === null) {
+	// Quit application when all windows are closed (except for macOS).
+	app.on('window-all-closed', () => {
+		// on macOS it is common for applications to stay open until the user explicitly quits.
+		if (!hideInsteadOfQuit()) {
+			app.quit()
+		}
+	})
+
+	app.on('activate', () => {
+		// on macOS it is common to re-create a window even after all windows have been closed.
+		if (mainWindow === null) {
+			mainWindow = createMainWindow()
+		} else {
+			mainWindow.show()
+		}
+	})
+
+	// Create main BrowserWindow when electron is ready.
+	app.on('ready', () => {
 		mainWindow = createMainWindow()
-	} else {
-		mainWindow.show()
-	}
-})
+	})
 
-// Create main BrowserWindow when electron is ready.
-app.on('ready', () => {
-	mainWindow = createMainWindow()
-})
-
-setupAutoUpdater()
+	setupAutoUpdater()
+}
