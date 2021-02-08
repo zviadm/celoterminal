@@ -1,4 +1,3 @@
-import { shell } from 'electron'
 import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios'
 import { ContractKit } from '@celo/contractkit'
 import log from 'electron-log'
@@ -10,6 +9,7 @@ import { Celovote } from './def'
 import useOnChainState from '../../state/onchain-state'
 import { CFG, mainnetNetworkId } from '../../../lib/cfg'
 import { fmtAmount } from '../../../lib/utils'
+import { UserError } from '../../../lib/error'
 
 import * as React from 'react'
 import Box from '@material-ui/core/Box'
@@ -23,10 +23,9 @@ import TableBody from '@material-ui/core/TableBody'
 import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
-import Link from '@material-ui/core/Link'
 
 import AppHeader from '../../components/app-header'
-import { UserError } from '../../../lib/error'
+import Link from '../../components/link'
 
 let _client: AxiosInstance
 const gql = () => {
@@ -146,7 +145,7 @@ const CelovoteApp = (props: {
 	const canAuthorize = fetched?.totalLocked.gte(minLocked)
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
-			<AppHeader title={Celovote.title} url={Celovote.url} isFetching={isFetching} refetch={refetch} />
+			<AppHeader app={Celovote} isFetching={isFetching} refetch={refetch} />
 			{fetched && (
 			fetched.isAuthorized ? <>
 			<Box marginTop={2}>
@@ -260,16 +259,9 @@ const SummaryTable = (props: {
 
 const GroupAddress = (props: {address: string}) => {
 	const url = `https://thecelo.com/group/${props.address}`
-	const handleClick = () => { shell.openExternal(url) }
 	return (
 		<Link
-			component="button"
-			variant="body2"
-			underline="hover"
-			onClick={handleClick}
-			style={{fontFamily: "monospace"}}
-			>
-			{props.address}
-		</Link>
+			href={url}
+			style={{fontFamily: "monospace"}}>{props.address}</Link>
 	)
 }

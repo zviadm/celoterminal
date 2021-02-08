@@ -8,5 +8,6 @@ export const Locker: AppDefinition = {
 	title: "Locker",
 	icon: Lock,
 	core: true,
+	url: "https://docs.celo.org/celo-codebase/protocol/proof-of-stake/locked-gold",
 	renderApp: LockerApp,
 }

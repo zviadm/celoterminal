@@ -1,16 +1,16 @@
-import { shell } from 'electron'
+import MoreApps from './def'
+import { AppList } from '../../apps/apps'
+import { AppDefinition } from '../../components/app-definition'
 
 import * as React from 'react'
 import Box from '@material-ui/core/Box'
 import Fab from '@material-ui/core/Fab'
 import AddIcon from '@material-ui/icons/Add'
-
-import AppHeader from '../../components/app-header'
-import { AppList } from '../../apps/apps'
-import { AppDefinition } from '../../components/app-definition'
-import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
+
+import AppHeader from '../../components/app-header'
+import Link from '../../components/link'
 
 export interface PinnedApp {
 	id: string
@@ -26,7 +26,7 @@ const AppStoreApp = (props: {
 	const optionalAppList = optionalApps.filter((a) => !pinnedIds.has(a.id))
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
-			<AppHeader title={"More Apps"} />
+			<AppHeader app={MoreApps} />
 			<Box
 				display="flex"
 				flexDirection="row"
@@ -79,7 +79,7 @@ const AppCard = (props: {
 							flexDirection="row"
 							flex={1}
 							alignItems="flex-end">
-							<LinkText text="Learn More" url={url} />
+							<Link href={url}>Learn More</Link>
 						</Box>}
 						<Fab
 							color="primary"
@@ -91,17 +91,5 @@ const AppCard = (props: {
 				</Box>
 			</Paper>
 		</Box>
-	)
-}
-
-const LinkText = (props: {
-	text: string,
-	url: string,
-}) => {
-	const handleClick = () => { shell.openExternal(props.url) }
-	return (
-		<Button
-			onClick={handleClick}
-			style={{padding: 0}}>{props.text}</Button>
 	)
 }

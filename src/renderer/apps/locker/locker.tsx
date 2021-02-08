@@ -131,7 +131,7 @@ const LockerApp = (props: {
 		toLockWEI.gt(0) && fetched.totalCELO.gte(toLockWEI))
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
-			<AppHeader title={Locker.title} isFetching={isFetching} refetch={refetch} />
+			<AppHeader app={Locker} isFetching={isFetching} refetch={refetch} />
 			{fetched &&
 			(!fetched.isAccount ?
 			<Box marginTop={2}>

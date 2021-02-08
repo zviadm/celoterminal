@@ -3,18 +3,6 @@ import { CeloContract, ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
 import { isValidAddress } from 'ethereumjs-util'
 
-import { makeStyles } from '@material-ui/core/styles'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
-import Typography from '@material-ui/core/Typography'
-import AppHeader from '../../components/app-header'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import Box from '@material-ui/core/Box'
-import Paper from '@material-ui/core/Paper'
-import Alert from '@material-ui/lab/Alert'
-import Autocomplete from '@material-ui/lab/Autocomplete'
-
 import { Account } from '../../../lib/accounts'
 import useOnChainState from '../../state/onchain-state'
 import useLocalStorageState from '../../state/localstorage-state'
@@ -24,18 +12,23 @@ import { CFG } from '../../../lib/cfg'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { SendReceive } from './def'
 
-const useStyles = makeStyles(() => ({
-	address: {
-		fontFamily: "monospace",
-	},
-}))
+import Select from '@material-ui/core/Select'
+import MenuItem from '@material-ui/core/MenuItem'
+import Typography from '@material-ui/core/Typography'
+import TextField from '@material-ui/core/TextField'
+import Button from '@material-ui/core/Button'
+import Box from '@material-ui/core/Box'
+import Paper from '@material-ui/core/Paper'
+import Alert from '@material-ui/lab/Alert'
+
+import AddressAutocomplete from '../../components/address-autocomplete'
+import AppHeader from '../../components/app-header'
 
 const SendReceiveApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
-	const classes = useStyles()
 	const erc20s = CFG().erc20s
 	const [erc20, setErc20] = useLocalStorageState(
 		"terminal/send-receive/erc20", erc20s[0].name)
@@ -81,18 +74,9 @@ const SendReceiveApp = (props: {
 		isValidAddress(toAddress) && (toSend !== "") &&
 		fetched &&
 		fetched.balance.gte(new BigNumber(toSend).shiftedBy(fetched.decimals)))
-	const toAddresses = props.accounts.map((a) => ({
-		address: a.address,
-		account: a,
-	}))
-	const renderOption = (o: {account?: Account, address: string}) => (
-		<React.Fragment>
-			<Typography className={classes.address}>{o.account?.name}: {o.address}</Typography>
-		</React.Fragment>
-	)
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
-			<AppHeader title={SendReceive.title} isFetching={isFetching} refetch={refetch} />
+			<AppHeader app={SendReceive} isFetching={isFetching} refetch={refetch} />
 			<Box marginTop={2}>
 				<Paper>
 					<Box p={2}>
@@ -122,36 +106,12 @@ const SendReceiveApp = (props: {
 							Transfers are non-reversible. Transfering funds to an incorrect address
 							can lead to permanent loss of your funds.
 						</Alert>
-						<Autocomplete
-							freeSolo
-							autoSelect
-							options={toAddresses}
-							renderOption={renderOption}
-							getOptionLabel={(o) => o?.address || "" }
-							getOptionSelected={(o, v) => { return o.address === v.address }}
-							renderInput={(params) => (
-								<TextField
-									{...params}
-									margin="normal"
-									label={`Destination address`}
-									placeholder="0x..."
-									size="medium"
-									fullWidth={true}
-									spellCheck={false}
-									inputProps={{
-										...params.inputProps,
-										className: classes.address,
-									}}
-								/>
-							)}
-							inputValue={toAddress}
-							onInputChange={(e, value, reason) => {
-								if (reason !== "reset" || value !== "") {
-									setToAddress(value)
-								}
-								return value
-							}}
-							/>
+						<AddressAutocomplete
+							label="Destination address"
+							addresses={props.accounts}
+							address={toAddress}
+							onChange={setToAddress}
+						/>
 						<TextField
 							margin="normal"
 							label={

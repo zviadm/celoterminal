@@ -1,10 +1,12 @@
 import log from 'electron-log'
 import useSessionState from './session-state'
 
-// LocalStorageState is stored in Window.localStorage. LocalStorage remains persisted as long as app
-// is alive. This is useful for global state that needs to be persisted, but is also ok if it gets
-// wiped due to app uninstallation or something like that.
-// State stored in LocalStorage must be JSON encodable.
+// useLocalStorageState provides a React hook to store data in Window.localStorage. LocalStorage remains
+// persisted  across app restarts. This is useful for global state that needs to be persisted, but is also ok
+// if it gets wiped due to app uninstallation or something like that.
+//
+// key format should be: 'terminal/<app ID>/...'.
+// <T> type must be JSON encodable/decodable.
 const useLocalStorageState = <T>(key: string, initial: T): [T, (v: T) => void] => {
 	const [cachedV, setCachedV] = useSessionState<{v: T} | undefined>(key, undefined)
 	let v

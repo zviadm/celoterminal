@@ -105,7 +105,7 @@ const AccountsApp = (props: {
 				onChangePassword={handleChangePassword}
 				onClose={handleCancel} />}
 
-			<AppHeader title={Accounts.title} refetch={handleRefetch} isFetching={false} />
+			<AppHeader app={Accounts} refetch={handleRefetch} isFetching={false} />
 			<Box display="flex" flexDirection="column" marginTop={2}>
 				{
 				props.accounts.map((a) => {
