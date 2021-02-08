@@ -67,6 +67,7 @@ function createMainWindow() {
 		frame: false,
 		resizable: false,
 		movable: false,
+		webPreferences: {contextIsolation: true},
 	})
 	splash.loadURL(`file://${__static}/splash.html`)
 
