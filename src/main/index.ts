@@ -92,7 +92,7 @@ if (!gotLock) {
 			if (mainWindow.isMinimized()) {
 				mainWindow.restore()
 			}
-			mainWindow.focus()
+			mainWindow.show()
 		}
 	})
 
