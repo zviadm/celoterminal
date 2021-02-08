@@ -45,7 +45,7 @@ const NetworkIndicator = (): JSX.Element => {
 					new BigNumber(lastBlock.timestamp)
 					.multipliedBy(1000)
 					.plus(blockRefetchMs)
-					.gt(Date.now())) {
+					.lt(Date.now())) {
 					lastBlock = await k.web3.eth.getBlock('latest')
 					blockN = lastBlock.number
 				} else {
