@@ -1,5 +1,3 @@
-import { Account } from '../../lib/accounts'
-
 import * as React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Autocomplete from '@material-ui/lab/Autocomplete'
@@ -12,16 +10,21 @@ const useStyles = makeStyles(() => ({
 	}
 }))
 
+interface Address {
+	name?: string
+	address: string
+}
+
 const AddressAutocomplete = (props: {
-	addresses: (Account | {address: string})[],
+	addresses: Address[],
 	label: string,
 	address: string,
 	onChange: (address: string) => void,
 }): JSX.Element => {
 	const classes = useStyles()
-	const renderOption = (o: Account | {address: string}) => (
+	const renderOption = (o: Address) => (
 		<React.Fragment>
-			<Typography className={classes.address}>{"name" in o ? `${o.name}: `: ``}{o.address}</Typography>
+			<Typography className={classes.address}>{o.name ? `${o.name}: `: ``}{o.address}</Typography>
 		</React.Fragment>
 	)
 	return (
