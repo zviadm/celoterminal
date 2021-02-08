@@ -1,24 +1,27 @@
-# Building apps for Celo Terminal
+# Developing apps for Celo Terminal
 
-For the most part, building a Celo Terminal app is as easy as building a simple website.
+For the most part, developing a Celo Terminal app is as easy as developing a simple website.
 There are four key open source technologies used in Terminal:
 * [Typescript](https://www.typescriptlang.org/docs/)
-* [Electron](https://www.electronjs.org/docs): Framework for building cross-platform desktop apps.
-* [React](https://reactjs.org/docs/getting-started.html): Framework for building user interfaces.
+* [Electron](https://www.electronjs.org/docs): Framework for developing cross-platform desktop apps.
+* [React](https://reactjs.org/docs/getting-started.html): Framework for developing user interfaces.
 * [Material-UI](https://material-ui.com/): Collection of UI components.
 
-Building a Terminal app generally won't require interacting with the Electron framework directly. Thus,
+Developing a Terminal app generally won't require interacting with the Electron framework directly. Thus,
 an in-depth understanding is not required, but understanding the basics can always be helpful.
 
-Basics of React framework and understanding of React Hooks are a pre-requisite to building a Terminal app:
+Basics of React framework and understanding of React Hooks are a pre-requisite to develop a Terminal app:
 * React Docs: [https://reactjs.org/docs/getting-started.html](https://reactjs.org/docs/getting-started.html)
 * React Hooks: [https://reactjs.org/docs/hooks-intro.html](https://reactjs.org/docs/hooks-intro.html)
+
+Checkout general [development guide](./develop.md) for instructions on how to build, test and
+develop Celo Terminal locally.
 
 ## Structure
 
 All Apps are located in [src/renderer/apps](../src/renderer/apps) folder. Each App is a react component
 that satisfies the [AppDefinition](../src/renderer/components/app-definition.ts) interface. Terminal provides
-core libraries to help with fetching on-chain state and with running transactions.
+core libraries to help with running transactions and fetching on-chain state.
 
 Code structure relevant for App development:
 ```
