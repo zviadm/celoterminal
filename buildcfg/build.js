@@ -73,7 +73,6 @@ const runAction = () => {
 	const range = tags.length === 0 ? "" : `${tags[tags.length-1]}..HEAD`
 	const commits = execSync(`git log ${range} --pretty=format:%s --no-merges`).toString().trim()
 	console.info(`COMMITS (since: ${tags[tags.length-1]}):\n${commits}`)
-	writeFileSync(".tmp.releasenotes.txt", commits)
 
 	// Require code signing certificate and password if building for macOS. Export them to environment
 	// variables (required by `electron-builder`)
@@ -101,7 +100,7 @@ const runAction = () => {
 		try {
 			run(
 				`yarn electron-builder --${platform} ${publish ?
-					"--publish always -c.releaseInfo.releaseNotesFile=.tmp.releasenotes.txt"
+					"--publish always"
 					:
 					"--publish never"}`);
 			break;
