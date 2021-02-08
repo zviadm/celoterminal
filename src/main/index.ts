@@ -33,6 +33,11 @@ function createMainWindow() {
 	const height = 800
 	const minWidth = 850
 	const width = app.isPackaged ? minWidth : minWidth + 270
+
+	const isTest = true // process.env.NODE_ENV === "test"
+	const noDevTools = app.isPackaged || isTest
+	const noSplash = isTest // process.env.NODE_ENV === "test"
+
 	const window = new BrowserWindow({
 		height: height,
 		minWidth: minWidth,
@@ -43,15 +48,15 @@ function createMainWindow() {
 			contextIsolation: false,
 			enableRemoteModule: true,
 			partition: "persist:default",
-			devTools: !app.isPackaged,
+			devTools: !noDevTools,
 		},
-		show: false,
+		show: noSplash,
 	})
 
-	if (!app.isPackaged) {
+	if (!noDevTools) {
 		window.webContents.openDevTools()
 	}
-	if (!app.isPackaged) {
+	if (!app.isPackaged && !isTest) {
 		window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
 	} else {
 		window.loadURL(formatUrl({
@@ -61,20 +66,22 @@ function createMainWindow() {
 		}))
 	}
 
-	const splash = new BrowserWindow({
-		height: 100,
-		width: 200,
-		frame: false,
-		resizable: false,
-		movable: false,
-		webPreferences: {contextIsolation: true},
-	})
-	splash.loadURL(`file://${__static}/splash.html`)
+	if (!noSplash) {
+		const splash = new BrowserWindow({
+			height: 100,
+			width: 200,
+			frame: false,
+			resizable: false,
+			movable: false,
+			webPreferences: {contextIsolation: true},
+		})
+		splash.loadURL(`file://${__static}/splash.html`)
 
-	window.on('ready-to-show', () => {
-		window.show()
-		splash.destroy()
-	})
+		window.on('ready-to-show', () => {
+			window.show()
+			splash.destroy()
+		})
+	}
 
 	window.on('close', (event) => {
 		if (hideInsteadOfQuit()) {
