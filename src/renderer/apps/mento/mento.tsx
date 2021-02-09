@@ -374,8 +374,8 @@ const ConfirmSwap = (props: {
 		const stableAmtN = new BigNumber(props.stableAmount).shiftedBy(decimals)
 		const slippage = new BigNumber(1).minus(new BigNumber(props.slippagePct).div(100))
 		const sellCELO = props.side === "sell"
-		const sellAmount = (sellCELO ? celoAmtN : stableAmtN).integerValue()
-		const minAmount = (sellCELO ? stableAmtN : celoAmtN).multipliedBy(slippage).integerValue()
+		const sellAmount = (sellCELO ? celoAmtN : stableAmtN).integerValue(BigNumber.ROUND_DOWN)
+		const minAmount = (sellCELO ? stableAmtN : celoAmtN).multipliedBy(slippage).integerValue(BigNumber.ROUND_DOWN)
 		props.onConfirmSell(
 			props.stableToken,
 			sellCELO,
