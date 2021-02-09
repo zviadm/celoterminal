@@ -36,7 +36,7 @@ export const fmtAmount = (
 		decimals === "cUSD") {
 		decimals = 18
 	}
-	return v.shiftedBy(-decimals).toFixed(precision !== undefined ? precision : 4)
+	return v.shiftedBy(-decimals).toFixed(precision !== undefined ? precision : 2)
 }
 
 export const fmtAddress = (address: string): string => {
