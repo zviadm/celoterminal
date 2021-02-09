@@ -48,6 +48,7 @@ export const useExchangeOnChainState = (account: Account, stableToken: string) =
 
 export interface TradeEvent {
 	blockNumber: number
+	timestamp: Date
 	txHash: string
 	exchanger: string
 	sellAmount: BigNumber
@@ -66,13 +67,14 @@ export const useExchangeHistoryState = (account: Account) => {
 		events: TradeEvent[],
 	}>({toBlock: 0, events: []})
 
-	const maxEvents = 30
+	const maxEvents = 100
 	const maxHistoryBlocks = 120960 // 1 week.
 	return useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
 			// TODO(zviadm): multi exchange support.
 			const exchangeDirect = await kit._web3Contracts.getExchange()
-			const toBlock = await kit.web3.eth.getBlockNumber()
+			const latestBlock = await kit.web3.eth.getBlock("latest")
+			const toBlock = latestBlock.number
 			let fromBlock
 			let cachedEvents: TradeEvent[] = []
 			if (cache.account?.address === account.address) {
@@ -101,6 +103,10 @@ export const useExchangeHistoryState = (account: Account) => {
 
 				events = r.map((e) => ({
 					blockNumber: e.blockNumber,
+					timestamp: new Date(
+						new BigNumber(latestBlock.timestamp)
+						.minus((latestBlock.number - e.blockNumber) * 5)
+						.multipliedBy(1000).toNumber()),
 					txHash: e.transactionHash,
 					exchanger: e.returnValues.exchanger,
 					sellAmount: valueToBigNumber(e.returnValues.sellAmount),
