@@ -1,6 +1,7 @@
-import { ContractKit } from '@celo/contractkit'
+import { CeloContract, ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
-import { CeloTransactionObject } from '@celo/connect'
+import { Address, CeloTransactionObject } from '@celo/connect'
+import { MedianRate } from '@celo/contractkit/lib/wrappers/SortedOracles'
 
 import { Account } from '../../../lib/accounts'
 import useOnChainState from '../../state/onchain-state'
@@ -18,14 +19,23 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline'
-
-import AppHeader from '../../components/app-header'
 import Tooltip from '@material-ui/core/Tooltip'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
+import TableContainer from '@material-ui/core/TableContainer'
+import Table from '@material-ui/core/Table'
+import TableRow from '@material-ui/core/TableRow'
+import TableCell from '@material-ui/core/TableCell'
+import TableBody from '@material-ui/core/TableBody'
+
+import AppHeader from '../../components/app-header'
+import Alert from '@material-ui/lab/Alert'
+import { makeStyles } from '@material-ui/core'
+import { AlertTitle } from '@material-ui/lab'
 
 interface IERC20 {
+	address: Address
 	balanceOf (account: string): Promise<BigNumber>
 	decimals: () => Promise<number>
 	allowance: (accountOwner: string, spender: string) => Promise<BigNumber>
@@ -65,6 +75,7 @@ const MentoApp = (props: {
 			const exchange = await kit.contracts.getExchange()
 			const goldToken = await kit.contracts.getGoldToken()
 			const stableTokenC = await stableTokens[stableToken](kit)
+			const oracles = await kit.contracts.getSortedOracles()
 
 			const celoBalance = goldToken.balanceOf(account.address)
 			const stableDecimals = stableTokenC.decimals()
@@ -72,6 +83,9 @@ const MentoApp = (props: {
 
 			const spread = exchange.spread()
 			const buckets = exchange.getBuyAndSellBuckets(true)
+
+			// TODO: multi-currency handling.
+			const oracleRate = oracles.medianRate(CeloContract.StableToken)
 
 			if (await stableDecimals !== decimals) {
 				throw new Error(`Unexpected decimals for ${stableToken}. Expected: ${decimals} Got: ${stableDecimals}`)
@@ -81,6 +95,7 @@ const MentoApp = (props: {
 				celoBalance: await celoBalance,
 				stableBalance: await stableBalance,
 				spread: await spread,
+				oracleRate: await oracleRate,
 				celoBucket,
 				stableBucket,
 			}
@@ -93,13 +108,6 @@ const MentoApp = (props: {
 	}, [refetch])
 
 	const [anchorToken, setAnchorToken] = React.useState<"celo" | "stable">("celo")
-	const fmtTradeAmount = (n: BigNumber, roundingMode: BigNumber.RoundingMode) => {
-		if (!n.gt(0)) {
-			return ""
-		} else {
-			return n.shiftedBy(-decimals).decimalPlaces(6, roundingMode).toString()
-		}
-	}
 	React.useEffect(() => {
 		if (!fetched) {
 			return
@@ -126,6 +134,8 @@ const MentoApp = (props: {
 		celoAmount: string,
 		stableAmount: string,
 		slippagePct: string,
+		oracleRate: MedianRate,
+		spread: BigNumber,
 	} | undefined>()
 
 	const runTXs = (f: TXFunc) => {
@@ -172,8 +182,8 @@ const MentoApp = (props: {
 				stableTokens[stableToken](kit))
 			const allowed = await approveC.allowance(account.address, exchange.address)
 			if (allowed.lt(sellAmount)) {
-				// TODO: should we just do infinite approve instead?
-				const txApprove = approveC.increaseAllowance(exchange.address, sellAmount)
+				// Exchange is a core-contract, thus infinite-approval should be safe.
+				const txApprove = approveC.increaseAllowance(exchange.address, 1e35)
 				txs.unshift({tx: txApprove})
 			}
 			return txs
@@ -295,12 +305,18 @@ const MentoApp = (props: {
 									color="primary"
 									variant="outlined"
 									disabled={!canTrade}
-									onClick={() => { setConfirming({
-											side: side,
+									onClick={() => {
+										if (!fetched) {
+											return
+										}
+										setConfirming({
+											side,
 											celoAmount,
 											stableToken,
 											stableAmount,
 											slippagePct,
+											oracleRate: fetched.oracleRate,
+											spread: fetched.spread,
 										})
 									}}
 									>Trade</Button>
@@ -314,6 +330,21 @@ const MentoApp = (props: {
 }
 export default MentoApp
 
+const fmtTradeAmount = (n: BigNumber, roundingMode: BigNumber.RoundingMode) => {
+	if (!n.gt(0)) {
+		return ""
+	} else {
+		const v = n.shiftedBy(-decimals)
+		const maxDP = 6
+		let dp = maxDP
+		for (; dp > 0; dp--) {
+			if (v.gte(10 ** (dp - 1))) {
+				break
+			}
+		}
+		return v.decimalPlaces(maxDP - dp, roundingMode).toString()
+	}
+}
 
 const calcCeloAmount = (
 	side: "sell" | "buy",
@@ -356,12 +387,21 @@ const calcSellAmount = (
 		.div(buyBucket.minus(buyAmount).multipliedBy(new BigNumber(1).minus(spread)))
 }
 
+const useStyles = makeStyles(() => ({
+	cell: {
+		whiteSpace: "nowrap",
+		fontStyle: "italic",
+	}
+}))
+
 const ConfirmSwap = (props: {
 	side: "sell" | "buy",
 	celoAmount: string,
 	stableToken: string,
 	stableAmount: string,
 	slippagePct: string,
+	oracleRate: MedianRate,
+	spread: BigNumber,
 	onConfirmSell: (
 		stableToken: string,
 		sellCELO: boolean,
@@ -369,6 +409,7 @@ const ConfirmSwap = (props: {
 		minAmount: BigNumber) => void,
 	onCancel: () => void,
 }) => {
+	const classes = useStyles()
 	const handleConfirm = () => {
 		const celoAmtN = new BigNumber(props.celoAmount).shiftedBy(decimals)
 		const stableAmtN = new BigNumber(props.stableAmount).shiftedBy(decimals)
@@ -383,21 +424,58 @@ const ConfirmSwap = (props: {
 			minAmount,
 		)
 	}
+	const estimatedPrice = new BigNumber(props.stableAmount).div(props.celoAmount)
+	console.info(`price impacto: ${estimatedPrice}, oracle: ${props.oracleRate.rate}`)
+	let priceImpact = props.oracleRate.rate.minus(estimatedPrice).div(props.oracleRate.rate)
+	if (props.side === "buy") { priceImpact = priceImpact.negated() }
+	priceImpact = priceImpact.minus(props.spread)
+	const priceImpactTxt =
+		priceImpact.lt(0.0001) ? "<0.01%" :
+		priceImpact.multipliedBy(100).toFixed(2) + "%"
+	const priceImpactSeverity =
+		priceImpact.lte(0.005) ? "success" :
+		priceImpact.lte(0.01) ? "warning" : "error"
+
 	return (
 		<Dialog open={true} onClose={props.onCancel}>
 			<DialogContent>
-				{props.side === "sell" ? <>
-				<Typography>Sell {props.celoAmount} CELO</Typography>
-				<Typography>For {props.stableAmount} {props.stableToken}</Typography>
-				</> : <>
-				<Typography>Buy {props.celoAmount} CELO</Typography>
-				<Typography>For {props.stableAmount} {props.stableToken}</Typography>
-				</>}
-				<Typography>Max slippage: {props.slippagePct}%</Typography>
+				<Box display="flex" flexDirection="column">
+					<TableContainer component={Paper}>
+					<Table size="small">
+						<TableBody>
+							<TableRow>
+								<TableCell className={classes.cell}>
+									{props.side === "sell" ? "Sell" : "Buy"}
+								</TableCell>
+								<TableCell width="100%" align="right">{props.celoAmount} CELO</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell className={classes.cell}>For</TableCell>
+								<TableCell align="right">{props.stableAmount} {props.stableToken}</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell className={classes.cell}>Max slippage</TableCell>
+								<TableCell align="right">{props.slippagePct}%</TableCell>
+							</TableRow>
+						</TableBody>
+					</Table>
+					</TableContainer>
+
+					{priceImpactSeverity !== "success" &&
+					<Box marginTop={1} alignSelf="flex-end">
+						<Alert
+							severity={priceImpactSeverity}>
+							<AlertTitle>Price impact: {priceImpactTxt}</AlertTitle>
+							The difference between market price and estimated price is significant
+							due to the trade size. Consider making smaller trades with some delay
+							in-between.
+						</Alert>
+					</Box>}
+				</Box>
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.onCancel}>Cancel</Button>
-				<Button color="primary" onClick={handleConfirm}>Confirm</Button>
+				<Button color="primary" onClick={handleConfirm}>Trade</Button>
 			</DialogActions>
 		</Dialog>
 	)
