@@ -170,7 +170,7 @@ const RunTXs = (props: {
 					for (let idx = 0; idx < txs.length; idx += 1) {
 						const tx = txs[idx]
 						const estimatedGas = await estimateGas(kit, tx)
-						// TODO(zviad): Add support for other fee currencies.
+						// TODO(zviadm): Add support for other fee currencies.
 						const gasPrice = await kit.connection.gasPrice()
 						const estimatedFee = {
 							estimatedGas,
