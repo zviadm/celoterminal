@@ -437,7 +437,7 @@ const ConfirmSwap = (props: {
 		priceImpact.lte(0.01) ? "warning" : "error"
 
 	return (
-		<Dialog open={true} onClose={props.onCancel}>
+		<Dialog open={true} onClose={props.onCancel} maxWidth="xs">
 			<DialogContent>
 				<Box display="flex" flexDirection="column">
 					<TableContainer component={Paper}>
