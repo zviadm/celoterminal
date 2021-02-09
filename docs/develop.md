@@ -6,6 +6,13 @@ Quick Start
 > yarn dev:baklava
 ```
 
+```
+NOTE: if you are getting `Module XXX was compiled against a different Node.js version XXX` error 
+messages, you need to manually run `postinstall` script.
+
+> yarn postinstall
+```
+
 ## Build & Test
 
 Celo Terminal uses the following technologies:
