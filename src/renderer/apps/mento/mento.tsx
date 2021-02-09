@@ -173,8 +173,8 @@ const MentoApp = (props: {
 			// TODO: support multi exchange.
 			const exchange = await kit.contracts.getExchange()
 			const txSwap = exchange.sell(sellAmount, minAmount, sellCELO)
-			const txs: Transaction[] = [{tx: txSwap}]
-			console.info(`SELL: ${sellAmount} for ${minAmount}`)
+			// Set explicit gas based on github.com/celo-org/celo-monorepo/issues/2541
+			const txs: Transaction[] = [{tx: txSwap, params: {gas: 300000}}]
 
 			const approveC = await (
 				sellCELO ?
@@ -425,7 +425,6 @@ const ConfirmSwap = (props: {
 		)
 	}
 	const estimatedPrice = new BigNumber(props.stableAmount).div(props.celoAmount)
-	console.info(`price impacto: ${estimatedPrice}, oracle: ${props.oracleRate.rate}`)
 	let priceImpact = props.oracleRate.rate.minus(estimatedPrice).div(props.oracleRate.rate)
 	if (props.side === "buy") { priceImpact = priceImpact.negated() }
 	priceImpact = priceImpact.minus(props.spread)
