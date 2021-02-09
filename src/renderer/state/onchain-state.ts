@@ -64,9 +64,9 @@ const useOnChainState = <T>(
 		}
 	}, [fetchN, fetchCallback, noErrorPropagation, setError])
 
-	const refetch = () => {
+	const refetch = React.useCallback(() => {
 		setFetchN((fetchN) => (fetchN + 1))
-	}
+	}, [setFetchN])
 	return {
 		isFetching,
 		fetched,
