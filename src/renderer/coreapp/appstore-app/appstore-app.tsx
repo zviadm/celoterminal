@@ -1,16 +1,16 @@
-import { shell } from 'electron'
+import MoreApps from './def'
+import { AppList } from '../../apps/apps'
+import { AppDefinition } from '../../components/app-definition'
 
 import * as React from 'react'
 import Box from '@material-ui/core/Box'
 import Fab from '@material-ui/core/Fab'
 import AddIcon from '@material-ui/icons/Add'
-
-import AppHeader from '../../components/app-header'
-import { AppList } from '../../apps/apps'
-import { AppDefinition } from '../../components/app-definition'
-import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
+
+import AppHeader from '../../components/app-header'
+import Link from '../../components/link'
 
 export interface PinnedApp {
 	id: string
@@ -26,11 +26,10 @@ const AppStoreApp = (props: {
 	const optionalAppList = optionalApps.filter((a) => !pinnedIds.has(a.id))
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
-			<AppHeader title={"More Apps"} />
+			<AppHeader app={MoreApps} />
 			<Box
 				display="flex"
 				flexDirection="row"
-				justifyContent="space-between"
 				marginTop={2}
 				flexWrap="wrap">
 				{optionalAppList.map((a) => (
@@ -53,7 +52,7 @@ const AppCard = (props: {
 	const url = props.app.url
 	const description = props.app.description
 	return (
-		<Box width={300} marginBottom={2}>
+		<Box width={270} marginBottom={2} marginRight={2}>
 			<Paper>
 				<Box p={2} display="flex" flexDirection="column">
 					<Box
@@ -64,11 +63,9 @@ const AppCard = (props: {
 						<Typography variant="h6">{props.app.title}</Typography>
 						<props.app.icon fontSize="large" />
 					</Box>
-					{description &&
 					<Box height={100} overflow="auto" my={0.5}>
-						<Typography variant="body2" color="textSecondary">{description}</Typography>
+						<Typography variant="body2" color="textSecondary">{description || ''}</Typography>
 					</Box>
-					}
 					<Box
 						display="flex"
 						flexDirection="row"
@@ -79,7 +76,7 @@ const AppCard = (props: {
 							flexDirection="row"
 							flex={1}
 							alignItems="flex-end">
-							<LinkText text="Learn More" url={url} />
+							<Link href={url}>Learn More</Link>
 						</Box>}
 						<Fab
 							color="primary"
@@ -91,17 +88,5 @@ const AppCard = (props: {
 				</Box>
 			</Paper>
 		</Box>
-	)
-}
-
-const LinkText = (props: {
-	text: string,
-	url: string,
-}) => {
-	const handleClick = () => { shell.openExternal(props.url) }
-	return (
-		<Button
-			onClick={handleClick}
-			style={{padding: 0}}>{props.text}</Button>
 	)
 }

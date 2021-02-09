@@ -5,7 +5,7 @@ import { PendingWithdrawal } from '@celo/contractkit/lib/wrappers/LockedGold'
 import { Account } from '../../../lib/accounts'
 import useOnChainState from '../../state/onchain-state'
 import { fmtAmount } from '../../../lib/utils'
-import { TXFunc, TXFinishFunc } from '../../components/app-definition'
+import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definition'
 import { toTransactionObject } from '@celo/connect'
 import { Locker } from './def'
 import { GroupVote } from '@celo/contractkit/lib/wrappers/Election'
@@ -88,10 +88,10 @@ const LockerApp = (props: {
 		})
 	}
 	const handleLock = () => {
-		runTXs(async (kit: ContractKit) => {
+		runTXs(async (kit: ContractKit): Promise<Transaction[]> => {
 			const lockedGold = await kit.contracts.getLockedGold()
 			const tx = lockedGold.lock()
-			return [{tx: tx, value: toLockWEI.toFixed(0)}]
+			return [{tx: tx, params: {value: toLockWEI.toFixed(0)}}]
 		})
 	}
 	const handleUnlock = (
@@ -131,7 +131,7 @@ const LockerApp = (props: {
 		toLockWEI.gt(0) && fetched.totalCELO.gte(toLockWEI))
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
-			<AppHeader title={Locker.title} isFetching={isFetching} refetch={refetch} />
+			<AppHeader app={Locker} isFetching={isFetching} refetch={refetch} />
 			{fetched &&
 			(!fetched.isAccount ?
 			<Box marginTop={2}>

@@ -6,7 +6,7 @@ import { CancelPromise } from '../../lib/utils'
 import kit from './kit'
 import { ErrorContext } from './error-context'
 
-// useOnChainState provides react hook to help with on-chain data fetching.
+// useOnChainState provides a React hook to help with on-chain data fetching.
 // fetchCallback must be wrapped in React.useCallback to be memoized based on its
 // dependencies.
 const useOnChainState = <T>(
@@ -64,9 +64,9 @@ const useOnChainState = <T>(
 		}
 	}, [fetchN, fetchCallback, noErrorPropagation, setError])
 
-	const refetch = () => {
+	const refetch = React.useCallback(() => {
 		setFetchN((fetchN) => (fetchN + 1))
-	}
+	}, [setFetchN])
 	return {
 		isFetching,
 		fetched,
