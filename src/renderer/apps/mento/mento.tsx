@@ -9,7 +9,7 @@ import useLocalStorageState from '../../state/localstorage-state'
 import { fmtAmount } from '../../../lib/utils'
 import { Decimals, StableTokens } from './config'
 import { calcCeloAmount, calcStableAmount, fmtTradeAmount } from './rate-utils'
-import { useExchangeOnChainState } from './state'
+import { useExchangeHistoryState, useExchangeOnChainState } from './state'
 
 import * as React from 'react'
 import Box from '@material-ui/core/Box'
@@ -24,6 +24,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 
 import AppHeader from '../../components/app-header'
 import ConfirmSwap from './confirm-swap'
+import TradeHistory from './trade-history'
 
 const MentoApp = (props: {
 	accounts: Account[],
@@ -46,6 +47,11 @@ const MentoApp = (props: {
 		fetched,
 		refetch,
 	} = useExchangeOnChainState(account, stableToken)
+	const exchangeHistory = useExchangeHistoryState(account)
+	const refetchAll = () => {
+		refetch()
+		exchangeHistory.refetch()
+	}
 
 	React.useEffect(() => {
 		const timer = setInterval(() => { refetch() }, 20000)
@@ -85,7 +91,7 @@ const MentoApp = (props: {
 
 	const runTXs = (f: TXFunc) => {
 		props.runTXs(f, (e?: Error) => {
-			refetch()
+			refetchAll()
 			if (!e) {
 				setCeloAmount("")
 				setStableAmount("")
@@ -115,7 +121,7 @@ const MentoApp = (props: {
 		minAmount: BigNumber) => {
 		setConfirming(undefined)
 		runTXs(async (kit: ContractKit) => {
-			// TODO: support multi exchange.
+			// TODO(zviadm): support multi exchange.
 			const exchange = await kit.contracts.getExchange()
 			const txSwap = exchange.sell(sellAmount, minAmount, sellCELO)
 			// Set explicit gas based on github.com/celo-org/celo-monorepo/issues/2541
@@ -142,7 +148,11 @@ const MentoApp = (props: {
 
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
-			<AppHeader app={Mento} isFetching={isFetching} refetch={refetch} />
+			<AppHeader
+				app={Mento}
+				isFetching={isFetching || exchangeHistory.isFetching}
+				refetch={refetchAll}
+				/>
 			{confirming && <ConfirmSwap
 				{...confirming}
 				onConfirmSell={handleSell}
@@ -269,6 +279,11 @@ const MentoApp = (props: {
 						</Box>
 					</Box>
 				</Paper>
+			</Box>
+			<Box marginTop={2}>
+				<TradeHistory
+					events={exchangeHistory.fetched?.events}
+				/>
 			</Box>
 		</Box>
 	)

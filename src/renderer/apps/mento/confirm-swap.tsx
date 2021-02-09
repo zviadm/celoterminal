@@ -5,8 +5,9 @@ import { Decimals } from './config'
 
 import * as React from 'react'
 import {
-	makeStyles, Dialog, DialogContent, DialogActions, TableContainer,
-	Table, TableRow, TableCell, TableBody, Box, Button, Paper,
+	makeStyles, Dialog, DialogContent, DialogActions,
+	TableContainer, Table, TableRow, TableCell, TableBody,
+	Box, Button, Paper,
 } from '@material-ui/core'
 import { Alert, AlertTitle } from '@material-ui/lab'
 

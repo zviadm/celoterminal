@@ -53,7 +53,7 @@ export const CFG = (): Config => {
 				root: accountsDBPathParts[0] as PathRoot,
 				path: accountsDBPathParts.slice(1),
 			},
-			// TODO(zviad): Predefined ERC20 lists for different networks.
+			// TODO(zviadm): Predefined ERC20 lists for different networks.
 			erc20s: [
 				{name: "CELO"},
 				{name: "cUSD"},
