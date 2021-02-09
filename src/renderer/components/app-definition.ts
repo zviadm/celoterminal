@@ -1,12 +1,11 @@
-import BN from 'bn.js'
 import { ContractKit } from '@celo/contractkit'
-import { CeloTransactionObject, CeloTxReceipt } from '@celo/connect'
+import { CeloTransactionObject, CeloTx, CeloTxReceipt } from '@celo/connect'
 
 import { Account } from '../../lib/accounts'
 
 export interface Transaction {
 	tx: CeloTransactionObject<unknown>
-	value?: string | number | BN
+	params? : Pick<CeloTx, "value" | "gas">
 }
 
 // All transaction running goes through central TXRunner system that has

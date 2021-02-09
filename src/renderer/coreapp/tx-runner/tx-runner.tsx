@@ -169,28 +169,7 @@ const RunTXs = (props: {
 					const r: CeloTxReceipt[] = []
 					for (let idx = 0; idx < txs.length; idx += 1) {
 						const tx = txs[idx]
-						let estimatedGas
-						for (let tryN = 0; ; tryN++) {
-							try {
-								estimatedGas =
-									tx.tx.defaultParams?.gas ?
-									new BigNumber(tx.tx.defaultParams?.gas) :
-									new BigNumber(
-										await tx.tx.txo
-											.estimateGas({value: tx.value}))
-											.multipliedBy(kit.gasInflationFactor)
-											.integerValue()
-								break
-							} catch (e) {
-								// Gas estimation can temporarily fail for various reasons. Most common problem can
-								// be with subsequent transactions when a particular node hasn't yet caught up with
-								// the head chain. Retrying 3x is safe and reasonably cheap.
-								if (tryN >= 2) {
-									throw e
-								}
-								await sleep(500)
-							}
-						}
+						const estimatedGas = await estimateGas(kit, tx)
 						// TODO(zviad): Add support for other fee currencies.
 						const gasPrice = await kit.connection.gasPrice()
 						const estimatedFee = {
@@ -223,7 +202,7 @@ const RunTXs = (props: {
 							await txPromise
 						}
 						const result = await tx.tx.send({
-							value: tx.value,
+							...tx.params,
 							// perf improvement, avoid re-estimating gas again.
 							gas: estimatedGas.toNumber(),
 						})
@@ -354,9 +333,33 @@ const parseTransaction = async (
 	const contractName = match ? `${match[0]} (${fmtAddress(contractAddress)})` : contractAddress
 	return {
 		encodedABI: tx.tx.txo.encodeABI(),
-		transferValue: tx.value ? new BigNumber(tx.value.toString()) : undefined,
+		transferValue: tx.params?.value ? new BigNumber(tx.params.value.toString()) : undefined,
 
 		contractName,
+	}
+}
+
+const estimateGas = async (kit: ContractKit, tx: Transaction) => {
+	if (tx.params?.gas) {
+		return new BigNumber(tx.params?.gas)
+	}
+	if (tx.tx.defaultParams?.gas) {
+		return new BigNumber(tx.tx.defaultParams?.gas)
+	}
+	for (let tryN = 0; ; tryN++) {
+		try {
+			const estimatedGas = await tx.tx.txo.estimateGas(tx.params)
+			return new BigNumber(
+				estimatedGas).multipliedBy(kit.gasInflationFactor).integerValue()
+		} catch (e) {
+			// Gas estimation can temporarily fail for various reasons. Most common problem can
+			// be with subsequent transactions when a particular node hasn't yet caught up with
+			// the head chain. Retrying 3x is safe and reasonably cheap.
+			if (tryN >= 2) {
+				throw e
+			}
+			await sleep(500)
+		}
 	}
 }
 
