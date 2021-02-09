@@ -30,7 +30,6 @@ const AppStoreApp = (props: {
 			<Box
 				display="flex"
 				flexDirection="row"
-				justifyContent="space-between"
 				marginTop={2}
 				flexWrap="wrap">
 				{optionalAppList.map((a) => (
@@ -53,7 +52,7 @@ const AppCard = (props: {
 	const url = props.app.url
 	const description = props.app.description
 	return (
-		<Box width={300} marginBottom={2}>
+		<Box width={270} marginBottom={2} marginRight={2}>
 			<Paper>
 				<Box p={2} display="flex" flexDirection="column">
 					<Box
@@ -64,11 +63,9 @@ const AppCard = (props: {
 						<Typography variant="h6">{props.app.title}</Typography>
 						<props.app.icon fontSize="large" />
 					</Box>
-					{description &&
 					<Box height={100} overflow="auto" my={0.5}>
-						<Typography variant="body2" color="textSecondary">{description}</Typography>
+						<Typography variant="body2" color="textSecondary">{description || ''}</Typography>
 					</Box>
-					}
 					<Box
 						display="flex"
 						flexDirection="row"
