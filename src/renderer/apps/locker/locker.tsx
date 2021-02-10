@@ -248,7 +248,7 @@ const UnlockWithRevoke = (props: {
 				</Box>
 				<Box marginBottom={1}>
 					<Alert severity="info">
-						To unlock arleady voting CELO, multiple transactions might be needed to revoke votes
+						To unlock already voting CELO, multiple transactions might be needed to revoke votes
 						first. `Max to unlock` shows maximum amount that can be unlocked in a single transaction.
 					</Alert>
 				</Box>
