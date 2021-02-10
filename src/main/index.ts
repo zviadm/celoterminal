@@ -20,9 +20,9 @@ function createMainWindow() {
 	const minWidth = 850
 	const width = app.isPackaged ? minWidth : minWidth + 270
 
-	const isTest = true // process.env.NODE_ENV === "test"
+	const isTest = !app.isPackaged && !!process.env.SPECTRON_TEST
 	const noDevTools = app.isPackaged || isTest
-	const noSplash = isTest // process.env.NODE_ENV === "test"
+	const noSplash = isTest // No splash screen during Spectron testing.
 
 	const window = new BrowserWindow({
 		height: height,
@@ -46,7 +46,9 @@ function createMainWindow() {
 		window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
 	} else {
 		window.loadURL(formatUrl({
-			pathname: path.join(__dirname, 'index.html'),
+			pathname: !isTest ?
+				path.join(__dirname, 'index.html') :
+				path.join(__dirname, '../renderer/index.html'),
 			protocol: 'file',
 			slashes: true
 		}))

@@ -1,10 +1,16 @@
 import * as path from 'path'
 import { Application } from 'spectron'
+import { Remote } from 'electron'
 
 import { sleep } from '../lib/utils'
 
 jest.setTimeout(60000)
 let app: Application | null = null
+
+const remote = (): Remote => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion
+  return (app!.electron as any).remote
+}
 
 beforeAll(async () => {
   // const appPath = path.join(
@@ -18,17 +24,16 @@ beforeAll(async () => {
     args: [
       path.join(
         __dirname, "..", "..", "dist", "main", "main.js")],
-    env: {"NODE_ENV": "test"},
+    env: {"SPECTRON_TEST": "true"},
 	})
 	await app.start()
-  // await waitForMainWindow()
+  await waitForMainWindow()
 })
 
 afterAll(async () => {
   if (app && app.isRunning()) {
     console.info("APP: exiting...")
     await app.stop()
-    // await app.electron.app.quit()
   }
 	return
 })
