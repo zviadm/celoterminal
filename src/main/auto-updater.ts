@@ -17,7 +17,9 @@ export const setupAutoUpdater = (): void => {
 			log.error("autoupdater:", e)
 		})
 		autoUpdater.on("update-downloaded", (info: UpdateInfo) => {
-			log.info("autoupdater: update available", info)
+			if (info.version !== _updateReady?.version) {
+				log.info("autoupdater: update available", info)
+			}
 			_updateReady = info
 		})
 	}
