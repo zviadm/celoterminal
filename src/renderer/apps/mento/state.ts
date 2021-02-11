@@ -1,4 +1,4 @@
-import { CeloContract, ContractKit } from '@celo/contractkit'
+import { ContractKit } from '@celo/contractkit'
 import { valueToBigNumber } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 import BigNumber from 'bignumber.js'
 import log from 'electron-log'
@@ -17,7 +17,6 @@ export const useExchangeOnChainState = (account: Account, stableToken: string) =
 			const exchange = await kit.contracts.getExchange()
 			const goldToken = await kit.contracts.getGoldToken()
 			const stableTokenC = await StableTokens[stableToken](kit)
-			const oracles = await kit.contracts.getSortedOracles()
 
 			const celoBalance = goldToken.balanceOf(account.address)
 			const stableDecimals = stableTokenC.decimals()
@@ -25,9 +24,6 @@ export const useExchangeOnChainState = (account: Account, stableToken: string) =
 
 			const spread = exchange.spread()
 			const buckets = exchange.getBuyAndSellBuckets(true)
-
-			// TODO(zviadm): multi-currency handling.
-			const oracleRate = oracles.medianRate(CeloContract.StableToken)
 
 			if (await stableDecimals !== Decimals) {
 				throw new Error(`Unexpected decimals for ${stableToken}. Expected: ${Decimals} Got: ${stableDecimals}`)
@@ -37,7 +33,6 @@ export const useExchangeOnChainState = (account: Account, stableToken: string) =
 				celoBalance: await celoBalance,
 				stableBalance: await stableBalance,
 				spread: await spread,
-				oracleRate: await oracleRate,
 				celoBucket,
 				stableBucket,
 			}
