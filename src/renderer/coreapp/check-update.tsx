@@ -40,16 +40,14 @@ const CheckUpdate = (): JSX.Element => {
 	const [isUpdating, setIsUpdating] = React.useState(false)
 	const checkUpdate = () => {
 		const updateReady: string | undefined = ipcRenderer.sendSync("check-update-ready")
-		log.info(`autoupdater[renderer]: `, updateReady)
 		if (updateReady) {
+			log.info(`autoupdater[renderer]: `, updateReady)
 			setNewVersion(updateReady)
 		}
 	}
 	React.useEffect(() => {
 		checkUpdate()
-		const timer = setInterval(() => {
-			checkUpdate()
-		}, 30*1000) // Check it often, why not.
+		const timer = setInterval(() => { checkUpdate() }, 30*1000) // Check it often, why not.
 		return () => { clearInterval(timer) }
 	}, [])
 	React.useEffect(() => {
