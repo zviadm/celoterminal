@@ -1,11 +1,14 @@
 import BigNumber from 'bignumber.js'
 import { ContractKit } from '@celo/contractkit'
 import { concurrentMap } from '@celo/utils/lib/async'
+import { secondsToDurationString } from '@celo/contractkit/lib/wrappers/BaseWrapper'
+import { ProposalStage, VoteValue } from '@celo/contractkit/lib/wrappers/Governance'
 
 import { Account } from '../../../lib/accounts'
 import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { Governance } from './def'
 import useOnChainState from '../../state/onchain-state'
+import { fmtAmount } from '../../../lib/utils'
 
 import * as React from 'react'
 import {
@@ -15,10 +18,7 @@ import {
 import { Alert, AlertTitle } from '@material-ui/lab'
 
 import AppHeader from '../../components/app-header'
-import { ProposalStage, VoteValue } from '@celo/contractkit/lib/wrappers/Governance'
-import { fmtAmount } from '../../../lib/utils'
 import Link from '../../components/link'
-import { secondsToDurationString } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 
 const GovernanceApp = (props: {
 	accounts: Account[],
