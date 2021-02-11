@@ -20,7 +20,8 @@
   "electronWebpack": {
     "whiteListedModules": [
       "@material-ui/core",
-      "@material-ui/lab"
+      "@material-ui/lab",
+      "@material-ui/icons"
     ],
     "renderer": {
       "webpackConfig": "webpack.additions.js"
