@@ -1,11 +1,15 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'path'
 import { format as formatUrl } from 'url'
+import log from 'electron-log'
+
 import { setupAutoUpdater } from './auto-updater'
 
 declare const __static: string
 
 app.allowRendererProcessReuse = true
+log.transports.console.level = app.isPackaged ? false : "debug"
+log.transports.file.level = app.isPackaged ? "info" : false
 
 // Global reference to mainWindow (necessary to prevent window from being garbage collected).
 let mainWindow: BrowserWindow | null
