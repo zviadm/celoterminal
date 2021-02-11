@@ -1,6 +1,6 @@
 {
   "name": "celoterminal",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "license": "MIT",
   "repository": {
     "url": "https://github.com/zviadm/celoterminal"
@@ -20,7 +20,8 @@
   "electronWebpack": {
     "whiteListedModules": [
       "@material-ui/core",
-      "@material-ui/lab"
+      "@material-ui/lab",
+      "@material-ui/icons"
     ],
     "renderer": {
       "webpackConfig": "webpack.additions.js"
