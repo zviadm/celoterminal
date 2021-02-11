@@ -41,7 +41,7 @@ async function promiseGQL<T extends {errors?: {message: string}[]}>(p: Promise<A
 		if (resp.data.errors && resp.data.errors.length > 0) {
 			throw new Error(resp.data.errors[0].message)
 		}
-		log.info(`celovote[GQL]:`, resp.data)
+		log.debug(`celovote[GQL]:`, resp.data)
 		return resp
 	} catch (e) {
 		if (e?.response) {

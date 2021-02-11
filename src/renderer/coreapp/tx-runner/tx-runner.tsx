@@ -192,7 +192,7 @@ const RunTXs = (props: {
 								}
 							})
 						})
-						log.info(`TX:`, parsedTXs[idx], tx.tx.txo.arguments)
+						log.info(`TX:`, parsedTXs[idx])
 
 						setTXSendMS(0)
 						setTXProgress(0)

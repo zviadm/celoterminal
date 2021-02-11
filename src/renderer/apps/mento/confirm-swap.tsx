@@ -1,4 +1,3 @@
-import { MedianRate } from '@celo/contractkit/lib/wrappers/SortedOracles'
 import BigNumber from 'bignumber.js'
 
 import { Decimals } from './config'
@@ -24,7 +23,7 @@ const ConfirmSwap = (props: {
 	stableToken: string,
 	stableAmount: string,
 	slippagePct: string,
-	oracleRate: MedianRate,
+	marketPrice: BigNumber,
 	spread: BigNumber,
 	onConfirmSell: (
 		stableToken: string,
@@ -49,7 +48,7 @@ const ConfirmSwap = (props: {
 		)
 	}
 	const estimatedPrice = new BigNumber(props.stableAmount).div(props.celoAmount)
-	let priceImpact = props.oracleRate.rate.minus(estimatedPrice).div(props.oracleRate.rate)
+	let priceImpact = props.marketPrice.minus(estimatedPrice).div(props.marketPrice)
 	if (props.side === "buy") { priceImpact = priceImpact.negated() }
 	priceImpact = priceImpact.minus(props.spread)
 	const priceImpactTxt =
@@ -75,6 +74,10 @@ const ConfirmSwap = (props: {
 							<TableRow>
 								<TableCell className={classes.cell}>For</TableCell>
 								<TableCell align="right">{props.stableAmount} {props.stableToken}</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell className={classes.cell}>Price</TableCell>
+								<TableCell align="right">{estimatedPrice.toFixed(4)}</TableCell>
 							</TableRow>
 							<TableRow>
 								<TableCell className={classes.cell}>Max slippage</TableCell>

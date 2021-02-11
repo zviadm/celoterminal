@@ -37,7 +37,8 @@ const useOnChainState = <T>(
 		fetchCallback(kit(), c)
 		.then((a: T) => {
 			if (!c.isCancelled()) {
-				log.info(`useOnChainState[${fetchN}]`, a)
+				log.info(`useOnChainState[${fetchN}]: fetched`)
+				log.debug(`useOnChainState[${fetchN}]:`, a)
 				setFetched(a)
 			}
 		})
