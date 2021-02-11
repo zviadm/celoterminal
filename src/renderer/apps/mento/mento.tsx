@@ -1,6 +1,5 @@
 import { ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
-import { MedianRate } from '@celo/contractkit/lib/wrappers/SortedOracles'
 
 import { Account } from '../../../lib/accounts'
 import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definition'
@@ -85,7 +84,7 @@ const MentoApp = (props: {
 		celoAmount: string,
 		stableAmount: string,
 		slippagePct: string,
-		oracleRate: MedianRate,
+		marketPrice: BigNumber,
 		spread: BigNumber,
 	} | undefined>()
 
@@ -270,7 +269,7 @@ const MentoApp = (props: {
 											stableToken,
 											stableAmount,
 											slippagePct,
-											oracleRate: fetched.oracleRate,
+											marketPrice: fetched.stableBucket.div(fetched.celoBucket),
 											spread: fetched.spread,
 										})
 									}}
