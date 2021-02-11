@@ -94,8 +94,10 @@ const runAction = () => {
 	}
 	run("yarn compile");
 
-	// Run NPM build script if it exists
 	log(`Building the Electron app...`);
+	if (publish) {
+		setEnv("EP_PRE_RELEASE", "true");
+	}
 	for (let i = 0; i < maxAttempts; i += 1) {
 		try {
 			run(
