@@ -89,10 +89,15 @@ const runAction = () => {
 	run("yarn config set network-timeout 600000 -g")
 	run("yarn");
 	if (platform === "mac") {
-		run("yarn test");
+		// run faster tests first.
 		run("yarn lint");
+		run("yarn test");
 	}
 	run("yarn compile");
+	if (platform === "mac") {
+		// run full UI regression test suite.
+		run("yarn test:spectron-all");
+	}
 
 	log(`Building the Electron app...`);
 	if (publish) {
