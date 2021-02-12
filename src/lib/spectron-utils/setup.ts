@@ -23,7 +23,6 @@ export const startApp = async (): Promise<{app: Application, cleanup: () => Prom
 
 	const rootPath = [__dirname, "..", "..", ".."]
 	const app = new Application({
-		// path: appPath,
 		path: path.join(...rootPath, "node_modules", ".bin", "electron"),
 		args: [path.join(...rootPath, "dist", "main", "main.js")],
 		env: {
@@ -54,8 +53,7 @@ export const startApp = async (): Promise<{app: Application, cleanup: () => Prom
 
 const devchainPort = 7545
 const startDevchain = async () => {
-	const logFile = "/tmp/spectron-test-devchain.log"
-	testLog(`[test] celo-devchain on port: ${devchainPort}, logs: ${logFile}...`)
+	testLog(`[test] celo-devchain on port: ${devchainPort}...`)
 
 	let _resolve: () => void
 	const started = new Promise<void>((resolve) => { _resolve = resolve})

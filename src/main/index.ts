@@ -47,7 +47,7 @@ function createMainWindow() {
 			contextIsolation: false,
 			enableRemoteModule: true,
 			// Session/LocalStorage data is not persisted during testing.
-			partition: !isSpectronTest ? "persist:default" : "test:default",
+			partition: !isSpectronTest ? "persist:default" : "test-default",
 			devTools: !noDevTools,
 		},
 		show: noSplash,

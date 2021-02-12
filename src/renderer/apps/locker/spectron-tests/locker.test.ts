@@ -1,6 +1,6 @@
 import { Application } from 'spectron'
 
-import { startApp, testLog } from '../../../../lib/spectron-utils/setup'
+import { startApp } from '../../../../lib/spectron-utils/setup'
 import { confirmTXs } from '../../../../lib/spectron-utils/tx-runner'
 
 let app: Application
@@ -25,5 +25,4 @@ test('Create account', async (done) => {
 
 	await confirmTXs(app.client)
 	done()
-	testLog(`Done`)
 });
