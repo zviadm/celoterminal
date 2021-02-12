@@ -12,11 +12,8 @@ let _db: AccountsDB
 const accountsDB = (): AccountsDB => {
 	if (!_db) {
 		const cfg = CFG()
-		const dbdir = path.join(
-			electron.remote.app.getPath(cfg.accountsDBPath.root),
-			...cfg.accountsDBPath.path.slice(0, cfg.accountsDBPath.path.length - 1))
-		const accountsDBFile = cfg.accountsDBPath.path[cfg.accountsDBPath.path.length - 1]
-		const dbPath = path.join(dbdir, accountsDBFile)
+		const dbPath = path.join(
+			electron.remote.app.getPath(cfg.accountsDBPath.root), ...cfg.accountsDBPath.path)
 		try {
 			_db = new AccountsDB(dbPath)
 		} catch (e) {

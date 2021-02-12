@@ -175,6 +175,7 @@ const ErrorSnack = (props: {
 		onClose={props.onClose}
 		anchorOrigin={{ vertical: "top", horizontal: "center" }}>
 		<Alert
+			id="error-snack"
 			style={{maxWidth: 700, overflowWrap: "break-word"}}
 			severity="error"
 			onClose={props.onClose}>{props.error?.message}</Alert>

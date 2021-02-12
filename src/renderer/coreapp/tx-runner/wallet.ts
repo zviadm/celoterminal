@@ -6,11 +6,19 @@ import { LocalWallet } from '@celo/wallet-local'
 import { Account, LocalAccount } from '../../../lib/accounts'
 import { decryptLocalKey } from '../../../lib/accountsdb'
 import { UserError } from '../../../lib/error'
+import { CFG } from '../../../lib/cfg'
+import { SpectronNetworkId } from '../../../lib/spectron-utils/constants'
 
 export async function createWallet(a: Account, password?: string): Promise<{
 	wallet: ReadOnlyWallet
 	transport?: {close: () => void}
 }> {
+	if (CFG().networkId === SpectronNetworkId) {
+		// NOTE(zviad): celo-devchain (i.e. @celo/ganache-cli) doesn't support
+		// locally signed transactions. Thus it is important to make sure we aren't
+		// locally signing transactions when tests are running.
+		return {wallet: new LocalWallet()}
+	}
 	switch (a.type) {
 		case "local": {
 			if (!password) {

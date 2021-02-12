@@ -42,6 +42,7 @@ const AppMenu = (props: {
 				{
 					apps.map((a) => (
 						<ListItem
+							id={`menu-${a.id}`}
 							dense={!a.core}
 							button
 							key={a.id}

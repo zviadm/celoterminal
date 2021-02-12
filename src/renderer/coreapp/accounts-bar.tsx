@@ -36,6 +36,7 @@ const AccountsBar = (props: {
 				<NetworkIndicator />
 			</Box>
 			<Select
+				id="accounts-select"
 				value={props.selectedAccount?.address || ""}
 				onChange={(event) => {
 					const selected = props.accounts.find((a) => a.address === event.target.value)

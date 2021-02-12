@@ -2,7 +2,7 @@ import log from 'electron-log'
 import useSessionState from './session-state'
 
 // useLocalStorageState provides a React hook to store data in Window.localStorage. LocalStorage remains
-// persisted  across app restarts. This is useful for global state that needs to be persisted, but is also ok
+// persisted across app restarts. This is useful for global state that needs to be persisted, but is also ok
 // if it gets wiped due to app uninstallation or something like that.
 //
 // key format should be: 'terminal/<app ID>/...'.

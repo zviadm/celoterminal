@@ -4,9 +4,13 @@ import { format as formatUrl } from 'url'
 import log from 'electron-log'
 
 import { setupAutoUpdater } from './auto-updater'
+import { CFG } from '../lib/cfg'
+import { testOnlySetupAccountsDB } from './test-utils'
+import { SpectronAccountsDB } from '../lib/spectron-utils/constants'
 
 declare const __static: string
 
+const isSpectronTest = !app.isPackaged && !!process.env.SPECTRON_TEST
 app.allowRendererProcessReuse = true
 log.transports.console.level = app.isPackaged ? false : "debug"
 log.transports.file.level = app.isPackaged ? "info" : false
@@ -22,7 +26,17 @@ const hideInsteadOfQuit = () => {
 function createMainWindow() {
 	const height = 800
 	const minWidth = 850
-	const width = app.isPackaged ? minWidth : minWidth + 270
+
+	const noDevTools = app.isPackaged || isSpectronTest
+	const noSplash = isSpectronTest // No splash screen during Spectron testing.
+
+	const width = noDevTools ? minWidth : minWidth + 270
+
+	if (isSpectronTest &&
+		CFG().accountsDBPath.path[CFG().accountsDBPath.path.length - 1] === SpectronAccountsDB) {
+		testOnlySetupAccountsDB()
+	}
+
 	const window = new BrowserWindow({
 		height: height,
 		minWidth: minWidth,
@@ -32,39 +46,44 @@ function createMainWindow() {
 			nodeIntegration: true,
 			contextIsolation: false,
 			enableRemoteModule: true,
-			partition: "persist:default",
-			devTools: !app.isPackaged,
+			// Session/LocalStorage data is not persisted during testing.
+			partition: !isSpectronTest ? "persist:default" : "test-default",
+			devTools: !noDevTools,
 		},
-		show: false,
+		show: noSplash,
 	})
 
-	if (!app.isPackaged) {
+	if (!noDevTools) {
 		window.webContents.openDevTools()
 	}
-	if (!app.isPackaged) {
+	if (!app.isPackaged && !isSpectronTest) {
 		window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
 	} else {
 		window.loadURL(formatUrl({
-			pathname: path.join(__dirname, 'index.html'),
+			pathname: !isSpectronTest ?
+				path.join(__dirname, 'index.html') :
+				path.join(__dirname, '../renderer/index.html'),
 			protocol: 'file',
 			slashes: true
 		}))
 	}
 
-	const splash = new BrowserWindow({
-		height: 100,
-		width: 200,
-		frame: false,
-		resizable: false,
-		movable: false,
-		webPreferences: {contextIsolation: true},
-	})
-	splash.loadURL(`file://${__static}/splash.html`)
+	if (!noSplash) {
+		const splash = new BrowserWindow({
+			height: 100,
+			width: 200,
+			frame: false,
+			resizable: false,
+			movable: false,
+			webPreferences: {contextIsolation: true},
+		})
+		splash.loadURL(`file://${__static}/splash.html`)
 
-	window.on('ready-to-show', () => {
-		window.show()
-		splash.destroy()
-	})
+		window.on('ready-to-show', () => {
+			window.show()
+			splash.destroy()
+		})
+	}
 
 	window.on('close', (event) => {
 		if (hideInsteadOfQuit()) {

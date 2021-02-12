@@ -11,11 +11,13 @@
     "postinstall": "electron-builder install-app-deps",
     "dev:baklava": "env-cmd -f env.dev.baklava electron-webpack dev",
     "dev:mainnet": "env-cmd -f env.dev.mainnet electron-webpack dev",
+    "dev:devchain": "env-cmd -f env.dev.devchain electron-webpack dev",
     "dev:fresh": "./env.dev.fresh.sh",
     "compile": "electron-webpack",
     "dist": "yarn compile && electron-builder",
-    "lint": "yarn eslint src/",
-    "test": "ELECTRON_RUN_AS_NODE=true yarn electron ./node_modules/.bin/jest"
+    "lint": "eslint src/",
+    "test": "ELECTRON_RUN_AS_NODE=true electron ./node_modules/.bin/jest --testPathIgnorePatterns '<rootDir>/.*/spectron-tests/'",
+    "test:spectron": "jest --testTimeout 60000 --runInBand --bail"
   },
   "electronWebpack": {
     "whiteListedModules": [
@@ -61,6 +63,7 @@
     "@types/tmp": "^0.2.0",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
+    "celo-devchain": "2.0.0",
     "css-loader": "^5.0.1",
     "electron": "11.2.1",
     "electron-builder": "^22.9.1",
@@ -76,6 +79,7 @@
     "node-sass": "4.14.1",
     "resolve-url-loader": "^3.1.2",
     "sass-loader": "9.0.3",
+    "spectron": "^13.0.0",
     "style-loader": "1.3.0",
     "tmp": "^0.2.1",
     "ts-jest": "^26.5.0",
