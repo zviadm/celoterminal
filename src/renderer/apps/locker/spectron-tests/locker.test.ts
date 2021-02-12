@@ -5,14 +5,14 @@ import { startApp } from '../../../../lib/spectron-utils/setup'
 import { confirmTXs } from '../../../../lib/spectron-utils/tx-runner'
 
 let app: Application
+let cleanup: () => Promise<void>
 beforeAll(async () => {
-  app = await startApp()
+  const r = await startApp()
+  app = r.app
+  cleanup = r.cleanup
 })
 afterAll(async () => {
-  if (app && app.isRunning()) {
-    await app.stop()
-  }
-	return
+  return cleanup()
 })
 
 test('Create account', async (done) => {

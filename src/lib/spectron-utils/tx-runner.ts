@@ -28,7 +28,7 @@ export const confirmTXs = async(client: SpectronClient, opts?: {
 }
 
 export const checkErrorSnack = async (client: SpectronClient): Promise<void> => {
-	const errorSnack = await client.$("error-snack")
+	const errorSnack = await client.$("#error-snack")
 	if (errorSnack.isExisting()) {
 		const text = await errorSnack.getText()
 		throw new Error(`Error Snack active: ${text}`)
