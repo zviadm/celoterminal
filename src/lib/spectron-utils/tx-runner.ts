@@ -12,13 +12,10 @@ export const confirmTXs = async(client: SpectronClient, opts?: {
 		await passwordInput.waitForExist()
 		await passwordInput.keys([...SpectronAccountsDBPassword, 'Enter'])
 	}
-	const txConfirm = await client.react$(
-		"WithStyles(ForwardRef(Button))",
-		{props: {id: "tx-confirm", disabled: false}})
-  // const txConfirm = await client.$("tx-confirm")
+  const txConfirm = await client.$("#tx-confirm")
 	const txCount = opts?.txCount || 1
 	for (let idx = 0; idx < txCount; idx += 1) {
-		await txConfirm.waitForExist()
+		await txConfirm.waitForEnabled()
 		_enteredPW = true
 		await txConfirm.click()
 	}
@@ -30,6 +27,11 @@ export const confirmTXs = async(client: SpectronClient, opts?: {
 	return
 }
 
-export const checkErrorSnack = async (client: SpectronClient) => {
+export const checkErrorSnack = async (client: SpectronClient): Promise<void> => {
 	const errorSnack = await client.$("error-snack")
+	if (errorSnack.isExisting()) {
+		const text = await errorSnack.getText()
+		throw new Error(`Error Snack active: ${text}`)
+	}
+	return
 }

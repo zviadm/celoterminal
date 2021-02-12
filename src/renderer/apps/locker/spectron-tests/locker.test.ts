@@ -25,7 +25,5 @@ test('Create account', async (done) => {
   await createAccount.click()
 
   await confirmTXs(app.client)
-
-  await sleep(10000)
   done()
 });
