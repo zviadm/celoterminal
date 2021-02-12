@@ -12,13 +12,34 @@ export const testLog = (msg: string, opts?: {noNewLine?: boolean}): void => {
 	process.stdout.write(opts?.noNewLine ? msg : msg + "\n")
 }
 
+export let app: Application
 export const remote = (app: Application): Remote => {
 	// spectron.Application is mistyped.
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion
 	return (app!.electron as any).remote
 }
 
-export const startApp = async (): Promise<{app: Application, cleanup: () => Promise<void>}> => {
+export const jestSetup = (): void => {
+	let cleanup: () => Promise<void>
+	beforeAll(async () => {
+		const r = await startApp()
+		app = r.app
+		cleanup = r.cleanup
+	})
+	afterAll(async () => {
+		return cleanup && cleanup()
+	})
+}
+
+let _devKit: ContractKit | undefined
+export const devchainKit = (): ContractKit => {
+	if (!_devKit) {
+		_devKit = newKit(`http://localhost:${devchainPort}`)
+	}
+	return _devKit
+}
+
+const startApp = async (): Promise<{app: Application, cleanup: () => Promise<void>}> => {
 	const devchain = await startDevchain()
 
 	const rootPath = [__dirname, "..", "..", ".."]
@@ -71,12 +92,4 @@ const startDevchain = async () => {
 	})
 	await started
 	return devchain
-}
-
-let _devKit: ContractKit | undefined
-export const devchainKit = (): ContractKit => {
-	if (!_devKit) {
-		_devKit = newKit(`http://localhost:${devchainPort}`)
-	}
-	return _devKit
 }

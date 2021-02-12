@@ -1,18 +1,7 @@
-import { Application } from 'spectron'
-
-import { startApp } from '../../../../lib/spectron-utils/setup'
+import { app, jestSetup } from '../../../../lib/spectron-utils/setup'
 import { confirmTXs } from '../../../../lib/spectron-utils/tx-runner'
 
-let app: Application
-let cleanup: () => Promise<void>
-beforeAll(async () => {
-	const r = await startApp()
-	app = r.app
-	cleanup = r.cleanup
-})
-afterAll(async () => {
-	return cleanup && cleanup()
-})
+jestSetup()
 
 test('Create account', async (done) => {
 	const menuLocker = await app.client.$("#menu-locker")
