@@ -55,6 +55,8 @@ test('Lock & Unlock CELO', async (done) => {
 	await appRefetch.click()
 	await pending0.waitForEnabled()
 	await pending0.click()
+	// since 3 days have passed, we need to set `requirePW` because cached password
+	// would have expired already.
 	await confirmTXs(app.client, {requirePW: true})
 
 	await pending0.waitForExist({reverse: true})
