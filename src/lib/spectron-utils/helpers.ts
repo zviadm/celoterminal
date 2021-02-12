@@ -5,6 +5,8 @@ import { SpectronAccountsDBPassword } from "./constants"
 import { app, devchainKit } from "./setup"
 
 let _requirePW = true
+// Runs through transaction confirmation UI flow. Will check for
+// an error at the end if transaction fails unexpectedly.
 export const confirmTXs = async(client: SpectronClient, opts?: {
 	requirePW?: boolean,
 	txCount?: number,
@@ -33,6 +35,7 @@ export const confirmTXs = async(client: SpectronClient, opts?: {
 	return
 }
 
+// Checks and throws if ErrorSnack is activated.
 export const checkErrorSnack = async (client: SpectronClient): Promise<void> => {
 	const errorSnack = await client.$("#error-snack")
 	const errorExists = await errorSnack.isExisting()
@@ -43,6 +46,7 @@ export const checkErrorSnack = async (client: SpectronClient): Promise<void> => 
 	return
 }
 
+// Alters current time both for celo-devchain, and for the Celo Terminal app.
 export const adjustNow = async (increaseMS: number): Promise<void> => {
 	const kit = devchainKit()
 	app.webContents.send("adjust-time", increaseMS)
