@@ -143,6 +143,7 @@ const LockerApp = (props: {
 						</Alert>
 						<Box display="flex" flexDirection="column" marginTop={1}>
 							<Button
+								id="create-account"
 								color="primary"
 								variant="outlined"
 								onClick={handleCreateAccount}>Create Account</Button>

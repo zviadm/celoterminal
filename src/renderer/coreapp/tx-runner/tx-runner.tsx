@@ -248,7 +248,9 @@ const RunTXs = (props: {
 		return () => { clearInterval(timer) }
 	}, [stage, txSendMS]);
 	return (
-		<Dialog open={true}>
+		<Dialog
+			id="tx-runner-modal"
+			open={true}>
 			<DialogContent className={classes.root}>
 				<Box display="flex" flexDirection="column">
 					{
@@ -298,8 +300,14 @@ const RunTXs = (props: {
 				<PromptLedgerAction text="Confirm transaction on Ledger..." />
 				:
 				<>
-					<Button onClick={currentTX?.cancel} disabled={stage !== "confirming"}>Cancel</Button>
-					<Button onClick={currentTX?.confirm} disabled={stage !== "confirming"}>Confirm</Button>
+					<Button
+						id="tx-cancel"
+						onClick={currentTX?.cancel}
+						disabled={stage !== "confirming"}>Cancel</Button>
+					<Button
+						id="tx-confirm"
+						onClick={currentTX?.confirm}
+						disabled={stage !== "confirming"}>Confirm</Button>
 				</>
 				}
 			</DialogActions>

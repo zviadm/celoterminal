@@ -15,7 +15,7 @@ const networkNames: {[key: string]: string} = {
 	"44787": "Alfajores",
 }
 
-type PathRoot = "home" | "userData"
+export type PathRoot = "home" | "userData"
 
 interface Config {
 	networkId: string,

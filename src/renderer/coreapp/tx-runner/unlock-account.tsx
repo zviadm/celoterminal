@@ -26,6 +26,7 @@ const UnlockAccount = (props: {
 					Password is required to unlock your local account.
 				</Alert>
 				<TextField
+					id="password-input"
 					autoFocus
 					margin="dense"
 					type="password"
@@ -39,7 +40,9 @@ const UnlockAccount = (props: {
 				/>
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={handleUnlock}>Unlock</Button>
+				<Button
+					id="unlock-password"
+					onClick={handleUnlock}>Unlock</Button>
 			</DialogActions>
 		</Dialog>
 	)

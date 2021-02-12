@@ -4,9 +4,13 @@ import { format as formatUrl } from 'url'
 import log from 'electron-log'
 
 import { setupAutoUpdater } from './auto-updater'
+import { CFG } from '../lib/cfg'
+import { testOnlySetupAccountsDB } from './test-utils'
+import { SpectronAccountsDB } from '../lib/spectron-utils/constants'
 
 declare const __static: string
 
+const isSpectronTest = !app.isPackaged && !!process.env.SPECTRON_TEST
 app.allowRendererProcessReuse = true
 log.transports.console.level = app.isPackaged ? false : "debug"
 log.transports.file.level = app.isPackaged ? "info" : false
@@ -22,11 +26,16 @@ const hideInsteadOfQuit = () => {
 function createMainWindow() {
 	const height = 800
 	const minWidth = 850
-	const width = app.isPackaged ? minWidth : minWidth + 270
 
-	const isTest = !app.isPackaged && !!process.env.SPECTRON_TEST
-	const noDevTools = app.isPackaged || isTest
-	const noSplash = isTest // No splash screen during Spectron testing.
+	const noDevTools = app.isPackaged || isSpectronTest
+	const noSplash = isSpectronTest // No splash screen during Spectron testing.
+
+	const width = noDevTools ? minWidth : minWidth + 270
+
+	if (isSpectronTest &&
+		CFG().accountsDBPath.path[CFG().accountsDBPath.path.length - 1] === SpectronAccountsDB) {
+		testOnlySetupAccountsDB()
+	}
 
 	const window = new BrowserWindow({
 		height: height,
@@ -37,7 +46,8 @@ function createMainWindow() {
 			nodeIntegration: true,
 			contextIsolation: false,
 			enableRemoteModule: true,
-			partition: "persist:default",
+			// Session/LocalStorage data is not persisted during testing.
+			partition: !isSpectronTest ? "persist:default" : "test:default",
 			devTools: !noDevTools,
 		},
 		show: noSplash,
@@ -46,11 +56,11 @@ function createMainWindow() {
 	if (!noDevTools) {
 		window.webContents.openDevTools()
 	}
-	if (!app.isPackaged && !isTest) {
+	if (!app.isPackaged && !isSpectronTest) {
 		window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
 	} else {
 		window.loadURL(formatUrl({
-			pathname: !isTest ?
+			pathname: !isSpectronTest ?
 				path.join(__dirname, 'index.html') :
 				path.join(__dirname, '../renderer/index.html'),
 			protocol: 'file',
