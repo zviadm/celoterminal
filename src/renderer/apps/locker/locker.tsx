@@ -1,14 +1,15 @@
 import BigNumber from 'bignumber.js'
 import { ContractKit } from '@celo/contractkit'
 import { PendingWithdrawal } from '@celo/contractkit/lib/wrappers/LockedGold'
+import { GroupVote } from '@celo/contractkit/lib/wrappers/Election'
+import { toTransactionObject } from '@celo/connect'
 
 import { Account } from '../../../lib/accounts'
 import useOnChainState from '../../state/onchain-state'
 import { fmtAmount } from '../../../lib/utils'
 import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definition'
-import { toTransactionObject } from '@celo/connect'
 import { Locker } from './def'
-import { GroupVote } from '@celo/contractkit/lib/wrappers/Election'
+import { nowMS } from '../../state/time'
 
 import * as React from 'react'
 import Button from '@material-ui/core/Button'
@@ -330,7 +331,7 @@ const PendingWithdrawals = (props: {
 					<TableBody>
 					{pendingWithdrawals.map((p, idx) => {
 						const date = new Date(p[0].time.multipliedBy(1000).toNumber())
-						const pendingMinutes = p[0].time.minus(Date.now()/1000).div(60)
+						const pendingMinutes = p[0].time.minus(nowMS()/1000).div(60)
 						const pendingText = pendingMinutes.lte(90) ?
 							`in ${pendingMinutes.toFixed(0)} minutes\u2026`:
 							`in ${pendingMinutes.div(60).toFixed(0)} hours\u2026`

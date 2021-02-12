@@ -1,5 +1,5 @@
 import { app, jestSetup } from '../../../../lib/spectron-utils/setup'
-import { confirmTXs } from '../../../../lib/spectron-utils/tx-runner'
+import { adjustNow, confirmTXs } from '../../../../lib/spectron-utils/helpers'
 
 jestSetup()
 
@@ -50,8 +50,13 @@ test('Lock & Unlock CELO', async (done) => {
 
 	await pending1.waitForExist({reverse: true})
 
-	// TODO(zviad): figure out how to trick local clock to allow withdraw
-	// while using `increaseTime` helper from celo-devchain.
+	await adjustNow(3 * 24 * 60 * 60 * 1000) // Pass time to enable withdraws.
+	const appRefetch = await app.client.$("#app-refetch")
+	await appRefetch.click()
+	await pending0.waitForEnabled()
+	await pending0.click()
+	await confirmTXs(app.client, {requirePW: true})
 
+	await pending0.waitForExist({reverse: true})
 	done()
 });

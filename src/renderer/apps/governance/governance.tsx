@@ -9,6 +9,7 @@ import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definiti
 import { Governance } from './def'
 import useOnChainState from '../../state/onchain-state'
 import { fmtAmount } from '../../../lib/utils'
+import { nowMS } from '../../state/time'
 
 import * as React from 'react'
 import {
@@ -38,7 +39,7 @@ const GovernanceApp = (props: {
 			const upvotes = governance.getQueue()
 			const dequeue = governance.getDequeue(true)
 			const durations = governance.stageDurations()
-			const now = Math.round(new Date().getTime() / 1000)
+			const now = Math.round(nowMS() / 1000)
 			const proposals = Promise.all([dequeue, durations]).then(([dequeue, durations]) => {
 				return concurrentMap(4, dequeue, async (p) => {
 					const record = await governance.getProposalRecord(p)

@@ -1,9 +1,11 @@
 import BigNumber from 'bignumber.js'
 import { newKit } from '@celo/contractkit'
+import { BlockHeader } from '@celo/connect'
 
 import kit, { useNetworkURL } from '../state/kit'
 import { CFG, networkName } from '../../lib/cfg'
 import { UserError } from '../../lib/error'
+import { nowMS } from '../state/time'
 
 import * as React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
@@ -17,7 +19,6 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 import LinearProgress from '@material-ui/core/LinearProgress'
-import { BlockHeader } from '@celo/connect'
 
 const useStyles = makeStyles((theme) => ({
 	connected: {
@@ -45,7 +46,7 @@ const NetworkIndicator = (): JSX.Element => {
 					new BigNumber(lastBlock.timestamp)
 					.multipliedBy(1000)
 					.plus(blockRefetchMs)
-					.lt(Date.now())) {
+					.lt(nowMS())) {
 					lastBlock = await k.web3.eth.getBlock('latest')
 					blockN = lastBlock.number
 				} else {
@@ -55,7 +56,7 @@ const NetworkIndicator = (): JSX.Element => {
 				const blockTsMs = new BigNumber(lastBlock.timestamp)
 					.multipliedBy(1000)
 					.plus((blockN - lastBlock.number) * expectedBlockMs)
-				const delayMs = Date.now() - blockTsMs.toNumber()
+				const delayMs = nowMS() - blockTsMs.toNumber()
 				setConnected(delayMs <= maxBlockDelayMs)
 			} catch (e) {
 				errCnt += 1

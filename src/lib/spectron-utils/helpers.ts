@@ -1,13 +1,16 @@
 import { SpectronClient } from "spectron"
+import { increaseTime, Provider } from "celo-devchain"
 
 import { SpectronAccountsDBPassword } from "./constants"
+import { app, devchainKit } from "./setup"
 
-let _enteredPW = false
+let _requirePW = true
 export const confirmTXs = async(client: SpectronClient, opts?: {
-	enteredPW?: boolean,
+	requirePW?: boolean,
 	txCount?: number,
 }): Promise<void> => {
-	if (!_enteredPW && !opts?.enteredPW) {
+	_requirePW = opts?.requirePW !== undefined ? opts?.requirePW : _requirePW
+	if (_requirePW) {
 		const passwordInput = await client.$("#password-input")
 		await passwordInput.waitForEnabled()
 		await passwordInput.keys([...SpectronAccountsDBPassword, 'Enter'])
@@ -16,7 +19,7 @@ export const confirmTXs = async(client: SpectronClient, opts?: {
 	const txCount = opts?.txCount || 1
 	for (let idx = 0; idx < txCount; idx += 1) {
 		await txConfirm.waitForEnabled()
-		_enteredPW = true
+		_requirePW = false
 		await txConfirm.click()
 	}
 
@@ -38,4 +41,10 @@ export const checkErrorSnack = async (client: SpectronClient): Promise<void> => 
 		throw new Error(`Error Snack active: ${text}`)
 	}
 	return
+}
+
+export const adjustNow = async (increaseMS: number): Promise<void> => {
+	const kit = devchainKit()
+	app.webContents.send("adjust-time", increaseMS)
+	await increaseTime(kit.web3.currentProvider as Provider, increaseMS / 1000)
 }
