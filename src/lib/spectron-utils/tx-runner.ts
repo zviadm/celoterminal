@@ -9,7 +9,7 @@ export const confirmTXs = async(client: SpectronClient, opts?: {
 }): Promise<void> => {
 	if (!_enteredPW && !opts?.enteredPW) {
 		const passwordInput = await client.$("#password-input")
-		await passwordInput.waitForExist()
+		await passwordInput.waitForEnabled()
 		await passwordInput.keys([...SpectronAccountsDBPassword, 'Enter'])
 	}
 	const txConfirm = await client.$("#tx-confirm")
