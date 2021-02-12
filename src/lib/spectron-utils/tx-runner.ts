@@ -12,7 +12,7 @@ export const confirmTXs = async(client: SpectronClient, opts?: {
 		await passwordInput.waitForExist()
 		await passwordInput.keys([...SpectronAccountsDBPassword, 'Enter'])
 	}
-  const txConfirm = await client.$("#tx-confirm")
+	const txConfirm = await client.$("#tx-confirm")
 	const txCount = opts?.txCount || 1
 	for (let idx = 0; idx < txCount; idx += 1) {
 		await txConfirm.waitForEnabled()

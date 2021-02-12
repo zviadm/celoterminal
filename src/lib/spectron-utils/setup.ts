@@ -14,8 +14,8 @@ export const testLog = (msg: string, opts?: {noNewLine?: boolean}): void => {
 
 export const remote = (app: Application): Remote => {
 	// spectron.Application is mistyped.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion
-  return (app!.electron as any).remote
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion
+	return (app!.electron as any).remote
 }
 
 export const startApp = async (): Promise<{app: Application, cleanup: () => Promise<void>}> => {
@@ -23,10 +23,10 @@ export const startApp = async (): Promise<{app: Application, cleanup: () => Prom
 
 	const rootPath = [__dirname, "..", "..", ".."]
 	const app = new Application({
-    // path: appPath,
-    path: path.join(...rootPath, "node_modules", ".bin", "electron"),
-    args: [path.join(...rootPath, "dist", "main", "main.js")],
-    env: {
+		// path: appPath,
+		path: path.join(...rootPath, "node_modules", ".bin", "electron"),
+		args: [path.join(...rootPath, "dist", "main", "main.js")],
+		env: {
 			"SPECTRON_TEST": "true",
 			"CELOTERMINAL_ACCOUNTS_DB": "home/.celoterminal/" + SpectronAccountsDB,
 			"CELOTERMINAL_NETWORK_ID": SpectronNetworkId,
