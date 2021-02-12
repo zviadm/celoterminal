@@ -35,40 +35,40 @@ const GovernanceApp = (props: {
 			const governance = await kit.contracts.getGovernance()
 			const accounts = await kit.contracts.getAccounts()
 
-			const mainAccount = accounts
-				.isSigner(account.address)
-				.then((signer) => (
-					signer?
-					accounts.voteSignerToAccount(account.address) : account.address))
-			const isAccount = mainAccount.then((a) => accounts.isAccount(a))
-
 			const upvotes = governance.getQueue()
-			const upvoteRecord = governance.getUpvoteRecord(account.address)
-			const voteRecords = governance.getVoteRecords(account.address)
-
-			const dequeue = await governance.getDequeue(true)
-			const durations = await governance.stageDurations()
+			const dequeue = governance.getDequeue(true)
+			const durations = governance.stageDurations()
 			const now = Math.round(new Date().getTime() / 1000)
-
-			let proposals = await concurrentMap(4, dequeue, async (p) => {
-				const record = await governance.getProposalRecord(p)
-				const timeUntilExecution =
-					secondsToDurationString(
-						record.metadata.timestamp
-						.plus(durations.Approval)
-						.plus(durations.Referendum)
-						.minus(now),
-						["day", "hour", "minute"],
-					)
-				return {
-					proposalID: p,
-					stage: record.stage,
-					votes: record.votes,
-					passing: record.passing,
-					timeUntilExecution,
-				}
+			const proposals = Promise.all([dequeue, durations]).then(([dequeue, durations]) => {
+				return concurrentMap(4, dequeue, async (p) => {
+					const record = await governance.getProposalRecord(p)
+					const timeUntilExecution =
+						secondsToDurationString(
+							record.metadata.timestamp
+							.plus(durations.Approval)
+							.plus(durations.Referendum)
+							.minus(now),
+							["day", "hour", "minute"],
+						)
+					return {
+						proposalID: p,
+						stage: record.stage,
+						votes: record.votes,
+						passing: record.passing,
+						timeUntilExecution,
+					}
+				})
 			})
-			proposals = proposals.filter((p) => p.stage === ProposalStage.Referendum)
+
+			const isSigner = await accounts.isSigner(account.address)
+			const mainAccount = !isSigner ? account.address :
+				(await accounts.voteSignerToAccount(account.address))
+
+			const upvoteRecord = governance.getUpvoteRecord(mainAccount)
+			const voteRecords = governance.getVoteRecords(mainAccount)
+			const isAccount = accounts.isAccount(mainAccount)
+
+			const proposalsInReferendum = (await proposals).filter((p) => p.stage === ProposalStage.Referendum)
 			return {
 				mainAccount: await mainAccount,
 				isAccount: await isAccount,
@@ -86,7 +86,7 @@ const GovernanceApp = (props: {
 				// 	upvotes: new BigNumber(5),
 				// },
 
-				proposals: proposals,
+				proposals: proposalsInReferendum,
 				voteRecords: await voteRecords,
 			}
 		},
