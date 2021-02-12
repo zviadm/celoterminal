@@ -30,6 +30,7 @@ const AppHeader = (props: {
 				props.isFetching ?
 				<CircularProgress size={20} /> :
 				<IconButton
+					id="app-refetch"
 					aria-label="hide" size="small"
 					onClick={() => { refetch() }} >
 					<Sync color="secondary" />

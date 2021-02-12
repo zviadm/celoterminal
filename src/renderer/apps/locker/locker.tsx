@@ -1,14 +1,15 @@
 import BigNumber from 'bignumber.js'
 import { ContractKit } from '@celo/contractkit'
 import { PendingWithdrawal } from '@celo/contractkit/lib/wrappers/LockedGold'
+import { GroupVote } from '@celo/contractkit/lib/wrappers/Election'
+import { toTransactionObject } from '@celo/connect'
 
 import { Account } from '../../../lib/accounts'
 import useOnChainState from '../../state/onchain-state'
 import { fmtAmount } from '../../../lib/utils'
 import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definition'
-import { toTransactionObject } from '@celo/connect'
 import { Locker } from './def'
-import { GroupVote } from '@celo/contractkit/lib/wrappers/Election'
+import { nowMS } from '../../state/time'
 
 import * as React from 'react'
 import Button from '@material-ui/core/Button'
@@ -158,18 +159,19 @@ const LockerApp = (props: {
 					<Box display="flex" flexDirection="column" p={2}>
 						<Typography>Balance: {fmtAmount(fetched.totalCELO, "CELO")} CELO</Typography>
 						<TextField
-								autoFocus
-								margin="dense"
-								label={`Lock (max: ${fmtAmount(fetched.totalCELO, "CELO")})`}
-								variant="outlined"
-								value={toLock}
-								size="medium"
-								type="number"
-								fullWidth={true}
-								// style={{marginTop: 20}}
-								onChange={(e) => { setToLock(e.target.value) }}
-							/>
+							id="lock-celo-input"
+							autoFocus
+							margin="dense"
+							label={`Lock (max: ${fmtAmount(fetched.totalCELO, "CELO")})`}
+							variant="outlined"
+							value={toLock}
+							size="medium"
+							type="number"
+							fullWidth={true}
+							onChange={(e) => { setToLock(e.target.value) }}
+						/>
 						<Button
+							id="lock-celo"
 							variant="outlined"
 							color="primary"
 							disabled={!canLock}
@@ -279,16 +281,18 @@ const UnlockWithRevoke = (props: {
 				</Box>
 				: <>
 				<TextField
-						margin="dense"
-						label={`Unlock (max: ${fmtAmount(maxToUnlock, "CELO")})`}
-						variant="outlined"
-						value={props.toUnlock}
-						size="medium"
-						type="number"
-						fullWidth={true}
-						onChange={(e) => { props.onSetToUnlock(e.target.value) }}
-					/>
+					id="unlock-celo-input"
+					margin="dense"
+					label={`Unlock (max: ${fmtAmount(maxToUnlock, "CELO")})`}
+					variant="outlined"
+					value={props.toUnlock}
+					size="medium"
+					type="number"
+					fullWidth={true}
+					onChange={(e) => { props.onSetToUnlock(e.target.value) }}
+				/>
 				<Button
+					id="unlock-celo"
 					variant="outlined"
 					color="primary"
 					disabled={!canUnlock}
@@ -325,9 +329,9 @@ const PendingWithdrawals = (props: {
 						</TableRow>
 					</TableHead>
 					<TableBody>
-					{pendingWithdrawals.map((p) => {
+					{pendingWithdrawals.map((p, idx) => {
 						const date = new Date(p[0].time.multipliedBy(1000).toNumber())
-						const pendingMinutes = p[0].time.minus(Date.now()/1000).div(60)
+						const pendingMinutes = p[0].time.minus(nowMS()/1000).div(60)
 						const pendingText = pendingMinutes.lte(90) ?
 							`in ${pendingMinutes.toFixed(0)} minutes\u2026`:
 							`in ${pendingMinutes.div(60).toFixed(0)} hours\u2026`
@@ -340,6 +344,7 @@ const PendingWithdrawals = (props: {
 							<TableCell>{fmtAmount(p[0].value, "CELO")}</TableCell>
 							<TableCell>
 								<Button
+									id={`withdraw-${idx}`}
 									style={{width: 140}}
 									variant="outlined"
 									color="primary"
@@ -349,6 +354,7 @@ const PendingWithdrawals = (props: {
 							</TableCell>
 							<TableCell>
 								<Button
+									id={`cancel-withdraw-${idx}`}
 									style={{width: 130}}
 									variant="outlined"
 									color="secondary"

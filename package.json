@@ -17,7 +17,8 @@
     "dist": "yarn compile && electron-builder",
     "lint": "eslint src/",
     "test": "ELECTRON_RUN_AS_NODE=true electron ./node_modules/.bin/jest --testPathIgnorePatterns '<rootDir>/.*/spectron-tests/'",
-    "test:spectron": "jest --testTimeout 60000 --runInBand --bail"
+    "test:spectron": "jest --testTimeout 90000 --runInBand --bail",
+    "test:spectron-all": "yarn test:spectron src/.*/spectron-tests/.*.test.ts"
   },
   "electronWebpack": {
     "whiteListedModules": [

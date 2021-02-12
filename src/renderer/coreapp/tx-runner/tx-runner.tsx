@@ -12,6 +12,9 @@ import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definiti
 import { fmtAddress, fmtAmount, sleep } from '../../../lib/utils'
 import { transformError } from '../ledger-utils'
 import { cfgNetworkURL } from '../../state/kit'
+import { UserError } from '../../../lib/error'
+import { SpectronNetworkId } from '../../../lib/spectron-utils/constants'
+import { nowMS } from '../../state/time'
 
 import * as React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
@@ -39,12 +42,12 @@ import Paper from '@material-ui/core/Paper'
 import IconButton from '@material-ui/core/IconButton'
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
-import { UserError } from '../../../lib/error'
-import { SpectronNetworkId } from '../../../lib/spectron-utils/constants'
 
 export class TXCancelled extends Error {
 	constructor() { super('Cancelled') }
 }
+
+const cacheMS = 60 * 60 * 1000
 
 function TXRunner(props: {
 	selectedAccount: Account,
@@ -59,7 +62,7 @@ function TXRunner(props: {
 	if (props.selectedAccount.type === "local") {
 		// check password.
 		pwValid = (pw ?
-			pw && pw.expireMS > Date.now() &&
+			pw && pw.expireMS > nowMS() &&
 			canDecryptLocalKey(props.selectedAccount, pw.password) : false)
 		if (!pwValid && pw) {
 			setPW(undefined)
@@ -74,7 +77,7 @@ function TXRunner(props: {
 			return
 		}
 		decryptLocalKey(props.selectedAccount.encryptedData, p)
-		setPW({password: p, expireMS: Date.now() + 60 * 60 * 1000})
+		setPW({password: p, expireMS: nowMS() + cacheMS})
 	}
 	return (<>{props.txFunc && (
 		pwNeeded ?
@@ -134,7 +137,7 @@ const RunTXs = (props: {
 	const selectedAccount = props.selectedAccount
 	const password = props.password
 	React.useEffect(() => {
-		const startMS = Date.now();
+		const startMS = nowMS();
 		(async () => {
 			try {
 				const w = await createWallet(selectedAccount, password)
@@ -168,7 +171,7 @@ const RunTXs = (props: {
 						parsedTXs.push(parsedTX)
 					}
 					setPreparedTXs(parsedTXs)
-					await sleep(Date.now() - startMS + 200)
+					await sleep(nowMS() - startMS + 200)
 
 					const r: CeloTxReceipt[] = []
 					for (let idx = 0; idx < txs.length; idx += 1) {
@@ -212,7 +215,7 @@ const RunTXs = (props: {
 						})
 						const txHash = await result.getHash()
 						setStage("sending")
-						setTXSendMS(Date.now())
+						setTXSendMS(nowMS())
 						log.info(`TX-HASH:`, txHash)
 
 						const receipt = await result.waitReceipt()
@@ -246,7 +249,7 @@ const RunTXs = (props: {
 		}
 		const timer = setInterval(() => {
 			const progress = (
-				txSendMS === 0 ? 0 : Math.min(99, (Date.now() - txSendMS) / 5000 * 100.0))
+				txSendMS === 0 ? 0 : Math.min(99, (nowMS() - txSendMS) / 5000 * 100.0))
 			setTXProgress((txProgress) => Math.max(progress, txProgress))
 		}, 200)
 		return () => { clearInterval(timer) }

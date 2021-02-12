@@ -6,11 +6,15 @@ import { ContractKit, newKit } from '@celo/contractkit'
 
 import { SpectronAccountsDB, SpectronNetworkId } from './constants'
 
-// Bypass Jest's capturing of `console` to have cleaner stdout when running
+// Bypasses Jest's capturing of `console` to have cleaner stdout when running
 // spectron tests.
 export const testLog = (msg: string, opts?: {noNewLine?: boolean}): void => {
 	process.stdout.write(opts?.noNewLine ? msg : msg + "\n")
 }
+
+// app object can be used in tests to access spectron.Application object.
+// requires jestSetup to be called in the test.
+export let app: Application
 
 export const remote = (app: Application): Remote => {
 	// spectron.Application is mistyped.
@@ -18,7 +22,30 @@ export const remote = (app: Application): Remote => {
 	return (app!.electron as any).remote
 }
 
-export const startApp = async (): Promise<{app: Application, cleanup: () => Promise<void>}> => {
+// Sets up beforeAll/afterAll calls to setup and teardown both
+// application and celo-devchain. All spetron tests should use this call.
+export const jestSetup = (): void => {
+	let cleanup: () => Promise<void>
+	beforeAll(async () => {
+		const r = await startApp()
+		app = r.app
+		cleanup = r.cleanup
+	})
+	afterAll(async () => {
+		return cleanup && cleanup()
+	})
+}
+
+let _devKit: ContractKit | undefined
+// Returns ContractKit that points to celo-devchain instance.
+export const devchainKit = (): ContractKit => {
+	if (!_devKit) {
+		_devKit = newKit(`http://localhost:${devchainPort}`)
+	}
+	return _devKit
+}
+
+const startApp = async (): Promise<{app: Application, cleanup: () => Promise<void>}> => {
 	const devchain = await startDevchain()
 
 	const rootPath = [__dirname, "..", "..", ".."]
@@ -71,12 +98,4 @@ const startDevchain = async () => {
 	})
 	await started
 	return devchain
-}
-
-let _devKit: ContractKit | undefined
-export const devchainKit = (): ContractKit => {
-	if (!_devKit) {
-		_devKit = newKit(`http://localhost:${devchainPort}`)
-	}
-	return _devKit
 }
