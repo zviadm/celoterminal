@@ -20,16 +20,20 @@ export const confirmTXs = async(client: SpectronClient, opts?: {
 		await txConfirm.click()
 	}
 
-	const txRunnerModal = await client.$("tx-runner-modal")
-	await txRunnerModal.waitForExist({reverse: true})
-
+	const txRunnerModal = await client.$("#tx-runner-modal")
+	await txRunnerModal.waitForExist({
+		reverse: true,
+		timeout: 8000,
+		interval: 500,
+	})
 	await checkErrorSnack(client)
 	return
 }
 
 export const checkErrorSnack = async (client: SpectronClient): Promise<void> => {
 	const errorSnack = await client.$("#error-snack")
-	if (errorSnack.isExisting()) {
+	const errorExists = await errorSnack.isExisting()
+	if (errorExists) {
 		const text = await errorSnack.getText()
 		throw new Error(`Error Snack active: ${text}`)
 	}

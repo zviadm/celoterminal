@@ -1,7 +1,6 @@
 import { Application } from 'spectron'
 
-import { sleep } from '../../../../lib/utils'
-import { startApp } from '../../../../lib/spectron-utils/setup'
+import { startApp, testLog } from '../../../../lib/spectron-utils/setup'
 import { confirmTXs } from '../../../../lib/spectron-utils/tx-runner'
 
 let app: Application
@@ -12,7 +11,7 @@ beforeAll(async () => {
   cleanup = r.cleanup
 })
 afterAll(async () => {
-  return cleanup()
+  return cleanup && cleanup()
 })
 
 test('Create account', async (done) => {
@@ -26,4 +25,5 @@ test('Create account', async (done) => {
 
   await confirmTXs(app.client)
   done()
+	testLog(`Done`)
 });

@@ -40,6 +40,7 @@ import IconButton from '@material-ui/core/IconButton'
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import { UserError } from '../../../lib/error'
+import { SpectronNetworkId } from '../../../lib/spectron-utils/constants'
 
 export class TXCancelled extends Error {
 	constructor() { super('Cancelled') }
@@ -137,14 +138,17 @@ const RunTXs = (props: {
 		(async () => {
 			try {
 				const w = await createWallet(selectedAccount, password)
-				const accounts = w.wallet.getAccounts()
-				if (accounts.length !== 1 ||
-					accounts[0].toLowerCase() !== selectedAccount.address.toLowerCase()) {
-					throw new Error(
-						`Unexpected Account. Expected: ${selectedAccount.address}, Got: ${accounts[0]}. ` +
-						`Refusing to run transactions.`)
-				}
 				const cfg = CFG()
+				if (cfg.networkId !== SpectronNetworkId) {
+					// NOTE: see comment in `createWallet` about limitations of celo-devchain.
+					const accounts = w.wallet.getAccounts()
+					if (accounts.length !== 1 ||
+						accounts[0].toLowerCase() !== selectedAccount.address.toLowerCase()) {
+						throw new Error(
+							`Unexpected Account. Expected: ${selectedAccount.address}, Got: ${accounts[0]}. ` +
+							`Refusing to run transactions.`)
+					}
+				}
 				const kit = newKit(cfgNetworkURL(), w.wallet)
 				kit.defaultAccount = selectedAccount.address
 				try {
