@@ -96,6 +96,11 @@ const startDevchain = async () => {
 	devchain.stderr.on('data', (buf) => {
 		testLog(`[out]devchain: ${buf.toString()}`, {noNewLine: true})
 	})
+	process.on("exit", () => {
+		if (!devchain.killed) {
+			devchain.kill()
+		}
+	})
 	await started
 	return devchain
 }

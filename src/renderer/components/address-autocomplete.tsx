@@ -16,6 +16,7 @@ interface Address {
 }
 
 const AddressAutocomplete = (props: {
+	id?: string,
 	addresses: Address[],
 	label: string,
 	address: string,
@@ -29,6 +30,7 @@ const AddressAutocomplete = (props: {
 	)
 	return (
 		<Autocomplete
+			id={props.id}
 			freeSolo
 			autoSelect
 			options={props.addresses}

@@ -81,13 +81,14 @@ const SendReceiveApp = (props: {
 				<Paper>
 					<Box p={2}>
 						<Select
+							id="erc20-select"
 							autoFocus
 							label="ERC20"
 							value={erc20}
 							onChange={(event) => { setErc20(event.target.value as string) }}>
 							{
 								erc20s.map(({name}) => (
-									<MenuItem value={name} key={name}>{name}</MenuItem>
+									<MenuItem id={`erc20-${name}-item`} value={name} key={name}>{name}</MenuItem>
 								))
 							}
 						</Select>
@@ -107,12 +108,14 @@ const SendReceiveApp = (props: {
 							can lead to permanent loss of your funds.
 						</Alert>
 						<AddressAutocomplete
+							id="to-address-input"
 							label="Destination address"
 							addresses={props.accounts}
 							address={toAddress}
 							onChange={setToAddress}
 						/>
 						<TextField
+							id="amount-input"
 							margin="normal"
 							label={
 								!fetched ? `Amount` :
@@ -125,6 +128,7 @@ const SendReceiveApp = (props: {
 							onChange={(e) => { setToSend(e.target.value) }}
 						/>
 						<Button
+							id="send"
 							variant="outlined" color="primary"
 							disabled={!canSend}
 							onClick={handleSend}>Send</Button>
