@@ -4,9 +4,7 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch
 
 jobs:
   build:
@@ -28,6 +26,5 @@ jobs:
       - name: Test & Build Electron app
         run: node ./buildcfg/build.js
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           OSX_CSC_LINK: ${{ secrets.OSX_CSC_LINK }}
           OSX_CSC_KEY_PASSWORD: ${{ secrets.OSX_CSC_KEY_PASSWORD }}
