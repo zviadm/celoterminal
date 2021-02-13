@@ -17,12 +17,12 @@ export const confirmTXs = async(client: SpectronClient, opts?: {
 		await passwordInput.waitForEnabled()
 		await passwordInput.keys([...SpectronAccountsDBPassword, 'Enter'])
 	}
-	const txConfirm = await client.$("#tx-confirm")
+	const confirmTX = await client.$("#confirm-tx")
 	const txCount = opts?.txCount || 1
 	for (let idx = 0; idx < txCount; idx += 1) {
-		await txConfirm.waitForEnabled({timeout: 8000})
+		await confirmTX.waitForEnabled({timeout: 8000})
 		_requirePW = false
-		await txConfirm.click()
+		await confirmTX.click()
 	}
 
 	const txRunnerModal = await client.$("#tx-runner-modal")
@@ -44,6 +44,13 @@ export const checkErrorSnack = async (client: SpectronClient): Promise<void> => 
 		throw new Error(`Error Snack active: ${text}`)
 	}
 	return
+}
+
+// Clicks `refetch` button and waits for refetch to complete.
+export const refetchAppData = async (client: SpectronClient): Promise<void> => {
+	const refetchData = await client.$("#refetch-data")
+	await refetchData.click()
+	await refetchData.waitForEnabled()
 }
 
 // Alters current time both for celo-devchain, and for the Celo Terminal app.
