@@ -1,5 +1,5 @@
 import { app, devchainKit, jestSetup } from '../../../../lib/spectron-utils/setup'
-import { confirmTXs } from '../../../../lib/spectron-utils/helpers'
+import { confirmTXs } from '../../../../lib/spectron-utils/app-helpers'
 
 jestSetup()
 
@@ -20,7 +20,7 @@ test('Send ', async (done) => {
 
 	const send = await app.client.$("#send")
 	await send.click()
-	await confirmTXs(app.client)
+	await confirmTXs()
 
 	const kit = devchainKit()
 	const goldToken = await kit.contracts.getGoldToken()
@@ -38,7 +38,7 @@ test('Send ', async (done) => {
 	await amountInput.click()
 	await amountInput.keys("201")
 	await send.click()
-	await confirmTXs(app.client)
+	await confirmTXs()
 
 	const stableToken = await kit.contracts.getStableToken()
 	const balanceCUSD = await stableToken.balanceOf(randomAddr)

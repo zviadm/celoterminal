@@ -79,6 +79,7 @@ const AppCard = (props: {
 							<Link href={url}>Learn More</Link>
 						</Box>}
 						<Fab
+							id={`install-app-${props.app.id}`}
 							color="primary"
 							size="small"
 							onClick={props.onAdd}>
