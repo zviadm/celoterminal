@@ -11,21 +11,33 @@ jobs:
         os: [macos-latest, windows-latest]
 
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v1
-
-      - name: Install Node.js, NPM and Yarn
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
         with:
           node-version: 10
+      - run: node ./buildcfg/check-publish.js
+      - run: yarn config set network-timeout 600000 -g
+      - run: yarn
+      - run: yarn lint
+        if: runner.os == 'macOS'
+      - run: yarn test
+        if: runner.os == 'macOS'
+      - run: yarn compile
+      - run: yarn test:spectron-all
+        if: runner.os == 'macOS'
 
-      - name: Build & Publish Electron app
-        run: node ./buildcfg/build.js
+      - run: yarn run electron-builder --platform mac --publish always
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          PUBLISH: "TRUE"
-          OSX_CSC_LINK: ${{ secrets.OSX_CSC_LINK }}
-          OSX_CSC_KEY_PASSWORD: ${{ secrets.OSX_CSC_KEY_PASSWORD }}
-          OSX_NOTARIZE: "TRUE"
-          OSX_APPLE_ID: ${{ secrets.OSX_APPLE_ID }}
-          OSX_APPLE_ID_PASSWORD: ${{ secrets.OSX_APPLE_ID_PASSWORD }}
+          EP_PRE_RELEASE: true
+          CSC_LINK: ${{ secrets.OSX_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.OSX_CSC_KEY_PASSWORD }}
+        if: runner.os == 'macOS'
+
+      - run: yarn run electron-builder --platform win --publish always
+        env:
+          EP_PRE_RELEASE: true
+        if: runner.os == 'Windows'
+
+      - run: node ./buildcfg/check-publish.js
+
+

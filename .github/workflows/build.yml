@@ -4,9 +4,7 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch
 
 jobs:
   build:
@@ -17,17 +15,26 @@ jobs:
         os: [macos-latest, windows-latest]
 
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v1
-
-      - name: Install Node.js, NPM and Yarn
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
         with:
           node-version: 10
+      - run: yarn config set network-timeout 600000 -g
+      - run: yarn
+      - run: yarn lint
+        if: runner.os == 'macOS'
+      - run: yarn test
+        if: runner.os == 'macOS'
+      - run: yarn compile
+      - run: yarn test:spectron-all
+        if: runner.os == 'macOS'
 
-      - name: Test & Build Electron app
-        run: node ./buildcfg/build.js
+      - run: yarn run electron-builder --platform mac --publish never
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          OSX_CSC_LINK: ${{ secrets.OSX_CSC_LINK }}
-          OSX_CSC_KEY_PASSWORD: ${{ secrets.OSX_CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.OSX_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.OSX_CSC_KEY_PASSWORD }}
+        if: runner.os == 'macOS'
+
+      - run: yarn run electron-builder --platform win --publish never
+        if: runner.os == 'Windows'
+
