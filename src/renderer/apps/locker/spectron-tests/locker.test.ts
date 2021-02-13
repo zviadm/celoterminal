@@ -11,7 +11,7 @@ test('Create account', async (done) => {
 	const createAccount = await app.client.$("#create-account")
 	await createAccount.waitForEnabled()
 	await createAccount.click()
-	await confirmTXs(app.client)
+	await confirmTXs()
 
 	done()
 });
@@ -23,7 +23,7 @@ test('Lock & Unlock CELO', async (done) => {
 	await lockInput.keys(["100"])
 	const lockCelo = await app.client.$("#lock-celo")
 	await lockCelo.click()
-	await confirmTXs(app.client)
+	await confirmTXs()
 
 	const unlockInput = await app.client.$("#unlock-celo-input")
 	await unlockInput.waitForEnabled()
@@ -31,7 +31,7 @@ test('Lock & Unlock CELO', async (done) => {
 	await unlockInput.keys(["50"])
 	const unlockCelo = await app.client.$("#unlock-celo")
 	await unlockCelo.click()
-	await confirmTXs(app.client)
+	await confirmTXs()
 
 	const pending0 = await app.client.$("#withdraw-0")
 	await pending0.waitForExist()
@@ -41,12 +41,12 @@ test('Lock & Unlock CELO', async (done) => {
 	await unlockInput.click()
 	await unlockInput.keys(["25"])
 	await unlockCelo.click()
-	await confirmTXs(app.client)
+	await confirmTXs()
 
 	const pending1 = await app.client.$("#cancel-withdraw-1")
 	await pending1.waitForEnabled()
 	await pending1.click()
-	await confirmTXs(app.client)
+	await confirmTXs()
 
 	await pending1.waitForExist({reverse: true})
 
@@ -57,7 +57,7 @@ test('Lock & Unlock CELO', async (done) => {
 	await pending0.click()
 	// since 3 days have passed, we need to set `requirePW` because cached password
 	// would have expired already.
-	await confirmTXs(app.client, {requirePW: true})
+	await confirmTXs({requirePW: true})
 
 	await pending0.waitForExist({reverse: true})
 	done()
