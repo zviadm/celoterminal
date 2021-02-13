@@ -1,8 +1,10 @@
 import * as path from 'path'
-import { spawn } from 'child_process'
+import * as os from 'os'
+import { spawn, ChildProcessWithoutNullStreams } from 'child_process'
 import { Application } from 'spectron'
 import { Remote } from 'electron'
 import { ContractKit, newKit } from '@celo/contractkit'
+import * as kill from 'tree-kill'
 
 import { SpectronAccountsDB, SpectronNetworkId } from './constants'
 
@@ -46,12 +48,12 @@ export const devchainKit = (): ContractKit => {
 }
 
 const startApp = async (): Promise<{app: Application, cleanup: () => Promise<void>}> => {
-	const devchain = await startDevchain()
+	const {devchain, devchainKilled} = await startDevchain()
 
 	const rootPath = [__dirname, "..", "..", ".."]
 	const app = new Application({
 		path: path.join(...rootPath, "node_modules", ".bin", "electron"),
-		args: [path.join(...rootPath, "dist", "main", "main.js")],
+		args: ['--no-sandbox', path.join(...rootPath, "dist", "main", "main.js")],
 		env: {
 			"SPECTRON_TEST": "true",
 			"CELOTERMINAL_ACCOUNTS_DB": "home/.celoterminal/" + SpectronAccountsDB,
@@ -67,10 +69,12 @@ const startApp = async (): Promise<{app: Application, cleanup: () => Promise<voi
 
 	const cleanup = async () => {
 		testLog(`[test] cleanup & exit...`)
-		devchain.kill()
+		_kill(devchain)
 		if (app && app.isRunning()) {
 			await app.stop()
+			testLog(`[test] app stopped`)
 		}
+		await devchainKilled
 	}
 	return {
 		app,
@@ -86,6 +90,12 @@ const startDevchain = async () => {
 	const started = new Promise<void>((resolve) => { _resolve = resolve})
 
 	const devchain = spawn(`yarn`, [`celo-devchain`, `--port`, `${devchainPort}`])
+	devchain.on("error", (err) => {
+		testLog(`[err]devchain: ${err}`)
+	})
+	const devchainKilled = new Promise<void>((resolve) => {
+		devchain.on("close", () => { resolve () })
+	})
 	devchain.stdout.on('data', (buf) => {
 		const data: string = buf.toString()
 		testLog(`[out]devchain: ${data}`, {noNewLine: true})
@@ -98,9 +108,19 @@ const startDevchain = async () => {
 	})
 	process.on("exit", () => {
 		if (!devchain.killed) {
-			devchain.kill()
+			_kill(devchain)
 		}
 	})
 	await started
-	return devchain
+	return {devchain, devchainKilled}
+}
+
+const _kill = (process: ChildProcessWithoutNullStreams) => {
+	if (os.platform() === "darwin") {
+		process.kill()
+	} else {
+		// For some reason on Ubuntu regular kill doesn't work. Thus
+		// use tree-kill to really kill it well.
+		kill(process.pid)
+	}
 }

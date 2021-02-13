@@ -4510,10 +4510,10 @@ caseless@~0.12.0:
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
   integrity sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
 
-celo-devchain@2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/celo-devchain/-/celo-devchain-2.0.1.tgz#37e01e5694ebac689e8642b27536909380091d04"
-  integrity sha512-n0bb376FSFkUGpgl+qtZsCa2S2dwNQ5mvf+sOStOwraiYks1mpzxs6PGjZBrab3YGACD1sbzlskwOpUFKvyAZA==
+celo-devchain@2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/celo-devchain/-/celo-devchain-2.0.3.tgz#2bcb4f21f5ebaa14a944abe75165f0b64e1cd180"
+  integrity sha512-2I5O29b5j9GA6TRVErfpgXstufSVzIaUL7i5jE/cYb1EjxMHe/qJHVkuf5d4t8ii4UHmb4hVfNDWKH2mmkUjJA==
   dependencies:
     "@celo/contractkit" "^1.0.1"
     "@celo/ganache-cli" "git+https://github.com/celo-org/ganache-cli.git#e933297"
@@ -13179,6 +13179,11 @@ tr46@^2.0.2:
   integrity sha512-3n1qG+/5kg+jrbTzwAykB5yRYtQCTqOGKq5U5PE3b0a1/mzo6snDhjGS0zJVJunO0NrT3Dg1MLy5TjWP/UJppg==
   dependencies:
     punycode "^2.1.1"
+
+tree-kill@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/tree-kill/-/tree-kill-1.2.2.tgz#4ca09a9092c88b73a7cdc5e8a01b507b0790a0cc"
+  integrity sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==
 
 trim-newlines@^1.0.0:
   version "1.0.0"

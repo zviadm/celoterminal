@@ -64,7 +64,7 @@
     "@types/tmp": "^0.2.0",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
-    "celo-devchain": "2.0.1",
+    "celo-devchain": "2.0.3",
     "css-loader": "^5.0.1",
     "electron": "11.2.1",
     "electron-builder": "^22.9.1",
@@ -83,6 +83,7 @@
     "spectron": "^13.0.0",
     "style-loader": "1.3.0",
     "tmp": "^0.2.1",
+    "tree-kill": "^1.2.2",
     "ts-jest": "^26.5.0",
     "typescript": "^4.1.3",
     "webpack": "~4.42.1"
