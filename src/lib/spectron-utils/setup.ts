@@ -90,6 +90,12 @@ const startDevchain = async () => {
 	const started = new Promise<void>((resolve) => { _resolve = resolve})
 
 	const devchain = spawn(`yarn`, [`celo-devchain`, `--port`, `${devchainPort}`])
+	devchain.on("error", (err) => {
+		testLog(`[err]devchain: ${err}`)
+	})
+	const devchainKilled = new Promise<void>((resolve) => {
+		devchain.on("close", () => { resolve () })
+	})
 	devchain.stdout.on('data', (buf) => {
 		const data: string = buf.toString()
 		testLog(`[out]devchain: ${data}`, {noNewLine: true})
@@ -99,9 +105,6 @@ const startDevchain = async () => {
 	})
 	devchain.stderr.on('data', (buf) => {
 		testLog(`[out]devchain: ${buf.toString()}`, {noNewLine: true})
-	})
-	const devchainKilled = new Promise<void>((resolve) => {
-		devchain.on("close", () => { resolve () })
 	})
 	process.on("exit", () => {
 		if (!devchain.killed) {
@@ -116,6 +119,8 @@ const _kill = (process: ChildProcessWithoutNullStreams) => {
 	if (os.platform() === "darwin") {
 		process.kill()
 	} else {
+		// For some reason on Ubuntu regular kill doesn't work. Thus
+		// use tree-kill to really kill it well.
 		kill(process.pid)
 	}
 }
