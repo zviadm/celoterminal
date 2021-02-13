@@ -1,8 +1,10 @@
 import * as path from 'path'
+import * as os from 'os'
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process'
 import { Application } from 'spectron'
 import { Remote } from 'electron'
 import { ContractKit, newKit } from '@celo/contractkit'
+import * as kill from 'tree-kill'
 
 import { SpectronAccountsDB, SpectronNetworkId } from './constants'
 
@@ -67,9 +69,10 @@ const startApp = async (): Promise<{app: Application, cleanup: () => Promise<voi
 
 	const cleanup = async () => {
 		testLog(`[test] cleanup & exit...`)
-		killDevchain(devchain)
+		_kill(devchain)
 		if (app && app.isRunning()) {
 			await app.stop()
+			testLog(`[test] app stopped`)
 		}
 		await devchainKilled
 	}
@@ -102,15 +105,17 @@ const startDevchain = async () => {
 	})
 	process.on("exit", () => {
 		if (!devchain.killed) {
-			killDevchain(devchain)
+			_kill(devchain)
 		}
 	})
 	await started
 	return {devchain, devchainKilled}
 }
 
-const killDevchain = (devchain: ChildProcessWithoutNullStreams) => {
-	devchain.stdout.destroy()
-	devchain.stderr.destroy()
-	devchain.kill()
+const _kill = (process: ChildProcessWithoutNullStreams) => {
+	if (os.platform() === "darwin") {
+		process.kill()
+	} else {
+		kill(process.pid)
+	}
 }
