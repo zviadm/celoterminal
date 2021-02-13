@@ -137,7 +137,6 @@ const RunTXs = (props: {
 	const selectedAccount = props.selectedAccount
 	const password = props.password
 	React.useEffect(() => {
-		const startMS = nowMS();
 		(async () => {
 			try {
 				const w = await createWallet(selectedAccount, password)
@@ -171,7 +170,6 @@ const RunTXs = (props: {
 						parsedTXs.push(parsedTX)
 					}
 					setPreparedTXs(parsedTXs)
-					await sleep(nowMS() - startMS + 200)
 
 					const r: CeloTxReceipt[] = []
 					for (let idx = 0; idx < txs.length; idx += 1) {

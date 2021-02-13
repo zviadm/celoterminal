@@ -1,14 +1,12 @@
 import { app, devchainKit, jestSetup } from '../../../../lib/spectron-utils/setup'
-import { adjustNow, confirmTXs, refetchAppData } from '../../../../lib/spectron-utils/app-helpers'
+import { adjustNow, confirmTXs, refetchAppData, selectApp } from '../../../../lib/spectron-utils/app-helpers'
 import { SpectronAccounts } from '../../../../lib/spectron-utils/constants';
 import { createValidatorGroup } from '../../../../lib/spectron-utils/devchain-helpers';
 
 jestSetup()
 
 test('Create account', async (done) => {
-	const menuLocker = await app.client.$("#menu-locker")
-	await menuLocker.waitForEnabled()
-	await menuLocker.click()
+	await selectApp("locker")
 
 	const createAccount = await app.client.$("#create-account")
 	await createAccount.waitForEnabled()
@@ -52,14 +50,17 @@ test('Lock & Unlock CELO', async (done) => {
 
 	await pending1.waitForExist({reverse: true})
 
-	await adjustNow(3 * 24 * 60 * 60 * 1000) // Pass time to enable withdraws.
+	const kit = devchainKit()
+	const cfg = await kit.getNetworkConfig()
+	// Pass time to enable withdraws.
+	await adjustNow(cfg.lockedGold.unlockingPeriod.multipliedBy(1000).toNumber())
 	await refetchAppData()
 
 	await pending0.waitForEnabled()
 	await pending0.click()
 	// since 3 days have passed, we need to set `requirePW` because cached password
 	// would have expired already.
-	await confirmTXs({requirePW: true})
+	await confirmTXs()
 
 	await pending0.waitForExist({reverse: true})
 	done()
