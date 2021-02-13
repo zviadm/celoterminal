@@ -3,8 +3,9 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as crypto from 'crypto'
 import * as log from 'electron-log'
-import { ensureLeading0x, toChecksumAddress } from '@celo/utils/lib/address'
+import { ensureLeading0x, toChecksumAddress , privateKeyToAddress } from '@celo/utils/lib/address'
 import { isValidAddress } from 'ethereumjs-util'
+
 
 import { Account, AddressOnlyAccount, LedgerAccount, LocalAccount } from './accounts'
 import { UserError } from './error'
@@ -114,15 +115,20 @@ class AccountsDB {
 		let data: string
 		let encryptedData: string
 		switch (a.type) {
-		case "local":
+		case "local": {
 			data = ""
 			encryptedData = a.encryptedData
 			if (!password) {
 				throw new UserError(`Password must be provided when adding local accounts.`)
 			}
 			// Sanity check to make sure encryptedData is decryptable.
-			decryptLocalKey(encryptedData, password)
+			const localKey = decryptLocalKey(encryptedData, password)
+			const keyAddress = privateKeyToAddress(localKey.privateKey)
+			if (keyAddress !== a.address) {
+				throw new Error(`LocalKey address mismatch. Expected: ${a.address}, got: ${keyAddress}.`)
+			}
 			break
+		}
 		case "address-only":
 			data = ""
 			encryptedData = ""
