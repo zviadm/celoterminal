@@ -36,14 +36,14 @@ jobs:
 
       - run: yarn electron-builder --mac --publish always
         env:
-          EP_PRE_RELEASE: true
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EP_PRE_RELEASE: true
           CSC_LINK: ${{ secrets.OSX_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.OSX_CSC_KEY_PASSWORD }}
         if: runner.os == 'macOS'
 
       - run: yarn electron-builder --win --publish always
         env:
-          EP_PRE_RELEASE: true
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EP_PRE_RELEASE: true
         if: runner.os == 'Windows'
