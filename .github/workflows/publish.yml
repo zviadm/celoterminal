@@ -3,9 +3,23 @@ name: Publish
 on: workflow_dispatch
 
 jobs:
-  release:
-    runs-on: ${{ matrix.os }}
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 10
+      - run: sudo apt-get install xvfb
+      - run: yarn config set network-timeout 600000 -g
+      - run: yarn
+      - run: yarn lint
+      - run: yarn test
+      - run: yarn compile
+      - run: xvfb-run --auto-servernum --server-args='-screen 0, 1600x900x24' yarn test:spectron-all
 
+  publish:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [macos-latest, windows-latest]
@@ -18,13 +32,7 @@ jobs:
       - run: node ./buildcfg/check-publish.js
       - run: yarn config set network-timeout 600000 -g
       - run: yarn
-      - run: yarn lint
-        if: runner.os == 'macOS'
-      - run: yarn test
-        if: runner.os == 'macOS'
       - run: yarn compile
-      - run: yarn test:spectron-all
-        if: runner.os == 'macOS'
 
       - run: yarn run electron-builder --platform mac --publish always
         env:
@@ -37,7 +45,3 @@ jobs:
         env:
           EP_PRE_RELEASE: true
         if: runner.os == 'Windows'
-
-      - run: node ./buildcfg/check-publish.js
-
-

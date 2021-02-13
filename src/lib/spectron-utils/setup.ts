@@ -46,7 +46,7 @@ export const devchainKit = (): ContractKit => {
 }
 
 const startApp = async (): Promise<{app: Application, cleanup: () => Promise<void>}> => {
-	const devchain = await startDevchain()
+	const {devchain, devchainKilled} = await startDevchain()
 
 	const rootPath = [__dirname, "..", "..", ".."]
 	const app = new Application({
@@ -71,6 +71,7 @@ const startApp = async (): Promise<{app: Application, cleanup: () => Promise<voi
 		if (app && app.isRunning()) {
 			await app.stop()
 		}
+		await devchainKilled
 	}
 	return {
 		app,
@@ -96,11 +97,14 @@ const startDevchain = async () => {
 	devchain.stderr.on('data', (buf) => {
 		testLog(`[out]devchain: ${buf.toString()}`, {noNewLine: true})
 	})
+	const devchainKilled = new Promise<void>((resolve) => {
+		devchain.on("close", () => { resolve () })
+	})
 	process.on("exit", () => {
 		if (!devchain.killed) {
 			devchain.kill()
 		}
 	})
 	await started
-	return devchain
+	return {devchain, devchainKilled}
 }

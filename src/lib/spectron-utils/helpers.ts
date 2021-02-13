@@ -20,7 +20,7 @@ export const confirmTXs = async(client: SpectronClient, opts?: {
 	const txConfirm = await client.$("#tx-confirm")
 	const txCount = opts?.txCount || 1
 	for (let idx = 0; idx < txCount; idx += 1) {
-		await txConfirm.waitForEnabled()
+		await txConfirm.waitForEnabled({timeout: 8000})
 		_requirePW = false
 		await txConfirm.click()
 	}
