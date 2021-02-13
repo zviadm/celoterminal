@@ -1,7 +1,7 @@
 import { app, devchainKit, jestSetup } from '../../../../lib/spectron-utils/setup'
-import { adjustNow, confirmTXs, refetchAppData } from '../../../../lib/spectron-utils/helpers'
+import { adjustNow, confirmTXs, refetchAppData } from '../../../../lib/spectron-utils/app-helpers'
 import { SpectronAccounts } from '../../../../lib/spectron-utils/constants';
-import { createValidatorGroup } from '../../../../lib/spectron-utils/core-contract-helpers';
+import { createValidatorGroup } from '../../../../lib/spectron-utils/devchain-helpers';
 
 jestSetup()
 
@@ -53,7 +53,7 @@ test('Lock & Unlock CELO', async (done) => {
 	await pending1.waitForExist({reverse: true})
 
 	await adjustNow(3 * 24 * 60 * 60 * 1000) // Pass time to enable withdraws.
-	await refetchAppData(app.client)
+	await refetchAppData()
 
 	await pending0.waitForEnabled()
 	await pending0.click()
@@ -81,7 +81,7 @@ test('Revoke & Unlock CELO', async (done) => {
 	const nonVoting = await lockedGold.getAccountNonvotingLockedGold(a0)
 	expect(nonVoting.toNumber()).toEqual(0)
 
-	await refetchAppData(app.client)
+	await refetchAppData()
 	const unlockInput = await app.client.$("#unlock-celo-input")
 	await unlockInput.waitForEnabled()
 	await unlockInput.click()
@@ -89,7 +89,7 @@ test('Revoke & Unlock CELO', async (done) => {
 	const unlockCelo = await app.client.$("#unlock-celo")
 	await expect(unlockCelo.getText()).resolves.toEqual("REVOKE AND UNLOCK")
 	await unlockCelo.click()
-	await confirmTXs(app.client, {txCount: 2})
+	await confirmTXs({txCount: 2})
 	const totalLockedAfterRevokeAndUnlock = await lockedGold.getAccountTotalLockedGold(a0)
 	expect(totalLockedAfterRevokeAndUnlock.toNumber()).toEqual(35e18)
 

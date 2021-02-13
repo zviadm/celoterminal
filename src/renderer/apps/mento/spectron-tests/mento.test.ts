@@ -1,5 +1,5 @@
 import { jestSetup } from '../../../../lib/spectron-utils/setup'
-import { installOptionalApp } from '../../../../lib/spectron-utils/helpers'
+import { installOptionalApp } from '../../../../lib/spectron-utils/app-helpers'
 
 jestSetup()
 
