@@ -1,12 +1,10 @@
 import { app, devchainKit, jestSetup } from '../../../../lib/spectron-utils/setup'
-import { confirmTXs } from '../../../../lib/spectron-utils/app-helpers'
+import { confirmTXs, selectApp } from '../../../../lib/spectron-utils/app-helpers'
 
 jestSetup()
 
 test('Send ', async (done) => {
-	const menuSend = await app.client.$("#menu-send-receive")
-	await menuSend.waitForEnabled()
-	await menuSend.click()
+	await selectApp("send-receive")
 
 	const randomAddr = "0x000100020003000400050006000700080009000a"
 	const toAddressInput = await app.client.$("#to-address-input")

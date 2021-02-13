@@ -42,7 +42,10 @@ const GovernanceApp = (props: {
 			const now = Math.round(nowMS() / 1000)
 			const proposals = Promise.all([dequeue, durations]).then(([dequeue, durations]) => {
 				return concurrentMap(4, dequeue, async (p) => {
-					const record = await governance.getProposalRecord(p)
+					const [record, isExpired] = await Promise.all([
+						governance.getProposalRecord(p),
+						governance.isDequeuedProposalExpired(p),
+					])
 					const timeUntilExecution =
 						secondsToDurationString(
 							record.metadata.timestamp
@@ -53,7 +56,7 @@ const GovernanceApp = (props: {
 						)
 					return {
 						proposalID: p,
-						stage: record.stage,
+						stage: isExpired ? ProposalStage.Expiration : record.stage,
 						votes: record.votes,
 						passing: record.passing,
 						timeUntilExecution,
@@ -76,16 +79,6 @@ const GovernanceApp = (props: {
 
 				upvotes: await upvotes,
 				upvoteRecord: await upvoteRecord,
-				// For testing upvote UI.
-				// upvotes: [
-				// 	{proposalID: new BigNumber(1), upvotes: new BigNumber(100000e18)},
-				// 	{proposalID: new BigNumber(2), upvotes: new BigNumber(1000000e18)},
-				// 	{proposalID: new BigNumber(3), upvotes: new BigNumber(10000000e18)},
-				// ],
-				// upvoteRecord: {
-				// 	proposalID: new BigNumber(2),
-				// 	upvotes: new BigNumber(5),
-				// },
 
 				proposals: proposalsInReferendum,
 				voteRecords: await voteRecords,
@@ -99,7 +92,7 @@ const GovernanceApp = (props: {
 			if (!fetched) { return [] }
 			const governance = await kit.contracts.getGovernance()
 			const txs: Transaction[] = []
-			if (fetched.upvotes.find((u) => u.proposalID === fetched.upvoteRecord.proposalID)) {
+			if (fetched.upvotes.find((u) => u.proposalID.eq(fetched.upvoteRecord.proposalID))) {
 				const txRevoke = await governance.revokeUpvote(fetched.mainAccount)
 				txs.push({tx: txRevoke})
 			}
@@ -132,6 +125,16 @@ const GovernanceApp = (props: {
 					</Box>
 				</Paper>
 			</Box>
+			{fetched.proposals.length === 0 && fetched.upvotes.length === 0 &&
+			<Box marginTop={2}>
+				<Paper>
+					<Box p={2} display="flex" flexDirection="column">
+						<Alert severity="info">
+							There are no active governance proposals to upvote or vote right now.
+						</Alert>
+					</Box>
+				</Paper>
+			</Box>}
 			{fetched.proposals.length > 0 &&
 			<Box marginTop={2}>
 				<Paper>
@@ -195,6 +198,7 @@ const GovernanceApp = (props: {
 												("Yes" | "No" | "Abstain")[]).map((v) => (
 													<Box key={v} marginBottom={0.5}>
 														<Button
+															id={`vote-${v}-${p.proposalID.toString()}`}
 															style={{width: 100}}
 															variant={vote?.value === v ? "contained" : "outlined"}
 															color={vote?.value === v ? "primary" : "default"}
@@ -247,6 +251,7 @@ const GovernanceApp = (props: {
 										<TableCell>
 											<Box display="flex" flexDirection="column">
 											<Button
+												id={`upvote-${v.proposalID.toString()}`}
 												style={{width: 100}}
 												variant={isUpvoted ? "contained" : "outlined"}
 												color={isUpvoted ? "primary" : "default"}

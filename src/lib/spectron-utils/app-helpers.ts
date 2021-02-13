@@ -3,15 +3,16 @@ import { increaseTime, Provider } from "celo-devchain"
 import { SpectronAccountsDBPassword } from "./constants"
 import { app, devchainKit } from "./setup"
 
-let _requirePW = true
+let _adjustedNowMS = 0
+let _pwEnteredMS = 0
+const pwCacheMS = 60 * 60 * 1000
 // Runs through transaction confirmation UI flow. Will check for
 // an error at the end if transaction fails unexpectedly.
 export const confirmTXs = async(opts?: {
-	requirePW?: boolean,
 	txCount?: number,
+	skipWaitForRefetch?: boolean,
 }): Promise<void> => {
-	_requirePW = opts?.requirePW !== undefined ? opts?.requirePW : _requirePW
-	if (_requirePW) {
+	if (Date.now() + _adjustedNowMS > _pwEnteredMS + pwCacheMS) {
 		const passwordInput = await app.client.$("#password-input")
 		await passwordInput.waitForEnabled()
 		await passwordInput.keys([...SpectronAccountsDBPassword, 'Enter'])
@@ -20,7 +21,7 @@ export const confirmTXs = async(opts?: {
 	const txCount = opts?.txCount || 1
 	for (let idx = 0; idx < txCount; idx += 1) {
 		await confirmTX.waitForEnabled({timeout: 8000})
-		_requirePW = false
+		_pwEnteredMS = Date.now() + _adjustedNowMS
 		await confirmTX.click()
 	}
 
@@ -31,6 +32,10 @@ export const confirmTXs = async(opts?: {
 		interval: 500,
 	})
 	await checkErrorSnack()
+	if (!opts?.skipWaitForRefetch) {
+		const refetchData = await app.client.$("#refetch-data")
+		await refetchData.waitForEnabled()
+	}
 	return
 }
 
@@ -63,9 +68,16 @@ export const installOptionalApp = async (appId: string): Promise<void> => {
 	await installApp.click()
 }
 
+export const selectApp = async (appId: string): Promise<void> => {
+	const menuItem = await app.client.$(`#menu-${appId}`)
+	await menuItem.waitForEnabled()
+	await menuItem.click()
+}
+
 // Alters current time both for celo-devchain, and for the Celo Terminal app.
 export const adjustNow = async (increaseMS: number): Promise<void> => {
 	const kit = devchainKit()
+	_adjustedNowMS += increaseMS
 	app.webContents.send("adjust-time", increaseMS)
 	await increaseTime(kit.web3.currentProvider as Provider, increaseMS / 1000)
 }
