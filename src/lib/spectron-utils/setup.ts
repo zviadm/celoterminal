@@ -51,7 +51,7 @@ const startApp = async (): Promise<{app: Application, cleanup: () => Promise<voi
 	const rootPath = [__dirname, "..", "..", ".."]
 	const app = new Application({
 		path: path.join(...rootPath, "node_modules", ".bin", "electron"),
-		args: [path.join(...rootPath, "dist", "main", "main.js")],
+		args: ['--no-sandbox', path.join(...rootPath, "dist", "main", "main.js")],
 		env: {
 			"SPECTRON_TEST": "true",
 			"CELOTERMINAL_ACCOUNTS_DB": "home/.celoterminal/" + SpectronAccountsDB,
