@@ -1,5 +1,5 @@
 import * as path from 'path'
-import { spawn } from 'child_process'
+import { spawn, ChildProcessWithoutNullStreams } from 'child_process'
 import { Application } from 'spectron'
 import { Remote } from 'electron'
 import { ContractKit, newKit } from '@celo/contractkit'
@@ -67,7 +67,7 @@ const startApp = async (): Promise<{app: Application, cleanup: () => Promise<voi
 
 	const cleanup = async () => {
 		testLog(`[test] cleanup & exit...`)
-		devchain.kill()
+		killDevchain(devchain)
 		if (app && app.isRunning()) {
 			await app.stop()
 		}
@@ -102,9 +102,15 @@ const startDevchain = async () => {
 	})
 	process.on("exit", () => {
 		if (!devchain.killed) {
-			devchain.kill()
+			killDevchain(devchain)
 		}
 	})
 	await started
 	return {devchain, devchainKilled}
+}
+
+const killDevchain = (devchain: ChildProcessWithoutNullStreams) => {
+	devchain.stdout.destroy()
+	devchain.stderr.destroy()
+	devchain.kill()
 }
