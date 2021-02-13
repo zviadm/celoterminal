@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as crypto from 'crypto'
 import * as log from 'electron-log'
-import { ensureLeading0x, toChecksumAddress , privateKeyToAddress } from '@celo/utils/lib/address'
+import { ensureLeading0x, toChecksumAddress, privateKeyToAddress } from '@celo/utils/lib/address'
 import { isValidAddress } from 'ethereumjs-util'
 
 
