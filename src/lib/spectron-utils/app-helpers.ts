@@ -52,6 +52,7 @@ export const refetchAppData = async (): Promise<void> => {
 	await refetchData.waitForEnabled()
 }
 
+// Installs optional app from the AppStore.
 export const installOptionalApp = async (appId: string): Promise<void> => {
 	const menuAppstore = await app.client.$("#menu-appstore")
 	await menuAppstore.waitForEnabled()
