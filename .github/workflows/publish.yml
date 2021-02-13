@@ -40,6 +40,9 @@ jobs:
           EP_PRE_RELEASE: true
           CSC_LINK: ${{ secrets.OSX_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.OSX_CSC_KEY_PASSWORD }}
+          OSX_NOTARIZE: "TRUE"
+          OSX_APPLE_ID: ${{ secrets.OSX_APPLE_ID }}
+          OSX_APPLE_ID_PASSWORD: ${{ secrets.OSX_APPLE_ID_PASSWORD }}
         if: runner.os == 'macOS'
 
       - run: yarn electron-builder --win --publish always
