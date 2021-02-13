@@ -16,12 +16,12 @@ export const confirmTXs = async(opts?: {
 		await passwordInput.waitForEnabled()
 		await passwordInput.keys([...SpectronAccountsDBPassword, 'Enter'])
 	}
-	const txConfirm = await app.client.$("#tx-confirm")
+	const confirmTX = await app.client.$("#confirm-tx")
 	const txCount = opts?.txCount || 1
 	for (let idx = 0; idx < txCount; idx += 1) {
-		await txConfirm.waitForEnabled({timeout: 8000})
+		await confirmTX.waitForEnabled({timeout: 8000})
 		_requirePW = false
-		await txConfirm.click()
+		await confirmTX.click()
 	}
 
 	const txRunnerModal = await app.client.$("#tx-runner-modal")
@@ -43,6 +43,13 @@ export const checkErrorSnack = async (): Promise<void> => {
 		throw new Error(`Error Snack active: ${text}`)
 	}
 	return
+}
+
+// Clicks `refetch` button and waits for refetch to complete.
+export const refetchAppData = async (): Promise<void> => {
+	const refetchData = await app.client.$("#refetch-data")
+	await refetchData.click()
+	await refetchData.waitForEnabled()
 }
 
 export const installOptionalApp = async (appId: string): Promise<void> => {

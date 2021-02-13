@@ -308,11 +308,11 @@ const RunTXs = (props: {
 				:
 				<>
 					<Button
-						id="tx-cancel"
+						id="cancel-tx"
 						onClick={currentTX?.cancel}
 						disabled={stage !== "confirming"}>Cancel</Button>
 					<Button
-						id="tx-confirm"
+						id="confirm-tx"
 						onClick={currentTX?.confirm}
 						disabled={stage !== "confirming"}>Confirm</Button>
 				</>

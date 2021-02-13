@@ -1,11 +1,10 @@
 import electron from 'electron'
 import * as path from 'path'
 import { privateKeyToAddress } from '@celo/utils/lib/address'
-import { ACCOUNT_PRIVATE_KEYS } from 'celo-devchain'
 
 import AccountsDB, { encryptLocalKey } from '../lib/accountsdb'
 import { CFG } from '../lib/cfg'
-import { SpectronAccountsDBPassword } from '../lib/spectron-utils/constants'
+import { SpectronAccountKeys, SpectronAccountsDBPassword } from '../lib/spectron-utils/constants'
 
 export const testOnlySetupAccountsDB = (): void => {
 	const cfg = CFG()
@@ -14,7 +13,7 @@ export const testOnlySetupAccountsDB = (): void => {
 	const db = new AccountsDB(dbPath)
 	const accounts = db.readAccounts()
 	// TODO(zviad): This might require some cleanup/rethinking for perf/reuse.
-	const a0pkey = ACCOUNT_PRIVATE_KEYS[0]
+	const a0pkey = SpectronAccountKeys[0]
 	const a0addr = privateKeyToAddress(a0pkey)
 	let foundA0 = false
 	for (const account of accounts) {
