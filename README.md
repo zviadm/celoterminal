@@ -7,7 +7,7 @@ MacOS and Windows versions available:
 * https://github.com/zviadm/celoterminal/releases/latest
 * NOTE: Windows binaries aren't signed yet, thus they might show a warning during installation.
 
-## App Framework
+## App Platform
 
 Celo Terminal is not just a wallet. Celo Terminal is an extensible platform to build secure and easy to use DApp UIs.
 It simplifies the development process for the builders and improves usability for the users. If you are developing a
