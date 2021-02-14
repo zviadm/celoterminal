@@ -56,7 +56,7 @@ TODO: For UI testing, only manual testing is possible right now. Stay tuned for 
 # Reviewing and integrating an app in Terminal
 
 If you want to discuss plans for integrating your app in Celo Terminal, reach out to
-`@zviad | WOTrust` on [Celo Discord](https://chat.celo.org), or by email: zviad@wotrust.us
+`@zviad | WOTrust` on [Celo Discord](https://chat.celo.org), or by email: support@celoterminal.com
 
 Celo Terminal is still in very early stages of development, thus all initial app integrations
 will be on more case-by-case basis until project reaches more maturatiy/stability.
