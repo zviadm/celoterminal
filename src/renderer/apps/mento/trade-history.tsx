@@ -1,7 +1,7 @@
 import { TradeEvent } from './state'
 import { Decimals } from './config'
 import { fmtAddress, fmtAmount } from '../../../lib/utils'
-import { CFG } from '../../../lib/cfg'
+import { explorerRootURL } from '../../../lib/cfg'
 
 import * as React from 'react'
 import Box from '@material-ui/core/Box'
@@ -12,16 +12,12 @@ import {
 
 import Link from '../../components/link'
 
-const blockscoutURL =
-	CFG().networkId === "62320" ?
-	"https://baklava-blockscout.celo-testnet.org" :
-	"https://explorer.celo.org"
-
 const TradeHistory = (props: {
 	events?: TradeEvent[],
 }): JSX.Element => {
 
 	const events = props.events
+	const explorerURL = explorerRootURL()
 	return (
 		<Paper>
 			<Box p={2}>
@@ -60,7 +56,7 @@ const TradeHistory = (props: {
 											}
 										</TableCell>
 										<TableCell>
-											<Link href={`${blockscoutURL}/tx/${e.txHash}`} style={{fontFamily: "monospace"}}>
+											<Link href={`${explorerURL}/tx/${e.txHash}`} style={{fontFamily: "monospace"}}>
 												{fmtAddress(e.txHash)}
 											</Link>
 										</TableCell>
