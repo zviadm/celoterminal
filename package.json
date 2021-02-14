@@ -65,7 +65,7 @@
     "@types/tmp": "^0.2.0",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
-    "celo-devchain": "2.0.3",
+    "celo-devchain": "^2.0.4",
     "css-loader": "^5.0.1",
     "electron": "11.2.1",
     "electron-builder": "^22.9.1",
