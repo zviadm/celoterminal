@@ -11,15 +11,12 @@ function Link(props: {
 } & DefaultComponentProps<LinkTypeMap>): JSX.Element {
 	const handleClick = () => { shell.openExternal(props.href) }
 	const propsCopy: DefaultComponentProps<LinkTypeMap> = {...props}
-	delete propsCopy["href"]
+	propsCopy["href"] = "#"
 
 	return (
 		<Tooltip title={props.href}>
 			<MuiLink {...{
 				...propsCopy,
-				component: "button",
-				variant: "body2",
-				underline: "hover",
 				onClick: handleClick,
 				}}
 			/>
