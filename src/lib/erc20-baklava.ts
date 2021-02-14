@@ -1,8 +1,6 @@
-import { SavingsCELOAddressBaklava } from 'savingscelo'
-
 export const erc20Baklava = [
 	{
 		name: "SavingsCELO:sCELO",
-		address: SavingsCELOAddressBaklava,
+		address: "0x87AF5A902c22917A821077C86EbD873Dc64524Fc",
 	},
 ]
