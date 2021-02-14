@@ -13,7 +13,9 @@ export interface EstimatedFee {
 }
 
 
-export const estimateGas = async (kit: ContractKit, tx: Transaction): BigNumber => {
+export const estimateGas = async (
+	kit: ContractKit,
+	tx: Transaction): Promise<BigNumber> => {
 	if (tx.params?.gas) {
 		return new BigNumber(tx.params?.gas)
 	}
