@@ -74,6 +74,7 @@ const SendReceiveApp = (props: {
 		isValidAddress(toAddress) && (toSend !== "") &&
 		fetched &&
 		fetched.balance.gte(new BigNumber(toSend).shiftedBy(fetched.decimals)))
+	const erc20Name = erc20.split(":").splice(-1)[0]
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
 			<AppHeader app={SendReceive} isFetching={isFetching} refetch={refetch} />
@@ -96,7 +97,7 @@ const SendReceiveApp = (props: {
 						</Box>
 						<Box marginTop={1}>
 							<Typography>
-								Balance: {!fetched ? "?" : fmtAmount(fetched.balance, fetched.decimals)} {erc20}
+								Balance: {!fetched ? "?" : fmtAmount(fetched.balance, fetched.decimals)} {erc20Name}
 							</Typography>
 						</Box>
 					</Box>
