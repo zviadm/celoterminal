@@ -76,3 +76,15 @@ export const CFG = (): Config => {
 export const networkName = (networkId: string): string => {
 	return networkNames[networkId] || `NetworkId: ${networkId}`
 }
+
+export const explorerRootURL = (): string => {
+	switch (CFG().networkId) {
+	case mainnetNetworkId:
+		return "https://explorer.celo.org"
+	case "62320":
+		return "https://baklava-blockscout.celo-testnet.org"
+	default:
+		// just a fake URL.
+		return `https://explorer.network.${CFG().networkId}`
+	}
+}

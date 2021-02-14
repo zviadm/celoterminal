@@ -1,12 +1,14 @@
+import { clipboard } from 'electron'
+
 import { Account } from '../../lib/accounts'
 import { fmtAddress } from '../../lib/utils'
 
 import * as React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
-import Box from '@material-ui/core/Box'
-import Typography from '@material-ui/core/Typography'
+import {
+	makeStyles, IconButton, Select, MenuItem, Box, Typography,
+	Tooltip
+} from '@material-ui/core'
+import { CropFree, FileCopy } from '@material-ui/icons'
 
 import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon } from './accounts-app/account-icons'
 import NetworkIndicator from './network-indicator'
@@ -30,6 +32,19 @@ const AccountsBar = (props: {
 	onSelectAccount: (a: Account) => void,
 }): JSX.Element => {
 	const classes = useStyles()
+	const [copied, setCopied] = React.useState(false)
+	const handleCopyAddress = () => {
+		if (!props.selectedAccount) {
+			return
+		}
+		clipboard.writeText(props.selectedAccount.address)
+		setCopied(true)
+	}
+	const resetCopied = () => {
+		if (copied) {
+			setCopied(false)
+		}
+	}
 	return (
 		<Box display="flex" flexDirection="row" justifyContent="flex-end" p={2}>
 			<Box display="flex" flexDirection="row" flex={1}>
@@ -37,6 +52,7 @@ const AccountsBar = (props: {
 			</Box>
 			<Select
 				id="accounts-select"
+				style={{marginRight: 5}}
 				value={props.selectedAccount?.address || ""}
 				onChange={(event) => {
 					const selected = props.accounts.find((a) => a.address === event.target.value)
@@ -62,6 +78,17 @@ const AccountsBar = (props: {
 					))
 				}
 			</Select>
+			<Tooltip title={copied ? "Copied" : "Copy Address"} onClose={resetCopied}>
+				<IconButton
+					size="small"
+					onClick={handleCopyAddress}
+					><FileCopy /></IconButton>
+			</Tooltip>
+			<Tooltip title="QR Code">
+				<IconButton
+					size="small"
+					><CropFree /></IconButton>
+			</Tooltip>
 		</Box>
 	)
 }
