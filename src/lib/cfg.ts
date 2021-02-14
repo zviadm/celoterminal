@@ -1,3 +1,5 @@
+import { erc20Baklava } from "./erc20-baklava"
+
 export const mainnetNetworkId = "42220"
 const defaultNetworkId = mainnetNetworkId
 const defaultAccountsDB = "home/.celoterminal/celoaccounts.db"
@@ -15,7 +17,16 @@ const networkNames: {[key: string]: string} = {
 	"44787": "Alfajores",
 }
 
+const erc20Registry: {[key: string]: ERC20[]} = {
+	"62320": erc20Baklava,
+}
+
 export type PathRoot = "home" | "userData"
+
+interface ERC20 {
+	name: string,
+	address?: string,
+}
 
 interface Config {
 	networkId: string,
@@ -24,10 +35,7 @@ interface Config {
 		root: PathRoot,
 		path: string[],
 	},
-	erc20s: {
-		name: string,
-		address?: string,
-	}[],
+	erc20s: ERC20[],
 }
 
 let _CFG: Config
@@ -46,6 +54,7 @@ export const CFG = (): Config => {
 			defaultAccountsDB
 		const accountsDBPathParts = accountsDBPath.split("/")
 
+		const erc20s = Array.from((erc20Registry[networkId] || [])).sort((a, b) => a.name < b.name ? -1 : 1)
 		_CFG = {
 			networkId,
 			defaultNetworkURL,
@@ -57,6 +66,7 @@ export const CFG = (): Config => {
 			erc20s: [
 				{name: "CELO"},
 				{name: "cUSD"},
+				...erc20s,
 			],
 		}
 	}

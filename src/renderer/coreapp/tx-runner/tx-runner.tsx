@@ -9,7 +9,7 @@ import useSessionState from '../../state/session-state'
 import { decryptLocalKey } from '../../../lib/accountsdb'
 import { canDecryptLocalKey, createWallet } from './wallet'
 import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definition'
-import { fmtAddress, fmtAmount, sleep } from '../../../lib/utils'
+import { fmtAmount, sleep } from '../../../lib/utils'
 import { transformError } from '../ledger-utils'
 import { cfgNetworkURL } from '../../state/kit'
 import { UserError } from '../../../lib/error'
@@ -42,6 +42,7 @@ import Paper from '@material-ui/core/Paper'
 import IconButton from '@material-ui/core/IconButton'
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import { contractName } from '../../../lib/registry'
 
 export class TXCancelled extends Error {
 	constructor() { super('Cancelled') }
@@ -339,16 +340,12 @@ interface ParsedTransaction {
 const parseTransaction = async (
 	kit: ContractKit,
 	tx: Transaction): Promise<ParsedTransaction> => {
-	const contractAddress = tx.tx.txo._parent.options.address
-	const addressMapping = await kit.registry.addressMapping()
-	const match = Array.from(
-		addressMapping.entries()).find((i) => i[1].toLowerCase() === contractAddress.toLowerCase())
-	const contractName = match ? `${match[0]} (${fmtAddress(contractAddress)})` : contractAddress
+	const name = await contractName(kit, tx.tx.txo._parent.options.address)
 	return {
 		encodedABI: tx.tx.txo.encodeABI(),
 		transferValue: tx.params?.value ? new BigNumber(tx.params.value.toString()) : undefined,
 
-		contractName,
+		contractName: name,
 	}
 }
 

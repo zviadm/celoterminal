@@ -80,6 +80,7 @@ const SendReceiveApp = (props: {
 			<Box marginTop={2}>
 				<Paper>
 					<Box p={2}>
+						<Box width={200} display="flex" flexDirection="column">
 						<Select
 							id="erc20-select"
 							autoFocus
@@ -92,6 +93,7 @@ const SendReceiveApp = (props: {
 								))
 							}
 						</Select>
+						</Box>
 						<Box marginTop={1}>
 							<Typography>
 								Balance: {!fetched ? "?" : fmtAmount(fetched.balance, fetched.decimals)} {erc20}
@@ -140,7 +142,8 @@ const SendReceiveApp = (props: {
 }
 export default SendReceiveApp
 
-const newERC20 = async (kit: ContractKit, name: string, address?: string) => {
+const newERC20 = async (kit: ContractKit, name: string) => {
+	let address
 	switch (name) {
 	case "CELO":
 		address = await kit.registry.addressFor(CeloContract.GoldToken)
@@ -148,6 +151,11 @@ const newERC20 = async (kit: ContractKit, name: string, address?: string) => {
 	case "cUSD":
 		address = await kit.registry.addressFor(CeloContract.StableToken)
 		break
+	default: {
+		const erc20 = CFG().erc20s.find((e) => e.name === name)
+		address = erc20?.address
+		break
+		}
 	}
 	if (!address) {
 		throw new Error(`Unknown ERC20: ${name} - ${address}!`)
