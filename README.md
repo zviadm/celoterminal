@@ -25,3 +25,11 @@ provides support for the built-in software upgrades, it never installs those upg
 Non-core DApps might require interacting with external servers other than the blockchain node, but
 those interactions only happen when DApp is in active use. As Celo Terminal evolves, it will provide clearer
 guidelines and indicators when any of the DApps interact with the external servers.
+
+## Need Help? Have Questions?
+
+If you run into a bug, please [file an issue](https://github.com/zviadm/celoterminal/issues) on GitHub.
+
+If you have questions or need help, you can ask in #general-owners channel in [Celo Discord](https://discord.com/invite/nfmTPV2). 
+Make sure to tag `@zviad | WOTrust`. Alternatively, you can email at: support@celoterminal.com.
+
