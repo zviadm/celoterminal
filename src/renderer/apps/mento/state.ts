@@ -1,13 +1,14 @@
 import { ContractKit } from '@celo/contractkit'
 import { valueToBigNumber } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 import BigNumber from 'bignumber.js'
+import { BlockTransactionString } from 'web3-eth'
 
 import useOnChainState from '../../state/onchain-state'
 import { Decimals, StableTokens } from './config'
 import { Account } from '../../../lib/accounts'
 
 import * as React from 'react'
-import useEventHistoryState from '../../state/event-history-state'
+import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useExchangeOnChainState = (account: Account, stableToken: string) => {
@@ -54,23 +55,22 @@ export interface TradeEvent {
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useExchangeHistoryState = (account: Account) => {
 	const fetchCallback = React.useCallback(
-		async (kit: ContractKit, fromBlock: number, toBlock: number): Promise<TradeEvent[]> => {
+		async (
+			kit: ContractKit,
+			fromBlock: number,
+			toBlock: number,
+			latestBlock: BlockTransactionString): Promise<TradeEvent[]> => {
 			const exchangeDirect = await kit._web3Contracts.getExchange()
-			const toBlockP = kit.web3.eth.getBlock(toBlock)
 			const events = await exchangeDirect.getPastEvents("Exchanged", {
 				fromBlock,
 				toBlock,
 				filter: { exchanger: account.address }
 			})
-			const toBlockData = await toBlockP
 			return events.map((e) => ({
 					blockNumber: e.blockNumber,
-					// Estimate timestamp from just `toBlock`, since fetching all blocks
+					// Estimate timestamp from just `latestBlock`, since fetching all blocks
 					// would be prohibitevly expensive.
-					timestamp: new Date(
-						new BigNumber(toBlockData.timestamp)
-						.minus((toBlockData.number - e.blockNumber) * 5)
-						.multipliedBy(1000).toNumber()),
+					timestamp: estimateTimestamp(latestBlock, e.blockNumber),
 					txHash: e.transactionHash,
 					exchanger: e.returnValues.exchanger,
 					sellAmount: valueToBigNumber(e.returnValues.sellAmount),

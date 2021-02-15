@@ -279,11 +279,7 @@ const MentoApp = (props: {
 					</Box>
 				</Paper>
 			</Box>
-			<Box marginTop={2}>
-				<TradeHistory
-					events={exchangeHistory.fetched?.events}
-				/>
-			</Box>
+			<Box marginTop={2}><TradeHistory events={exchangeHistory.fetched} /></Box>
 		</Box>
 	)
 }

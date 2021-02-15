@@ -1,14 +1,25 @@
 import * as React from 'react'
 import log from 'electron-log'
 import { ContractKit } from '@celo/contractkit'
+import { BlockTransactionString } from 'web3-eth'
 
 import useOnChainState from './onchain-state'
+import BigNumber from 'bignumber.js'
 
-export type FetchEventsCallback<T> = (kit: ContractKit, fromBlock: number, toBlock: number) => Promise<T[]>
+export type FetchEventsCallback<T> = (
+	kit: ContractKit,
+	fromBlock: number,
+	toBlock: number,
+	latestBlock: BlockTransactionString) => Promise<T[]>
 
 // useEventHistoryState provides React hook to help with fetching recent events
-// from the blockchain. fetchCallback must be wrapped in React.useCallback to be memoized
-// based on its dependencies.
+// from the blockchain.
+// fetchCallback requirements:
+// * must be wrapped in React.useCallback to be memoized based on its dependencies.
+// * expected to use .getPastEvents to get desired events and is expected to return same data
+//   when called with the same fromBlock/toBlock parameters.
+// * must return data ordered from oldest to latest.
+//
 // maxHistoryDays and maxEvents can be used to control amount of recent data that gets fetched.
 // maxHistoryDays >7 can take few seconds to fetch, so it can become pretty expensive.
 //
@@ -54,7 +65,7 @@ export default function useEventHistoryState <T>(
 				events = await progressiveFetch(
 					fromBlock, toBlock, maxEvents,
 					(fromBlock, toBlock) => {
-						return fetchCallback(kit, fromBlock, toBlock)
+						return fetchCallback(kit, fromBlock, toBlock, latestBlock)
 					},
 				)
 			}
@@ -64,9 +75,7 @@ export default function useEventHistoryState <T>(
 			cache.callback = fetchCallback
 			cache.toBlock = toBlock
 			cache.events = events
-			return {
-				events: events,
-			}
+			return events
 		},
 		[fetchCallback, cache, maxEvents, maxHistoryBlocks],
 	),
@@ -97,4 +106,11 @@ async function progressiveFetch<T>(
 		fetchSize = Math.min(maxFetchSize, fetchSize *= 2)
 	}
 	return all.slice(0, minItems)
+}
+
+export const estimateTimestamp = (block: BlockTransactionString, blockN: number): Date => {
+	return new Date(
+		new BigNumber(block.timestamp)
+		.minus((block.number - blockN) * 5)
+		.multipliedBy(1000).toNumber())
 }

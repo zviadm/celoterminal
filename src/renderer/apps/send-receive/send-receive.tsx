@@ -1,6 +1,7 @@
 import { CeloContract, ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
 import { isValidAddress } from 'ethereumjs-util'
+import { BlockTransactionString } from 'web3-eth'
 
 import { Account } from '../../../lib/accounts'
 import useOnChainState from '../../state/onchain-state'
@@ -23,6 +24,9 @@ import Alert from '@material-ui/lab/Alert'
 
 import AddressAutocomplete from '../../components/address-autocomplete'
 import AppHeader from '../../components/app-header'
+import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
+import { valueToBigNumber } from '@celo/contractkit/lib/wrappers/BaseWrapper'
+import TransferHistory from './transfer-history'
 
 const SendReceiveApp = (props: {
 	accounts: Account[],
@@ -49,12 +53,47 @@ const SendReceiveApp = (props: {
 		},
 		[selectedAddress, erc20]
 	))
+	const transferHistory = useEventHistoryState(React.useCallback(
+		async (kit: ContractKit, fromBlock: number, toBlock: number, latestBlock: BlockTransactionString) => {
+			const contractDirect = (await newERC20(kit, erc20)).web3contract
+			const fromTransfers = await contractDirect.getPastEvents("Transfer", {
+				fromBlock,
+				toBlock,
+				filter: {from: selectedAddress},
+			})
+			const toTransfers = await contractDirect.getPastEvents("Transfer", {
+				fromBlock,
+				toBlock,
+				filter: {to: selectedAddress},
+			})
+			const toTransfersFiltered = toTransfers.filter((e) => e.returnValues.from !== selectedAddress)
+			const transfers = fromTransfers.concat(toTransfersFiltered)
+			transfers.sort((a, b) => a.blockNumber - b.blockNumber)
+
+			return transfers.map((e) => ({
+				timestamp: estimateTimestamp(latestBlock, e.blockNumber),
+				txHash: e.transactionHash,
+				from: e.returnValues.from,
+				to: e.returnValues.to,
+				amount: valueToBigNumber(e.returnValues.value),
+			}))
+		},
+		[selectedAddress, erc20],
+	), {
+		maxHistoryDays: 7,
+		maxEvents: 100,
+	})
 	const [toSend, setToSend] = React.useState("")
 	const [toAddress, setToAddress] = React.useState("")
 
+	const refetchAll = () => {
+		refetch()
+		transferHistory.refetch()
+	}
+
 	const runTXs = (f: TXFunc) => {
 		props.runTXs(f, (e?: Error) => {
-			refetch()
+			refetchAll()
 			if (!e) {
 				setToSend("")
 			}
@@ -76,7 +115,7 @@ const SendReceiveApp = (props: {
 		fetched.balance.gte(new BigNumber(toSend).shiftedBy(fetched.decimals)))
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
-			<AppHeader app={SendReceive} isFetching={isFetching} refetch={refetch} />
+			<AppHeader app={SendReceive} isFetching={isFetching || transferHistory.isFetching} refetch={refetchAll} />
 			<Box marginTop={2}>
 				<Paper>
 					<Box p={2}>
@@ -134,6 +173,16 @@ const SendReceiveApp = (props: {
 							onClick={handleSend}>Send</Button>
 					</Box>
 				</Paper>
+			</Box>
+			<Box marginTop={2}>
+				<TransferHistory
+					address={selectedAddress}
+					events={transferHistory.fetched}
+					erc20={fetched && {
+						name: erc20,
+						decimals: fetched.decimals,
+					}}
+					/>
 			</Box>
 		</Box>
 	)
