@@ -205,7 +205,7 @@ const MentoApp = (props: {
 								value={celoAmount}
 								placeholder="0.0"
 								size="medium"
-								type="number"
+								inputMode="decimal"
 								fullWidth={true}
 								onChange={(e) => { handleChangeCeloAmt(e.target.value) }}
 								disabled={!fetched}
@@ -221,7 +221,7 @@ const MentoApp = (props: {
 								value={stableAmount}
 								placeholder="0.0"
 								size="medium"
-								type="number"
+								inputMode="decimal"
 								fullWidth={true}
 								onChange={(e) => { handleChangeStableAmt(e.target.value) }}
 								disabled={!fetched}

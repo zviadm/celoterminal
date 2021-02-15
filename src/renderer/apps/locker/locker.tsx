@@ -166,7 +166,7 @@ const LockerApp = (props: {
 							variant="outlined"
 							value={toLock}
 							size="medium"
-							type="number"
+							inputMode="decimal"
 							fullWidth={true}
 							onChange={(e) => { setToLock(e.target.value) }}
 						/>
@@ -287,7 +287,7 @@ const UnlockWithRevoke = (props: {
 					variant="outlined"
 					value={props.toUnlock}
 					size="medium"
-					type="number"
+					inputMode="decimal"
 					fullWidth={true}
 					onChange={(e) => { props.onSetToUnlock(e.target.value) }}
 				/>
