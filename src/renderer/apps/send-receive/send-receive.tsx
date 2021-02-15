@@ -123,7 +123,7 @@ const SendReceiveApp = (props: {
 							}
 							value={toSend}
 							size="medium"
-							type="number"
+							inputMode="decimal"
 							fullWidth={true}
 							onChange={(e) => { setToSend(e.target.value) }}
 						/>
