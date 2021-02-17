@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { newKit } from '@celo/contractkit'
 import { BlockHeader } from '@celo/connect'
+import { secondsToDurationString } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 
 import kit, { useNetworkURL } from '../state/kit'
 import { CFG, networkName } from '../../lib/cfg'
@@ -8,17 +9,11 @@ import { UserError } from '../../lib/error'
 import { nowMS } from '../state/time'
 
 import * as React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import WifiIcon from '@material-ui/icons/Wifi'
-import WifiOffIcon from '@material-ui/icons/WifiOff'
-import Tooltip from '@material-ui/core/Tooltip'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogActions from '@material-ui/core/DialogActions'
-import TextField from '@material-ui/core/TextField'
-import LinearProgress from '@material-ui/core/LinearProgress'
+import {
+	makeStyles, Tooltip, Button, Dialog, DialogTitle,
+	DialogContent, DialogActions, TextField, LinearProgress,
+} from '@material-ui/core'
+import { Wifi, WifiOff } from '@material-ui/icons'
 
 const useStyles = makeStyles((theme) => ({
 	connected: {
@@ -32,6 +27,7 @@ const useStyles = makeStyles((theme) => ({
 const NetworkIndicator = (): JSX.Element => {
 	const classes = useStyles()
 	const [connected, setConnected] = React.useState(true)
+	const [connectErr, setConnectErr] = React.useState("")
 	const expectedBlockMs = 5000
 	const blockRefetchMs = 600000
 	React.useEffect(() => {
@@ -58,10 +54,15 @@ const NetworkIndicator = (): JSX.Element => {
 					.plus((blockN - lastBlock.number) * expectedBlockMs)
 				const delayMs = nowMS() - blockTsMs.toNumber()
 				setConnected(delayMs <= maxBlockDelayMs)
+				if (delayMs > maxBlockDelayMs) {
+					const delayTxt = secondsToDurationString(delayMs/1000)
+					setConnectErr(`Out of sync. Last block: ${delayTxt} ago...`)
+				}
 			} catch (e) {
 				errCnt += 1
 				if (errCnt >= 2) {
 					setConnected(false)
+					setConnectErr(`Unable to establish connection: ${e}`)
 				}
 			}
 		}, expectedBlockMs)
@@ -79,7 +80,7 @@ const NetworkIndicator = (): JSX.Element => {
 		setOpenNetworkURL(false)
 	}
 	const netName = networkName(CFG().networkId)
-	const tooltipTitle = `Network: ${networkURL}`
+	const tooltipTitle = <div>Network: {networkURL}{connected ? <></> : <><br />{connectErr}</>}</div>
 	return (
 		<>
 			{openNetworkURL &&
@@ -90,8 +91,8 @@ const NetworkIndicator = (): JSX.Element => {
 			<Tooltip title={tooltipTitle}>
 				<Button
 					endIcon={connected ?
-						<WifiIcon className={classes.connected} /> :
-						<WifiOffIcon className={classes.disconnected} />}
+						<Wifi className={classes.connected} /> :
+						<WifiOff className={classes.disconnected} />}
 					onClick={handleOpenNetworkURL}
 					>{netName}</Button>
 			</Tooltip>
@@ -124,6 +125,9 @@ const ChangeNetworkURL = (props: {
 			})
 			.catch((e) => {
 				setIsTesting(false)
+				if (!(e instanceof UserError)) {
+					throw new Error(`Unable to establish connection with ${networkURL}: ${e}`)
+				}
 				throw e
 			})
 			.finally(() => {
