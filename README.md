@@ -4,8 +4,9 @@ Desktop app to manage accounts and interact with the decentralized apps on the C
 
 MacOS and Windows versions available:
 * https://celoterminal.com
-* https://github.com/zviadm/celoterminal/releases/latest
 * NOTE: Windows binaries aren't signed yet, thus they might show a warning during installation.
+
+Wiki: https://github.com/zviadm/celoterminal/wiki
 
 ## App Platform
 
