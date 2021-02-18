@@ -14,7 +14,6 @@ import { nowMS } from '../../state/time'
 import * as React from 'react'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
-import TextField from '@material-ui/core/TextField'
 import Box from '@material-ui/core/Box'
 import Paper from '@material-ui/core/Paper'
 import Alert from '@material-ui/lab/Alert'
@@ -26,6 +25,7 @@ import TableRow from '@material-ui/core/TableRow'
 import Tooltip from '@material-ui/core/Tooltip'
 
 import AppHeader from '../../components/app-header'
+import NumberInput from '../../components/number-input'
 
 const LockerApp = (props: {
 	accounts: Account[],
@@ -158,16 +158,13 @@ const LockerApp = (props: {
 				<Paper>
 					<Box display="flex" flexDirection="column" p={2}>
 						<Typography>Balance: {fmtAmount(fetched.totalCELO, "CELO")} CELO</Typography>
-						<TextField
-							id="lock-celo-input"
+						<NumberInput
 							autoFocus
 							margin="dense"
-							label={`Lock (max: ${fmtAmount(fetched.totalCELO, "CELO")})`}
 							variant="outlined"
+							id="lock-celo-input"
+							label={`Lock (max: ${fmtAmount(fetched.totalCELO, "CELO")})`}
 							value={toLock}
-							size="medium"
-							inputMode="decimal"
-							fullWidth={true}
 							onChange={(e) => { setToLock(e.target.value) }}
 						/>
 						<Button
@@ -280,16 +277,14 @@ const UnlockWithRevoke = (props: {
 					</Alert>
 				</Box>
 				: <>
-				<TextField
-					id="unlock-celo-input"
+				<NumberInput
 					margin="dense"
-					label={`Unlock (max: ${fmtAmount(maxToUnlock, "CELO")})`}
 					variant="outlined"
+					id="unlock-celo-input"
+					label={`Unlock (max: ${fmtAmount(maxToUnlock, "CELO")})`}
 					value={props.toUnlock}
-					size="medium"
-					inputMode="decimal"
-					fullWidth={true}
 					onChange={(e) => { props.onSetToUnlock(e.target.value) }}
+					onMax={() => { props.onSetToUnlock(fmtAmount(maxToUnlock, "CELO", "max")) }}
 				/>
 				<Button
 					id="unlock-celo"

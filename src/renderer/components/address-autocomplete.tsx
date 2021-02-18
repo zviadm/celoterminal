@@ -2,7 +2,7 @@ import * as React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import Typography from '@material-ui/core/Typography'
-import TextField from '@material-ui/core/TextField'
+import TextField, { TextFieldProps } from '@material-ui/core/TextField'
 
 const useStyles = makeStyles(() => ({
 	address: {
@@ -18,9 +18,9 @@ interface Address {
 const AddressAutocomplete = (props: {
 	id?: string,
 	addresses: Address[],
-	label: string,
 	address: string,
 	onChange: (address: string) => void,
+	textFieldProps?: TextFieldProps,
 }): JSX.Element => {
 	const classes = useStyles()
 	const renderOption = (o: Address) => (
@@ -40,8 +40,7 @@ const AddressAutocomplete = (props: {
 			renderInput={(params) => (
 				<TextField
 					{...params}
-					margin="normal"
-					label={props.label}
+					{...props.textFieldProps}
 					placeholder="0x..."
 					size="medium"
 					fullWidth={true}

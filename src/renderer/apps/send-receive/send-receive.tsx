@@ -2,6 +2,7 @@ import { CeloContract, ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
 import { isValidAddress } from 'ethereumjs-util'
 import { BlockTransactionString } from 'web3-eth'
+import { valueToBigNumber } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 
 import { Account } from '../../../lib/accounts'
 import useOnChainState from '../../state/onchain-state'
@@ -11,12 +12,12 @@ import ERC20 from './erc20'
 import { CFG } from '../../../lib/cfg'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { SendReceive } from './def'
+import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
 
 import * as React from 'react'
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 import Typography from '@material-ui/core/Typography'
-import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import Box from '@material-ui/core/Box'
 import Paper from '@material-ui/core/Paper'
@@ -24,9 +25,8 @@ import Alert from '@material-ui/lab/Alert'
 
 import AddressAutocomplete from '../../components/address-autocomplete'
 import AppHeader from '../../components/app-header'
-import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
-import { valueToBigNumber } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 import TransferHistory from './transfer-history'
+import NumberInput from '../../components/number-input'
 
 const SendReceiveApp = (props: {
 	accounts: Account[],
@@ -148,22 +148,24 @@ const SendReceiveApp = (props: {
 						</Alert>
 						<AddressAutocomplete
 							id="to-address-input"
-							label="Destination address"
+							textFieldProps={{
+								label: "Destination address",
+								margin: "normal",
+								InputLabelProps: {shrink: true},
+							}}
 							addresses={props.accounts}
 							address={toAddress}
 							onChange={setToAddress}
 						/>
-						<TextField
-							id="amount-input"
+						<NumberInput
 							margin="normal"
+							id="amount-input"
 							label={
 								!fetched ? `Amount` :
 								`Amount (max: ${fmtAmount(fetched.balance, fetched.decimals)})`
 							}
+							InputLabelProps={{shrink: true}}
 							value={toSend}
-							size="medium"
-							inputMode="decimal"
-							fullWidth={true}
 							onChange={(e) => { setToSend(e.target.value) }}
 						/>
 						<Button

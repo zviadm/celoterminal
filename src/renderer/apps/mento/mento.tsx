@@ -15,7 +15,6 @@ import Box from '@material-ui/core/Box'
 import Paper from '@material-ui/core/Paper'
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
-import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline'
@@ -24,6 +23,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 import AppHeader from '../../components/app-header'
 import ConfirmSwap from './confirm-swap'
 import TradeHistory from './trade-history'
+import NumberInput from '../../components/number-input'
 
 const MentoApp = (props: {
 	accounts: Account[],
@@ -194,7 +194,7 @@ const MentoApp = (props: {
 							</Select>
 						</Box>
 						<Box display="flex" flexDirection={side === "sell" ? "column" : "column-reverse"}>
-							<TextField
+							<NumberInput
 								margin="normal"
 								label={
 									(!fetched || side !== "sell") ? `CELO` :
@@ -204,13 +204,10 @@ const MentoApp = (props: {
 								}}
 								value={celoAmount}
 								placeholder="0.0"
-								size="medium"
-								inputMode="decimal"
-								fullWidth={true}
 								onChange={(e) => { handleChangeCeloAmt(e.target.value) }}
 								disabled={!fetched}
 							/>
-							<TextField
+							<NumberInput
 								margin="normal"
 								label={
 									(!fetched || side !== "buy") ? `${stableToken}` :
@@ -220,9 +217,6 @@ const MentoApp = (props: {
 								}}
 								value={stableAmount}
 								placeholder="0.0"
-								size="medium"
-								inputMode="decimal"
-								fullWidth={true}
 								onChange={(e) => { handleChangeStableAmt(e.target.value) }}
 								disabled={!fetched}
 							/>
