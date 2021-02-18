@@ -169,6 +169,15 @@ const CelovoteApp = (props: {
 						<Alert severity="success">
 						Account authorized with Celovote. Votes will be automatically cast
 						and activated for all your locked CELO to earn rewards.
+						<br />
+						<br />
+						View rewards for <Link
+							href={`https://celovote.com/rewards?addresses=${account.address}`}>
+							this account</Link>.
+						<br />
+						View rewards for <Link
+							href={`https://celovote.com/rewards?addresses=${props.accounts.map((a) => a.address).join(",")}`}>
+							all accounts</Link>.
 						</Alert>
 					</Box>
 				</Paper>
