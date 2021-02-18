@@ -68,6 +68,8 @@ const startApp = async (): Promise<{app: Application, cleanup: () => Promise<voi
 			"CELOTERMINAL_NETWORK_ID": SpectronNetworkId,
 			"CELOTERMINAL_NETWORK_URL": `http://localhost:${devchainPort}`,
 		},
+		// enable for chrome-driver verbose debugging.
+		// chromeDriverLogPath: "/tmp/celoterminal-spectron-chrome-driver.log",
 		startTimeout: 5000,
 	})
 	testLog(`$ ${appPath} ${appArgs.join(" ")}`)
