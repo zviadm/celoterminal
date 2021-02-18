@@ -9,7 +9,7 @@ import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { Celovote } from './def'
 import useOnChainState from '../../state/onchain-state'
 import { CFG, mainnetNetworkId } from '../../../lib/cfg'
-import { fmtAmount } from '../../../lib/utils'
+import { fmtAddress, fmtAmount } from '../../../lib/utils'
 import { UserError } from '../../../lib/error'
 
 import * as React from 'react'
@@ -318,6 +318,6 @@ const GroupAddress = (props: {address: string}) => {
 	return (
 		<Link
 			href={url}
-			style={{fontFamily: "monospace"}}>{props.address}</Link>
+			style={{fontFamily: "monospace"}}>{fmtAddress(props.address)}</Link>
 	)
 }
