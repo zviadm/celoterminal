@@ -45,12 +45,12 @@ TODO(zviadm): clean this up.
 Tests are placed in: `.../apps/<app id>/spectron-tests/<test name>.test.ts`
 
 Example tests:
-* [send-receive App tests](../src/renderer/apps/send-receive/spectron-tests/send-receive.test.ts)
-* [locker App tests](../src/renderer/apps/locker/spectron-tests/locker.test.ts)
+* [send-receive app tests](../src/renderer/apps/send-receive/spectron-tests/send-receive.test.ts)
+* [locker app tests](../src/renderer/apps/locker/spectron-tests/locker.test.ts)
 
 Each test file is run in a completely clean environment both for the app state and for the celo-devchain state. Because of this, each test 
 file has a significant overhead. You should treat single test file as a one big testing scenario with multiple sub-tests as individual 
-steps that depend on each other. Checkout [locker App tests](../src/renderer/apps/locker/spectron-tests/locker.test.ts) for an example
+steps that depend on each other. Checkout [locker app tests](../src/renderer/apps/locker/spectron-tests/locker.test.ts) for an example
 
 To run tests:
 ```
