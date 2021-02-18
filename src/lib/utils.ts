@@ -31,12 +31,17 @@ export class CancelPromise {
 export const fmtAmount = (
 	v: BigNumber,
 	decimals: "CELO" | "cUSD" | number,
-	precision?: number): string => {
+	precision?: number | "max"): string => {
 	if (decimals === "CELO" ||
 		decimals === "cUSD") {
 		decimals = 18
 	}
-	return v.shiftedBy(-decimals).toFixed(precision !== undefined ? precision : 2)
+	const fmtV = v.shiftedBy(-decimals)
+	if (precision === "max") {
+		return fmtV.toFixed()
+	} else {
+		return fmtV.toFixed((precision !== undefined ? precision : 2))
+	}
 }
 
 export const fmtAddress = (address: string): string => {
