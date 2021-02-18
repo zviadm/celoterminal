@@ -3,7 +3,8 @@ import BigNumber from "bignumber.js"
 import { toWei } from "web3-utils"
 import { addressToPublicKey } from '@celo/utils/lib/signatureUtils'
 import { ProposalBuilder } from '@celo/governance'
-import { SpectronAccounts } from "./constants"
+
+import { spectronDefaultAccount } from "./constants"
 import { adjustNow } from "./app-helpers"
 
 // Creates eligable validator group with a single validator as its member.
@@ -54,27 +55,25 @@ export const createGovernanceProposal = async (kit: ContractKit): Promise<void> 
 	const proposal = await new ProposalBuilder(kit).build()
 	const cfg = await kit.getNetworkConfig()
 
-	const a0 = SpectronAccounts[0]
 	await governance
 		.propose(proposal, 'URL')
 		.sendAndWaitForReceipt({
-			from: a0,
+			from: spectronDefaultAccount,
 			value: cfg.governance.minDeposit.toFixed(0)})
 }
 
 export const dequeueAndApproveProposal = async (kit: ContractKit, proposalID: BigNumber.Value): Promise<void> => {
 	const governance = await kit.contracts.getGovernance()
 	const cfg = await kit.getNetworkConfig()
-	const a0 = SpectronAccounts[0]
 	await governance
 		.dequeueProposalsIfReady()
-		.sendAndWaitForReceipt({from: a0})
+		.sendAndWaitForReceipt({from: spectronDefaultAccount})
 
 	const multiSigAddress = await governance.getApprover()
 	const governanceApproverMultiSig = await kit.contracts.getMultiSig(multiSigAddress)
 	const govTX = await governance.approve(proposalID)
 	await (await governanceApproverMultiSig
 		.submitOrConfirmTransaction(governance.address, govTX.txo))
-		.sendAndWaitForReceipt({from: a0})
+		.sendAndWaitForReceipt({from: spectronDefaultAccount})
 	await adjustNow(cfg.governance.stageDurations.Approval.multipliedBy(1000).toNumber())
 }

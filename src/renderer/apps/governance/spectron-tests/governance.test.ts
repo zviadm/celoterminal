@@ -3,7 +3,7 @@ import { toWei } from 'web3-utils'
 import { app, devchainKit, jestSetup } from '../../../../lib/spectron-utils/setup'
 import { adjustNow, confirmTXs, refetchAppData, selectApp } from '../../../../lib/spectron-utils/app-helpers'
 import { createGovernanceProposal, dequeueAndApproveProposal } from '../../../../lib/spectron-utils/devchain-helpers'
-import { SpectronAccounts } from '../../../../lib/spectron-utils/constants'
+import { spectronDefaultAccount } from '../../../../lib/spectron-utils/constants'
 
 jestSetup()
 
@@ -14,9 +14,8 @@ test('Governance upvote & vote', async (done) => {
 
 	const accounts = await kit.contracts.getAccounts()
 	const lockedGold = await kit.contracts.getLockedGold()
-	const a0 = SpectronAccounts[0]
-	await accounts.createAccount().sendAndWaitForReceipt({from: a0})
-	await lockedGold.lock().sendAndWaitForReceipt({from: a0, value: toWei("101", "ether")})
+	await accounts.createAccount().sendAndWaitForReceipt({from: spectronDefaultAccount})
+	await lockedGold.lock().sendAndWaitForReceipt({from: spectronDefaultAccount, value: toWei("101", "ether")})
 
 	await selectApp("governance")
 

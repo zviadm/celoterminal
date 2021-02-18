@@ -14,7 +14,9 @@ const NumberInput = (props: NumberInputProps): JSX.Element => {
 			...propsCopy.InputProps,
 			endAdornment: (
 				<InputAdornment position="end">
-					<Button onClick={onMax}>max</Button>
+					<Button
+						id={props.id ? props.id + "-set-max" : undefined}
+						onClick={onMax}>max</Button>
 				</InputAdornment>
 			),
 		}
