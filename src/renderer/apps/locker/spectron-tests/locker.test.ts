@@ -1,6 +1,6 @@
 import { app, devchainKit, jestSetup } from '../../../../lib/spectron-utils/setup'
 import { adjustNow, confirmTXs, refetchAppData, selectApp } from '../../../../lib/spectron-utils/app-helpers'
-import { SpectronAccounts } from '../../../../lib/spectron-utils/constants';
+import { SpectronAccounts, spectronDefaultAccount } from '../../../../lib/spectron-utils/constants';
 import { createValidatorGroup } from '../../../../lib/spectron-utils/devchain-helpers';
 
 jestSetup()
@@ -70,16 +70,15 @@ test('Revoke & Unlock CELO', async (done) => {
 	const kit = devchainKit()
 	const lockedGold = await kit.contracts.getLockedGold()
 	const election = await kit.contracts.getElection()
-	const a0 = SpectronAccounts[0]
 
 	const vgroup = SpectronAccounts[5]
 	await createValidatorGroup(kit, vgroup, SpectronAccounts[6])
-	const totalLocked = await lockedGold.getAccountTotalLockedGold(a0)
+	const totalLocked = await lockedGold.getAccountTotalLockedGold(spectronDefaultAccount)
 	expect(totalLocked.toNumber()).toEqual(50e18)
 	await (await election
 		.vote(vgroup, totalLocked))
-		.sendAndWaitForReceipt({from: a0})
-	const nonVoting = await lockedGold.getAccountNonvotingLockedGold(a0)
+		.sendAndWaitForReceipt({from: spectronDefaultAccount})
+	const nonVoting = await lockedGold.getAccountNonvotingLockedGold(spectronDefaultAccount)
 	expect(nonVoting.toNumber()).toEqual(0)
 
 	await refetchAppData()
@@ -91,8 +90,25 @@ test('Revoke & Unlock CELO', async (done) => {
 	await expect(unlockCelo.getText()).resolves.toEqual("REVOKE AND UNLOCK")
 	await unlockCelo.click()
 	await confirmTXs({txCount: 2})
-	const totalLockedAfterRevokeAndUnlock = await lockedGold.getAccountTotalLockedGold(a0)
+	const totalLockedAfterRevokeAndUnlock = await lockedGold.getAccountTotalLockedGold(spectronDefaultAccount)
 	expect(totalLockedAfterRevokeAndUnlock.toNumber()).toEqual(35e18)
+
+	done()
+})
+
+test(`Unlock MAX`, async (done) => {
+	const unlockInputSetMax = await app.client.$("#unlock-celo-input-set-max")
+	await unlockInputSetMax.waitForEnabled()
+	await unlockInputSetMax.click()
+
+	const unlockCelo = await app.client.$("#unlock-celo")
+	await unlockCelo.click()
+	await confirmTXs({txCount: 2})
+
+	const kit = devchainKit()
+	const lockedGold = await kit.contracts.getLockedGold()
+	const totalLocked = await lockedGold.getAccountTotalLockedGold(spectronDefaultAccount)
+	expect(totalLocked.toNumber()).toEqual(0)
 
 	done()
 })

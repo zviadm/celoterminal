@@ -30,3 +30,6 @@ export const SpectronAccountKeys = [
 	'0xb2fd4d29c1390b71b8795ae81196bfd60293adf99f9d32a0aff06288fcdac55f',
 	'0x23cb7121166b9a2f93ae0b7c05bde02eae50d64449b2cbb42bc84e9d38d6cc89',
 ]
+
+// Default selected account when running spectron tests.
+export const spectronDefaultAccount = SpectronAccounts[0]
