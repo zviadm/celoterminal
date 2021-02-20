@@ -130,6 +130,10 @@ const LockerApp = (props: {
 	const canLock = (
 		toLock !== "" && fetched && fetched.isAccount &&
 		toLockWEI.gt(0) && fetched.totalCELO.gte(toLockWEI))
+	// TODO(zviadm): only keep extra CELO if current feeCurrency is set as CELO.
+	// Keep at least 0.0001 CELO unlocked to avoid running out of Gas completely.
+	const maxToLock = fetched?.totalCELO && BigNumber.maximum(
+		fetched.totalCELO.shiftedBy(-18).minus(0.0001), 0)
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
 			<AppHeader app={Locker} isFetching={isFetching} refetch={refetch} />
@@ -166,6 +170,7 @@ const LockerApp = (props: {
 							label={`Lock (max: ${fmtAmount(fetched.totalCELO, "CELO")})`}
 							value={toLock}
 							onChangeValue={setToLock}
+							maxValue={maxToLock}
 						/>
 						<Button
 							id="lock-celo"
@@ -230,13 +235,14 @@ const UnlockWithRevoke = (props: {
 		props.onUnlock(_toUnlock, revoke)
 	}
 
-	const maxToUnlock =
+	const maxToUnlockWEI =
 		props.isVotingInGovernance ? new BigNumber(0) :
 		props.nonvotingLocked.plus(
 			votesASC.length === 0 ? 0 :
 			votesASC[votesASC.length - 1].active.plus(votesASC[votesASC.length - 1].pending))
 	const canUnlock = (
-		toUnlockWEI.gt(0) && maxToUnlock.gte(toUnlockWEI))
+		toUnlockWEI.gt(0) && maxToUnlockWEI.gte(toUnlockWEI))
+	const maxToUnlock = maxToUnlockWEI.shiftedBy(-18)
 	return (
 		<Paper>
 			<Box display="flex" flexDirection="column" p={2}>
@@ -265,7 +271,7 @@ const UnlockWithRevoke = (props: {
 						{!props.isVotingInGovernance &&
 						<TableRow>
 							<TableCell style={{whiteSpace: "nowrap"}}>Max to unlock</TableCell>
-							<TableCell>{fmtAmount(maxToUnlock, "CELO")} CELO</TableCell>
+							<TableCell>{fmtAmount(maxToUnlockWEI, "CELO")} CELO</TableCell>
 						</TableRow>}
 					</TableBody>
 				</Table>
@@ -281,10 +287,10 @@ const UnlockWithRevoke = (props: {
 					margin="dense"
 					variant="outlined"
 					id="unlock-celo-input"
-					label={`Unlock (max: ${fmtAmount(maxToUnlock, "CELO")})`}
+					label={`Unlock (max: ${fmtAmount(maxToUnlockWEI, "CELO")})`}
 					value={props.toUnlock}
 					onChangeValue={props.onSetToUnlock}
-					onMax={() => { props.onSetToUnlock(fmtAmount(maxToUnlock, "CELO", "max")) }}
+					maxValue={maxToUnlock}
 				/>
 				<Button
 					id="unlock-celo"

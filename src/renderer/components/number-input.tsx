@@ -1,31 +1,34 @@
+import BigNumber from 'bignumber.js'
+
 import * as React from 'react'
 import { TextField, Button, TextFieldProps, InputAdornment } from '@material-ui/core'
 
 type NumberInputProps = TextFieldProps & {
-	onMax?: () => void,
+	maxValue?: BigNumber,
 	onChangeValue?: (v: string) => void,
 }
 
 const stripRegex = /[^0-9.]+/
 
 const NumberInput = (props: NumberInputProps): JSX.Element => {
-	const onMax = props.onMax
+	const maxValue = props.maxValue
+	const onChangeValue = props.onChangeValue
 	const propsCopy = {...props}
 	delete propsCopy.onChangeValue
-	if (onMax) {
-		delete propsCopy.onMax
+	if (maxValue && onChangeValue) {
+		delete propsCopy.maxValue
+		const handleOnMax = () => { onChangeValue(maxValue.toFixed()) }
 		propsCopy.InputProps = {
 			...propsCopy.InputProps,
 			endAdornment: (
 				<InputAdornment position="end">
 					<Button
 						id={props.id ? props.id + "-set-max" : undefined}
-						onClick={onMax}>max</Button>
+						onClick={handleOnMax}>max</Button>
 				</InputAdornment>
 			),
 		}
 	}
-	const onChangeValue = props.onChangeValue
 	return (
 		<TextField
 			size="medium"
