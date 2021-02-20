@@ -85,18 +85,23 @@ const AccountsApp = (props: {
 	const handleBackup = () => {
 		shell.showItemInFolder(accountsDBFilePath())
 	}
+	const forceSetupPassword = !props.hasPassword && (openedAdd === "create-local" || openedAdd === "import-local")
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
 			{confirmRemove && <ConfirmRemove account={confirmRemove} onRemove={handleRemove} onCancel={handleCancel} />}
-			{openedAdd === "create-local" && <CreateLocalAccount onAdd={handleAdd} onCancel={handleCancel} />}
-			{openedAdd === "import-local" && <ImportLocalAccount onAdd={handleAdd} onCancel={handleCancel} />}
-			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} />}
-			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} />}
-			{revealAccount && <RevealLocalKey account={revealAccount} onClose={handleCancel} />}
-			{changePassword && <ChangePassword
+			{(changePassword || forceSetupPassword) && <ChangePassword
 				hasPassword={props.hasPassword}
 				onChangePassword={handleChangePassword}
 				onClose={handleCancel} />}
+			{(!forceSetupPassword && openedAdd === "create-local") && <CreateLocalAccount
+				onAdd={handleAdd}
+				onCancel={handleCancel}/>}
+			{(!forceSetupPassword && openedAdd === "import-local") && <ImportLocalAccount
+				onAdd={handleAdd}
+				onCancel={handleCancel} />}
+			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} />}
+			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} />}
+			{revealAccount && <RevealLocalKey account={revealAccount} onClose={handleCancel} />}
 
 			<AppHeader app={Accounts} refetch={handleRefetch} isFetching={false} />
 			<Box display="flex" flexDirection="column" marginTop={2}>

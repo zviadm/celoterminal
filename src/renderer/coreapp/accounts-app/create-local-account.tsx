@@ -61,9 +61,6 @@ const CreateLocalAccount = (props: {
 					Account address and private key are generated automatically and stored in a local database
 					encrypted by your password.
 				</Alert>
-				<Alert severity="info">
-					Same password must be used for all your local accounts.
-				</Alert>
 				<TextField
 					margin="dense"
 					type="password"
