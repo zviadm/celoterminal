@@ -204,7 +204,7 @@ const MentoApp = (props: {
 								}}
 								value={celoAmount}
 								placeholder="0.0"
-								onChange={(e) => { handleChangeCeloAmt(e.target.value) }}
+								onChangeValue={handleChangeCeloAmt}
 								disabled={!fetched}
 							/>
 							<NumberInput
@@ -217,7 +217,7 @@ const MentoApp = (props: {
 								}}
 								value={stableAmount}
 								placeholder="0.0"
-								onChange={(e) => { handleChangeStableAmt(e.target.value) }}
+								onChangeValue={handleChangeStableAmt}
 								disabled={!fetched}
 							/>
 						</Box>

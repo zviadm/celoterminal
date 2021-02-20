@@ -165,7 +165,7 @@ const LockerApp = (props: {
 							id="lock-celo-input"
 							label={`Lock (max: ${fmtAmount(fetched.totalCELO, "CELO")})`}
 							value={toLock}
-							onChange={(e) => { setToLock(e.target.value) }}
+							onChangeValue={setToLock}
 						/>
 						<Button
 							id="lock-celo"
@@ -283,7 +283,7 @@ const UnlockWithRevoke = (props: {
 					id="unlock-celo-input"
 					label={`Unlock (max: ${fmtAmount(maxToUnlock, "CELO")})`}
 					value={props.toUnlock}
-					onChange={(e) => { props.onSetToUnlock(e.target.value) }}
+					onChangeValue={props.onSetToUnlock}
 					onMax={() => { props.onSetToUnlock(fmtAmount(maxToUnlock, "CELO", "max")) }}
 				/>
 				<Button
