@@ -3,11 +3,15 @@ import { TextField, Button, TextFieldProps, InputAdornment } from '@material-ui/
 
 type NumberInputProps = TextFieldProps & {
 	onMax?: () => void,
+	onChangeValue?: (v: string) => void,
 }
+
+const stripRegex = /[^0-9.]+/
 
 const NumberInput = (props: NumberInputProps): JSX.Element => {
 	const onMax = props.onMax
 	const propsCopy = {...props}
+	delete propsCopy.onChangeValue
 	if (onMax) {
 		delete propsCopy.onMax
 		propsCopy.InputProps = {
@@ -21,12 +25,19 @@ const NumberInput = (props: NumberInputProps): JSX.Element => {
 			),
 		}
 	}
+	const onChangeValue = props.onChangeValue
 	return (
 		<TextField
 			size="medium"
 			fullWidth={true}
 			inputMode="decimal"
 			{...propsCopy}
+			onChange = {onChangeValue && (
+				(e) => {
+					const v = e.target.value.replace(stripRegex, '')
+					onChangeValue(v)
+				}
+			)}
 		/>
 	)
 }

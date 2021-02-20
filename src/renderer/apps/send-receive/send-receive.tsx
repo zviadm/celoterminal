@@ -166,7 +166,7 @@ const SendReceiveApp = (props: {
 							}
 							InputLabelProps={{shrink: true}}
 							value={toSend}
-							onChange={(e) => { setToSend(e.target.value) }}
+							onChangeValue={setToSend}
 						/>
 						<Button
 							id="send"
