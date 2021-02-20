@@ -113,6 +113,12 @@ const SendReceiveApp = (props: {
 		isValidAddress(toAddress) && (toSend !== "") &&
 		fetched &&
 		fetched.balance.gte(new BigNumber(toSend).shiftedBy(fetched.decimals)))
+	// TODO(zviadm): erc20 should be compared against current `feeCurrency` instead.
+	const maxToSend = fetched && (
+		erc20 === "CELO" ?
+			BigNumber.maximum(
+				fetched.balance.shiftedBy(-fetched.decimals).minus(0.0001), 0) :
+			fetched.balance.shiftedBy(-fetched.decimals))
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
 			<AppHeader app={SendReceive} isFetching={isFetching || transferHistory.isFetching} refetch={refetchAll} />
@@ -167,6 +173,7 @@ const SendReceiveApp = (props: {
 							InputLabelProps={{shrink: true}}
 							value={toSend}
 							onChangeValue={setToSend}
+							maxValue={maxToSend}
 						/>
 						<Button
 							id="send"
