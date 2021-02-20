@@ -102,9 +102,6 @@ const ImportLocalAccount = (props: {
 					spellCheck={false}
 					onChange={(e) => { setName(e.target.value) }}
 				/>
-				<Alert severity="info">
-					Same password must be used for all your local accounts.
-				</Alert>
 				<TextField
 					margin="dense"
 					type="password"
