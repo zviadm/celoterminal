@@ -15,18 +15,17 @@ import { SendReceive } from './def'
 import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
 
 import * as React from 'react'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import Box from '@material-ui/core/Box'
-import Paper from '@material-ui/core/Paper'
+import {
+	Select, MenuItem, Typography, Button, Box
+} from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 
 import AddressAutocomplete from '../../components/address-autocomplete'
 import AppHeader from '../../components/app-header'
 import TransferHistory from './transfer-history'
 import NumberInput from '../../components/number-input'
+import AppContainer from '../../components/app-container'
+import AppSection from '../../components/app-section'
 
 const SendReceiveApp = (props: {
 	accounts: Account[],
@@ -120,70 +119,62 @@ const SendReceiveApp = (props: {
 				fetched.balance.shiftedBy(-fetched.decimals).minus(0.0001), 0) :
 			fetched.balance.shiftedBy(-fetched.decimals))
 	return (
-		<Box display="flex" flexDirection="column" flex={1}>
+		<AppContainer>
 			<AppHeader app={SendReceive} isFetching={isFetching || transferHistory.isFetching} refetch={refetchAll} />
-			<Box marginTop={2}>
-				<Paper>
-					<Box p={2}>
-						<Select
-							id="erc20-select"
-							autoFocus
-							label="ERC20"
-							value={erc20}
-							onChange={(event) => { setErc20(event.target.value as string) }}>
-							{
-								erc20s.map(({name}) => (
-									<MenuItem id={`erc20-${name}-item`} value={name} key={name}>{name}</MenuItem>
-								))
-							}
-						</Select>
-						<Box marginTop={1}>
-							<Typography>
-								Balance: {!fetched ? "?" : fmtAmount(fetched.balance, fetched.decimals)} {erc20}
-							</Typography>
-						</Box>
-					</Box>
-				</Paper>
-			</Box>
-			<Box marginTop={2}>
-				<Paper>
-					<Box display="flex" flexDirection="column" p={2}>
-						<Alert severity="warning">
-							Transfers are non-reversible. Transfering funds to an incorrect address
-							can lead to permanent loss of your funds.
-						</Alert>
-						<AddressAutocomplete
-							id="to-address-input"
-							textFieldProps={{
-								label: "Destination address",
-								margin: "normal",
-								InputLabelProps: {shrink: true},
-							}}
-							addresses={props.accounts}
-							address={toAddress}
-							onChange={setToAddress}
-						/>
-						<NumberInput
-							margin="normal"
-							id="amount-input"
-							label={
-								!fetched ? `Amount` :
-								`Amount (max: ${fmtAmount(fetched.balance, fetched.decimals)})`
-							}
-							InputLabelProps={{shrink: true}}
-							value={toSend}
-							onChangeValue={setToSend}
-							maxValue={maxToSend}
-						/>
-						<Button
-							id="send"
-							variant="outlined" color="primary"
-							disabled={!canSend}
-							onClick={handleSend}>Send</Button>
-					</Box>
-				</Paper>
-			</Box>
-			<Box marginTop={2}>
+			<AppSection>
+				<Select
+					id="erc20-select"
+					autoFocus
+					label="ERC20"
+					value={erc20}
+					onChange={(event) => { setErc20(event.target.value as string) }}>
+					{
+						erc20s.map(({name}) => (
+							<MenuItem id={`erc20-${name}-item`} value={name} key={name}>{name}</MenuItem>
+						))
+					}
+				</Select>
+				<Box marginTop={1}>
+					<Typography>
+						Balance: {!fetched ? "?" : fmtAmount(fetched.balance, fetched.decimals)} {erc20}
+					</Typography>
+				</Box>
+			</AppSection>
+			<AppSection>
+				<Alert severity="warning">
+					Transfers are non-reversible. Transfering funds to an incorrect address
+					can lead to permanent loss of your funds.
+				</Alert>
+				<AddressAutocomplete
+					id="to-address-input"
+					textFieldProps={{
+						label: "Destination address",
+						margin: "normal",
+						InputLabelProps: {shrink: true},
+					}}
+					addresses={props.accounts}
+					address={toAddress}
+					onChange={setToAddress}
+				/>
+				<NumberInput
+					margin="normal"
+					id="amount-input"
+					label={
+						!fetched ? `Amount` :
+						`Amount (max: ${fmtAmount(fetched.balance, fetched.decimals)})`
+					}
+					InputLabelProps={{shrink: true}}
+					value={toSend}
+					onChangeValue={setToSend}
+					maxValue={maxToSend}
+				/>
+				<Button
+					id="send"
+					variant="outlined" color="primary"
+					disabled={!canSend}
+					onClick={handleSend}>Send</Button>
+			</AppSection>
+			<AppSection>
 				<TransferHistory
 					address={selectedAddress}
 					events={transferHistory.fetched}
@@ -192,8 +183,8 @@ const SendReceiveApp = (props: {
 						decimals: fetched.decimals,
 					}}
 					/>
-			</Box>
-		</Box>
+			</AppSection>
+		</AppContainer>
 	)
 }
 export default SendReceiveApp
