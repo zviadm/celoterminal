@@ -1,4 +1,6 @@
+import { erc20Alfajores } from "./erc20-alfajores"
 import { erc20Baklava } from "./erc20-baklava"
+import { erc20Mainnet } from "./erc20-mainnet"
 
 export const mainnetNetworkId = "42220"
 const defaultNetworkId = mainnetNetworkId
@@ -18,7 +20,9 @@ const networkNames: {[key: string]: string} = {
 }
 
 const erc20Registry: {[key: string]: ERC20[]} = {
+	[mainnetNetworkId]: erc20Mainnet,
 	"62320": erc20Baklava,
+	"44784": erc20Alfajores,
 }
 
 export type PathRoot = "home" | "userData"
