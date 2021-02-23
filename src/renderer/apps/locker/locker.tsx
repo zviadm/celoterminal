@@ -14,7 +14,6 @@ import { nowMS } from '../../state/time'
 import * as React from 'react'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
-import TextField from '@material-ui/core/TextField'
 import Box from '@material-ui/core/Box'
 import Paper from '@material-ui/core/Paper'
 import Alert from '@material-ui/lab/Alert'
@@ -26,6 +25,7 @@ import TableRow from '@material-ui/core/TableRow'
 import Tooltip from '@material-ui/core/Tooltip'
 
 import AppHeader from '../../components/app-header'
+import NumberInput from '../../components/number-input'
 
 const LockerApp = (props: {
 	accounts: Account[],
@@ -130,6 +130,10 @@ const LockerApp = (props: {
 	const canLock = (
 		toLock !== "" && fetched && fetched.isAccount &&
 		toLockWEI.gt(0) && fetched.totalCELO.gte(toLockWEI))
+	// TODO(zviadm): only keep extra CELO if current feeCurrency is set as CELO.
+	// Keep at least 0.0001 CELO unlocked to avoid running out of Gas completely.
+	const maxToLock = fetched?.totalCELO && BigNumber.maximum(
+		fetched.totalCELO.shiftedBy(-18).minus(0.0001), 0)
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
 			<AppHeader app={Locker} isFetching={isFetching} refetch={refetch} />
@@ -158,17 +162,15 @@ const LockerApp = (props: {
 				<Paper>
 					<Box display="flex" flexDirection="column" p={2}>
 						<Typography>Balance: {fmtAmount(fetched.totalCELO, "CELO")} CELO</Typography>
-						<TextField
-							id="lock-celo-input"
+						<NumberInput
 							autoFocus
 							margin="dense"
-							label={`Lock (max: ${fmtAmount(fetched.totalCELO, "CELO")})`}
 							variant="outlined"
+							id="lock-celo-input"
+							label={`Lock (max: ${fmtAmount(fetched.totalCELO, "CELO")})`}
 							value={toLock}
-							size="medium"
-							type="number"
-							fullWidth={true}
-							onChange={(e) => { setToLock(e.target.value) }}
+							onChangeValue={setToLock}
+							maxValue={maxToLock}
 						/>
 						<Button
 							id="lock-celo"
@@ -233,13 +235,14 @@ const UnlockWithRevoke = (props: {
 		props.onUnlock(_toUnlock, revoke)
 	}
 
-	const maxToUnlock =
+	const maxToUnlockWEI =
 		props.isVotingInGovernance ? new BigNumber(0) :
 		props.nonvotingLocked.plus(
 			votesASC.length === 0 ? 0 :
 			votesASC[votesASC.length - 1].active.plus(votesASC[votesASC.length - 1].pending))
 	const canUnlock = (
-		toUnlockWEI.gt(0) && maxToUnlock.gte(toUnlockWEI))
+		toUnlockWEI.gt(0) && maxToUnlockWEI.gte(toUnlockWEI))
+	const maxToUnlock = maxToUnlockWEI.shiftedBy(-18)
 	return (
 		<Paper>
 			<Box display="flex" flexDirection="column" p={2}>
@@ -268,7 +271,7 @@ const UnlockWithRevoke = (props: {
 						{!props.isVotingInGovernance &&
 						<TableRow>
 							<TableCell style={{whiteSpace: "nowrap"}}>Max to unlock</TableCell>
-							<TableCell>{fmtAmount(maxToUnlock, "CELO")} CELO</TableCell>
+							<TableCell>{fmtAmount(maxToUnlockWEI, "CELO")} CELO</TableCell>
 						</TableRow>}
 					</TableBody>
 				</Table>
@@ -280,16 +283,14 @@ const UnlockWithRevoke = (props: {
 					</Alert>
 				</Box>
 				: <>
-				<TextField
-					id="unlock-celo-input"
+				<NumberInput
 					margin="dense"
-					label={`Unlock (max: ${fmtAmount(maxToUnlock, "CELO")})`}
 					variant="outlined"
+					id="unlock-celo-input"
+					label={`Unlock (max: ${fmtAmount(maxToUnlockWEI, "CELO")})`}
 					value={props.toUnlock}
-					size="medium"
-					type="number"
-					fullWidth={true}
-					onChange={(e) => { props.onSetToUnlock(e.target.value) }}
+					onChangeValue={props.onSetToUnlock}
+					maxValue={maxToUnlock}
 				/>
 				<Button
 					id="unlock-celo"

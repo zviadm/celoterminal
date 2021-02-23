@@ -51,12 +51,12 @@ For regular, non-UI testing, you can write tests that will be run using Jest. In
 amounts of non-UI code, it is recommended to have them in a separate npm package. You can add the package as 
 a dependency and import it in your Celo Terminal application code. 
 
-TODO: For UI testing, only manual testing is possible right now. Stay tuned for automatic testing support...
+For UI and full integration testing details checkout the [Development Guide](./develop.md#end-2-endintegrationui-testing).
 
 # Reviewing and integrating an app in Terminal
 
 If you want to discuss plans for integrating your app in Celo Terminal, reach out to
-`@zviad | WOTrust` on [Celo Discord](https://chat.celo.org), or by email: zviad@wotrust.us
+`@zviad | WOTrust` on [Celo Discord](https://chat.celo.org), or by email: support@celoterminal.com
 
 Celo Terminal is still in very early stages of development, thus all initial app integrations
 will be on more case-by-case basis until project reaches more maturatiy/stability.

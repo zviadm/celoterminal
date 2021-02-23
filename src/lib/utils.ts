@@ -28,15 +28,27 @@ export class CancelPromise {
 	}
 }
 
+const _precisionDefault = 2
+const _precisionForZero = 4
+
 export const fmtAmount = (
 	v: BigNumber,
 	decimals: "CELO" | "cUSD" | number,
-	precision?: number): string => {
+	precision?: number | "max"): string => {
 	if (decimals === "CELO" ||
 		decimals === "cUSD") {
 		decimals = 18
 	}
-	return v.shiftedBy(-decimals).toFixed(precision !== undefined ? precision : 2)
+	let fmtV = v.shiftedBy(-decimals)
+	if (precision !== "max") {
+		const dp = (precision !== undefined ? precision : _precisionDefault)
+		let fmtVRounded = fmtV.decimalPlaces(dp, BigNumber.ROUND_DOWN)
+		if (fmtVRounded.eq(0)) {
+			fmtVRounded = fmtV.decimalPlaces(_precisionForZero)
+		}
+		fmtV = fmtVRounded
+	}
+	return fmtV.toFixed()
 }
 
 export const fmtAddress = (address: string): string => {

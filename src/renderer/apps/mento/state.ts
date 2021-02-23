@@ -1,13 +1,14 @@
 import { ContractKit } from '@celo/contractkit'
 import { valueToBigNumber } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 import BigNumber from 'bignumber.js'
-import log from 'electron-log'
+import { BlockTransactionString } from 'web3-eth'
 
 import useOnChainState from '../../state/onchain-state'
 import { Decimals, StableTokens } from './config'
 import { Account } from '../../../lib/accounts'
 
 import * as React from 'react'
+import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useExchangeOnChainState = (account: Account, stableToken: string) => {
@@ -51,100 +52,38 @@ export interface TradeEvent {
 	soldGold: boolean
 }
 
-// TODO(zviadm): Factor out helpful `event loading` code as a shared library.
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useExchangeHistoryState = (account: Account) => {
-	// cache object never changes. it is not used in rendering, just
-	// for caching fetched data.
-	const [cache] = React.useState<{
-		account?: Account,
-		toBlock: number,
-		events: TradeEvent[],
-	}>({toBlock: 0, events: []})
-
-	const maxEvents = 100
-	const maxHistoryBlocks = 120960 // 1 week.
-	return useOnChainState(React.useCallback(
-		async (kit: ContractKit) => {
-			// TODO(zviadm): multi exchange support.
+	const fetchCallback = React.useCallback(
+		async (
+			kit: ContractKit,
+			fromBlock: number,
+			toBlock: number,
+			latestBlock: BlockTransactionString): Promise<TradeEvent[]> => {
 			const exchangeDirect = await kit._web3Contracts.getExchange()
-			const latestBlock = await kit.web3.eth.getBlock("latest")
-			const toBlock = latestBlock.number
-			let fromBlock
-			let cachedEvents: TradeEvent[] = []
-			if (cache.account?.address === account.address) {
-				fromBlock = cache.toBlock + 1
-				cachedEvents = cache.events
-			} else {
-				fromBlock = Math.max(toBlock - maxHistoryBlocks, 0)
-			}
-
-			let events: TradeEvent[] = []
-			if (fromBlock <= toBlock) {
-				log.info(`exchange[HISTORY]: fetch new events ${fromBlock}..${toBlock}`)
-				const r = await progressiveFetch(
-					fromBlock,
-					toBlock,
-					maxEvents,
-					(from: number, to: number) => {
-						return exchangeDirect.getPastEvents("Exchanged", {
-							fromBlock: from,
-							toBlock: to,
-							filter: {
-								exchanger: account.address,
-							}})
-					}
-				)
-
-				events = r.map((e) => ({
+			const events = await exchangeDirect.getPastEvents("Exchanged", {
+				fromBlock,
+				toBlock,
+				filter: { exchanger: account.address }
+			})
+			return events.map((e) => ({
 					blockNumber: e.blockNumber,
-					timestamp: new Date(
-						new BigNumber(latestBlock.timestamp)
-						.minus((latestBlock.number - e.blockNumber) * 5)
-						.multipliedBy(1000).toNumber()),
+					// Estimate timestamp from just `latestBlock`, since fetching all blocks
+					// would be prohibitevly expensive.
+					timestamp: estimateTimestamp(latestBlock, e.blockNumber),
 					txHash: e.transactionHash,
 					exchanger: e.returnValues.exchanger,
 					sellAmount: valueToBigNumber(e.returnValues.sellAmount),
 					buyAmount: valueToBigNumber(e.returnValues.buyAmount),
 					soldGold: e.returnValues.soldGold,
-				}))
-			}
-			events.push(...cachedEvents)
-			events = events.slice(0, maxEvents)
+			}))
+		}, [account],
+	)
 
-			cache.account = account
-			cache.toBlock = toBlock
-			cache.events = events
-			return {
-				events: events,
-			}
+	return useEventHistoryState(
+		fetchCallback, {
+			maxHistoryDays: 7,
+			maxEvents: 100,
 		},
-		[account, cache],
-	))
-}
-
-const minFetchSize = 1000
-const maxFetchSize = 64 * minFetchSize
-
-async function progressiveFetch<T>(
-	fromBlock: number,
-	toBlock: number,
-	minItems: number,
-	fetch: (fromBlock: number, toBlock: number) => Promise<T[]>,
-	): Promise<T[]> {
-	const all: T[] = []
-	let fetchSize = minFetchSize
-	let _to = toBlock
-	for (;;) {
-		const _from = Math.max(fromBlock, _to - fetchSize)
-		const events = await fetch(_from, _to)
-		all.push(...events.reverse())
-		log.info(`[progressive-fetch]: from: ${fromBlock} to: ${toBlock}, items: ${all.length}, _from: ${_from}`)
-		if (all.length >= minItems || _from === fromBlock) {
-			break
-		}
-		_to = _from - 1
-		fetchSize = Math.min(maxFetchSize, fetchSize *= 2)
-	}
-	return all.slice(0, minItems)
+	)
 }

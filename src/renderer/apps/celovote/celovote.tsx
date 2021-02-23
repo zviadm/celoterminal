@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios'
-import { ContractKit } from '@celo/contractkit'
 import log from 'electron-log'
+import BigNumber from 'bignumber.js'
+import { ContractKit } from '@celo/contractkit'
 import { GroupVote } from '@celo/contractkit/lib/wrappers/Election'
 
 import { Account } from '../../../lib/accounts'
@@ -8,21 +9,15 @@ import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { Celovote } from './def'
 import useOnChainState from '../../state/onchain-state'
 import { CFG, mainnetNetworkId } from '../../../lib/cfg'
-import { fmtAmount } from '../../../lib/utils'
+import { fmtAddress, fmtAmount } from '../../../lib/utils'
 import { UserError } from '../../../lib/error'
 
 import * as React from 'react'
-import Box from '@material-ui/core/Box'
-import Paper from '@material-ui/core/Paper'
-import Button from '@material-ui/core/Button'
-import BigNumber from 'bignumber.js'
-import Alert from '@material-ui/lab/Alert'
-import TableContainer from '@material-ui/core/TableContainer'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
-import TableHead from '@material-ui/core/TableHead'
+import {
+	Dialog, DialogActions, DialogContent, Box, Paper, Button,
+	TableBody, TableContainer, Table, TableRow, TableCell, TableHead, DialogTitle,
+} from '@material-ui/core'
+import { Alert } from '@material-ui/lab'
 
 import AppHeader from '../../components/app-header'
 import Link from '../../components/link'
@@ -104,6 +99,7 @@ const CelovoteApp = (props: {
 		},
 		[account]
 	))
+	const [confirmRemoveAuth, setConfirmRemoveAuth] = React.useState(false)
 
 	const handleAuthorize = () => {
 		props.runTXs(async (kit: ContractKit) => {
@@ -140,12 +136,31 @@ const CelovoteApp = (props: {
 			}
 		})
 	}
+	const handleRemoveAuthorization = () => {
+		setConfirmRemoveAuth(false)
+		props.runTXs(async (kit: ContractKit) => {
+			const accounts = await kit.contracts.getAccounts()
+			// create a new random signer to authorize as vote signer. This is the only way to
+			// clear a vote signer right now.
+			const signer = kit.web3.eth.accounts.create()
+			const pop = await accounts.generateProofOfKeyPossessionLocally(
+				account.address, signer.address, signer.privateKey)
+			const tx = await accounts.authorizeVoteSigner(signer.address, pop)
+			return [{tx: tx}]
+		},
+		() => { refetch() })
+	}
 
 	const minLocked = new BigNumber(100e18)
 	const canAuthorize = fetched?.totalLocked.gte(minLocked)
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
 			<AppHeader app={Celovote} isFetching={isFetching} refetch={refetch} />
+			{confirmRemoveAuth &&
+			<ConfirmRemoveAuthorization
+				onCancel={() => { setConfirmRemoveAuth(false)}}
+				onConfirm={handleRemoveAuthorization}
+			/>}
 			{fetched && (
 			fetched.isAuthorized ? <>
 			<Box marginTop={2}>
@@ -154,11 +169,31 @@ const CelovoteApp = (props: {
 						<Alert severity="success">
 						Account authorized with Celovote. Votes will be automatically cast
 						and activated for all your locked CELO to earn rewards.
+						<br />
+						<br />
+						View rewards for <Link
+							href={`https://celovote.com/rewards?addresses=${account.address}`}>
+							this account</Link>.
+						<br />
+						View rewards for <Link
+							href={`https://celovote.com/rewards?addresses=${props.accounts.map((a) => a.address).join(",")}`}>
+							all accounts</Link>.
 						</Alert>
 					</Box>
 				</Paper>
 			</Box>
 			<SummaryTable {...fetched} />
+			<Box marginTop={2}>
+				<Paper>
+					<Box p={2} display="flex" flexDirection="column">
+						<Button
+							color="secondary"
+							variant="outlined"
+							onClick={() => { setConfirmRemoveAuth(true) }}
+							>Remove Authorization</Button>
+					</Box>
+				</Paper>
+			</Box>
 			</> : <>
 			<Box marginTop={2}>
 				<Paper>
@@ -189,6 +224,27 @@ const CelovoteApp = (props: {
 	)
 }
 export default CelovoteApp
+
+const ConfirmRemoveAuthorization = (props: {
+	onCancel: () => void,
+	onConfirm: () => void,
+}) => {
+	return (
+		<Dialog open={true} maxWidth="xs" onClose={props.onCancel}>
+			<DialogTitle>Remove authorization</DialogTitle>
+			<DialogContent>
+				<Alert severity="error">
+					Celovote will no longer be able to cast and activate votes on your behalf.
+					Removing authorization will not change the votes that are already cast.
+				</Alert>
+			</DialogContent>
+			<DialogActions>
+				<Button onClick={props.onCancel}>Cancel</Button>
+				<Button color="secondary" onClick={props.onConfirm}>Confirm</Button>
+			</DialogActions>
+		</Dialog>
+	)
+}
 
 const SummaryTable = (props: {
 	totalLocked: BigNumber,
@@ -262,6 +318,6 @@ const GroupAddress = (props: {address: string}) => {
 	return (
 		<Link
 			href={url}
-			style={{fontFamily: "monospace"}}>{props.address}</Link>
+			style={{fontFamily: "monospace"}}>{fmtAddress(props.address)}</Link>
 	)
 }

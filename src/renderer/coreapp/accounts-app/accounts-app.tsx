@@ -1,18 +1,11 @@
 import { shell } from 'electron'
 
 import * as React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import Box from '@material-ui/core/Box'
-import Button from '@material-ui/core/Button'
-import IconButton from '@material-ui/core/IconButton'
-import Typography from '@material-ui/core/Typography'
-import GetAppIcon from '@material-ui/icons/GetApp'
-import LockOpenIcon from '@material-ui/icons/LockOpen'
-import DeleteIcon from '@material-ui/icons/Delete'
-import BackupIcon from '@material-ui/icons/Backup'
-import DescriptionIcon from '@material-ui/icons/Description'
-import TextField from '@material-ui/core/TextField'
-import Paper from '@material-ui/core/Paper'
+import {
+	makeStyles, Tooltip, Box, Button, IconButton, Typography,
+	TextField, Paper,
+} from '@material-ui/core'
+import * as icons from '@material-ui/icons'
 
 import AppHeader from '../../components/app-header'
 import CreateLocalAccount from './create-local-account'
@@ -92,18 +85,23 @@ const AccountsApp = (props: {
 	const handleBackup = () => {
 		shell.showItemInFolder(accountsDBFilePath())
 	}
+	const forceSetupPassword = !props.hasPassword && (openedAdd === "create-local" || openedAdd === "import-local")
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
 			{confirmRemove && <ConfirmRemove account={confirmRemove} onRemove={handleRemove} onCancel={handleCancel} />}
-			{openedAdd === "create-local" && <CreateLocalAccount onAdd={handleAdd} onCancel={handleCancel} />}
-			{openedAdd === "import-local" && <ImportLocalAccount onAdd={handleAdd} onCancel={handleCancel} />}
-			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} />}
-			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} />}
-			{revealAccount && <RevealLocalKey account={revealAccount} onClose={handleCancel} />}
-			{changePassword && <ChangePassword
+			{(changePassword || forceSetupPassword) && <ChangePassword
 				hasPassword={props.hasPassword}
 				onChangePassword={handleChangePassword}
 				onClose={handleCancel} />}
+			{(!forceSetupPassword && openedAdd === "create-local") && <CreateLocalAccount
+				onAdd={handleAdd}
+				onCancel={handleCancel}/>}
+			{(!forceSetupPassword && openedAdd === "import-local") && <ImportLocalAccount
+				onAdd={handleAdd}
+				onCancel={handleCancel} />}
+			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} />}
+			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} />}
+			{revealAccount && <RevealLocalKey account={revealAccount} onClose={handleCancel} />}
 
 			<AppHeader app={Accounts} refetch={handleRefetch} isFetching={false} />
 			<Box display="flex" flexDirection="column" marginTop={2}>
@@ -155,12 +153,16 @@ const AccountsApp = (props: {
 									<Typography className={classes.accountText}>{a.address}</Typography>
 								</Box>
 								{a.type === "local" &&
-								<IconButton onClick={() => setRevealAccount(a)}>
-									<DescriptionIcon />
-								</IconButton>}
-								<IconButton color="secondary" onClick={() => setConfirmRemove(a)}>
-									<DeleteIcon />
-								</IconButton>
+								<Tooltip title="Show the secret mnemonic phrase and the private-key of this account. Never share these secrets with anyone else!">
+									<IconButton onClick={() => setRevealAccount(a)}>
+										<icons.Description />
+									</IconButton>
+								</Tooltip>}
+								<Tooltip title="Remove account">
+									<IconButton color="secondary" onClick={() => setConfirmRemove(a)}>
+										<icons.Delete />
+									</IconButton>
+								</Tooltip>
 								</Box>
 							</Paper>
 						</Box>
@@ -179,7 +181,7 @@ const AccountsApp = (props: {
 							className={classes.buttonAdd}
 							color="primary"
 							variant="outlined"
-							startIcon={<GetAppIcon />}
+							startIcon={<icons.GetApp />}
 							onClick={() => { setOpenedAdd("import-local") }}>Import Local Account</Button>
 						<Button
 							className={classes.buttonAdd}
@@ -202,7 +204,7 @@ const AccountsApp = (props: {
 								<Button
 									color="secondary"
 									variant="outlined"
-									startIcon={<LockOpenIcon />}
+									startIcon={<icons.LockOpen />}
 									onClick={ () => { setChangePassword(true) } }
 									>{props.hasPassword ? "Change" : "Setup"} Password</Button>
 							</Box>
@@ -210,7 +212,7 @@ const AccountsApp = (props: {
 								<Button
 									color="secondary"
 									variant="outlined"
-									startIcon={<BackupIcon />}
+									startIcon={<icons.Backup />}
 									onClick={handleBackup}
 									>Backup Database</Button>
 							</Box>

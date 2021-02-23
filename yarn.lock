@@ -2918,6 +2918,11 @@
   resolved "https://registry.yarnpkg.com/@types/q/-/q-1.5.4.tgz#15925414e0ad2cd765bfef58842f7e26a7accb24"
   integrity sha512-1HcDas8SEj4z1Wc696tH56G8OlRaH/sqZOynNNB+HF0WOeXPaxTtbYzJY2oEfiUxjSKjhCKr+MvR7dCHcEelug==
 
+"@types/qrcode-svg@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@types/qrcode-svg/-/qrcode-svg-1.1.0.tgz#5bfc87fa35f071a3e16ec072973e57b4f1ca7172"
+  integrity sha512-n96d8G6zph3dN9rYRJvWZ5SBwg3NrzXEYdHhCEAS6kiKfr5EzZy628ywzxtsAS//siNT2tXmG1E24tgURFRQ4Q==
+
 "@types/randombytes@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@types/randombytes/-/randombytes-2.0.0.tgz#0087ff5e60ae68023b9bc4398b406fea7ad18304"
@@ -4553,10 +4558,10 @@ caseless@~0.12.0:
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
   integrity sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
 
-celo-devchain@2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/celo-devchain/-/celo-devchain-2.0.3.tgz#2bcb4f21f5ebaa14a944abe75165f0b64e1cd180"
-  integrity sha512-2I5O29b5j9GA6TRVErfpgXstufSVzIaUL7i5jE/cYb1EjxMHe/qJHVkuf5d4t8ii4UHmb4hVfNDWKH2mmkUjJA==
+celo-devchain@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/celo-devchain/-/celo-devchain-2.0.4.tgz#c51b5823a6ee6533982b90d7bf8abea861448bf2"
+  integrity sha512-N59HLleF/ov0JSCxzBmdi/7PrTMhN0UWLmaou26i58QXgsQ2gZ5w8U2Ylhu69Gu61tnak0P1+oxpCxb4ul/xSQ==
   dependencies:
     "@celo/contractkit" "^1.0.1"
     "@celo/ganache-cli" "git+https://github.com/celo-org/ganache-cli.git#e933297"
@@ -8564,6 +8569,13 @@ jake@^10.6.1:
     filelist "^1.0.1"
     minimatch "^3.0.4"
 
+jasmine-fail-fast@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/jasmine-fail-fast/-/jasmine-fail-fast-2.0.1.tgz#222daa16c89b675aba4ed9552d62cf0d1e759d71"
+  integrity sha512-En8ONwvDQOV+jyiZEZvbvUSLWSdJFj9HiWjhLdGq/V/gxs4XyST730ooe928BbRxv4bfy05OpykKuoOU4aLC5w==
+  dependencies:
+    lodash "^4.17.15"
+
 jest-changed-files@^26.6.2:
   version "26.6.2"
   resolved "https://registry.yarnpkg.com/jest-changed-files/-/jest-changed-files-26.6.2.tgz#f6198479e1cc66f22f9ae1e22acaa0b429c042d0"
@@ -11344,6 +11356,11 @@ q@^1.1.2:
   resolved "https://registry.yarnpkg.com/q/-/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
   integrity sha1-fjL3W0E4EpHQRhHxvxQQmsAGUdc=
 
+qrcode-svg@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/qrcode-svg/-/qrcode-svg-1.1.0.tgz#2087549843dc5d0a3f8e8aa046cd9bcf23708cc3"
+  integrity sha512-XyQCIXux1zEIA3NPb0AeR8UMYvXZzWEhgdBgBjH9gO7M48H9uoHzviNz8pXw3UzrAcxRRRn9gxHewAVK7bn9qw==
+
 qs@6.7.0:
   version "6.7.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.7.0.tgz#41dc1a015e3d581f1621776be31afb2876a9b1bc"
@@ -11449,6 +11466,13 @@ react-is@^16.7.0, react-is@^16.8.1:
   version "17.0.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.1.tgz#5b3531bd76a645a4c9fb6e693ed36419e3301339"
   integrity sha512-NAnt2iGDXohE5LI7uBnLnqvLQMtzhkiAOLXTmv+qnF9Ky7xAPcX8Up/xWIhxvLVGJvuLiNc4xQLtuqDRzb4fSA==
+
+react-password-strength-bar@0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/react-password-strength-bar/-/react-password-strength-bar-0.3.2.tgz#503012ef4f3d6a6c702d63b34c6596616807f2ac"
+  integrity sha512-ADJZVKhdDZVELGyrc0DHSyTIJL4A/9z++rUi6Un426bQJVFPv5esp3mZdZhraet/PwCOGJRMKyjGf5QgpKvX7w==
+  dependencies:
+    zxcvbn "4.4.2"
 
 react-transition-group@^4.4.0:
   version "4.4.1"
@@ -14683,3 +14707,8 @@ zip-stream@^4.0.4:
     archiver-utils "^2.1.0"
     compress-commons "^4.0.2"
     readable-stream "^3.6.0"
+
+zxcvbn@4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/zxcvbn/-/zxcvbn-4.4.2.tgz#28ec17cf09743edcab056ddd8b1b06262cc73c30"
+  integrity sha1-KOwXzwl0PtyrBW3dixsGJizHPDA=

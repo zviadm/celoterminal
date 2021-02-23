@@ -28,7 +28,7 @@ const TradeHistory = (props: {
 						<TableHead>
 							<TableRow>
 								<TableCell>Date</TableCell>
-								<TableCell>Trade</TableCell>
+								<TableCell width="100%">Trade</TableCell>
 								<TableCell>Price</TableCell>
 								<TableCell>TXHash</TableCell>
 							</TableRow>
@@ -49,7 +49,7 @@ const TradeHistory = (props: {
 											`${fmtAmount(e.sellAmount, Decimals)} cUSD \u2192 ${fmtAmount(e.buyAmount, Decimals)} CELO`
 											}
 										</TableCell>
-										<TableCell>
+										<TableCell align="right">
 											{e.soldGold ?
 											e.buyAmount.div(e.sellAmount).toFixed(4) :
 											e.sellAmount.div(e.buyAmount).toFixed(4)

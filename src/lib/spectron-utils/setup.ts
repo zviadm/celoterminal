@@ -8,6 +8,9 @@ import * as kill from 'tree-kill'
 
 import { SpectronAccountsDB, SpectronNetworkId } from './constants'
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const failFast = require('jasmine-fail-fast')
+
 // Bypasses Jest's capturing of `console` to have cleaner stdout when running
 // spectron tests.
 export const testLog = (msg: string, opts?: {noNewLine?: boolean}): void => {
@@ -27,6 +30,9 @@ export const remote = (app: Application): Remote => {
 // Sets up beforeAll/afterAll calls to setup and teardown both
 // application and celo-devchain. All spetron tests should use this call.
 export const jestSetup = (): void => {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	(jasmine as any).getEnv().addReporter(failFast.init())
+
 	let cleanup: () => Promise<void>
 	beforeAll(async () => {
 		const r = await startApp()
@@ -51,18 +57,28 @@ const startApp = async (): Promise<{app: Application, cleanup: () => Promise<voi
 	const {devchain, devchainKilled} = await startDevchain()
 
 	const rootPath = [__dirname, "..", "..", ".."]
+	const appPath = path.normalize(path.join(...rootPath, "node_modules", ".bin", "electron"))
+	const appArgs = ['--no-sandbox', path.normalize(path.join(...rootPath, "dist", "main", "main.js"))]
 	const app = new Application({
-		path: path.join(...rootPath, "node_modules", ".bin", "electron"),
-		args: ['--no-sandbox', path.join(...rootPath, "dist", "main", "main.js")],
+		path: appPath,
+		args: appArgs,
 		env: {
 			"SPECTRON_TEST": "true",
 			"CELOTERMINAL_ACCOUNTS_DB": "home/.celoterminal/" + SpectronAccountsDB,
 			"CELOTERMINAL_NETWORK_ID": SpectronNetworkId,
 			"CELOTERMINAL_NETWORK_URL": `http://localhost:${devchainPort}`,
 		},
+		// enable for chrome-driver verbose debugging.
+		// chromeDriverLogPath: "/tmp/celoterminal-spectron-chrome-driver.log",
+		startTimeout: 5000,
 	})
-	testLog(`[test] app starting`)
-	await app.start()
+	testLog(`$ ${appPath} ${appArgs.join(" ")}`)
+	try {
+		await app.start()
+	} catch (e) {
+		_kill(devchain)
+		throw e
+	}
 	testLog(`[test] app started`)
 	// see: https://github.com/electron-userland/spectron/issues/763
 	app.client.setTimeout({implicit: 0})
@@ -84,8 +100,6 @@ const startApp = async (): Promise<{app: Application, cleanup: () => Promise<voi
 
 const devchainPort = 7545
 const startDevchain = async () => {
-	testLog(`[test] celo-devchain on port: ${devchainPort}...`)
-
 	let _resolve: () => void
 	const started = new Promise<void>((resolve) => { _resolve = resolve})
 

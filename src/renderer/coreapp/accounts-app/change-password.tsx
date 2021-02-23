@@ -5,6 +5,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
+import PasswordStrengthBar from 'react-password-strength-bar'
 
 const ChangePassword = (props: {
 	hasPassword: boolean,
@@ -55,6 +56,7 @@ const ChangePassword = (props: {
 					fullWidth={true}
 					onChange={(e) => { setNewPassword2(e.target.value) }}
 				/>
+				<PasswordStrengthBar password={newPassword1} />
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.onClose}>Cancel</Button>
@@ -62,7 +64,7 @@ const ChangePassword = (props: {
 					color="secondary"
 					disabled={newPassword1 === "" || newPassword1 !== newPassword2}
 					onClick={handleChange}
-					>Change</Button>
+					>{props.hasPassword ? "Change" : "Setup"}</Button>
 			</DialogActions>
 		</Dialog>
 	)

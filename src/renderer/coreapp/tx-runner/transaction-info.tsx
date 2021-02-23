@@ -56,7 +56,7 @@ const TransactionInfo = (props: {
 					<TableRow>
 						<TableCell>Fee</TableCell>
 						<TableCell colSpan={2}>
-							~{props.fee.estimatedFee.toFixed(4, BigNumber.ROUND_UP)} {props.fee.feeCurrency}
+							~{props.fee.estimatedFee.toFixed(6, BigNumber.ROUND_UP)} {props.fee.feeCurrency}
 						</TableCell>
 					</TableRow>
 				</TableBody>
