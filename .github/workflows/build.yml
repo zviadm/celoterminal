@@ -26,7 +26,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v1
@@ -46,3 +46,13 @@ jobs:
       - run: yarn electron-builder --win --publish never
         if: runner.os == 'Windows'
 
+      - run: yarn electron-builder --linux --publish never
+        if: runner.os == 'Linux'
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: celoterminal-executables
+          path: |
+            dist/*-mac*.dmg
+            dist/*-linux*.AppImage
+            dist/*-win*.exe
