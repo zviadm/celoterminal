@@ -31,7 +31,9 @@ function createMainWindow() {
 	const noSplash = isSpectronTest // No splash screen during Spectron testing.
 
 	const width = noDevTools ? minWidth : minWidth + 270
-	// const iconPath = !isSpectronTest ? path.join(__static, "icon.png") : undefined
+	const iconOptions = isSpectronTest ? {} : {
+		icon: path.join(__static, 'icon.png')
+	}
 
 	if (isSpectronTest &&
 		CFG().accountsDBPath.path[CFG().accountsDBPath.path.length - 1] === SpectronAccountsDB) {
@@ -52,7 +54,7 @@ function createMainWindow() {
 			devTools: !noDevTools,
 		},
 		show: noSplash,
-		// icon: iconPath,
+		...iconOptions,
 	})
 
 	if (!noDevTools) {
@@ -78,7 +80,7 @@ function createMainWindow() {
 			resizable: false,
 			movable: false,
 			webPreferences: {contextIsolation: true},
-			// icon: iconPath,
+			...iconOptions,
 		})
 		splash.loadURL(`file://${__static}/splash.html`)
 
