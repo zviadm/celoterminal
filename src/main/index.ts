@@ -31,7 +31,7 @@ function createMainWindow() {
 	const noSplash = isSpectronTest // No splash screen during Spectron testing.
 
 	const width = noDevTools ? minWidth : minWidth + 270
-	const iconPath = path.join(__static, "icon.png")
+	const iconPath = !isSpectronTest ? path.join(__static, "icon.png") : undefined
 
 	if (isSpectronTest &&
 		CFG().accountsDBPath.path[CFG().accountsDBPath.path.length - 1] === SpectronAccountsDB) {
