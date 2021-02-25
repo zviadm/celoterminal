@@ -50,3 +50,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           EP_PRE_RELEASE: true
         if: runner.os == 'Windows'
+
+      - run: yarn electron-builder --linux --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EP_PRE_RELEASE: true
+        if: runner.os == 'Linux'
