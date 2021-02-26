@@ -154,12 +154,16 @@ const AccountsApp = (props: {
 								</Box>
 								{a.type === "local" &&
 								<Tooltip title="Show the secret mnemonic phrase and the private-key of this account. Never share these secrets with anyone else!">
-									<IconButton onClick={() => setRevealAccount(a)}>
-										<icons.Description />
+									<IconButton
+										edge="end"
+										color="secondary" onClick={() => setRevealAccount(a)}>
+										<icons.Lock />
 									</IconButton>
 								</Tooltip>}
 								<Tooltip title="Remove account">
-									<IconButton color="secondary" onClick={() => setConfirmRemove(a)}>
+									<IconButton
+										edge="end"
+										color="secondary" onClick={() => setConfirmRemove(a)}>
 										<icons.Delete />
 									</IconButton>
 								</Tooltip>
