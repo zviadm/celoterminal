@@ -12,7 +12,7 @@ export const setupAutoUpdater = (): void => {
 		autoUpdater.checkForUpdates()
 		setInterval(() => {
 			autoUpdater.checkForUpdates()
-		}, 60 * 1000) // Check every 10 minutes.
+		}, 30 * 60 * 1000) // Check every 30 minutes.
 		autoUpdater.on("error", (e: Error) => {
 			log.error("autoupdater:", e)
 		})
