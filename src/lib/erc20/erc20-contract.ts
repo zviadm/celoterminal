@@ -25,6 +25,14 @@ class Erc20Contract {
 		return Number.parseInt(r)
 	}
 
+	public name = async (): Promise<string> => {
+		return this.web3contract.methods.name().call()
+	}
+
+	public symbol = async (): Promise<string> => {
+		return this.web3contract.methods.symbol().call()
+	}
+
 	public balanceOf = async (address: string): Promise<BigNumber> => {
 		const r = await this.web3contract.methods.balanceOf(address).call()
 		return valueToBigNumber(r)

@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { CoreErc20, coreErc20Decimals } from './erc20/core'
 
 export const sleep = (milliseconds: number): Promise<void> => {
 	return new Promise(resolve => setTimeout(resolve, milliseconds))
@@ -33,11 +34,10 @@ const _precisionForZero = 4
 
 export const fmtAmount = (
 	v: BigNumber,
-	decimals: "CELO" | "cUSD" | number,
+	decimals: CoreErc20 | number,
 	precision?: number | "max"): string => {
-	if (decimals === "CELO" ||
-		decimals === "cUSD") {
-		decimals = 18
+	if (typeof decimals === "string") {
+		decimals = coreErc20Decimals
 	}
 	let fmtV = v.shiftedBy(-decimals)
 	if (precision !== "max") {

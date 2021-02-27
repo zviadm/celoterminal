@@ -3,7 +3,7 @@ import log from 'electron-log'
 import { ContractKit } from '@celo/contractkit'
 
 import { CancelPromise } from '../../lib/utils'
-import kit from './kit'
+import kitInstance from './kit'
 import { ErrorContext } from './error-context'
 
 // useOnChainState provides a React hook to help with on-chain data fetching.
@@ -34,7 +34,7 @@ const useOnChainState = <T>(
 		const c = new CancelPromise()
 		setIsFetching(true)
 
-		fetchCallback(kit(), c)
+		fetchCallback(kitInstance(), c)
 		.then((a: T) => {
 			if (!c.isCancelled()) {
 				log.info(`useOnChainState[${fetchN}]: fetched`)

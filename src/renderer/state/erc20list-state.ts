@@ -1,18 +1,27 @@
 import * as React from "react"
 import * as log from "electron-log"
 import { registeredErc20s } from "../../lib/cfg"
-import { coreErc20s, RegisteredErc20 } from "../../lib/erc20/core"
+import { coreErc20Decimals, coreErc20s, RegisteredErc20 } from "../../lib/erc20/core"
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const useErc20List = () => {
+export const useErc20List = (): {
+	erc20s: RegisteredErc20[],
+	reload: () => void,
+} => {
 	const [changeN, setChangeN] = React.useState(0)
 	const erc20s = React.useMemo(() => {
-		const core = coreErc20s.map((e) => ({fullName: e, address: ""}))
+		const core: RegisteredErc20[] = coreErc20s.map((e) => ({
+			fullName: e,
+			address: "",
+			decimals: coreErc20Decimals,
+		}))
 		const fullList = registeredErc20s()
-		const registered = registeredList()
+		const registered = (registeredList()
 			.map((r) => fullList.find((f) => f.address === r.address))
-			.filter((v) => (v !== undefined)) as RegisteredErc20[]
-		const custom = customList().map((c) => customToErc20(c))
+			.filter((v) => (v !== undefined)) as RegisteredErc20[])
+			.sort((a, b) => a.fullName < b.fullName ? -1 : 1)
+		const custom = customList()
+			.map((c) => customToErc20(c))
+			.sort((a, b) => a.fullName < b.fullName ? -1 : 1)
 		return [
 			...core,
 			...registered,
@@ -43,17 +52,22 @@ export const addRegisteredErc20 = (fullName: string): RegisteredErc20 => {
 	return erc20
 }
 
-export const addCustomErc20 = (erc20: {address: string, name: string}): RegisteredErc20 => {
+export interface CustomErc20 {
+	symbol: string
+	address: string
+	decimals: number
+}
+
+export const addCustomErc20 = (erc20: CustomErc20): RegisteredErc20 => {
 	const fullList = registeredErc20s()
 	const registeredErc20 = fullList.find((r) => r.address.toLowerCase() === erc20.address.toLowerCase())
 	if (registeredErc20) {
 		return addRegisteredErc20(registeredErc20.fullName)
 	}
 	const list = customList()
-	const match = list.find((l) => l.address.toLowerCase() === erc20.address)
-	if (match) {
-		match.address = erc20.address
-		match.name = erc20.name
+	const matchIdx = list.findIndex((l) => l.address.toLowerCase() === erc20.address)
+	if (matchIdx >= -1) {
+		list.splice(matchIdx, 1, erc20)
 	} else {
 		list.push(erc20)
 	}
@@ -79,7 +93,7 @@ const setRegisteredList = (list: {address: string}[]) => {
 }
 
 const customListKey = "terminal/core/erc20/custom-list"
-const customList = (): {address: string, name: string}[] => {
+const customList = (): CustomErc20[] => {
 	const json = localStorage.getItem(customListKey)
 	if (!json) {
 		return []
@@ -91,12 +105,13 @@ const customList = (): {address: string, name: string}[] => {
 		return []
 	}
 }
-const setCustomList = (list: {address: string, name: string}[]) => {
+const setCustomList = (list: CustomErc20[]) => {
 	localStorage.setItem(customListKey, JSON.stringify(list))
 }
-const customToErc20 = (erc20: {address:string, name: string}): RegisteredErc20 => {
+const customToErc20 = (erc20: CustomErc20): RegisteredErc20 => {
 	return {
-		fullName: "Custom:" + erc20,
+		fullName: "Custom:" + erc20.symbol,
 		address: erc20.address,
+		decimals: erc20.decimals,
 	}
 }

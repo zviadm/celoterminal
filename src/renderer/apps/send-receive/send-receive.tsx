@@ -18,6 +18,7 @@ import {
 	Select, MenuItem, Typography, Button, Box
 } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
+import * as icons from '@material-ui/icons'
 
 import AddressAutocomplete from '../../components/address-autocomplete'
 import AppHeader from '../../components/app-header'
@@ -25,7 +26,7 @@ import TransferHistory from './transfer-history'
 import NumberInput from '../../components/number-input'
 import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
-import { useErc20List } from '../../state/erc20s'
+import { useErc20List } from '../../state/erc20list-state'
 import AddErc20 from '../../components/add-erc20'
 
 const SendReceiveApp = (props: {
@@ -158,7 +159,14 @@ const SendReceiveApp = (props: {
 							<MenuItem id={`erc20-${fullName}-item`} value={fullName} key={fullName}>{fullName}</MenuItem>
 						))
 					}
-					<MenuItem value="add-token">Add Token...</MenuItem>
+					<MenuItem value="add-token">
+						<Box display="flex" flexDirection="row" alignItems="center">
+							<Typography
+								style={{fontStyle: "italic"}}
+								color="textSecondary">Search...</Typography>
+							<icons.Search style={{marginLeft: 5}} />
+						</Box>
+					</MenuItem>
 				</Select>
 				<Box marginTop={1}>
 					<Typography>

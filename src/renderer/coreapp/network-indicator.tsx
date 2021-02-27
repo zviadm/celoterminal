@@ -3,7 +3,7 @@ import { newKit } from '@celo/contractkit'
 import { BlockHeader } from '@celo/connect'
 import { secondsToDurationString } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 
-import kit, { useNetworkURL } from '../state/kit'
+import kitInstance, { useNetworkURL } from '../state/kit'
 import { CFG, networkName } from '../../lib/cfg'
 import { UserError } from '../../lib/error'
 import { nowMS } from '../state/time'
@@ -35,7 +35,7 @@ const NetworkIndicator = (): JSX.Element => {
 		let lastBlock: BlockHeader
 		const maxBlockDelayMs = 3 * expectedBlockMs
 		const timer = setInterval(async () => {
-			const k = kit()
+			const k = kitInstance()
 			try {
 				let blockN: number
 				if (!lastBlock ||
