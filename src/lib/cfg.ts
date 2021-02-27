@@ -1,7 +1,7 @@
 import { erc20Alfajores } from "./erc20/registry-alfajores"
 import { erc20Baklava } from "./erc20/registry-baklava"
 import { erc20Mainnet } from "./erc20/registry-mainnet"
-import { coreErc20s, RegisteredERC20 } from "./erc20/core"
+import { RegisteredERC20 } from "./erc20/core"
 
 export const mainnetNetworkId = "42220"
 const defaultNetworkId = mainnetNetworkId
@@ -14,18 +14,6 @@ const defaultNetworks: {[key: string]: string} = {
 }
 const fallbackNetworkURL = "http://localhost:7545"
 
-const networkNames: {[key: string]: string} = {
-	[mainnetNetworkId]: "Mainnet",
-	"62320": "Baklava",
-	"44787": "Alfajores",
-}
-
-const erc20Registry: {[key: string]: RegisteredERC20[]} = {
-	[mainnetNetworkId]: erc20Mainnet,
-	"62320": erc20Baklava,
-	"44784": erc20Alfajores,
-}
-
 export type PathRoot = "home" | "userData"
 
 interface Config {
@@ -35,7 +23,6 @@ interface Config {
 		root: PathRoot,
 		path: string[],
 	},
-	erc20s: RegisteredERC20[],
 }
 
 let _CFG: Config
@@ -54,7 +41,6 @@ export const CFG = (): Config => {
 			defaultAccountsDB
 		const accountsDBPathParts = accountsDBPath.split("/")
 
-		const erc20s = Array.from((erc20Registry[networkId] || [])).sort((a, b) => a.name < b.name ? -1 : 1)
 		_CFG = {
 			networkId,
 			defaultNetworkURL,
@@ -62,17 +48,27 @@ export const CFG = (): Config => {
 				root: accountsDBPathParts[0] as PathRoot,
 				path: accountsDBPathParts.slice(1),
 			},
-			erc20s: [
-				...coreErc20s,
-				...erc20s,
-			],
 		}
 	}
 	return _CFG
 }
 
+const networkNames: {[key: string]: string} = {
+	[mainnetNetworkId]: "Mainnet",
+	"62320": "Baklava",
+	"44787": "Alfajores",
+}
 export const networkName = (networkId: string): string => {
 	return networkNames[networkId] || `NetworkId: ${networkId}`
+}
+
+const erc20Registry: {[key: string]: RegisteredERC20[]} = {
+	[mainnetNetworkId]: erc20Mainnet,
+	"62320": erc20Baklava,
+	"44784": erc20Alfajores,
+}
+export const registeredErc20s = (): RegisteredERC20[] => {
+	return Array.from(erc20Registry[CFG().networkId] || [])
 }
 
 export const explorerRootURL = (): string => {
