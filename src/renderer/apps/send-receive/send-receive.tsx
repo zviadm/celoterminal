@@ -26,20 +26,23 @@ import NumberInput from '../../components/number-input'
 import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
 import { useErc20List } from '../../state/erc20s'
+import AddErc20 from '../../components/add-erc20'
 
 const SendReceiveApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
-	const { erc20s } = useErc20List()
+	const erc20List = useErc20List()
 	const [_erc20FullName, setErc20FullName] = useLocalStorageState(
-		"terminal/send-receive/erc20", erc20s[0].fullName)
-	const erc20 = erc20s.find((e) => e.fullName === _erc20FullName) || erc20s[0]
+		"terminal/send-receive/erc20", erc20List.erc20s[0].fullName)
+	const erc20 = erc20List.erc20s.find((e) => e.fullName === _erc20FullName) || erc20List.erc20s[0]
 	const erc20FullName = erc20.fullName
 	if (erc20FullName !== _erc20FullName) {
 		setErc20FullName(erc20FullName)
 	}
+
+	const [showAddToken, setShowAddToken] = React.useState(false)
 
 	const selectedAddress = props.selectedAccount.address
 	const {
@@ -128,18 +131,34 @@ const SendReceiveApp = (props: {
 	return (
 		<AppContainer>
 			<AppHeader app={SendReceive} isFetching={isFetching || transferHistory.isFetching} refetch={refetchAll} />
+			{showAddToken &&
+			<AddErc20
+				onCancel={() => { setShowAddToken(false) }}
+				onAdd={(erc20) => {
+					setShowAddToken(false)
+					erc20List.reload()
+					setErc20FullName(erc20.fullName)
+				}}
+			/>}
 			<AppSection>
 				<Select
 					id="erc20-select"
 					autoFocus
 					label="ERC20"
 					value={erc20FullName}
-					onChange={(event) => { setErc20FullName(event.target.value as string) }}>
+					onChange={(event) => {
+						if (event.target.value === "add-token") {
+							setShowAddToken(true)
+						} else {
+							setErc20FullName(event.target.value as string)
+						}
+					}}>
 					{
-						erc20s.map(({fullName}) => (
+						erc20List.erc20s.map(({fullName}) => (
 							<MenuItem id={`erc20-${fullName}-item`} value={fullName} key={fullName}>{fullName}</MenuItem>
 						))
 					}
+					<MenuItem value="add-token">Add Token...</MenuItem>
 				</Select>
 				<Box marginTop={1}>
 					<Typography>
