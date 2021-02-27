@@ -8,7 +8,7 @@ import { Account } from '../../../lib/accounts'
 import useOnChainState from '../../state/onchain-state'
 import useLocalStorageState from '../../state/localstorage-state'
 import { fmtAmount } from '../../../lib/utils'
-import { newERC20 } from '../../../lib/erc20/erc20-contract'
+import { newErc20 } from '../../../lib/erc20/erc20-contract'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { SendReceive } from './def'
 import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
@@ -48,7 +48,7 @@ const SendReceiveApp = (props: {
 		refetch,
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
-			const contract = await newERC20(kit, erc20)
+			const contract = await newErc20(kit, erc20)
 			const decimals = contract.decimals()
 			const balance = contract.balanceOf(selectedAddress)
 			return {
@@ -60,7 +60,7 @@ const SendReceiveApp = (props: {
 	))
 	const transferHistory = useEventHistoryState(React.useCallback(
 		async (kit: ContractKit, fromBlock: number, toBlock: number, latestBlock: BlockTransactionString) => {
-			const contractDirect = (await newERC20(kit, erc20)).web3contract
+			const contractDirect = (await newErc20(kit, erc20)).web3contract
 			const fromTransfers = await contractDirect.getPastEvents("Transfer", {
 				fromBlock,
 				toBlock,
@@ -108,7 +108,7 @@ const SendReceiveApp = (props: {
 		if (!fetched?.decimals) {
 			throw new Error(`Unknown decimals for ERC20: ${erc20FullName}.`)
 		}
-		const contract = await newERC20(kit, erc20)
+		const contract = await newErc20(kit, erc20)
 		const tx = contract.transfer(
 			toAddress, new BigNumber(toSend).shiftedBy(fetched.decimals))
 		return [{tx: tx}]

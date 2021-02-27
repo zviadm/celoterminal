@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { Address, CeloTransactionObject } from '@celo/connect'
 import { ContractKit } from '@celo/contractkit'
 
-interface IERC20 {
+interface IErc20 {
 	address: Address
 	balanceOf (account: string): Promise<BigNumber>
 	decimals: () => Promise<number>
@@ -10,7 +10,7 @@ interface IERC20 {
 	increaseAllowance: (address: string, amount: BigNumber.Value) => CeloTransactionObject<boolean>
 }
 
-type tokenF = (kit: ContractKit) => Promise<IERC20>
+type tokenF = (kit: ContractKit) => Promise<IErc20>
 
 export const Decimals = 18
 export const StableTokens: {[token: string]: tokenF} = {

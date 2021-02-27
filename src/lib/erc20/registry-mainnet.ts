@@ -1,7 +1,7 @@
 import { convertMToken } from "./conversions/moola"
-import { RegisteredERC20 } from "./core"
+import { RegisteredErc20 } from "./core"
 
-export const erc20Mainnet: RegisteredERC20[] = [
+export const erc20Mainnet: RegisteredErc20[] = [
 	{
 		fullName: "Moola:mCELO",
 		address: "0x7037F7296B2fc7908de7b57a89efaa8319f0C500",

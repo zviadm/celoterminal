@@ -2,10 +2,10 @@ import { AbiItem, CeloTransactionObject, toTransactionObject } from "@celo/conne
 import { CeloContract, ContractKit } from "@celo/contractkit"
 import { valueToBigNumber } from "@celo/contractkit/lib/wrappers/BaseWrapper"
 import BigNumber from "bignumber.js"
-import { RegisteredERC20 } from "./core"
+import { RegisteredErc20 } from "./core"
 import erc20abi from "./erc20-abi.json"
 
-class ERC20Contract {
+class Erc20Contract {
 	public web3contract
 	constructor(
 		private kit: ContractKit,
@@ -30,9 +30,9 @@ class ERC20Contract {
 		return valueToBigNumber(r)
 	}
 }
-export default ERC20Contract
+export default Erc20Contract
 
-export const newERC20 = async (kit: ContractKit, erc20: RegisteredERC20): Promise<ERC20Contract> => {
+export const newErc20 = async (kit: ContractKit, erc20: RegisteredErc20): Promise<Erc20Contract> => {
 	let address
 	switch (erc20.fullName) {
 	case "CELO":
@@ -48,5 +48,5 @@ export const newERC20 = async (kit: ContractKit, erc20: RegisteredERC20): Promis
 	if (address === "") {
 		throw new Error(`Unknown ERC20: ${erc20.fullName} - ${erc20.address}!`)
 	}
-	return new ERC20Contract(kit, address)
+	return new Erc20Contract(kit, address)
 }

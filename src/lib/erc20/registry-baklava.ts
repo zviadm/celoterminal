@@ -1,4 +1,4 @@
-import { RegisteredERC20 } from "./core"
+import { RegisteredErc20 } from "./core"
 
-export const erc20Baklava: RegisteredERC20[] = [
+export const erc20Baklava: RegisteredErc20[] = [
 ]

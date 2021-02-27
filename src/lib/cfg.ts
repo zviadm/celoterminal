@@ -1,7 +1,7 @@
 import { erc20Alfajores } from "./erc20/registry-alfajores"
 import { erc20Baklava } from "./erc20/registry-baklava"
 import { erc20Mainnet } from "./erc20/registry-mainnet"
-import { RegisteredERC20 } from "./erc20/core"
+import { RegisteredErc20 } from "./erc20/core"
 
 export const mainnetNetworkId = "42220"
 const defaultNetworkId = mainnetNetworkId
@@ -62,12 +62,12 @@ export const networkName = (networkId: string): string => {
 	return networkNames[networkId] || `NetworkId: ${networkId}`
 }
 
-const erc20Registry: {[key: string]: RegisteredERC20[]} = {
+const erc20Registry: {[key: string]: RegisteredErc20[]} = {
 	[mainnetNetworkId]: erc20Mainnet,
 	"62320": erc20Baklava,
 	"44784": erc20Alfajores,
 }
-export const registeredErc20s = (): RegisteredERC20[] => {
+export const registeredErc20s = (): RegisteredErc20[] => {
 	return Array.from(erc20Registry[CFG().networkId] || [])
 }
 

@@ -1,7 +1,7 @@
 import * as React from "react"
 import * as log from "electron-log"
 import { registeredErc20s } from "../../lib/cfg"
-import { coreErc20s, RegisteredERC20 } from "../../lib/erc20/core"
+import { coreErc20s, RegisteredErc20 } from "../../lib/erc20/core"
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useErc20List = () => {
@@ -11,7 +11,7 @@ export const useErc20List = () => {
 		const fullList = registeredErc20s()
 		const registered = registeredList()
 			.map((r) => fullList.find((f) => f.address === r.address))
-			.filter((v) => (v !== undefined)) as RegisteredERC20[]
+			.filter((v) => (v !== undefined)) as RegisteredErc20[]
 		const custom = customList().map((c) => customToErc20(c))
 		return [
 			...core,
@@ -27,7 +27,7 @@ export const useErc20List = () => {
 	}
 }
 
-export const addRegisteredErc20 = (fullName: string): RegisteredERC20 => {
+export const addRegisteredErc20 = (fullName: string): RegisteredErc20 => {
 	const fullList = registeredErc20s()
 	const erc20 = fullList.find((r) => r.fullName === fullName)
 	if (!erc20) {
@@ -43,7 +43,7 @@ export const addRegisteredErc20 = (fullName: string): RegisteredERC20 => {
 	return erc20
 }
 
-export const addCustomErc20 = (erc20: {address: string, name: string}): RegisteredERC20 => {
+export const addCustomErc20 = (erc20: {address: string, name: string}): RegisteredErc20 => {
 	const fullList = registeredErc20s()
 	const registeredErc20 = fullList.find((r) => r.address.toLowerCase() === erc20.address.toLowerCase())
 	if (registeredErc20) {
@@ -94,7 +94,7 @@ const customList = (): {address: string, name: string}[] => {
 const setCustomList = (list: {address: string, name: string}[]) => {
 	localStorage.setItem(customListKey, JSON.stringify(list))
 }
-const customToErc20 = (erc20: {address:string, name: string}): RegisteredERC20 => {
+const customToErc20 = (erc20: {address:string, name: string}): RegisteredErc20 => {
 	return {
 		fullName: "Custom:" + erc20,
 		address: erc20.address,
