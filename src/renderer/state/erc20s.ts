@@ -12,7 +12,7 @@ export const useErc20List = () => {
 		const registered = registeredList()
 			.map((r) => fullList.find((f) => f.address === r.address))
 			.filter((v) => (v !== undefined)) as RegisteredERC20[]
-		const custom = customList().map((c) => ({address: c.address, fullName: "Custom:" + c.name}))
+		const custom = customList().map((c) => customToErc20(c))
 		return [
 			...core,
 			...registered,
@@ -27,21 +27,23 @@ export const useErc20List = () => {
 	}
 }
 
-export const addRegisteredErc20 = (fullName: string): void => {
+export const addRegisteredErc20 = (fullName: string): RegisteredERC20 => {
 	const fullList = registeredErc20s()
 	const erc20 = fullList.find((r) => r.fullName === fullName)
 	if (!erc20) {
 		throw new Error(`Erc20: ${fullName} not found in registry.`)
 	}
 	const list = registeredList()
-	if (list.find((l) => l.address.toLowerCase() === erc20.address.toLowerCase())) {
-		return
+	const match = list.find((l) => l.address.toLowerCase() === erc20.address.toLowerCase())
+	if (match) {
+		return erc20
 	}
 	list.push({address: erc20.address})
 	setRegisteredList(list)
+	return erc20
 }
 
-export const addCustomErc20 = (erc20: {address: string, name: string}): void => {
+export const addCustomErc20 = (erc20: {address: string, name: string}): RegisteredERC20 => {
 	const fullList = registeredErc20s()
 	const registeredErc20 = fullList.find((r) => r.address.toLowerCase() === erc20.address.toLowerCase())
 	if (registeredErc20) {
@@ -56,6 +58,7 @@ export const addCustomErc20 = (erc20: {address: string, name: string}): void => 
 		list.push(erc20)
 	}
 	setCustomList(list)
+	return customToErc20(erc20)
 }
 
 const registeredListKey = "terminal/core/erc20/registered-list"
@@ -90,4 +93,10 @@ const customList = (): {address: string, name: string}[] => {
 }
 const setCustomList = (list: {address: string, name: string}[]) => {
 	localStorage.setItem(customListKey, JSON.stringify(list))
+}
+const customToErc20 = (erc20: {address:string, name: string}): RegisteredERC20 => {
+	return {
+		fullName: "Custom:" + erc20,
+		address: erc20.address,
+	}
 }
