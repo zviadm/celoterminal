@@ -1,6 +1,7 @@
-import { erc20Alfajores } from "./erc20-alfajores"
-import { erc20Baklava } from "./erc20-baklava"
-import { erc20Mainnet } from "./erc20-mainnet"
+import { erc20Alfajores } from "./erc20/registry-alfajores"
+import { erc20Baklava } from "./erc20/registry-baklava"
+import { erc20Mainnet } from "./erc20/registry-mainnet"
+import { coreErc20s, RegisteredERC20 } from "./erc20/core"
 
 export const mainnetNetworkId = "42220"
 const defaultNetworkId = mainnetNetworkId
@@ -19,18 +20,13 @@ const networkNames: {[key: string]: string} = {
 	"44787": "Alfajores",
 }
 
-const erc20Registry: {[key: string]: ERC20[]} = {
+const erc20Registry: {[key: string]: RegisteredERC20[]} = {
 	[mainnetNetworkId]: erc20Mainnet,
 	"62320": erc20Baklava,
 	"44784": erc20Alfajores,
 }
 
 export type PathRoot = "home" | "userData"
-
-interface ERC20 {
-	name: string,
-	address?: string,
-}
 
 interface Config {
 	networkId: string,
@@ -39,7 +35,7 @@ interface Config {
 		root: PathRoot,
 		path: string[],
 	},
-	erc20s: ERC20[],
+	erc20s: RegisteredERC20[],
 }
 
 let _CFG: Config
@@ -66,10 +62,8 @@ export const CFG = (): Config => {
 				root: accountsDBPathParts[0] as PathRoot,
 				path: accountsDBPathParts.slice(1),
 			},
-			// TODO(zviadm): Predefined ERC20 lists for different networks.
 			erc20s: [
-				{name: "CELO"},
-				{name: "cUSD"},
+				...coreErc20s,
 				...erc20s,
 			],
 		}
