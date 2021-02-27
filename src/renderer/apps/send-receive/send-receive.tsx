@@ -9,7 +9,6 @@ import useOnChainState from '../../state/onchain-state'
 import useLocalStorageState from '../../state/localstorage-state'
 import { fmtAmount } from '../../../lib/utils'
 import ERC20 from './erc20'
-import { CFG } from '../../../lib/cfg'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { SendReceive } from './def'
 import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
@@ -26,15 +25,23 @@ import TransferHistory from './transfer-history'
 import NumberInput from '../../components/number-input'
 import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
+import { useErc20List } from '../../state/erc20s'
+import { RegisteredERC20 } from '../../../lib/erc20/core'
 
 const SendReceiveApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
-	const erc20s = CFG().erc20s
-	const [erc20, setErc20] = useLocalStorageState(
-		"terminal/send-receive/erc20", erc20s[0].name)
+	const { erc20s } = useErc20List()
+	const [_erc20FullName, setErc20FullName] = useLocalStorageState(
+		"terminal/send-receive/erc20", erc20s[0].fullName)
+	const erc20 = erc20s.find((e) => e.fullName === _erc20FullName) || erc20s[0]
+	const erc20FullName = erc20.fullName
+	if (erc20FullName !== _erc20FullName) {
+		setErc20FullName(erc20FullName)
+	}
+
 	const selectedAddress = props.selectedAccount.address
 	const {
 		isFetching,
@@ -100,7 +107,7 @@ const SendReceiveApp = (props: {
 	}
 	const txsSend = async (kit: ContractKit) => {
 		if (!fetched?.decimals) {
-			throw new Error(`Unknown decimals for ERC20: ${erc20}.`)
+			throw new Error(`Unknown decimals for ERC20: ${erc20FullName}.`)
 		}
 		const contract = await newERC20(kit, erc20)
 		const tx = contract.transfer(
@@ -114,11 +121,11 @@ const SendReceiveApp = (props: {
 		fetched.balance.gte(new BigNumber(toSend).shiftedBy(fetched.decimals)))
 	// TODO(zviadm): erc20 should be compared against current `feeCurrency` instead.
 	const maxToSend = fetched && (
-		erc20 === "CELO" ?
+		erc20FullName === "CELO" ?
 			BigNumber.maximum(
 				fetched.balance.shiftedBy(-fetched.decimals).minus(0.0001), 0) :
 			fetched.balance.shiftedBy(-fetched.decimals))
-	const erc20Name = erc20.split(":").splice(-1)[0]
+	const erc20Name = erc20FullName.split(":").splice(-1)[0]
 	return (
 		<AppContainer>
 			<AppHeader app={SendReceive} isFetching={isFetching || transferHistory.isFetching} refetch={refetchAll} />
@@ -127,11 +134,11 @@ const SendReceiveApp = (props: {
 					id="erc20-select"
 					autoFocus
 					label="ERC20"
-					value={erc20}
-					onChange={(event) => { setErc20(event.target.value as string) }}>
+					value={erc20FullName}
+					onChange={(event) => { setErc20FullName(event.target.value as string) }}>
 					{
-						erc20s.map(({name}) => (
-							<MenuItem id={`erc20-${name}-item`} value={name} key={name}>{name}</MenuItem>
+						erc20s.map(({fullName}) => (
+							<MenuItem id={`erc20-${fullName}-item`} value={fullName} key={fullName}>{fullName}</MenuItem>
 						))
 					}
 				</Select>
@@ -190,23 +197,21 @@ const SendReceiveApp = (props: {
 }
 export default SendReceiveApp
 
-const newERC20 = async (kit: ContractKit, name: string) => {
+const newERC20 = async (kit: ContractKit, erc20: RegisteredERC20) => {
 	let address
-	switch (name) {
+	switch (erc20.fullName) {
 	case "CELO":
 		address = await kit.registry.addressFor(CeloContract.GoldToken)
 		break
 	case "cUSD":
 		address = await kit.registry.addressFor(CeloContract.StableToken)
 		break
-	default: {
-		const erc20 = CFG().erc20s.find((e) => e.name === name)
-		address = erc20?.address
+	default:
+		address = erc20.address
 		break
-		}
 	}
-	if (!address) {
-		throw new Error(`Unknown ERC20: ${name} - ${address}!`)
+	if (address === "") {
+		throw new Error(`Unknown ERC20: ${erc20.fullName} - ${erc20.address}!`)
 	}
 	return new ERC20(kit, address)
 }
