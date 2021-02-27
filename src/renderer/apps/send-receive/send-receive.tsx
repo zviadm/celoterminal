@@ -1,4 +1,4 @@
-import { CeloContract, ContractKit } from '@celo/contractkit'
+import { ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
 import { isValidAddress } from 'ethereumjs-util'
 import { BlockTransactionString } from 'web3-eth'
@@ -8,7 +8,7 @@ import { Account } from '../../../lib/accounts'
 import useOnChainState from '../../state/onchain-state'
 import useLocalStorageState from '../../state/localstorage-state'
 import { fmtAmount } from '../../../lib/utils'
-import ERC20 from './erc20'
+import { newERC20 } from '../../../lib/erc20/erc20-contract'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { SendReceive } from './def'
 import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
@@ -26,7 +26,6 @@ import NumberInput from '../../components/number-input'
 import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
 import { useErc20List } from '../../state/erc20s'
-import { RegisteredERC20 } from '../../../lib/erc20/core'
 
 const SendReceiveApp = (props: {
 	accounts: Account[],
@@ -196,22 +195,3 @@ const SendReceiveApp = (props: {
 	)
 }
 export default SendReceiveApp
-
-const newERC20 = async (kit: ContractKit, erc20: RegisteredERC20) => {
-	let address
-	switch (erc20.fullName) {
-	case "CELO":
-		address = await kit.registry.addressFor(CeloContract.GoldToken)
-		break
-	case "cUSD":
-		address = await kit.registry.addressFor(CeloContract.StableToken)
-		break
-	default:
-		address = erc20.address
-		break
-	}
-	if (address === "") {
-		throw new Error(`Unknown ERC20: ${erc20.fullName} - ${erc20.address}!`)
-	}
-	return new ERC20(kit, address)
-}
