@@ -64,7 +64,17 @@ To run tests:
 > yarn test:spectron <path to test>
 ```
 
+### Debugging issues
 
+* Running spectron tests should work on both MacOs and Linux, it has never been tested on Windows.
+* Don't forget to run `yarn compile` before running spectron tests. Unlike Dev mode, there is no auto recompilation.
+* After certain OS upgrades it might be necessary to reinstall all `node_modules`. It is unclear exactly what is causing this, but reinstalling node modules should resolve any weird issues.
+```
+> rm -rf ./node_modules
+> yarn
+> yarn compile
+> yarn test:spectron ...
+```
 
 
 
