@@ -15,8 +15,8 @@ const NumberInput = (props: NumberInputProps): JSX.Element => {
 	const onChangeValue = props.onChangeValue
 	const propsCopy = {...props}
 	delete propsCopy.onChangeValue
+	delete propsCopy.maxValue
 	if (maxValue && onChangeValue) {
-		delete propsCopy.maxValue
 		const handleOnMax = () => { onChangeValue(maxValue.toFixed()) }
 		propsCopy.InputProps = {
 			...propsCopy.InputProps,

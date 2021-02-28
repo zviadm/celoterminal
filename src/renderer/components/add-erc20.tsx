@@ -3,7 +3,7 @@ import { isValidAddress } from 'ethereumjs-util'
 import { ensureLeading0x, toChecksumAddress } from '@celo/utils/lib/address'
 import {
 	Button, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Tab,
-	Table, TableBody, TextField, TableRow, TableCell, Paper, TableContainer, Box
+	Table, TableBody, TextField, TableRow, TableCell, Paper, TableContainer, Box, ListItemText
 } from "@material-ui/core"
 import { RegisteredErc20 } from "../../lib/erc20/core"
 import { Autocomplete, TabContext, TabList, TabPanel } from "@material-ui/lab"
@@ -21,7 +21,7 @@ const AddErc20 = (props: {
 	onAdd: (erc20: RegisteredErc20) => void,
 }): JSX.Element => {
 	const [tabIdx, setTabIdx] = React.useState("search")
-	const [erc20FullName, setErc20FullName] = React.useState("")
+	const [erc20Symbol, setErc20Symbol] = React.useState("")
 	const [customAddress, setCustomAddress] = React.useState("")
 	const [fetchingCustom, setFetchingCustom] = React.useState(false)
 	const [customErc20, setCustomErc20] = React.useState<undefined | {
@@ -58,7 +58,7 @@ const AddErc20 = (props: {
 	}, [customAddress])
 
 	const fullList = registeredErc20s()
-	const matchingErc20 = fullList.find((f) => f.fullName === erc20FullName)
+	const matchingErc20 = fullList.find((f) => f.symbol === erc20Symbol)
 	const canAdd =
 		((tabIdx === "search") && matchingErc20) ||
 		((tabIdx === "custom") && customErc20)
@@ -68,7 +68,7 @@ const AddErc20 = (props: {
 			if (!matchingErc20) {
 				return
 			}
-			added = addRegisteredErc20(matchingErc20.fullName)
+			added = addRegisteredErc20(matchingErc20.symbol)
 		} else {
 			if (!customErc20) {
 				return
@@ -95,7 +95,13 @@ const AddErc20 = (props: {
 							autoSelect
 							autoHighlight
 							options={fullList}
-							getOptionLabel={(option) => option.fullName}
+							renderOption={(o) => (
+								<ListItemText
+									primary={o.symbol}
+									secondary={o.name}
+								/>
+							)}
+							getOptionLabel={(o) => `${o.name} (${o.symbol})`}
 							getOptionSelected={(o, v) => { return o.address === v.address }}
 							renderInput={(params) =>
 								<TextField
@@ -106,8 +112,9 @@ const AddErc20 = (props: {
 									InputLabelProps={{shrink: true}}
 								/>
 							}
-							inputValue={erc20FullName}
-							onInputChange={(e, value) => { setErc20FullName(value) }}
+							// inputValue={erc20Symbol}
+							// onInputChange={(e, value) => { setErc20Symbol(value) }}
+							onChange={(e, value) => { setErc20Symbol(value?.symbol || "") }}
 						/>
 					</TabPanel>
 					<TabPanel value="custom">

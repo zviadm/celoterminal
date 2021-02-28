@@ -42,7 +42,7 @@ export default Erc20Contract
 
 export const newErc20 = async (kit: ContractKit, erc20: RegisteredErc20): Promise<Erc20Contract> => {
 	let address
-	switch (erc20.fullName) {
+	switch (erc20.symbol) {
 	case "CELO":
 		address = await kit.registry.addressFor(CeloContract.GoldToken)
 		break
@@ -54,7 +54,7 @@ export const newErc20 = async (kit: ContractKit, erc20: RegisteredErc20): Promis
 		break
 	}
 	if (address === "") {
-		throw new Error(`Unknown ERC20: ${erc20.fullName} - ${erc20.address}!`)
+		throw new Error(`Unknown ERC20: ${erc20.symbol} - ${erc20.address}!`)
 	}
 	return new Erc20Contract(kit, address)
 }

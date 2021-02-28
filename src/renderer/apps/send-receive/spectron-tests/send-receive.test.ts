@@ -65,7 +65,7 @@ test('add/remove erc20', async (done) => {
 	await confirmAddToken.click()
 	await waitForRefetch()
 
-	const removeToken_tCELO = await app.client.$("#remove-token-SpectronTest-tCELO")
+	const removeToken_tCELO = await app.client.$("#remove-token-tCELO")
 	await removeToken_tCELO.waitForExist()
 	// TODO(zviad): Figure out how to click the remove button
 	// await erc20Select.click()

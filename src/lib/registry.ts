@@ -16,7 +16,7 @@ export const contractName = async (
 	const registeredList = registeredErc20s()
 	const erc20match = registeredList.find((e) => e.address?.toLowerCase() === address.toLowerCase())
 	if (erc20match) {
-		return erc20match.fullName
+		return `${erc20match.name} (${erc20match.symbol})`
 	}
 
 	return fmtAddress(address)
