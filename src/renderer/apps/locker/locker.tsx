@@ -10,6 +10,7 @@ import { fmtAmount } from '../../../lib/utils'
 import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definition'
 import { Locker } from './def'
 import { nowMS } from '../../state/time'
+import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import Button from '@material-ui/core/Button'
@@ -70,7 +71,7 @@ const LockerApp = (props: {
 	))
 	const [toLock, setToLock] = React.useState("")
 	const [toUnlock, setToUnlock] = React.useState("")
-	const toLockWEI = new BigNumber(toLock).shiftedBy(18)
+	const toLockWEI = new BigNumber(toLock).shiftedBy(coreErc20Decimals)
 
 	const runTXs = (f: TXFunc) => {
 		props.runTXs(f, (e?: Error) => {
@@ -133,7 +134,7 @@ const LockerApp = (props: {
 	// TODO(zviadm): only keep extra CELO if current feeCurrency is set as CELO.
 	// Keep at least 0.0001 CELO unlocked to avoid running out of Gas completely.
 	const maxToLock = fetched?.totalCELO && BigNumber.maximum(
-		fetched.totalCELO.shiftedBy(-18).minus(0.0001), 0)
+		fetched.totalCELO.shiftedBy(-coreErc20Decimals).minus(0.0001), 0)
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
 			<AppHeader app={Locker} isFetching={isFetching} refetch={refetch} />
@@ -213,7 +214,7 @@ const UnlockWithRevoke = (props: {
 	isVotingInGovernance: boolean,
 	onUnlock: (toUnlock: BigNumber, revoke?: {group: string, amount: BigNumber}) => void,
 }) => {
-	const toUnlockWEI = new BigNumber(props.toUnlock).shiftedBy(18)
+	const toUnlockWEI = new BigNumber(props.toUnlock).shiftedBy(coreErc20Decimals)
 	const votesASC = [...props.votes].sort((a, b) =>
 		a.active.plus(a.pending)
 		.minus(b.active.plus(b.pending))
@@ -242,7 +243,7 @@ const UnlockWithRevoke = (props: {
 			votesASC[votesASC.length - 1].active.plus(votesASC[votesASC.length - 1].pending))
 	const canUnlock = (
 		toUnlockWEI.gt(0) && maxToUnlockWEI.gte(toUnlockWEI))
-	const maxToUnlock = maxToUnlockWEI.shiftedBy(-18)
+	const maxToUnlock = maxToUnlockWEI.shiftedBy(-coreErc20Decimals)
 	return (
 		<Paper>
 			<Box display="flex" flexDirection="column" p={2}>

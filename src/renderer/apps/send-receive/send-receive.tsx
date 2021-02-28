@@ -1,4 +1,4 @@
-import { CeloContract, ContractKit } from '@celo/contractkit'
+import { ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
 import { isValidAddress } from 'ethereumjs-util'
 import { BlockTransactionString } from 'web3-eth'
@@ -8,17 +8,19 @@ import { Account } from '../../../lib/accounts'
 import useOnChainState from '../../state/onchain-state'
 import useLocalStorageState from '../../state/localstorage-state'
 import { fmtAmount } from '../../../lib/utils'
-import ERC20 from './erc20'
-import { CFG } from '../../../lib/cfg'
+import { newErc20 } from '../../../lib/erc20/erc20-contract'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { SendReceive } from './def'
 import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
+import { useErc20List } from '../../state/erc20list-state'
+import { RegisteredErc20 } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
-	Select, MenuItem, Typography, Button, Box
+	Select, MenuItem, Typography, Button, Box, IconButton
 } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
+import * as icons from '@material-ui/icons'
 
 import AddressAutocomplete from '../../components/address-autocomplete'
 import AppHeader from '../../components/app-header'
@@ -26,15 +28,25 @@ import TransferHistory from './transfer-history'
 import NumberInput from '../../components/number-input'
 import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
+import AddErc20 from '../../components/add-erc20'
+import RemoveErc20 from '../../components/remove-erc20'
 
 const SendReceiveApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
-	const erc20s = CFG().erc20s
-	const [erc20, setErc20] = useLocalStorageState(
-		"terminal/send-receive/erc20", erc20s[0].name)
+	const erc20List = useErc20List()
+	const [_erc20FullName, setErc20FullName] = useLocalStorageState(
+		"terminal/send-receive/erc20", erc20List.erc20s[0].fullName)
+	const erc20 = erc20List.erc20s.find((e) => e.fullName === _erc20FullName) || erc20List.erc20s[0]
+	if (erc20.fullName !== _erc20FullName) {
+		setErc20FullName(erc20.fullName)
+	}
+
+	const [showAddToken, setShowAddToken] = React.useState(false)
+	const [toRemove, setToRemove] = React.useState<RegisteredErc20 | undefined>()
+
 	const selectedAddress = props.selectedAccount.address
 	const {
 		isFetching,
@@ -42,11 +54,9 @@ const SendReceiveApp = (props: {
 		refetch,
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
-			const contract = await newERC20(kit, erc20)
-			const decimals = contract.decimals()
+			const contract = await newErc20(kit, erc20)
 			const balance = contract.balanceOf(selectedAddress)
 			return {
-				decimals: await decimals,
 				balance: await balance,
 			}
 		},
@@ -54,7 +64,7 @@ const SendReceiveApp = (props: {
 	))
 	const transferHistory = useEventHistoryState(React.useCallback(
 		async (kit: ContractKit, fromBlock: number, toBlock: number, latestBlock: BlockTransactionString) => {
-			const contractDirect = (await newERC20(kit, erc20)).web3contract
+			const contractDirect = (await newErc20(kit, erc20)).web3contract
 			const fromTransfers = await contractDirect.getPastEvents("Transfer", {
 				fromBlock,
 				toBlock,
@@ -99,44 +109,87 @@ const SendReceiveApp = (props: {
 		})
 	}
 	const txsSend = async (kit: ContractKit) => {
-		if (!fetched?.decimals) {
-			throw new Error(`Unknown decimals for ERC20: ${erc20}.`)
-		}
-		const contract = await newERC20(kit, erc20)
+		const contract = await newErc20(kit, erc20)
 		const tx = contract.transfer(
-			toAddress, new BigNumber(toSend).shiftedBy(fetched.decimals))
+			toAddress, new BigNumber(toSend).shiftedBy(erc20.decimals))
 		return [{tx: tx}]
 	}
 	const handleSend = () => { runTXs(txsSend) }
 	const canSend = (
 		isValidAddress(toAddress) && (toSend !== "") &&
 		fetched &&
-		fetched.balance.gte(new BigNumber(toSend).shiftedBy(fetched.decimals)))
+		fetched.balance.gte(new BigNumber(toSend).shiftedBy(erc20.decimals)))
 	// TODO(zviadm): erc20 should be compared against current `feeCurrency` instead.
 	const maxToSend = fetched && (
-		erc20 === "CELO" ?
+		erc20.fullName === "CELO" ?
 			BigNumber.maximum(
-				fetched.balance.shiftedBy(-fetched.decimals).minus(0.0001), 0) :
-			fetched.balance.shiftedBy(-fetched.decimals))
+				fetched.balance.shiftedBy(-erc20.decimals).minus(0.0001), 0) :
+			fetched.balance.shiftedBy(-erc20.decimals))
+	const erc20Name = erc20.fullName.split(":").splice(-1)[0]
 	return (
 		<AppContainer>
 			<AppHeader app={SendReceive} isFetching={isFetching || transferHistory.isFetching} refetch={refetchAll} />
+			{showAddToken &&
+			<AddErc20
+				onCancel={() => { setShowAddToken(false) }}
+				onAdd={(erc20) => {
+					setShowAddToken(false)
+					erc20List.reload()
+					setErc20FullName(erc20.fullName)
+				}}
+			/>}
+			{toRemove &&
+			<RemoveErc20
+				toRemove={toRemove}
+				onCancel={() => { setToRemove(undefined) }}
+				onRemove={() => {
+					setToRemove(undefined)
+					erc20List.reload()
+				}}
+			/>}
 			<AppSection>
 				<Select
 					id="erc20-select"
 					autoFocus
 					label="ERC20"
-					value={erc20}
-					onChange={(event) => { setErc20(event.target.value as string) }}>
+					value={erc20.fullName}
+					onChange={(event) => {
+						if (event.target.value === "add-token") {
+							setShowAddToken(true)
+						} else {
+							setErc20FullName(event.target.value as string)
+						}
+					}}>
 					{
-						erc20s.map(({name}) => (
-							<MenuItem id={`erc20-${name}-item`} value={name} key={name}>{name}</MenuItem>
+						erc20List.erc20s.map((erc20) => (
+							<MenuItem id={`erc20-${erc20.fullName}-item`} value={erc20.fullName} key={erc20.fullName}>
+								<Box flex={1} display="flex" flexDirection="row" alignItems="center">
+									<Box flex={1}><Typography>{erc20.fullName}</Typography></Box>
+									{erc20.address !== "" &&
+									<IconButton
+										size="small"
+										onClick={(event) => {
+											setToRemove(erc20)
+											event.stopPropagation()
+										}}>
+										<icons.Close />
+									</IconButton>}
+								</Box>
+							</MenuItem>
 						))
 					}
+					<MenuItem value="add-token">
+						<Box display="flex" flexDirection="row" alignItems="center">
+							<Typography
+								style={{fontStyle: "italic"}}
+								color="textSecondary">Search...</Typography>
+							<icons.Search style={{marginLeft: 5}} />
+						</Box>
+					</MenuItem>
 				</Select>
 				<Box marginTop={1}>
 					<Typography>
-						Balance: {!fetched ? "?" : fmtAmount(fetched.balance, fetched.decimals)} {erc20}
+						Balance: {!fetched ? "?" : fmtAmount(fetched.balance, erc20.decimals)} {erc20Name}
 					</Typography>
 				</Box>
 			</AppSection>
@@ -161,7 +214,7 @@ const SendReceiveApp = (props: {
 					id="amount-input"
 					label={
 						!fetched ? `Amount` :
-						`Amount (max: ${fmtAmount(fetched.balance, fetched.decimals)})`
+						`Amount (max: ${fmtAmount(fetched.balance, erc20.decimals)})`
 					}
 					InputLabelProps={{shrink: true}}
 					value={toSend}
@@ -179,8 +232,8 @@ const SendReceiveApp = (props: {
 					address={selectedAddress}
 					events={transferHistory.fetched}
 					erc20={fetched && {
-						name: erc20,
-						decimals: fetched.decimals,
+						name: erc20Name,
+						decimals: erc20.decimals,
 					}}
 					/>
 			</AppSection>
@@ -188,18 +241,3 @@ const SendReceiveApp = (props: {
 	)
 }
 export default SendReceiveApp
-
-const newERC20 = async (kit: ContractKit, name: string, address?: string) => {
-	switch (name) {
-	case "CELO":
-		address = await kit.registry.addressFor(CeloContract.GoldToken)
-		break
-	case "cUSD":
-		address = await kit.registry.addressFor(CeloContract.StableToken)
-		break
-	}
-	if (!address) {
-		throw new Error(`Unknown ERC20: ${name} - ${address}!`)
-	}
-	return new ERC20(kit, address)
-}

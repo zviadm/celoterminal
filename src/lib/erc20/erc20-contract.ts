@@ -1,10 +1,11 @@
 import { AbiItem, CeloTransactionObject, toTransactionObject } from "@celo/connect"
-import { ContractKit } from "@celo/contractkit"
+import { CeloContract, ContractKit } from "@celo/contractkit"
 import { valueToBigNumber } from "@celo/contractkit/lib/wrappers/BaseWrapper"
 import BigNumber from "bignumber.js"
-import erc20abi from "./erc20abi.json"
+import { RegisteredErc20 } from "./core"
+import erc20abi from "./erc20-abi.json"
 
-class ERC20 {
+class Erc20Contract {
 	public web3contract
 	constructor(
 		private kit: ContractKit,
@@ -24,9 +25,36 @@ class ERC20 {
 		return Number.parseInt(r)
 	}
 
+	public name = async (): Promise<string> => {
+		return this.web3contract.methods.name().call()
+	}
+
+	public symbol = async (): Promise<string> => {
+		return this.web3contract.methods.symbol().call()
+	}
+
 	public balanceOf = async (address: string): Promise<BigNumber> => {
 		const r = await this.web3contract.methods.balanceOf(address).call()
 		return valueToBigNumber(r)
 	}
 }
-export default ERC20
+export default Erc20Contract
+
+export const newErc20 = async (kit: ContractKit, erc20: RegisteredErc20): Promise<Erc20Contract> => {
+	let address
+	switch (erc20.fullName) {
+	case "CELO":
+		address = await kit.registry.addressFor(CeloContract.GoldToken)
+		break
+	case "cUSD":
+		address = await kit.registry.addressFor(CeloContract.StableToken)
+		break
+	default:
+		address = erc20.address
+		break
+	}
+	if (address === "") {
+		throw new Error(`Unknown ERC20: ${erc20.fullName} - ${erc20.address}!`)
+	}
+	return new Erc20Contract(kit, address)
+}

@@ -20,7 +20,7 @@ const setCFGNetworkURL = (v: string) => {
 
 let _kit: ContractKit | undefined
 let _kitURL: string
-const kit = (): ContractKit => {
+const kitInstance = (): ContractKit => {
 	const networkURL = cfgNetworkURL()
 	if (_kit && _kitURL !== networkURL) {
 		_kit.stop()
@@ -32,7 +32,7 @@ const kit = (): ContractKit => {
 	}
 	return _kit
 }
-export default kit
+export default kitInstance
 
 export const useNetworkURL = (): [string, (v: string) => void] => {
 	return [cfgNetworkURL(), setCFGNetworkURL]

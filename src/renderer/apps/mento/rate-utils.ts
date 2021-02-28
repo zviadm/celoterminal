@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js'
-
-import { Decimals } from './config'
+import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 export const calcCeloAmount = (
 	side: "sell" | "buy",
@@ -51,7 +50,7 @@ export const fmtTradeAmount = (
 	if (!n.gt(0)) {
 		return ""
 	} else {
-		const v = n.shiftedBy(-Decimals)
+		const v = n.shiftedBy(-coreErc20Decimals)
 		const maxDP = 6
 		let dp = maxDP
 		for (; dp > 0; dp--) {
