@@ -13,6 +13,9 @@ import kitInstance from "../state/kit"
 import Erc20Contract from "../../lib/erc20/erc20-contract"
 
 
+// AddErc20 component can be used to let the user select a new token to add
+// in list of watched erc20s. AddErc20 token manages interaction with the
+// local strage state for adding the token.
 const AddErc20 = (props: {
 	onCancel: () => void,
 	onAdd: (erc20: RegisteredErc20) => void,

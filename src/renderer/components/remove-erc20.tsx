@@ -5,7 +5,9 @@ import {
 import { RegisteredErc20 } from "../../lib/erc20/core"
 import { removeErc20FromList } from "../state/erc20list-state"
 
-
+// RemoveErc20 token can be used to get user confirmation for removing
+// given ERC20 token from watched list. RemoveErc20 manages the interaciton
+// with the local storage state.
 const RemoveErc20 = (props: {
 	toRemove: RegisteredErc20,
 	onCancel: () => void,

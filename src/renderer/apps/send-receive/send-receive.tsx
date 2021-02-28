@@ -12,6 +12,8 @@ import { newErc20 } from '../../../lib/erc20/erc20-contract'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { SendReceive } from './def'
 import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
+import { useErc20List } from '../../state/erc20list-state'
+import { RegisteredErc20 } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
@@ -26,10 +28,8 @@ import TransferHistory from './transfer-history'
 import NumberInput from '../../components/number-input'
 import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
-import { useErc20List } from '../../state/erc20list-state'
 import AddErc20 from '../../components/add-erc20'
 import RemoveErc20 from '../../components/remove-erc20'
-import { RegisteredErc20 } from '../../../lib/erc20/core'
 
 const SendReceiveApp = (props: {
 	accounts: Account[],
@@ -40,9 +40,8 @@ const SendReceiveApp = (props: {
 	const [_erc20FullName, setErc20FullName] = useLocalStorageState(
 		"terminal/send-receive/erc20", erc20List.erc20s[0].fullName)
 	const erc20 = erc20List.erc20s.find((e) => e.fullName === _erc20FullName) || erc20List.erc20s[0]
-	const erc20FullName = erc20.fullName
-	if (erc20FullName !== _erc20FullName) {
-		setErc20FullName(erc20FullName)
+	if (erc20.fullName !== _erc20FullName) {
+		setErc20FullName(erc20.fullName)
 	}
 
 	const [showAddToken, setShowAddToken] = React.useState(false)
@@ -122,11 +121,11 @@ const SendReceiveApp = (props: {
 		fetched.balance.gte(new BigNumber(toSend).shiftedBy(erc20.decimals)))
 	// TODO(zviadm): erc20 should be compared against current `feeCurrency` instead.
 	const maxToSend = fetched && (
-		erc20FullName === "CELO" ?
+		erc20.fullName === "CELO" ?
 			BigNumber.maximum(
 				fetched.balance.shiftedBy(-erc20.decimals).minus(0.0001), 0) :
 			fetched.balance.shiftedBy(-erc20.decimals))
-	const erc20Name = erc20FullName.split(":").splice(-1)[0]
+	const erc20Name = erc20.fullName.split(":").splice(-1)[0]
 	return (
 		<AppContainer>
 			<AppHeader app={SendReceive} isFetching={isFetching || transferHistory.isFetching} refetch={refetchAll} />
@@ -153,7 +152,7 @@ const SendReceiveApp = (props: {
 					id="erc20-select"
 					autoFocus
 					label="ERC20"
-					value={erc20FullName}
+					value={erc20.fullName}
 					onChange={(event) => {
 						if (event.target.value === "add-token") {
 							setShowAddToken(true)

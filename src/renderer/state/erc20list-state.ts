@@ -3,6 +3,9 @@ import * as log from "electron-log"
 import { registeredErc20s } from "../../lib/cfg"
 import { coreErc20Decimals, coreErc20s, RegisteredErc20 } from "../../lib/erc20/core"
 
+// useErc20List returns users watched/added list of Erc20 tokens.
+// reload can be used to refresh the list. reload should be called after token
+// gets added or removed.
 export const useErc20List = (): {
 	erc20s: RegisteredErc20[],
 	reload: () => void,
@@ -36,6 +39,8 @@ export const useErc20List = (): {
 	}
 }
 
+// Adds new RegisteredErc20 to the list. This function should generally be used
+// through `AddErc20` component.
 export const addRegisteredErc20 = (fullName: string): RegisteredErc20 => {
 	const fullList = registeredErc20s()
 	const erc20 = fullList.find((r) => r.fullName === fullName)
@@ -58,6 +63,8 @@ export interface CustomErc20 {
 	decimals: number
 }
 
+// Adds new custom ERC20 to the list. This function should generally be used
+// through `AddErc20` component.
 export const addCustomErc20 = (erc20: CustomErc20): RegisteredErc20 => {
 	const fullList = registeredErc20s()
 	const registeredErc20 = fullList.find((r) => r.address.toLowerCase() === erc20.address.toLowerCase())
@@ -75,6 +82,8 @@ export const addCustomErc20 = (erc20: CustomErc20): RegisteredErc20 => {
 	return customToErc20(erc20)
 }
 
+// Removes ERC20 from the list. This function should be used through `RemoveErc20`
+// component.
 export const removeErc20FromList = (address: string): void => {
 	const rList = registeredList()
 	const rListFiltered = rList.filter((r) => r.address !== address)
