@@ -10,6 +10,8 @@ test('sanity check registry constants', () => {
 		erc20s.forEach((e) => {
 			const normalizedAddr = ensureLeading0x(toChecksumAddress(e.address))
 			expect(e.address).toEqual(normalizedAddr)
+			expect(e.fullName.includes(":")).toEqual(true)
+			expect(e.fullName.startsWith("Custom:")).toEqual(false)
 
 			nameSet.add(e.fullName)
 			addrSet.add(e.address)

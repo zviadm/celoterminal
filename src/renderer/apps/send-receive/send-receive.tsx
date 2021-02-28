@@ -15,7 +15,7 @@ import useEventHistoryState, { estimateTimestamp } from '../../state/event-histo
 
 import * as React from 'react'
 import {
-	Select, MenuItem, Typography, Button, Box
+	Select, MenuItem, Typography, Button, Box, IconButton
 } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 import * as icons from '@material-ui/icons'
@@ -28,6 +28,8 @@ import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
 import { useErc20List } from '../../state/erc20list-state'
 import AddErc20 from '../../components/add-erc20'
+import RemoveErc20 from '../../components/remove-erc20'
+import { RegisteredErc20 } from '../../../lib/erc20/core'
 
 const SendReceiveApp = (props: {
 	accounts: Account[],
@@ -44,6 +46,7 @@ const SendReceiveApp = (props: {
 	}
 
 	const [showAddToken, setShowAddToken] = React.useState(false)
+	const [toRemove, setToRemove] = React.useState<RegisteredErc20 | undefined>()
 
 	const selectedAddress = props.selectedAccount.address
 	const {
@@ -141,6 +144,15 @@ const SendReceiveApp = (props: {
 					setErc20FullName(erc20.fullName)
 				}}
 			/>}
+			{toRemove &&
+			<RemoveErc20
+				toRemove={toRemove}
+				onCancel={() => { setToRemove(undefined) }}
+				onRemove={() => {
+					setToRemove(undefined)
+					erc20List.reload()
+				}}
+			/>}
 			<AppSection>
 				<Select
 					id="erc20-select"
@@ -155,8 +167,21 @@ const SendReceiveApp = (props: {
 						}
 					}}>
 					{
-						erc20List.erc20s.map(({fullName}) => (
-							<MenuItem id={`erc20-${fullName}-item`} value={fullName} key={fullName}>{fullName}</MenuItem>
+						erc20List.erc20s.map((erc20) => (
+							<MenuItem id={`erc20-${erc20.fullName}-item`} value={erc20.fullName} key={erc20.fullName}>
+								<Box flex={1} display="flex" flexDirection="row" alignItems="center">
+									<Box flex={1}><Typography>{erc20.fullName}</Typography></Box>
+									{erc20.address !== "" &&
+									<IconButton
+										size="small"
+										onClick={(event) => {
+											setToRemove(erc20)
+											event.stopPropagation()
+										}}>
+										<icons.Close />
+									</IconButton>}
+								</Box>
+							</MenuItem>
 						))
 					}
 					<MenuItem value="add-token">

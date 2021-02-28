@@ -119,7 +119,7 @@ const AddErc20 = (props: {
 						/>
 						{fetchingCustom && <LinearProgress />}
 						{customErc20 &&
-						<Box my={2}>
+						<Box marginTop={2}>
 						<TableContainer component={Paper}>
 							<Table size="small">
 								<TableBody>

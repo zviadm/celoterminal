@@ -75,6 +75,19 @@ export const addCustomErc20 = (erc20: CustomErc20): RegisteredErc20 => {
 	return customToErc20(erc20)
 }
 
+export const removeErc20FromList = (address: string): void => {
+	const rList = registeredList()
+	const rListFiltered = rList.filter((r) => r.address !== address)
+	if (rListFiltered.length !== rList.length) {
+		setRegisteredList(rListFiltered)
+	}
+	const cList = customList()
+	const cListFiltered = cList.filter((r) => r.address !== address)
+	if (cListFiltered.length !== cList.length) {
+		setCustomList(cListFiltered)
+	}
+}
+
 const registeredListKey = "terminal/core/erc20/registered-list"
 const registeredList = (): {address: string}[] => {
 	const json = localStorage.getItem(registeredListKey)
