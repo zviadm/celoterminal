@@ -79,8 +79,8 @@ test('add/remove erc20', async (done) => {
 
 	await erc20Select.click()
 	await addToken.click()
-	const customTab = await app.client.$("CUSTOM TOKEN")
-	await customTab.waitForEnabled()
+	const customTab = await app.client.$("*=CUSTOM")
+	await customTab.waitForExist()
 	await customTab.click()
 
 	const erc20Address = await app.client.$("#erc20-address")
