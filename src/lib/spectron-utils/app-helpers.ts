@@ -33,8 +33,7 @@ export const confirmTXs = async(opts?: {
 	})
 	await checkErrorSnack()
 	if (!opts?.skipWaitForRefetch) {
-		const refetchData = await app.client.$("#refetch-data")
-		await refetchData.waitForEnabled()
+		await waitForRefetch()
 	}
 	return
 }
@@ -54,6 +53,12 @@ export const checkErrorSnack = async (): Promise<void> => {
 export const refetchAppData = async (): Promise<void> => {
 	const refetchData = await app.client.$("#refetch-data")
 	await refetchData.click()
+	await refetchData.waitForEnabled()
+}
+
+// Waits for `refetch` to complete.
+export const waitForRefetch = async (): Promise<void> => {
+	const refetchData = await app.client.$("#refetch-data")
 	await refetchData.waitForEnabled()
 }
 

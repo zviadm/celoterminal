@@ -1,5 +1,5 @@
 import { app, devchainKit, jestSetup } from '../../../../lib/spectron-utils/setup'
-import { confirmTXs, selectApp } from '../../../../lib/spectron-utils/app-helpers'
+import { confirmTXs, selectApp, waitForRefetch } from '../../../../lib/spectron-utils/app-helpers'
 
 jestSetup()
 
@@ -8,7 +8,7 @@ test('select app', async (done) => {
 	done()
 })
 
-test.skip('simple send', async (done) => {
+test('simple send', async (done) => {
 	const randomAddr = "0x000100020003000400050006000700080009000a"
 	const toAddressInput = await app.client.$("#to-address-input")
 	await toAddressInput.waitForEnabled()
@@ -63,6 +63,7 @@ test('add/remove erc20', async (done) => {
 	const confirmAddToken = await app.client.$("#confirm-add-erc20")
 	await confirmAddToken.waitForEnabled()
 	await confirmAddToken.click()
+	await waitForRefetch()
 
 	const removeToken_tCELO = await app.client.$("#remove-token-SpectronTest-tCELO")
 	await removeToken_tCELO.waitForExist()
@@ -79,7 +80,7 @@ test('add/remove erc20', async (done) => {
 
 	await erc20Select.click()
 	await addToken.click()
-	const customTab = await app.client.$("*=CUSTOM")
+	const customTab = await app.client.$("span*=Custom Token")
 	await customTab.waitForExist()
 	await customTab.click()
 
@@ -87,6 +88,7 @@ test('add/remove erc20', async (done) => {
 	await erc20Address.keys("0x10A736A7b223f1FE1050264249d1aBb975741E75")
 	await confirmAddToken.waitForEnabled()
 	await confirmAddToken.click()
+	await waitForRefetch()
 
 	const randomAddr = "0x000100020003000400050006000700080009000b"
 	const toAddressInput = await app.client.$("#to-address-input")
