@@ -56,10 +56,8 @@ const SendReceiveApp = (props: {
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
 			const contract = await newErc20(kit, erc20)
-			const decimals = contract.decimals()
 			const balance = contract.balanceOf(selectedAddress)
 			return {
-				decimals: await decimals,
 				balance: await balance,
 			}
 		},
@@ -112,25 +110,22 @@ const SendReceiveApp = (props: {
 		})
 	}
 	const txsSend = async (kit: ContractKit) => {
-		if (!fetched?.decimals) {
-			throw new Error(`Unknown decimals for ERC20: ${erc20FullName}.`)
-		}
 		const contract = await newErc20(kit, erc20)
 		const tx = contract.transfer(
-			toAddress, new BigNumber(toSend).shiftedBy(fetched.decimals))
+			toAddress, new BigNumber(toSend).shiftedBy(erc20.decimals))
 		return [{tx: tx}]
 	}
 	const handleSend = () => { runTXs(txsSend) }
 	const canSend = (
 		isValidAddress(toAddress) && (toSend !== "") &&
 		fetched &&
-		fetched.balance.gte(new BigNumber(toSend).shiftedBy(fetched.decimals)))
+		fetched.balance.gte(new BigNumber(toSend).shiftedBy(erc20.decimals)))
 	// TODO(zviadm): erc20 should be compared against current `feeCurrency` instead.
 	const maxToSend = fetched && (
 		erc20FullName === "CELO" ?
 			BigNumber.maximum(
-				fetched.balance.shiftedBy(-fetched.decimals).minus(0.0001), 0) :
-			fetched.balance.shiftedBy(-fetched.decimals))
+				fetched.balance.shiftedBy(-erc20.decimals).minus(0.0001), 0) :
+			fetched.balance.shiftedBy(-erc20.decimals))
 	const erc20Name = erc20FullName.split(":").splice(-1)[0]
 	return (
 		<AppContainer>
@@ -195,7 +190,7 @@ const SendReceiveApp = (props: {
 				</Select>
 				<Box marginTop={1}>
 					<Typography>
-						Balance: {!fetched ? "?" : fmtAmount(fetched.balance, fetched.decimals)} {erc20Name}
+						Balance: {!fetched ? "?" : fmtAmount(fetched.balance, erc20.decimals)} {erc20Name}
 					</Typography>
 				</Box>
 			</AppSection>
@@ -220,7 +215,7 @@ const SendReceiveApp = (props: {
 					id="amount-input"
 					label={
 						!fetched ? `Amount` :
-						`Amount (max: ${fmtAmount(fetched.balance, fetched.decimals)})`
+						`Amount (max: ${fmtAmount(fetched.balance, erc20.decimals)})`
 					}
 					InputLabelProps={{shrink: true}}
 					value={toSend}
@@ -239,7 +234,7 @@ const SendReceiveApp = (props: {
 					events={transferHistory.fetched}
 					erc20={fetched && {
 						name: erc20Name,
-						decimals: fetched.decimals,
+						decimals: erc20.decimals,
 					}}
 					/>
 			</AppSection>

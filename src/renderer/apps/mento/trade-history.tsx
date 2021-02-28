@@ -1,7 +1,7 @@
 import { TradeEvent } from './state'
-import { Decimals } from './config'
 import { fmtAddress, fmtAmount } from '../../../lib/utils'
 import { explorerRootURL } from '../../../lib/cfg'
+import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import Box from '@material-ui/core/Box'
@@ -45,8 +45,8 @@ const TradeHistory = (props: {
 											whiteSpace: "nowrap",
 											color: e.soldGold ? "#f44336" : "#4caf50"}}>
 											{e.soldGold ?
-											`${fmtAmount(e.buyAmount, Decimals)} cUSD \u2190 ${fmtAmount(e.sellAmount, Decimals)} CELO` :
-											`${fmtAmount(e.sellAmount, Decimals)} cUSD \u2192 ${fmtAmount(e.buyAmount, Decimals)} CELO`
+											`${fmtAmount(e.buyAmount, coreErc20Decimals)} cUSD \u2190 ${fmtAmount(e.sellAmount, coreErc20Decimals)} CELO` :
+											`${fmtAmount(e.sellAmount, coreErc20Decimals)} cUSD \u2192 ${fmtAmount(e.buyAmount, coreErc20Decimals)} CELO`
 											}
 										</TableCell>
 										<TableCell align="right">

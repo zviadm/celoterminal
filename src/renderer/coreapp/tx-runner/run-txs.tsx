@@ -25,6 +25,7 @@ import { Send, CheckCircle } from '@material-ui/icons'
 import TransactionInfo from './transaction-info'
 import PromptLedgerAction from './prompt-ledger-action'
 import Link from '../../components/link'
+import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 export class TXCancelled extends Error {
 	constructor() { super('Cancelled') }
@@ -117,7 +118,7 @@ const RunTXs = (props: {
 						const estimatedFee = {
 							estimatedGas,
 							feeCurrency: "CELO",
-							estimatedFee: estimatedGas.multipliedBy(gasPrice).shiftedBy(-18),
+							estimatedFee: estimatedGas.multipliedBy(gasPrice).shiftedBy(-coreErc20Decimals),
 						}
 
 						const txPromise = new Promise<void>((resolve, reject) => {
