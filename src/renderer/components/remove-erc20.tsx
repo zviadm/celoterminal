@@ -28,7 +28,10 @@ const RemoveErc20 = (props: {
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.onCancel}>Cancel</Button>
-				<Button onClick={handleRemove} color="secondary">Remove</Button>
+				<Button
+					id="confirm-remove-erc20"
+					onClick={handleRemove}
+					color="secondary">Remove</Button>
 			</DialogActions>
 		</Dialog>
 	)

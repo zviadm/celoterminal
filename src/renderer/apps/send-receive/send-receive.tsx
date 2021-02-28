@@ -17,7 +17,8 @@ import { RegisteredErc20 } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
-	Select, MenuItem, Typography, Button, Box, IconButton
+	Select, MenuItem, Typography, Button, Box, IconButton,
+	ListItemText, ListItemSecondaryAction,
 } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 import * as icons from '@material-ui/icons'
@@ -161,24 +162,28 @@ const SendReceiveApp = (props: {
 						}
 					}}>
 					{
-						erc20List.erc20s.map((erc20) => (
-							<MenuItem id={`erc20-${erc20.fullName}-item`} value={erc20.fullName} key={erc20.fullName}>
-								<Box flex={1} display="flex" flexDirection="row" alignItems="center">
-									<Box flex={1}><Typography>{erc20.fullName}</Typography></Box>
+						erc20List.erc20s.map((erc20) => {
+							const fullNameId = erc20.fullName.replace(":", "-")
+							return (
+								<MenuItem id={`erc20-${fullNameId}-item`} value={erc20.fullName} key={erc20.fullName}>
+									<ListItemText>{erc20.fullName}</ListItemText>
 									{erc20.address !== "" &&
-									<IconButton
-										size="small"
-										onClick={(event) => {
-											setToRemove(erc20)
-											event.stopPropagation()
-										}}>
-										<icons.Close />
-									</IconButton>}
-								</Box>
-							</MenuItem>
-						))
+									<ListItemSecondaryAction>
+										<IconButton
+											id={`remove-token-${fullNameId}`}
+											size="small"
+											onClick={(event) => {
+												setToRemove(erc20)
+												event.stopPropagation()
+											}}>
+											<icons.Close />
+										</IconButton>
+									</ListItemSecondaryAction>}
+								</MenuItem>
+							)
+						})
 					}
-					<MenuItem value="add-token">
+					<MenuItem id="add-token" value="add-token">
 						<Box display="flex" flexDirection="row" alignItems="center">
 							<Typography
 								style={{fontStyle: "italic"}}
