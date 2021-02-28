@@ -1,6 +1,6 @@
 import * as React from "react"
 import * as log from "electron-log"
-import { registeredErc20s } from "../../lib/cfg"
+import { CFG, registeredErc20s } from "../../lib/cfg"
 import { coreErc20Decimals, coreErc20s, RegisteredErc20 } from "../../lib/erc20/core"
 
 // useErc20List returns users watched/added list of Erc20 tokens.
@@ -97,8 +97,9 @@ export const removeErc20FromList = (address: string): void => {
 	}
 }
 
-const registeredListKey = "terminal/core/erc20/registered-list"
+const registeredListKeyPrefix = "terminal/core/erc20/registered-list/"
 const registeredList = (): {address: string}[] => {
+	const registeredListKey = registeredListKeyPrefix + CFG().networkId
 	const json = localStorage.getItem(registeredListKey)
 	if (!json) {
 		return []
@@ -111,11 +112,13 @@ const registeredList = (): {address: string}[] => {
 	}
 }
 const setRegisteredList = (list: {address: string}[]) => {
+	const registeredListKey = registeredListKeyPrefix + CFG().networkId
 	localStorage.setItem(registeredListKey, JSON.stringify(list))
 }
 
-const customListKey = "terminal/core/erc20/custom-list"
+const customListKeyPrefix = "terminal/core/erc20/custom-list/"
 const customList = (): CustomErc20[] => {
+	const customListKey = customListKeyPrefix + CFG().networkId
 	const json = localStorage.getItem(customListKey)
 	if (!json) {
 		return []
@@ -128,6 +131,7 @@ const customList = (): CustomErc20[] => {
 	}
 }
 const setCustomList = (list: CustomErc20[]) => {
+	const customListKey = customListKeyPrefix + CFG().networkId
 	localStorage.setItem(customListKey, JSON.stringify(list))
 }
 const customToErc20 = (erc20: CustomErc20): RegisteredErc20 => {
