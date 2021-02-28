@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js'
-
-import { Decimals } from './config'
+import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
@@ -34,8 +33,8 @@ const ConfirmSwap = (props: {
 }): JSX.Element => {
 	const classes = useStyles()
 	const handleConfirm = () => {
-		const celoAmtN = new BigNumber(props.celoAmount).shiftedBy(Decimals)
-		const stableAmtN = new BigNumber(props.stableAmount).shiftedBy(Decimals)
+		const celoAmtN = new BigNumber(props.celoAmount).shiftedBy(coreErc20Decimals)
+		const stableAmtN = new BigNumber(props.stableAmount).shiftedBy(coreErc20Decimals)
 		const slippage = new BigNumber(1).minus(new BigNumber(props.slippagePct).div(100))
 		const sellCELO = props.side === "sell"
 		const sellAmount = (sellCELO ? celoAmtN : stableAmtN).integerValue(BigNumber.ROUND_DOWN)

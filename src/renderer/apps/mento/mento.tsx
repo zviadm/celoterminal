@@ -6,7 +6,7 @@ import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definiti
 import { Mento } from './def'
 import useLocalStorageState from '../../state/localstorage-state'
 import { fmtAmount } from '../../../lib/utils'
-import { Decimals, StableTokens } from './config'
+import { StableTokens } from './config'
 import { calcCeloAmount, calcStableAmount, fmtTradeAmount } from './rate-utils'
 import { useExchangeHistoryState, useExchangeOnChainState } from './state'
 
@@ -24,6 +24,7 @@ import AppHeader from '../../components/app-header'
 import ConfirmSwap from './confirm-swap'
 import TradeHistory from './trade-history'
 import NumberInput from '../../components/number-input'
+import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 const MentoApp = (props: {
 	accounts: Account[],
@@ -65,13 +66,13 @@ const MentoApp = (props: {
 		if (anchorToken === "celo") {
 			const stableAmountN = calcStableAmount(
 				side,
-				new BigNumber(celoAmount).shiftedBy(Decimals),
+				new BigNumber(celoAmount).shiftedBy(coreErc20Decimals),
 				fetched.celoBucket, fetched.stableBucket, fetched.spread)
 			setStableAmount(fmtTradeAmount(stableAmountN, side === "sell" ? BigNumber.ROUND_DOWN : BigNumber.ROUND_UP))
 		} else {
 			const celoAmountN = calcCeloAmount(
 				side,
-				new BigNumber(stableAmount).shiftedBy(Decimals),
+				new BigNumber(stableAmount).shiftedBy(coreErc20Decimals),
 				fetched.celoBucket, fetched.stableBucket, fetched.spread)
 			setCeloAmount(fmtTradeAmount(celoAmountN, side === "buy" ? BigNumber.ROUND_DOWN : BigNumber.ROUND_UP))
 		}
@@ -141,8 +142,8 @@ const MentoApp = (props: {
 	}
 
 	const canTrade = fetched && (
-		(side === "sell" && fetched.celoBalance.shiftedBy(-Decimals).gt(celoAmount)) ||
-		(side === "buy" && fetched.stableBalance.shiftedBy(-Decimals).gt(stableAmount))
+		(side === "sell" && fetched.celoBalance.shiftedBy(-coreErc20Decimals).gt(celoAmount)) ||
+		(side === "buy" && fetched.stableBalance.shiftedBy(-coreErc20Decimals).gt(stableAmount))
 		)
 
 	return (
@@ -198,7 +199,7 @@ const MentoApp = (props: {
 								margin="normal"
 								label={
 									(!fetched || side !== "sell") ? `CELO` :
-									`CELO (max: ${fmtAmount(fetched.celoBalance, Decimals)})`}
+									`CELO (max: ${fmtAmount(fetched.celoBalance, coreErc20Decimals)})`}
 								InputLabelProps={{
 									shrink: true,
 								}}
@@ -211,7 +212,7 @@ const MentoApp = (props: {
 								margin="normal"
 								label={
 									(!fetched || side !== "buy") ? `${stableToken}` :
-									`${stableToken} (max: ${fmtAmount(fetched.stableBalance, Decimals)})`}
+									`${stableToken} (max: ${fmtAmount(fetched.stableBalance, coreErc20Decimals)})`}
 								InputLabelProps={{
 									shrink: true,
 								}}

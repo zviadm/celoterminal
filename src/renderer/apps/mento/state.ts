@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { BlockTransactionString } from 'web3-eth'
 
 import useOnChainState from '../../state/onchain-state'
-import { Decimals, StableTokens } from './config'
+import { StableTokens } from './config'
 import { Account } from '../../../lib/accounts'
 
 import * as React from 'react'
@@ -20,15 +20,11 @@ export const useExchangeOnChainState = (account: Account, stableToken: string) =
 			const stableTokenC = await StableTokens[stableToken](kit)
 
 			const celoBalance = goldToken.balanceOf(account.address)
-			const stableDecimals = stableTokenC.decimals()
 			const stableBalance = stableTokenC.balanceOf(account.address)
 
 			const spread = exchange.spread()
 			const buckets = exchange.getBuyAndSellBuckets(true)
 
-			if (await stableDecimals !== Decimals) {
-				throw new Error(`Unexpected decimals for ${stableToken}. Expected: ${Decimals} Got: ${stableDecimals}`)
-			}
 			const [stableBucket, celoBucket] = await buckets
 			return {
 				celoBalance: await celoBalance,
