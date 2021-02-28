@@ -92,11 +92,15 @@ const AddErc20 = (props: {
 					<TabPanel value="search">
 						<Autocomplete
 							id="registered-erc20"
+							autoSelect
+							autoHighlight
 							options={fullList}
 							getOptionLabel={(option) => option.fullName}
+							getOptionSelected={(o, v) => { return o.address === v.address }}
 							renderInput={(params) =>
 								<TextField
 									{...params}
+									autoFocus
 									label="ERC20"
 									fullWidth={true}
 									InputLabelProps={{shrink: true}}
@@ -108,6 +112,8 @@ const AddErc20 = (props: {
 					</TabPanel>
 					<TabPanel value="custom">
 						<TextField
+							id="erc20-address"
+							autoFocus
 							label="Token address"
 							InputLabelProps={{shrink: true}}
 							placeholder="0x..."
@@ -148,7 +154,10 @@ const AddErc20 = (props: {
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.onCancel}>Cancel</Button>
-				<Button disabled={!canAdd} onClick={handleAdd}>Add</Button>
+				<Button
+					id="confirm-add-erc20"
+					disabled={!canAdd}
+					onClick={handleAdd}>Add</Button>
 			</DialogActions>
 		</Dialog>
 	)

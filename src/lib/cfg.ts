@@ -1,7 +1,9 @@
 import { erc20Alfajores } from "./erc20/registry-alfajores"
 import { erc20Baklava } from "./erc20/registry-baklava"
 import { erc20Mainnet } from "./erc20/registry-mainnet"
+import { erc20Devchain } from "./erc20/registry-devchain"
 import { RegisteredErc20 } from "./erc20/core"
+import { SpectronNetworkId } from "./spectron-utils/constants"
 
 export const mainnetNetworkId = "42220"
 const defaultNetworkId = mainnetNetworkId
@@ -66,6 +68,7 @@ const erc20Registry: {[key: string]: RegisteredErc20[]} = {
 	[mainnetNetworkId]: erc20Mainnet,
 	"62320": erc20Baklava,
 	"44784": erc20Alfajores,
+	[SpectronNetworkId]: erc20Devchain,
 }
 export const registeredErc20s = (): RegisteredErc20[] => {
 	return Array.from(erc20Registry[CFG().networkId] || [])
