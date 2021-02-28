@@ -93,7 +93,7 @@ test('add/remove erc20', async (done) => {
 	const randomAddr = "0x000100020003000400050006000700080009000b"
 	const toAddressInput = await app.client.$("#to-address-input")
 	await toAddressInput.waitForEnabled()
-	await toAddressInput.click()
+	await toAddressInput.doubleClick()
 	await toAddressInput.keys(randomAddr)
 	const amountInput = await app.client.$("#amount-input")
 	await amountInput.click()
