@@ -21,13 +21,14 @@ export const useErc20List = (): {
 		const registered = (registeredList()
 			.map((r) => fullList.find((f) => f.address === r.address))
 			.filter((v) => (v !== undefined)) as RegisteredErc20[])
-			.sort((a, b) => a.symbol < b.symbol ? -1 : 1)
 		const custom = customList()
-			.sort((a, b) => a.symbol < b.symbol ? -1 : 1)
-		return [
-			...core,
+		const sorted = [
 			...registered,
 			...custom,
+		].sort((a, b) => a.symbol < b.symbol ? -1 : 1)
+		return [
+			...core,
+			...sorted,
 		]
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [changeN])
@@ -51,6 +52,8 @@ export const addRegisteredErc20 = (symbol: string): RegisteredErc20 => {
 	if (match) {
 		return erc20
 	}
+	// Remove, in-case this erc20 address was somehow added in to the customList before.
+	removeErc20FromList(erc20.address)
 	list.push({address: erc20.address})
 	setRegisteredList(list)
 	return erc20
