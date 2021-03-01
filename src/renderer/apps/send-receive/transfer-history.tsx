@@ -13,6 +13,10 @@ import Link from '../../components/link'
 
 const TransferHistory = (props: {
 	address: string,
+	erc20: {
+		symbol: string,
+		decimals: number,
+	}
 	events?: {
 		timestamp: Date,
 		txHash: string,
@@ -20,10 +24,6 @@ const TransferHistory = (props: {
 		to: string,
 		amount: BigNumber,
 	}[],
-	erc20?: {
-		name: string,
-		decimals: number,
-	}
 }): JSX.Element => {
 
 	const events = props.events
@@ -32,7 +32,7 @@ const TransferHistory = (props: {
 	return (
 		<Box>
 			<Typography variant="h6" color="textSecondary">Recent Transfers</Typography>
-			{!events || !erc20 ? <LinearProgress /> : <>
+			{!events ? <LinearProgress /> : <>
 			<Box display="flex" flex={1} overflow="auto" height="100vh">
 				<Table size="small">
 					<TableHead>
@@ -45,7 +45,7 @@ const TransferHistory = (props: {
 					</TableHead>
 					<TableBody>
 					{
-						events && erc20 &&
+						events &&
 						events.map((e) => {
 							const addr = e.from === props.address ? e.to : e.from
 							return (
@@ -64,7 +64,7 @@ const TransferHistory = (props: {
 										color: (e.to === props.address) ? "#4caf50" : undefined,
 										}} align="right">
 										{e.to === props.address ? `+` : ``}
-										{fmtAmount(e.amount, erc20.decimals)} {erc20.name}
+										{fmtAmount(e.amount, erc20.decimals)} {erc20.symbol}
 									</TableCell>
 									<TableCell>
 										<Link href={`${explorerURL}/tx/${e.txHash}`} style={{fontFamily: "monospace"}}>

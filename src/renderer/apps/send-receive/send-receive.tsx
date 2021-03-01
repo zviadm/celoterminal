@@ -38,11 +38,11 @@ const SendReceiveApp = (props: {
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
 	const erc20List = useErc20List()
-	const [_erc20FullName, setErc20FullName] = useLocalStorageState(
-		"terminal/send-receive/erc20", erc20List.erc20s[0].fullName)
-	const erc20 = erc20List.erc20s.find((e) => e.fullName === _erc20FullName) || erc20List.erc20s[0]
-	if (erc20.fullName !== _erc20FullName) {
-		setErc20FullName(erc20.fullName)
+	const [_erc20Symbol, setErc20Symbol] = useLocalStorageState(
+		"terminal/send-receive/erc20", erc20List.erc20s[0].symbol)
+	const erc20 = erc20List.erc20s.find((e) => e.symbol === _erc20Symbol) || erc20List.erc20s[0]
+	if (erc20.symbol !== _erc20Symbol) {
+		setErc20Symbol(erc20.symbol)
 	}
 
 	const [showAddToken, setShowAddToken] = React.useState(false)
@@ -122,11 +122,10 @@ const SendReceiveApp = (props: {
 		fetched.balance.gte(new BigNumber(toSend).shiftedBy(erc20.decimals)))
 	// TODO(zviadm): erc20 should be compared against current `feeCurrency` instead.
 	const maxToSend = fetched && (
-		erc20.fullName === "CELO" ?
+		erc20.symbol === "CELO" ?
 			BigNumber.maximum(
 				fetched.balance.shiftedBy(-erc20.decimals).minus(0.0001), 0) :
 			fetched.balance.shiftedBy(-erc20.decimals))
-	const erc20Name = erc20.fullName.split(":").splice(-1)[0]
 	return (
 		<AppContainer>
 			<AppHeader app={SendReceive} isFetching={isFetching || transferHistory.isFetching} refetch={refetchAll} />
@@ -136,7 +135,7 @@ const SendReceiveApp = (props: {
 				onAdd={(erc20) => {
 					setShowAddToken(false)
 					erc20List.reload()
-					setErc20FullName(erc20.fullName)
+					setErc20Symbol(erc20.symbol)
 				}}
 			/>}
 			{toRemove &&
@@ -153,24 +152,26 @@ const SendReceiveApp = (props: {
 					id="erc20-select"
 					autoFocus
 					label="ERC20"
-					value={erc20.fullName}
+					value={erc20.symbol}
 					onChange={(event) => {
 						if (event.target.value === "add-token") {
 							setShowAddToken(true)
 						} else {
-							setErc20FullName(event.target.value as string)
+							setErc20Symbol(event.target.value as string)
 						}
 					}}>
 					{
 						erc20List.erc20s.map((erc20) => {
-							const fullNameId = erc20.fullName.replace(":", "-")
 							return (
-								<MenuItem id={`erc20-${fullNameId}-item`} value={erc20.fullName} key={erc20.fullName}>
-									<ListItemText>{erc20.fullName}</ListItemText>
+								<MenuItem id={`erc20-${erc20.symbol}-item`} value={erc20.symbol} key={erc20.symbol}>
+									<ListItemText
+										primary={erc20.symbol}
+										secondary={erc20.name}
+									/>
 									{erc20.address !== "" &&
 									<ListItemSecondaryAction>
 										<IconButton
-											id={`remove-token-${fullNameId}`}
+											id={`remove-token-${erc20.symbol}`}
 											size="small"
 											onClick={(event) => {
 												setToRemove(erc20)
@@ -194,7 +195,7 @@ const SendReceiveApp = (props: {
 				</Select>
 				<Box marginTop={1}>
 					<Typography>
-						Balance: {!fetched ? "?" : fmtAmount(fetched.balance, erc20.decimals)} {erc20Name}
+						Balance: {!fetched ? "?" : fmtAmount(fetched.balance, erc20.decimals)} {erc20.symbol}
 					</Typography>
 				</Box>
 			</AppSection>
@@ -236,10 +237,7 @@ const SendReceiveApp = (props: {
 				<TransferHistory
 					address={selectedAddress}
 					events={transferHistory.fetched}
-					erc20={fetched && {
-						name: erc20Name,
-						decimals: erc20.decimals,
-					}}
+					erc20={erc20}
 					/>
 			</AppSection>
 		</AppContainer>

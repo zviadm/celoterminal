@@ -33,13 +33,13 @@ const _precisionDefault = 2
 const _precisionForZero = 4
 
 export const fmtAmount = (
-	v: BigNumber,
+	v: BigNumber.Value,
 	decimals: CoreErc20 | number,
 	precision?: number | "max"): string => {
 	if (typeof decimals === "string") {
 		decimals = coreErc20Decimals
 	}
-	let fmtV = v.shiftedBy(-decimals)
+	let fmtV = new BigNumber(v).shiftedBy(-decimals)
 	if (precision !== "max") {
 		const dp = (precision !== undefined ? precision : _precisionDefault)
 		let fmtVRounded = fmtV.decimalPlaces(dp, BigNumber.ROUND_DOWN)
@@ -48,7 +48,7 @@ export const fmtAmount = (
 		}
 		fmtV = fmtVRounded
 	}
-	return fmtV.toFixed()
+	return fmtV.toNumber().toLocaleString(undefined, {maximumFractionDigits: 18})
 }
 
 export const fmtAddress = (address: string): string => {
