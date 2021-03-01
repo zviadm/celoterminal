@@ -48,7 +48,7 @@ export const fmtAmount = (
 		}
 		fmtV = fmtVRounded
 	}
-	return fmtV.toNumber().toLocaleString(undefined)
+	return fmtV.toNumber().toLocaleString(undefined, {maximumFractionDigits: 18})
 }
 
 export const fmtAddress = (address: string): string => {

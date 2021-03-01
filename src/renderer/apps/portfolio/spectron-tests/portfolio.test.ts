@@ -1,5 +1,5 @@
-import { app, devchainKit, jestSetup } from '../../../../lib/spectron-utils/setup'
-import { confirmTXs, selectApp, waitForRefetch } from '../../../../lib/spectron-utils/app-helpers'
+import { jestSetup } from '../../../../lib/spectron-utils/setup'
+import { selectApp } from '../../../../lib/spectron-utils/app-helpers'
 
 jestSetup()
 
