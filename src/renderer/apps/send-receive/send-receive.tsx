@@ -151,7 +151,7 @@ const SendReceiveApp = (props: {
 				<Select
 					id="erc20-select"
 					autoFocus
-					label="ERC20"
+					label="Token"
 					value={erc20.symbol}
 					onChange={(event) => {
 						if (event.target.value === "add-token") {

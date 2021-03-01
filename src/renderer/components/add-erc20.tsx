@@ -79,7 +79,7 @@ const AddErc20 = (props: {
 	}
 	return (
 		<Dialog open={true} onClose={props.onCancel}>
-			<DialogTitle>Add ERC20 Token</DialogTitle>
+			<DialogTitle>Add Token</DialogTitle>
 			<DialogContent>
 				<Box minWidth={500}>
 				<TabContext value={tabIdx}>
@@ -107,13 +107,11 @@ const AddErc20 = (props: {
 								<TextField
 									{...params}
 									autoFocus
-									label="ERC20"
+									label="Token"
 									fullWidth={true}
 									InputLabelProps={{shrink: true}}
 								/>
 							}
-							// inputValue={erc20Symbol}
-							// onInputChange={(e, value) => { setErc20Symbol(value) }}
 							onChange={(e, value) => { setErc20Symbol(value?.symbol || "") }}
 						/>
 					</TabPanel>

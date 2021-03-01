@@ -1,4 +1,5 @@
 import { ContractKit } from '@celo/contractkit'
+import BigNumber from 'bignumber.js'
 
 import { Account } from '../../../lib/accounts'
 import useOnChainState from '../../state/onchain-state'
@@ -8,17 +9,21 @@ import { useErc20List } from '../../state/erc20list-state'
 import { Portfolio } from './def'
 import { fetchBalancesForAccounts, totalBalances } from './balances'
 import useLocalStorageState from '../../state/localstorage-state'
+import { RegisteredErc20 } from '../../../lib/erc20/core'
+import { fetchConversionRates } from './conversions'
 
 import * as React from 'react'
 import {
 	Table, TableHead, TableRow, TableCell, TableBody, FormControlLabel, Switch,
+	Button, IconButton, Tooltip,
 } from '@material-ui/core'
+import { Add, VisibilityOff } from '@material-ui/icons'
 
 import AppHeader from '../../components/app-header'
 import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
-import { fetchConversionRates } from './conversions'
-import BigNumber from 'bignumber.js'
+import AddErc20 from '../../components/add-erc20'
+import RemoveErc20 from '../../components/remove-erc20'
 
 const PortfolioApp = (props: {
 	accounts: Account[],
@@ -44,6 +49,17 @@ const PortfolioApp = (props: {
 		[accounts, erc20s]
 	))
 	const [showTotals, setShowTotals] = useLocalStorageState("terminal/portfolio/show-totals", true)
+	const [showAddToken, setShowAddToken] = React.useState(false)
+	const [toRemove, setToRemove] = React.useState<RegisteredErc20 | undefined>()
+
+	const cancelAddRemove = () => {
+		setShowAddToken(false)
+		setToRemove(undefined)
+	}
+	const onAddRemove = () => {
+		erc20List.reload()
+		cancelAddRemove()
+	}
 
 	const balances = fetched && (
 		showTotals ?
@@ -63,6 +79,8 @@ const PortfolioApp = (props: {
 	return (
 		<AppContainer>
 			<AppHeader app={Portfolio} isFetching={isFetching} refetch={refetch} />
+			{showAddToken && <AddErc20 onCancel={cancelAddRemove} onAdd={onAddRemove} />}
+			{toRemove && <RemoveErc20 toRemove={toRemove} onCancel={cancelAddRemove} onRemove={onAddRemove} />}
 			<AppSection>
 				<FormControlLabel
 					control={
@@ -78,7 +96,8 @@ const PortfolioApp = (props: {
 				<Table size="small">
 					<TableHead>
 						<TableRow>
-							<TableCell>Asset</TableCell>
+							<TableCell width="100%">Asset</TableCell>
+							<TableCell></TableCell>
 							<TableCell align="right">Amount</TableCell>
 							<TableCell align="right">Price</TableCell>
 							<TableCell align="right">Value</TableCell>
@@ -93,7 +112,18 @@ const PortfolioApp = (props: {
 							return (
 								<TableRow key={erc20.symbol}>
 									<TableCell>{erc20.name}</TableCell>
-									<TableCell align="right">{fmtAmount(balance, erc20.decimals)} {erc20.symbol}</TableCell>
+									<TableCell align="right" padding="none">
+										{erc20.address &&
+										<Tooltip title="Hide token">
+											<IconButton
+												size="small"
+												onClick={() => { setToRemove(erc20) }}
+											><VisibilityOff /></IconButton>
+										</Tooltip>}
+									</TableCell>
+									<TableCell align="right" style={{whiteSpace: "nowrap"}}>
+										{fmtAmount(balance, erc20.decimals)} {erc20.symbol}
+									</TableCell>
 									<TableCell align="right">{price ? "$"+price.toFixed(2) : "-"}</TableCell>
 									<TableCell align="right" style={{fontWeight: "bold"}}>
 										{value ? "$" + fmtAmount(value, 0, 2) : "-"}
@@ -103,13 +133,21 @@ const PortfolioApp = (props: {
 						})
 						}
 						<TableRow>
-							<TableCell colSpan={3} align="right">Total</TableCell>
+							<TableCell colSpan={4} align="right">Total</TableCell>
 							<TableCell align="right" style={{fontWeight: "bold"}}>
 								{totalValue ? "$" + fmtAmount(totalValue, 0 ,2) : "-"}
 							</TableCell>
 						</TableRow>
 					</TableBody>
 				</Table>
+			</AppSection>
+			<AppSection>
+				<Button
+					color="primary"
+					variant="outlined"
+					startIcon={<Add />}
+					onClick={() => { setShowAddToken(true) }}
+					>Add Token</Button>
 			</AppSection>
 		</AppContainer>
 	)
