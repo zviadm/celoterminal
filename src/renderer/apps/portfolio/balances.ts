@@ -14,7 +14,7 @@ export const fetchBalancesForAccounts = async (
 	const balances = await Promise.all(accounts.map((a) => {
 		return fetchBalancesForAccount(a, contracts).then(
 			balances => {
-				return new Map(erc20s.map((e, idx) => [e.symbol, balances[idx]]))
+				return new Map(erc20s.map((e, idx) => [e.address || e.symbol, balances[idx]]))
 			})
 	}))
 	return new Map(accounts.map((a, idx) => [a.address, balances[idx]]))

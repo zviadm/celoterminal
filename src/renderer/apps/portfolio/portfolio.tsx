@@ -57,7 +57,7 @@ const PortfolioApp = (props: {
 					<TableBody>
 						{totals &&
 						erc20s.map((erc20) => {
-							const balance = totals.get(erc20.symbol) || 0
+							const balance = totals.get(erc20.address || erc20.symbol) || 0
 							return (
 								<TableRow key={erc20.symbol}>
 									<TableCell>{erc20.name}</TableCell>

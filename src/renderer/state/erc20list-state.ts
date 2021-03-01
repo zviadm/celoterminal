@@ -44,11 +44,11 @@ export const useErc20List = (): {
 export const addRegisteredErc20 = (symbol: string): RegisteredErc20 => {
 	const fullList = registeredErc20s()
 	const erc20 = fullList.find((r) => r.symbol === symbol)
-	if (!erc20) {
+	if (!erc20 || !erc20.address) {
 		throw new Error(`Erc20: ${symbol} not found in registry.`)
 	}
 	const list = registeredList()
-	const match = list.find((l) => l.address.toLowerCase() === erc20.address.toLowerCase())
+	const match = list.find((l) => l.address.toLowerCase() === erc20.address?.toLowerCase())
 	if (match) {
 		return erc20
 	}
@@ -70,7 +70,7 @@ export interface CustomErc20 {
 // through `AddErc20` component.
 export const addCustomErc20 = (erc20: CustomErc20): RegisteredErc20 => {
 	const fullList = registeredErc20s()
-	const registeredErc20 = fullList.find((r) => r.address.toLowerCase() === erc20.address.toLowerCase())
+	const registeredErc20 = fullList.find((r) => r.address?.toLowerCase() === erc20.address.toLowerCase())
 	if (registeredErc20) {
 		return addRegisteredErc20(registeredErc20.symbol)
 	}

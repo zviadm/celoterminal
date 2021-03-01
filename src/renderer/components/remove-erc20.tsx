@@ -14,7 +14,9 @@ const RemoveErc20 = (props: {
 	onRemove: () => void,
 }): JSX.Element => {
 	const handleRemove = () => {
-		removeErc20FromList(props.toRemove.address)
+		if (props.toRemove.address) {
+			removeErc20FromList(props.toRemove.address)
+		}
 		props.onRemove()
 	}
 	return (
