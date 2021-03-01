@@ -40,15 +40,18 @@ export const fmtAmount = (
 		decimals = coreErc20Decimals
 	}
 	let fmtV = new BigNumber(v).shiftedBy(-decimals)
+	const dp = (precision !== undefined && precision !== "max" ? precision : _precisionDefault)
 	if (precision !== "max") {
-		const dp = (precision !== undefined ? precision : _precisionDefault)
 		let fmtVRounded = fmtV.decimalPlaces(dp, BigNumber.ROUND_DOWN)
 		if (fmtVRounded.eq(0)) {
 			fmtVRounded = fmtV.decimalPlaces(_precisionForZero)
 		}
 		fmtV = fmtVRounded
 	}
-	return fmtV.toNumber().toLocaleString(undefined, {maximumFractionDigits: 18})
+	return fmtV.toNumber().toLocaleString(undefined, {
+		minimumFractionDigits: dp,
+		maximumFractionDigits: 18,
+	})
 }
 
 export const fmtAddress = (address: string): string => {

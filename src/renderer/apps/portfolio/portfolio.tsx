@@ -17,6 +17,8 @@ import {
 import AppHeader from '../../components/app-header'
 import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
+import { fetchConversionRates } from './conversions'
+import BigNumber from 'bignumber.js'
 
 const PortfolioApp = (props: {
 	accounts: Account[],
@@ -33,8 +35,10 @@ const PortfolioApp = (props: {
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
 			const balances = fetchBalancesForAccounts(kit, accounts, erc20s)
+			const conversionRates = fetchConversionRates(kit, "cUSD", erc20s)
 			return {
 				balances: await balances,
+				conversionRates: await conversionRates,
 			}
 		},
 		[accounts, erc20s]
@@ -45,6 +49,16 @@ const PortfolioApp = (props: {
 		showTotals ?
 			totalBalances(fetched.balances) :
 			fetched.balances.get(props.selectedAccount.address)
+	)
+	const totalValue = fetched && balances && (
+		BigNumber.sum(
+			...erc20s.map((erc20) => {
+				const balance = balances.get(erc20.address || erc20.symbol) || 0
+				const price = fetched.conversionRates.get(erc20.address || erc20.symbol)
+				const value = price && price.multipliedBy(balance).shiftedBy(-erc20.decimals)
+				return value || 0
+			})
+		)
 	)
 	return (
 		<AppContainer>
@@ -71,20 +85,29 @@ const PortfolioApp = (props: {
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{balances &&
+						{fetched && balances &&
 						erc20s.map((erc20) => {
 							const balance = balances.get(erc20.address || erc20.symbol) || 0
+							const price = fetched.conversionRates.get(erc20.address || erc20.symbol)
+							const value = price && price.multipliedBy(balance).shiftedBy(-erc20.decimals)
 							return (
 								<TableRow key={erc20.symbol}>
 									<TableCell>{erc20.name}</TableCell>
 									<TableCell align="right">{fmtAmount(balance, erc20.decimals)} {erc20.symbol}</TableCell>
-									<TableCell align="right">-</TableCell>
-									<TableCell align="right">-</TableCell>
+									<TableCell align="right">{price ? "$"+price.toFixed(2) : "-"}</TableCell>
+									<TableCell align="right" style={{fontWeight: "bold"}}>
+										{value ? "$" + fmtAmount(value, 0, 2) : "-"}
+									</TableCell>
 								</TableRow>
 							)
 						})
 						}
-
+						<TableRow>
+							<TableCell colSpan={3} align="right">Total</TableCell>
+							<TableCell align="right" style={{fontWeight: "bold"}}>
+								{totalValue ? "$" + fmtAmount(totalValue, 0 ,2) : "-"}
+							</TableCell>
+						</TableRow>
 					</TableBody>
 				</Table>
 			</AppSection>
