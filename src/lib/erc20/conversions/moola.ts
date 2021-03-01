@@ -3,13 +3,13 @@ import BigNumber from "bignumber.js"
 import { ConversionFunc } from "../core"
 
 export const convertMToken: ConversionFunc = async (
-	kit: ContractKit, name: string, amount: BigNumber) => {
-	switch (name) {
-	case "Moola:mCELO":
+	kit: ContractKit, symbol: string, amount: BigNumber) => {
+	switch (symbol) {
+	case "mCELO":
 		return {coreErc20: "CELO", amount: amount}
-	case "Moola:mCUSD":
+	case "mCUSD":
 		return {coreErc20: "cUSD", amount: amount}
 	default:
-		throw new Error(`Unexpected token: ${name}`)
+		throw new Error(`Unexpected token: ${symbol}`)
 	}
 }

@@ -53,7 +53,7 @@ export const newErc20 = async (kit: ContractKit, erc20: RegisteredErc20): Promis
 		address = erc20.address
 		break
 	}
-	if (address === "") {
+	if (!address) {
 		throw new Error(`Unknown ERC20: ${erc20.symbol} - ${erc20.address}!`)
 	}
 	return new Erc20Contract(kit, address)
