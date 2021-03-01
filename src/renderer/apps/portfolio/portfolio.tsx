@@ -7,10 +7,11 @@ import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { useErc20List } from '../../state/erc20list-state'
 import { Portfolio } from './def'
 import { fetchBalancesForAccounts, totalBalances } from './balances'
+import useLocalStorageState from '../../state/localstorage-state'
 
 import * as React from 'react'
 import {
-	Table, TableHead, TableRow, TableCell, TableBody,
+	Table, TableHead, TableRow, TableCell, TableBody, FormControlLabel, Switch,
 } from '@material-ui/core'
 
 import AppHeader from '../../components/app-header'
@@ -38,13 +39,28 @@ const PortfolioApp = (props: {
 		},
 		[accounts, erc20s]
 	))
+	const [showTotals, setShowTotals] = useLocalStorageState("terminal/portfolio/show-totals", true)
 
-
-	const totals = fetched && totalBalances(fetched.balances)
+	const balances = fetched && (
+		showTotals ?
+			totalBalances(fetched.balances) :
+			fetched.balances.get(props.selectedAccount.address)
+	)
 	return (
 		<AppContainer>
 			<AppHeader app={Portfolio} isFetching={isFetching} refetch={refetch} />
 			<AppSection>
+				<FormControlLabel
+					control={
+						<Switch
+							checked={showTotals}
+							onChange={(event) => { setShowTotals(event.target.checked) }}
+							color="secondary"
+						/>
+					}
+					label="Show Totals"
+				/>
+
 				<Table size="small">
 					<TableHead>
 						<TableRow>
@@ -55,9 +71,9 @@ const PortfolioApp = (props: {
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{totals &&
+						{balances &&
 						erc20s.map((erc20) => {
-							const balance = totals.get(erc20.address || erc20.symbol) || 0
+							const balance = balances.get(erc20.address || erc20.symbol) || 0
 							return (
 								<TableRow key={erc20.symbol}>
 									<TableCell>{erc20.name}</TableCell>
