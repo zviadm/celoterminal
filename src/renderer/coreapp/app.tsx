@@ -2,7 +2,7 @@ import log from 'electron-log'
 
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import { ThemeProvider } from '@material-ui/core/styles'
+import { makeStyles, ThemeProvider } from '@material-ui/core/styles'
 import theme from './theme'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Box from '@material-ui/core/Box'
@@ -128,6 +128,7 @@ const App = () => {
 
 	return (
 		<Box>
+			{process.platform === "darwin" ? <AppDragRegion /> : null}
 			<ErrorSnack error={error} onClose={clearError} />
 			{selectedAccount &&
 			<TXRunner
@@ -191,5 +192,22 @@ const ThemedApp = () => (
 		</ErrorProvider>
 	</ThemeProvider>
 )
+
+const appDragRegionStyles = makeStyles(() => ({
+	titleBar: {
+		"-webkit-app-region": "drag",
+		"height": "40px",
+		"position": "absolute",
+		"top": 0,
+		"left": 0,
+		"right": 0,
+	},
+}))
+
+const AppDragRegion = () => {
+	const classes = appDragRegionStyles()
+	return <Box className={classes.titleBar} />
+}
+
 
 ReactDOM.render(<ThemedApp />, document.getElementById('app'))
