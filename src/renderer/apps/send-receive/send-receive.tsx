@@ -163,7 +163,10 @@ const SendReceiveApp = (props: {
 					{
 						erc20List.erc20s.map((erc20) => {
 							return (
-								<MenuItem id={`erc20-${erc20.symbol}-item`} value={erc20.symbol} key={erc20.symbol}>
+								<MenuItem
+									key={erc20.address || erc20.symbol}
+									id={`erc20-${erc20.symbol}-item`}
+									value={erc20.symbol}>
 									<ListItemText
 										primary={erc20.symbol}
 										secondary={erc20.name}

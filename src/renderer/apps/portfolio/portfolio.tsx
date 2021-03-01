@@ -7,9 +7,9 @@ import { fmtAmount } from '../../../lib/utils'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { useErc20List } from '../../state/erc20list-state'
 import { Portfolio } from './def'
-import { fetchBalancesForAccounts, totalBalances } from './balances'
+import { fetchBalancesForAccounts, fetchLockedBalanceForAccounts, totalBalances } from './balances'
 import useLocalStorageState from '../../state/localstorage-state'
-import { RegisteredErc20 } from '../../../lib/erc20/core'
+import { coreErc20Decimals, RegisteredErc20 } from '../../../lib/erc20/core'
 import { fetchConversionRates } from './conversions'
 
 import * as React from 'react'
@@ -40,9 +40,11 @@ const PortfolioApp = (props: {
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
 			const balances = fetchBalancesForAccounts(kit, accounts, erc20s)
+			const locked = fetchLockedBalanceForAccounts(kit, accounts)
 			const conversionRates = fetchConversionRates(kit, "cUSD", erc20s)
 			return {
 				balances: await balances,
+				locked: await locked,
 				conversionRates: await conversionRates,
 			}
 		},
@@ -66,6 +68,12 @@ const PortfolioApp = (props: {
 			totalBalances(fetched.balances) :
 			fetched.balances.get(props.selectedAccount.address)
 	)
+	const lockedBalance = (fetched && (
+		showTotals ?
+			BigNumber.sum(...Array.from(fetched.locked.values())) :
+			fetched.locked.get(props.selectedAccount.address)
+	)) || new BigNumber(0)
+	const lockedValue = lockedBalance.shiftedBy(-coreErc20Decimals).multipliedBy(fetched?.conversionRates.get("CELO") || 0)
 	const totalValue = fetched && balances && (
 		BigNumber.sum(
 			...erc20s.map((erc20) => {
@@ -73,7 +81,8 @@ const PortfolioApp = (props: {
 				const price = fetched.conversionRates.get(erc20.address || erc20.symbol)
 				const value = price && price.multipliedBy(balance).shiftedBy(-erc20.decimals)
 				return value || 0
-			})
+			}),
+			lockedValue,
 		)
 	)
 	return (
@@ -109,9 +118,13 @@ const PortfolioApp = (props: {
 							const balance = balances.get(erc20.address || erc20.symbol) || 0
 							const price = fetched.conversionRates.get(erc20.address || erc20.symbol)
 							const value = price && price.multipliedBy(balance).shiftedBy(-erc20.decimals)
+							const isCELO = erc20.symbol === "CELO" && !erc20.address
 							return (
-								<TableRow key={erc20.symbol}>
-									<TableCell>{erc20.name}</TableCell>
+								<TableRow key={erc20.address || erc20.symbol}>
+									<TableCell>
+										{erc20.name}
+										{isCELO && <><br />Celo Locked</>}
+									</TableCell>
 									<TableCell align="right" padding="none">
 										{erc20.address &&
 										<Tooltip title="Hide token">
@@ -123,10 +136,12 @@ const PortfolioApp = (props: {
 									</TableCell>
 									<TableCell align="right" style={{whiteSpace: "nowrap"}}>
 										{fmtAmount(balance, erc20.decimals)} {erc20.symbol}
+										{isCELO && <><br />{fmtAmount(lockedBalance, erc20.decimals)} {erc20.symbol}</>}
 									</TableCell>
 									<TableCell align="right">{price ? "$"+price.toFixed(2) : "-"}</TableCell>
 									<TableCell align="right" style={{fontWeight: "bold"}}>
 										{value ? "$" + fmtAmount(value, 0, 2) : "-"}
+										{isCELO && <><br />${fmtAmount(lockedValue, 0, 2)}</>}
 									</TableCell>
 								</TableRow>
 							)

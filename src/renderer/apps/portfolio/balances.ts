@@ -4,6 +4,8 @@ import BigNumber from 'bignumber.js'
 import Erc20Contract, { newErc20 } from '../../../lib/erc20/erc20-contract'
 import { RegisteredErc20 } from '../../../lib/erc20/core'
 import { Account } from '../../../lib/accounts'
+import { LockedGoldWrapper } from '@celo/contractkit/lib/wrappers/LockedGold'
+import { AccountsWrapper } from '@celo/contractkit/lib/wrappers/Accounts'
 
 export const fetchBalancesForAccounts = async (
 	kit: ContractKit,
@@ -36,4 +38,28 @@ export const totalBalances = (
 		})
 	})
 	return totals
+}
+
+export const fetchLockedBalanceForAccounts = async (
+	kit: ContractKit,
+	accounts: Account[],
+): Promise<Map<string, BigNumber>> => {
+	const accountsC = await kit.contracts.getAccounts()
+	const lockedGold = await kit.contracts.getLockedGold()
+	const balances = await Promise.all(
+		accounts.map((a) => fetchLockedBalanceForAccount(accountsC, lockedGold, a)))
+	return new Map(balances.map((v, idx) => [accounts[idx].address, v]))
+}
+
+const fetchLockedBalanceForAccount = async (
+	accounts: AccountsWrapper,
+	lockedGold: LockedGoldWrapper,
+	account: Account,
+) => {
+	if (!await accounts.isAccount(account.address)) {
+		return new BigNumber(0)
+	}
+	const locked = lockedGold.getAccountTotalLockedGold(account.address)
+	const pending = lockedGold.getPendingWithdrawalsTotalValue(account.address)
+	return (await locked).plus(await pending)
 }
