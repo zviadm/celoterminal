@@ -18,7 +18,13 @@ export interface LedgerAccount extends BaseAccount {
 	readonly derivationPathIndex: number
 }
 
+export interface MultiSigAccount extends BaseAccount {
+	readonly type: "multisig"
+	readonly ownerAddress: string
+}
+
 export type Account =
 	AddressOnlyAccount |
 	LedgerAccount |
-	LocalAccount
+	LocalAccount |
+	MultiSigAccount

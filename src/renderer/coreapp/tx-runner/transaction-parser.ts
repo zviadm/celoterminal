@@ -10,14 +10,14 @@ export interface ParsedTransaction {
 
 	// Human readable values.
 	contractName: string,
-	contractAddress: string,
+	contractAddress?: string,
 }
 
 export const parseTransaction = async (
 	kit: ContractKit,
 	tx: Transaction): Promise<ParsedTransaction> => {
-	const contractAddress = tx.tx.txo._parent.options.address
-	const name = await contractName(kit, contractAddress)
+	const contractAddress: string | undefined = tx.tx.txo._parent?.options.address
+	const name = contractAddress ? await contractName(kit, contractAddress) : "DEPLOY NEW CONTRACT"
 	return {
 		encodedABI: tx.tx.txo.encodeABI(),
 		transferValue: tx.params?.value ? new BigNumber(tx.params.value.toString()) : undefined,

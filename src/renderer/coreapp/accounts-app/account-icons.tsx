@@ -1,7 +1,6 @@
-import VpnKeyIcon from '@material-ui/icons/VpnKey'
-import AccountBalanceWalletIcon from '@material-ui/icons/AccountBalanceWallet'
-import VisibilityIcon from '@material-ui/icons/Visibility'
+import { VpnKey, AccountBalanceWallet, Visibility, Group } from '@material-ui/icons'
 
-export const LedgerAccountIcon = AccountBalanceWalletIcon
-export const LocalAccountIcon = VpnKeyIcon
-export const AddressOnlyAccountIcon = VisibilityIcon
+export const LedgerAccountIcon = AccountBalanceWallet
+export const LocalAccountIcon = VpnKey
+export const AddressOnlyAccountIcon = Visibility
+export const MultiSigAccountIcon = Group

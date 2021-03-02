@@ -218,9 +218,13 @@ const RunTXs = (props: {
 										</ListItemIcon>
 										<ListItemText
 											primary={<Typography className={classes.address}>
-											Contract: <Link
-												href={`${explorerURL}/address/${preparedTXs[idx].contractAddress}/contracts`}
-												>{preparedTXs[idx].contractName}</Link>
+											Contract: {
+												preparedTXs[idx].contractAddress ?
+													<Link href={`${explorerURL}/address/${preparedTXs[idx].contractAddress}/contracts`}>
+														{preparedTXs[idx].contractName}
+													</Link> :
+													preparedTXs[idx].contractName
+											}
 											</Typography>}
 										/>
 									</ListItem>

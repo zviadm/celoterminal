@@ -1,5 +1,10 @@
 import { shell } from 'electron'
 
+import { Account, LocalAccount } from '../../../lib/accounts'
+import { accountsDBFilePath } from './accounts-state'
+import Accounts from './def'
+import { TXFinishFunc, TXFunc } from '../../components/app-definition'
+
 import * as React from 'react'
 import {
 	makeStyles, Tooltip, Box, Button, IconButton, Typography,
@@ -15,11 +20,8 @@ import AddAddressOnlyAccount from './addressonly-account'
 import ConfirmRemove from './confirm-remove'
 import RevealLocalKey from './reveal-local-key'
 import ChangePassword from './change-password'
-import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon } from './account-icons'
-
-import { Account, LocalAccount } from '../../../lib/accounts'
-import { accountsDBFilePath } from './accounts-state'
-import Accounts from './def'
+import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon, MultiSigAccountIcon } from './account-icons'
+import CreateMultiSigAccount from './create-multisig-account'
 
 const useStyles = makeStyles((theme) => ({
 	accountText: {
@@ -41,6 +43,9 @@ const useStyles = makeStyles((theme) => ({
 
 const AccountsApp = (props: {
 	accounts: Account[],
+	selectedAccount?: Account,
+	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
+
 	hasPassword: boolean,
 	onAdd: (a?: Account, password?: string) => void,
 	onRemove: (a: Account) => void,
@@ -49,12 +54,16 @@ const AccountsApp = (props: {
 }): JSX.Element => {
 	const classes = useStyles()
 	const [openedAdd, setOpenedAdd] = React.useState<
-		undefined | "add-ledger" | "add-addressonly" | "create-local" | "import-local">()
+		undefined |
+		"add-ledger" | "add-addressonly" |
+		"create-local" | "import-local" |
+		"create-multisig" | "import-multisig">()
 	const [confirmRemove, setConfirmRemove] = React.useState<Account | undefined>()
 	const [revealAccount, setRevealAccount] = React.useState<LocalAccount | undefined>()
 	const [renameAccount, setRenameAccount] = React.useState<Account | undefined>()
 	const [changePassword, setChangePassword] = React.useState(false)
 	const [renameNew, setRenameNew] = React.useState("")
+	const selectedAccount = props.selectedAccount
 
 	const handleAdd = (a: Account, password?: string) => {
 		props.onAdd(a, password)
@@ -86,6 +95,8 @@ const AccountsApp = (props: {
 		shell.showItemInFolder(accountsDBFilePath())
 	}
 	const forceSetupPassword = !props.hasPassword && (openedAdd === "create-local" || openedAdd === "import-local")
+	const canCreateMultiSig = selectedAccount && selectedAccount.type !== "address-only"
+	const canImportMultiSig = !!props.accounts.find((a) => a.type !== "address-only")
 	return (
 		<Box display="flex" flexDirection="column" flex={1}>
 			{confirmRemove && <ConfirmRemove account={confirmRemove} onRemove={handleRemove} onCancel={handleCancel} />}
@@ -101,6 +112,13 @@ const AccountsApp = (props: {
 				onCancel={handleCancel} />}
 			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} />}
 			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} />}
+			{openedAdd === "create-multisig" && selectedAccount &&
+			<CreateMultiSigAccount
+				selectedAccount={selectedAccount}
+				runTXs={props.runTXs}
+				onAdd={handleAdd}
+				onCancel={handleCancel}
+			/>}
 			{revealAccount && <RevealLocalKey account={revealAccount} onClose={handleCancel} />}
 
 			<AppHeader app={Accounts} refetch={handleRefetch} isFetching={false} />
@@ -119,6 +137,7 @@ const AccountsApp = (props: {
 								{
 								a.type === "local" ? <LocalAccountIcon /> :
 								a.type === "ledger" ? <LedgerAccountIcon /> :
+								a.type === "multisig" ? <MultiSigAccountIcon /> :
 								a.type === "address-only" ? <AddressOnlyAccountIcon /> : <></>
 								}
 								<Box
@@ -199,6 +218,20 @@ const AccountsApp = (props: {
 							variant="outlined"
 							startIcon={<AddressOnlyAccountIcon />}
 							onClick={() => { setOpenedAdd("add-addressonly") }}>Add ReadOnly Account</Button>
+						<Button
+							className={classes.buttonAdd}
+							color="primary"
+							variant="outlined"
+							startIcon={<MultiSigAccountIcon />}
+							disabled={!canCreateMultiSig}
+							onClick={() => { setOpenedAdd("create-multisig") }}>Create MultiSig Account</Button>
+						<Button
+							className={classes.buttonAdd}
+							color="primary"
+							variant="outlined"
+							startIcon={<MultiSigAccountIcon />}
+							disabled={!canImportMultiSig}
+							onClick={() => { setOpenedAdd("import-multisig") }}>Import MultiSig Account</Button>
 					</Box>
 				</Paper>
 				<Box marginTop={2}>

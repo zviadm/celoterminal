@@ -7,7 +7,7 @@ import { ensureLeading0x, toChecksumAddress, privateKeyToAddress } from '@celo/u
 import { isValidAddress } from 'ethereumjs-util'
 
 
-import { Account, AddressOnlyAccount, LedgerAccount, LocalAccount } from './accounts'
+import { Account, AddressOnlyAccount, LedgerAccount, LocalAccount, MultiSigAccount } from './accounts'
 import { UserError } from './error'
 
 // Supported `account` row versions. Last version is the current version.
@@ -92,11 +92,11 @@ class AccountsDB {
 			case "address-only":
 				return base as AddressOnlyAccount
 			case "ledger": {
-				const ledgerData = JSON.parse(r.data)
+				const parsedData = JSON.parse(r.data)
 				return {
 					...base,
-					baseDerivationPath: ledgerData.baseDerivationPath,
-					derivationPathIndex: ledgerData.derivationPathIndex,
+					baseDerivationPath: parsedData.baseDerivationPath,
+					derivationPathIndex: parsedData.derivationPathIndex,
 				} as LedgerAccount
 			}
 			case "local":
@@ -104,6 +104,13 @@ class AccountsDB {
 					...base,
 					encryptedData: r.encrypted_data,
 				} as LocalAccount
+			case "multisig": {
+				const parsedData = JSON.parse(r.data)
+				return {
+					...base,
+					ownerAddress: parsedData,
+				} as MultiSigAccount
+			}
 			default:
 				throw new Error(`Unrecognized account type: ${r.type}.`)
 			}
@@ -138,6 +145,10 @@ class AccountsDB {
 				baseDerivationPath: a.baseDerivationPath,
 				derivationPathIndex: a.derivationPathIndex,
 			})
+			encryptedData = ""
+			break
+		case "multisig":
+			data = JSON.stringify({ownerAddress: a.ownerAddress})
 			encryptedData = ""
 			break
 		default:
