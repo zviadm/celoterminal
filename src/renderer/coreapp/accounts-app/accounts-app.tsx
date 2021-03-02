@@ -20,7 +20,7 @@ import AddAddressOnlyAccount from './addressonly-account'
 import ConfirmRemove from './confirm-remove'
 import RevealLocalKey from './reveal-local-key'
 import ChangePassword from './change-password'
-import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon, MultiSigAccountIcon } from './account-icons'
+import AccountIcon from './account-icon'
 import CreateMultiSigAccount from './create-multisig-account'
 
 const useStyles = makeStyles((theme) => ({
@@ -134,12 +134,7 @@ const AccountsApp = (props: {
 									alignItems="center"
 									minWidth={500}
 									p={2}>
-								{
-								a.type === "local" ? <LocalAccountIcon /> :
-								a.type === "ledger" ? <LedgerAccountIcon /> :
-								a.type === "multisig" ? <MultiSigAccountIcon /> :
-								a.type === "address-only" ? <AddressOnlyAccountIcon /> : <></>
-								}
+								<AccountIcon type={a.type} />
 								<Box
 									display="flex"
 									flexDirection="column"
@@ -198,7 +193,7 @@ const AccountsApp = (props: {
 						<Button
 							color="primary"
 							variant="outlined"
-							startIcon={<LocalAccountIcon />}
+							startIcon={<AccountIcon type="local" />}
 							onClick={() => { setOpenedAdd("create-local") }}>Create Local Account</Button>
 						<Button
 							className={classes.buttonAdd}
@@ -210,26 +205,26 @@ const AccountsApp = (props: {
 							className={classes.buttonAdd}
 							color="primary"
 							variant="outlined"
-							startIcon={<LedgerAccountIcon />}
+							startIcon={<AccountIcon type="ledger" />}
 							onClick={() => { setOpenedAdd("add-ledger") }}>Add Ledger Account</Button>
 						<Button
 							className={classes.buttonAdd}
 							color="primary"
 							variant="outlined"
-							startIcon={<AddressOnlyAccountIcon />}
+							startIcon={<AccountIcon type="address-only" />}
 							onClick={() => { setOpenedAdd("add-addressonly") }}>Add ReadOnly Account</Button>
 						<Button
 							className={classes.buttonAdd}
 							color="primary"
 							variant="outlined"
-							startIcon={<MultiSigAccountIcon />}
+							startIcon={<AccountIcon type="multisig" />}
 							disabled={!canCreateMultiSig}
 							onClick={() => { setOpenedAdd("create-multisig") }}>Create MultiSig Account</Button>
 						<Button
 							className={classes.buttonAdd}
 							color="primary"
 							variant="outlined"
-							startIcon={<MultiSigAccountIcon />}
+							startIcon={<AccountIcon type="multisig" />}
 							disabled={!canImportMultiSig}
 							onClick={() => { setOpenedAdd("import-multisig") }}>Import MultiSig Account</Button>
 					</Box>

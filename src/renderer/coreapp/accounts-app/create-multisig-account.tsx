@@ -40,7 +40,7 @@ const CreateMultiSigAccount = (props: {
 				throw new Error(`Unexpected error while deploying MultiSig contracts.`)
 			}
 			props.runTXs(async (kit: ContractKit) => {
-				// Delay a bit more to make sure TXs won't fail because node doens't
+				// Delay a bit more to make sure TXs won't fail because node doesn't
 				// have up-to-date information about already deployed contracts.
 				await sleep(500)
 				const txs = multiSigInitializeTXs(

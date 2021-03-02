@@ -3,7 +3,7 @@ import * as React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import Box from '@material-ui/core/Box'
-import { LedgerAccountIcon } from '../accounts-app/account-icons'
+import AccountIcon from '../accounts-app/account-icon'
 
 const useStyles = makeStyles(() => ({
 	text: {
@@ -28,7 +28,7 @@ const PromptLedgerAction = (props: {text: string}): JSX.Element => {
 			<Typography className={classes.text} color="textSecondary">
 				{props.text}
 			</Typography>
-			<LedgerAccountIcon className={classes.icon} />
+			<AccountIcon type="ledger" className={classes.icon} />
 		</Box>
 	)
 }
