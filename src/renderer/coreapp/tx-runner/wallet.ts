@@ -1,16 +1,23 @@
 import TransportNodeHid from '@ledgerhq/hw-transport-node-hid-noevents'
-import { ReadOnlyWallet } from '@celo/connect'
+import { ReadOnlyWallet, toTransactionObject } from '@celo/connect'
 import { AddressValidation, newLedgerWalletWithSetup } from '@celo/wallet-ledger'
 import { LocalWallet } from '@celo/wallet-local'
 
-import { Account, LocalAccount } from '../../../lib/accounts'
+import { Account, LocalAccount, MultiSigAccount } from '../../../lib/accounts'
 import { decryptLocalKey } from '../../../lib/accountsdb'
 import { UserError } from '../../../lib/error'
 import { CFG } from '../../../lib/cfg'
 import { SpectronNetworkId } from '../../../lib/spectron-utils/constants'
+import { Transaction } from '../../components/app-definition'
+import { ContractKit } from '@celo/contractkit'
+import { stringToSolidityBytes } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 
-export async function createWallet(a: Account, password?: string): Promise<{
+export async function createWallet(
+	account: Account,
+	accounts: Account[],
+	password?: string): Promise<{
 	wallet: ReadOnlyWallet
+	transformTX?: (kit: ContractKit, tx: Transaction) => Promise<Transaction>
 	transport?: {close: () => void}
 }> {
 	if (CFG().networkId === SpectronNetworkId) {
@@ -19,13 +26,13 @@ export async function createWallet(a: Account, password?: string): Promise<{
 		// locally signing transactions when tests are running.
 		return {wallet: new LocalWallet()}
 	}
-	switch (a.type) {
+	switch (account.type) {
 		case "local": {
 			if (!password) {
 				throw new UserError("Password must be entered to unlock local accounts.")
 			}
 			const wallet = new LocalWallet()
-			const localKey = decryptLocalKey(a.encryptedData, password)
+			const localKey = decryptLocalKey(account.encryptedData, password)
 			wallet.addAccount(localKey.privateKey)
 			return {wallet}
 		}
@@ -34,8 +41,8 @@ export async function createWallet(a: Account, password?: string): Promise<{
 			try {
 				const wallet = await newLedgerWalletWithSetup(
 					_transport,
-					[a.derivationPathIndex],
-					a.baseDerivationPath,
+					[account.derivationPathIndex],
+					account.baseDerivationPath,
 					AddressValidation.never)
 				return {wallet, transport: _transport}
 			} catch (e) {
@@ -43,9 +50,47 @@ export async function createWallet(a: Account, password?: string): Promise<{
 				throw e
 			}
 		}
+		case "multisig": {
+			const owner = findMultiSigOwner(account, accounts)
+			const ownerWallet = await createWallet(owner, accounts, password)
+			const transformTX = async (kit: ContractKit, tx: Transaction): Promise<Transaction> => {
+				const multiSig = await kit._web3Contracts.getMultiSig(account.address)
+				if (ownerWallet.transformTX) {
+					tx = await ownerWallet.transformTX(kit, tx)
+				}
+				const data = stringToSolidityBytes(tx.tx.txo.encodeABI())
+				const txo = multiSig.methods.submitTransaction(
+					tx.tx.txo._parent.options.address, tx.params?.value?.toString() || 0, data)
+				// TODO(zviad): if GAS was provided, we probably want to pass it through and add a bit
+				// more GAS because of MultiSig overhead?
+				console.info(`debug: transformed`, txo)
+				return {tx: toTransactionObject(kit.connection, txo)}
+			}
+			return {
+				wallet: ownerWallet.wallet,
+				transport: ownerWallet.transport,
+				transformTX,
+			}
+		}
 		default:
 			throw new UserError(`Read-only accounts can not sign transactions.`)
 	}
+}
+
+export const rootAccount = (account: Account, accounts: Account[]): Account => {
+	if (account.type !== "multisig") {
+		return account
+	}
+	const owner = findMultiSigOwner(account, accounts)
+	return rootAccount(owner, accounts)
+}
+
+const findMultiSigOwner = (account: MultiSigAccount, accounts: Account[]): Account => {
+	const owner = accounts.find((a) => a.address === account.ownerAddress)
+	if (!owner) {
+		throw new UserError(`MultiSig owner: ${account.ownerAddress} not found in accounts.`)
+	}
+	return owner
 }
 
 export const canDecryptLocalKey = (

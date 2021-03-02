@@ -58,7 +58,7 @@ const CreateMultiSigAccount = (props: {
 				}
 				props.onAdd({
 					type: "multisig",
-					name: `MultiSig/${proxyAddress.slice(0, 6)}`,
+					name: `MultiSig/${props.selectedAccount.address.slice(0, 6)}`,
 					address: proxyAddress,
 					ownerAddress: props.selectedAccount.address,
 				})

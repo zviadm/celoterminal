@@ -91,24 +91,23 @@ class AccountsDB {
 			switch (r.type) {
 			case "address-only":
 				return base as AddressOnlyAccount
-			case "ledger": {
-				const parsedData = JSON.parse(r.data)
-				return {
-					...base,
-					baseDerivationPath: parsedData.baseDerivationPath,
-					derivationPathIndex: parsedData.derivationPathIndex,
-				} as LedgerAccount
-			}
 			case "local":
 				return {
 					...base,
 					encryptedData: r.encrypted_data,
 				} as LocalAccount
+			case "ledger": {
+				const parsedData = JSON.parse(r.data)
+				return {
+					...base,
+					...parsedData,
+				} as LedgerAccount
+			}
 			case "multisig": {
 				const parsedData = JSON.parse(r.data)
 				return {
 					...base,
-					ownerAddress: parsedData,
+					...parsedData,
 				} as MultiSigAccount
 			}
 			default:

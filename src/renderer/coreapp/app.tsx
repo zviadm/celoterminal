@@ -121,6 +121,7 @@ const App = () => {
 			{selectedAccount &&
 			<TXRunner
 				selectedAccount={selectedAccount}
+				accounts={accounts}
 				txFunc={txFunc?.f}
 				onFinish={txOnFinish}
 			/>}
