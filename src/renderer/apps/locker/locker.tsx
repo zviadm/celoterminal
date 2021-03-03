@@ -13,20 +13,16 @@ import { nowMS } from '../../state/time'
 import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 import * as React from 'react'
-import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography'
-import Box from '@material-ui/core/Box'
-import Paper from '@material-ui/core/Paper'
-import Alert from '@material-ui/lab/Alert'
-import Table from '@material-ui/core/Table'
-import TableHead from '@material-ui/core/TableHead'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableRow from '@material-ui/core/TableRow'
-import Tooltip from '@material-ui/core/Tooltip'
+import {
+	Button, Typography, Box, Table, TableHead, TableBody,
+	TableCell, TableRow, Tooltip
+} from '@material-ui/core'
+import { Alert } from '@material-ui/lab'
 
 import AppHeader from '../../components/app-header'
 import NumberInput from '../../components/number-input'
+import AppContainer from '../../components/app-container'
+import AppSection from '../../components/app-section'
 
 const LockerApp = (props: {
 	accounts: Account[],
@@ -136,70 +132,62 @@ const LockerApp = (props: {
 	const maxToLock = fetched?.totalCELO && BigNumber.maximum(
 		fetched.totalCELO.shiftedBy(-coreErc20Decimals).minus(0.0001), 0)
 	return (
-		<Box display="flex" flexDirection="column" flex={1}>
+		<AppContainer>
 			<AppHeader app={Locker} isFetching={isFetching} refetch={refetch} />
 			{fetched &&
 			(!fetched.isAccount ?
-			<Box marginTop={2}>
-				<Paper>
-					<Box display="flex" flexDirection="column" p={2}>
-						<Alert severity="info">
-							To lock CELO and participate in elections or governance,
-							you need to register your address by creating an account first.
-						</Alert>
-						<Box display="flex" flexDirection="column" marginTop={1}>
-							<Button
-								id="create-account"
-								color="primary"
-								variant="outlined"
-								onClick={handleCreateAccount}>Create Account</Button>
-						</Box>
-					</Box>
-				</Paper>
-			</Box>
+			<AppSection>
+				<Alert severity="info">
+					To lock CELO and participate in elections or governance,
+					you need to register your address by creating an account first.
+				</Alert>
+				<Box display="flex" flexDirection="column" marginTop={1}>
+					<Button
+						id="create-account"
+						color="primary"
+						variant="outlined"
+						onClick={handleCreateAccount}>Create Account</Button>
+				</Box>
+			</AppSection>
 			:
 			<>
-			<Box marginTop={2}>
-				<Paper>
-					<Box display="flex" flexDirection="column" p={2}>
-						<Typography>Balance: {fmtAmount(fetched.totalCELO, "CELO")} CELO</Typography>
-						<NumberInput
-							autoFocus
-							margin="dense"
-							variant="outlined"
-							id="lock-celo-input"
-							label={`Lock (max: ${fmtAmount(fetched.totalCELO, "CELO")})`}
-							value={toLock}
-							onChangeValue={setToLock}
-							maxValue={maxToLock}
-						/>
-						<Button
-							id="lock-celo"
-							variant="outlined"
-							color="primary"
-							disabled={!canLock}
-							onClick={handleLock}>Lock</Button>
-					</Box>
-				</Paper>
-			</Box>
-			<Box marginTop={2}>
+			<AppSection>
+				<Typography>Balance: {fmtAmount(fetched.totalCELO, "CELO")} CELO</Typography>
+				<NumberInput
+					autoFocus
+					margin="dense"
+					variant="outlined"
+					id="lock-celo-input"
+					label={`Lock (max: ${fmtAmount(fetched.totalCELO, "CELO")})`}
+					value={toLock}
+					onChangeValue={setToLock}
+					maxValue={maxToLock}
+				/>
+				<Button
+					id="lock-celo"
+					variant="outlined"
+					color="primary"
+					disabled={!canLock}
+					onClick={handleLock}>Lock</Button>
+			</AppSection>
+			<AppSection>
 				<UnlockWithRevoke
 					{...fetched}
 					toUnlock={toUnlock}
 					onSetToUnlock={setToUnlock}
 					onUnlock={handleUnlock}
 				/>
-			</Box>
+			</AppSection>
 			{fetched.pendingWithdrawals.length > 0 &&
-			<Box marginTop={2}>
+			<AppSection>
 				<PendingWithdrawals
 					pendingWithdrawals={fetched.pendingWithdrawals}
 					onWithdraw={handleWithdraw}
 					onCancel={handleCancelWithdraw}
 				/>
-			</Box>}
+			</AppSection>}
 			</>)}
-		</Box>
+		</AppContainer>
 	)
 }
 export default LockerApp
@@ -244,67 +232,63 @@ const UnlockWithRevoke = (props: {
 	const canUnlock = (
 		toUnlockWEI.gt(0) && maxToUnlockWEI.gte(toUnlockWEI))
 	const maxToUnlock = maxToUnlockWEI.shiftedBy(-coreErc20Decimals)
-	return (
-		<Paper>
-			<Box display="flex" flexDirection="column" p={2}>
-				<Box marginBottom={1}>
-					<Alert severity="info">
-						Locked CELO has a delay of {props.unlockingPeriod.div(24*60*60).toString()} days
-						before it can be recovered from the escrow after unlock is initiated.
-					</Alert>
-				</Box>
-				<Box marginBottom={1}>
-					<Alert severity="info">
-						To unlock already voting CELO, multiple transactions might be needed to revoke votes
-						first. `Max to unlock` shows maximum amount that can be unlocked in a single transaction.
-					</Alert>
-				</Box>
-				<Table size="small">
-					<TableBody>
-						<TableRow>
-							<TableCell style={{whiteSpace: "nowrap"}}>Locked</TableCell>
-							<TableCell width="100%">{fmtAmount(props.totalLocked, "CELO")} CELO</TableCell>
-						</TableRow>
-						<TableRow>
-							<TableCell style={{whiteSpace: "nowrap"}}>Nonvoting</TableCell>
-							<TableCell>{fmtAmount(props.nonvotingLocked, "CELO")} CELO</TableCell>
-						</TableRow>
-						{!props.isVotingInGovernance &&
-						<TableRow>
-							<TableCell style={{whiteSpace: "nowrap"}}>Max to unlock</TableCell>
-							<TableCell>{fmtAmount(maxToUnlockWEI, "CELO")} CELO</TableCell>
-						</TableRow>}
-					</TableBody>
-				</Table>
-				{props.isVotingInGovernance ?
-				<Box marginTop={1}>
-					<Alert severity="error">
-						Account is participating in Governance voting. CELO can not be unlocked until Governance
-						process is complete.
-					</Alert>
-				</Box>
-				: <>
-				<NumberInput
-					margin="dense"
-					variant="outlined"
-					id="unlock-celo-input"
-					label={`Unlock (max: ${fmtAmount(maxToUnlockWEI, "CELO")})`}
-					value={props.toUnlock}
-					onChangeValue={props.onSetToUnlock}
-					maxValue={maxToUnlock}
-				/>
-				<Button
-					id="unlock-celo"
-					variant="outlined"
-					color="primary"
-					disabled={!canUnlock}
-					onClick={handleUnlock}>
-					{toUnlockWEI.gt(props.nonvotingLocked) ? "Revoke and Unlock" : "Unlock"}
-				</Button>
-				</>}
-			</Box>
-		</Paper>
-	)
+	return (<>
+		<Box marginBottom={1}>
+			<Alert severity="info">
+				Locked CELO has a delay of {props.unlockingPeriod.div(24*60*60).toString()} days
+				before it can be recovered from the escrow after unlock is initiated.
+			</Alert>
+		</Box>
+		<Box marginBottom={1}>
+			<Alert severity="info">
+				To unlock already voting CELO, multiple transactions might be needed to revoke votes
+				first. `Max to unlock` shows maximum amount that can be unlocked in a single transaction.
+			</Alert>
+		</Box>
+		<Table size="small">
+			<TableBody>
+				<TableRow>
+					<TableCell style={{whiteSpace: "nowrap"}}>Locked</TableCell>
+					<TableCell width="100%">{fmtAmount(props.totalLocked, "CELO")} CELO</TableCell>
+				</TableRow>
+				<TableRow>
+					<TableCell style={{whiteSpace: "nowrap"}}>Nonvoting</TableCell>
+					<TableCell>{fmtAmount(props.nonvotingLocked, "CELO")} CELO</TableCell>
+				</TableRow>
+				{!props.isVotingInGovernance &&
+				<TableRow>
+					<TableCell style={{whiteSpace: "nowrap"}}>Max to unlock</TableCell>
+					<TableCell>{fmtAmount(maxToUnlockWEI, "CELO")} CELO</TableCell>
+				</TableRow>}
+			</TableBody>
+		</Table>
+		{props.isVotingInGovernance ?
+		<Box marginTop={1}>
+			<Alert severity="error">
+				Account is participating in Governance voting. CELO can not be unlocked until Governance
+				process is complete.
+			</Alert>
+		</Box>
+		: <>
+		<NumberInput
+			margin="dense"
+			variant="outlined"
+			id="unlock-celo-input"
+			label={`Unlock (max: ${fmtAmount(maxToUnlockWEI, "CELO")})`}
+			value={props.toUnlock}
+			onChangeValue={props.onSetToUnlock}
+			maxValue={maxToUnlock}
+		/>
+		<Button
+			id="unlock-celo"
+			variant="outlined"
+			color="primary"
+			disabled={!canUnlock}
+			onClick={handleUnlock}>
+			{toUnlockWEI.gt(props.nonvotingLocked) ? "Revoke and Unlock" : "Unlock"}
+		</Button>
+		</>}
+	</>)
 }
 
 const PendingWithdrawals = (props: {
@@ -315,60 +299,56 @@ const PendingWithdrawals = (props: {
 	const pendingWithdrawals: [PendingWithdrawal, number][] = props.pendingWithdrawals.map((p, idx) => ([p, idx]))
 	pendingWithdrawals.sort((a, b) => (a[0].time.minus(b[0].time).toNumber()))
 	const pendingTotal = BigNumber.sum(...pendingWithdrawals.map((p) => p[0].value))
-	return (
-		<Paper>
-			<Box display="flex" flexDirection="column" p={2}>
-				<Box marginBottom={1}>
-					<Typography>Pending withdrawals: {fmtAmount(pendingTotal, "CELO")} CELO</Typography>
-				</Box>
-				<Table size="small">
-					<TableHead>
-						<TableRow>
-							<TableCell>Date</TableCell>
-							<TableCell width="100%">Amount</TableCell>
-							<TableCell />
-							<TableCell />
-						</TableRow>
-					</TableHead>
-					<TableBody>
-					{pendingWithdrawals.map((p, idx) => {
-						const date = new Date(p[0].time.multipliedBy(1000).toNumber())
-						const pendingMinutes = p[0].time.minus(nowMS()/1000).div(60)
-						const pendingText = pendingMinutes.lte(90) ?
-							`in ${pendingMinutes.toFixed(0)} minutes\u2026`:
-							`in ${pendingMinutes.div(60).toFixed(0)} hours\u2026`
-						const canWithdraw = pendingMinutes.lte(0)
-						return (
-						<TableRow key={`${p[1]}`}>
-							<Tooltip title={date.toLocaleString()}>
-								<TableCell>{date.toLocaleDateString()}</TableCell>
-							</Tooltip>
-							<TableCell>{fmtAmount(p[0].value, "CELO")}</TableCell>
-							<TableCell>
-								<Button
-									id={`withdraw-${idx}`}
-									style={{width: 140}}
-									variant="outlined"
-									color="primary"
-									disabled={!canWithdraw}
-									onClick={() => { props.onWithdraw(p[1]) }}
-									>{canWithdraw ? "Withdraw" : pendingText}</Button>
-							</TableCell>
-							<TableCell>
-								<Button
-									id={`cancel-withdraw-${idx}`}
-									style={{width: 130}}
-									variant="outlined"
-									color="secondary"
-									onClick={() => { props.onCancel(p[1], p[0]) }}
-									>Cancel</Button>
-							</TableCell>
-						</TableRow>
-						)
-					})}
-					</TableBody>
-				</Table>
-			</Box>
-		</Paper>
-	)
+	return (<>
+		<Box marginBottom={1}>
+			<Typography>Pending withdrawals: {fmtAmount(pendingTotal, "CELO")} CELO</Typography>
+		</Box>
+		<Table size="small">
+			<TableHead>
+				<TableRow>
+					<TableCell>Date</TableCell>
+					<TableCell width="100%">Amount</TableCell>
+					<TableCell />
+					<TableCell />
+				</TableRow>
+			</TableHead>
+			<TableBody>
+			{pendingWithdrawals.map((p, idx) => {
+				const date = new Date(p[0].time.multipliedBy(1000).toNumber())
+				const pendingMinutes = p[0].time.minus(nowMS()/1000).div(60)
+				const pendingText = pendingMinutes.lte(90) ?
+					`in ${pendingMinutes.toFixed(0)} minutes\u2026`:
+					`in ${pendingMinutes.div(60).toFixed(0)} hours\u2026`
+				const canWithdraw = pendingMinutes.lte(0)
+				return (
+				<TableRow key={`${p[1]}`}>
+					<Tooltip title={date.toLocaleString()}>
+						<TableCell>{date.toLocaleDateString()}</TableCell>
+					</Tooltip>
+					<TableCell>{fmtAmount(p[0].value, "CELO")}</TableCell>
+					<TableCell>
+						<Button
+							id={`withdraw-${idx}`}
+							style={{width: 140}}
+							variant="outlined"
+							color="primary"
+							disabled={!canWithdraw}
+							onClick={() => { props.onWithdraw(p[1]) }}
+							>{canWithdraw ? "Withdraw" : pendingText}</Button>
+					</TableCell>
+					<TableCell>
+						<Button
+							id={`cancel-withdraw-${idx}`}
+							style={{width: 130}}
+							variant="outlined"
+							color="secondary"
+							onClick={() => { props.onCancel(p[1], p[0]) }}
+							>Cancel</Button>
+					</TableCell>
+				</TableRow>
+				)
+			})}
+			</TableBody>
+		</Table>
+	</>)
 }
