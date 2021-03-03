@@ -14,13 +14,15 @@ import { UserError } from '../../../lib/error'
 
 import * as React from 'react'
 import {
-	Dialog, DialogActions, DialogContent, Box, Paper, Button,
-	TableBody, TableContainer, Table, TableRow, TableCell, TableHead, DialogTitle,
+	Dialog, DialogActions, DialogContent, Box, Button,
+	TableBody, Table, TableRow, TableCell, TableHead, DialogTitle,
 } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 
 import AppHeader from '../../components/app-header'
 import Link from '../../components/link'
+import AppContainer from '../../components/app-container'
+import AppSection from '../../components/app-section'
 
 let _client: AxiosInstance
 const gql = () => {
@@ -154,7 +156,7 @@ const CelovoteApp = (props: {
 	const minLocked = new BigNumber(100e18)
 	const canAuthorize = fetched?.totalLocked.gte(minLocked)
 	return (
-		<Box display="flex" flexDirection="column" flex={1}>
+		<AppContainer>
 			<AppHeader app={Celovote} isFetching={isFetching} refetch={refetch} />
 			{confirmRemoveAuth &&
 			<ConfirmRemoveAuthorization
@@ -163,64 +165,52 @@ const CelovoteApp = (props: {
 			/>}
 			{fetched && (
 			fetched.isAuthorized ? <>
-			<Box marginTop={2}>
-				<Paper>
-					<Box p={2}>
-						<Alert severity="success">
-						Account authorized with Celovote. Votes will be automatically cast
-						and activated for all your locked CELO to earn rewards.
-						<br />
-						<br />
-						View rewards for <Link
-							href={`https://celovote.com/rewards?addresses=${account.address}`}>
-							this account</Link>.
-						<br />
-						View rewards for <Link
-							href={`https://celovote.com/rewards?addresses=${props.accounts.map((a) => a.address).join(",")}`}>
-							all accounts</Link>.
-						</Alert>
-					</Box>
-				</Paper>
-			</Box>
+			<AppSection>
+				<Alert severity="success">
+				Account authorized with Celovote. Votes will be automatically cast
+				and activated for all your locked CELO to earn rewards.
+				<br />
+				<br />
+				View rewards for <Link
+					href={`https://celovote.com/rewards?addresses=${account.address}`}>
+					this account</Link>.
+				<br />
+				View rewards for <Link
+					href={`https://celovote.com/rewards?addresses=${props.accounts.map((a) => a.address).join(",")}`}>
+					all accounts</Link>.
+				</Alert>
+			</AppSection>
 			<SummaryTable {...fetched} />
-			<Box marginTop={2}>
-				<Paper>
-					<Box p={2} display="flex" flexDirection="column">
-						<Button
-							color="secondary"
-							variant="outlined"
-							onClick={() => { setConfirmRemoveAuth(true) }}
-							>Remove Authorization</Button>
-					</Box>
-				</Paper>
-			</Box>
+			<AppSection>
+				<Button
+					color="secondary"
+					variant="outlined"
+					onClick={() => { setConfirmRemoveAuth(true) }}
+					>Remove Authorization</Button>
+			</AppSection>
 			</> : <>
-			<Box marginTop={2}>
-				<Paper>
-					<Box display="flex" flexDirection="column" p={2}>
-						<Box marginBottom={1}>
-							<Alert severity="info">{Celovote.description}</Alert>
-						</Box>
-						{!canAuthorize &&
-						<Box marginBottom={1}>
-							<Alert severity="warning">
-							Minimum {fmtAmount(minLocked, "CELO", 0)} CELO must be locked to use Celovote service.
-							</Alert>
-						</Box>
-						}
-						<Button
-							color="primary"
-							variant="outlined"
-							onClick={handleAuthorize}
-							disabled={!canAuthorize}
-							>Authorize</Button>
-					</Box>
-				</Paper>
-			</Box>
+			<AppSection>
+				<Box marginBottom={1}>
+					<Alert severity="info">{Celovote.description}</Alert>
+				</Box>
+				{!canAuthorize &&
+				<Box marginBottom={1}>
+					<Alert severity="warning">
+					Minimum {fmtAmount(minLocked, "CELO", 0)} CELO must be locked to use Celovote service.
+					</Alert>
+				</Box>
+				}
+				<Button
+					color="primary"
+					variant="outlined"
+					onClick={handleAuthorize}
+					disabled={!canAuthorize}
+					>Authorize</Button>
+			</AppSection>
 			<SummaryTable {...fetched} />
 			</>
 			)}
-		</Box>
+		</AppContainer>
 	)
 }
 export default CelovoteApp
@@ -258,59 +248,53 @@ const SummaryTable = (props: {
 			a.active.plus(a.pending)
 			.minus(b.active.plus(b.pending))
 			.negated().toNumber())
-	return (
-		<Box display="flex" flexDirection="column">
-			<Box marginTop={2}>
-				<TableContainer component={Paper}>
-				<Table size="small">
-					<TableBody>
-						<TableRow>
-							<TableCell style={{whiteSpace: "nowrap"}}>Locked CELO</TableCell>
-							<TableCell width="100%">{fmtAmount(props.totalLocked, "CELO")}</TableCell>
+	return (<>
+		<AppSection>
+			<Table size="small">
+				<TableBody>
+					<TableRow>
+						<TableCell style={{whiteSpace: "nowrap"}}>Locked CELO</TableCell>
+						<TableCell width="100%">{fmtAmount(props.totalLocked, "CELO")}</TableCell>
+					</TableRow>
+					<TableRow>
+						<TableCell style={{whiteSpace: "nowrap"}}>Votes (active)</TableCell>
+						<TableCell>{fmtAmount(votesActive, "CELO")}</TableCell>
+					</TableRow>
+					<TableRow>
+						<TableCell style={{whiteSpace: "nowrap"}}>Votes (pending)</TableCell>
+						<TableCell>{fmtAmount(votesPending, "CELO")}</TableCell>
+					</TableRow>
+					<TableRow>
+						<TableCell style={{whiteSpace: "nowrap"}}>Nonvoting</TableCell>
+						<TableCell>{fmtAmount(props.nonvoting, "CELO")}</TableCell>
+					</TableRow>
+				</TableBody>
+			</Table>
+		</AppSection>
+		{votesDESC.length > 0 &&
+		<AppSection>
+			<Table size="small">
+				<TableHead>
+					<TableRow>
+						<TableCell width="100%">Group</TableCell>
+						<TableCell style={{whiteSpace: "nowrap"}} align="right">Votes (active)</TableCell>
+						<TableCell style={{whiteSpace: "nowrap"}} align="right">Votes (pending)</TableCell>
+					</TableRow>
+				</TableHead>
+				<TableBody>
+					{
+					votesDESC.map((v) => (
+						<TableRow key={v.group}>
+							<TableCell><GroupAddress address={v.group} /></TableCell>
+							<TableCell align="right">{fmtAmount(v.active, "CELO")}</TableCell>
+							<TableCell align="right">{fmtAmount(v.pending, "CELO")}</TableCell>
 						</TableRow>
-						<TableRow>
-							<TableCell style={{whiteSpace: "nowrap"}}>Votes (active)</TableCell>
-							<TableCell>{fmtAmount(votesActive, "CELO")}</TableCell>
-						</TableRow>
-						<TableRow>
-							<TableCell style={{whiteSpace: "nowrap"}}>Votes (pending)</TableCell>
-							<TableCell>{fmtAmount(votesPending, "CELO")}</TableCell>
-						</TableRow>
-						<TableRow>
-							<TableCell style={{whiteSpace: "nowrap"}}>Nonvoting</TableCell>
-							<TableCell>{fmtAmount(props.nonvoting, "CELO")}</TableCell>
-						</TableRow>
-					</TableBody>
-				</Table>
-				</TableContainer>
-			</Box>
-			{votesDESC.length > 0 &&
-			<Box marginTop={2}>
-				<TableContainer component={Paper}>
-				<Table size="small">
-					<TableHead>
-						<TableRow>
-							<TableCell width="100%">Group</TableCell>
-							<TableCell style={{whiteSpace: "nowrap"}} align="right">Votes (active)</TableCell>
-							<TableCell style={{whiteSpace: "nowrap"}} align="right">Votes (pending)</TableCell>
-						</TableRow>
-					</TableHead>
-					<TableBody>
-						{
-						votesDESC.map((v) => (
-							<TableRow key={v.group}>
-								<TableCell><GroupAddress address={v.group} /></TableCell>
-								<TableCell align="right">{fmtAmount(v.active, "CELO")}</TableCell>
-								<TableCell align="right">{fmtAmount(v.pending, "CELO")}</TableCell>
-							</TableRow>
-						))
-						}
-					</TableBody>
-				</Table>
-				</TableContainer>
-			</Box>}
-		</Box>
-	)
+					))
+					}
+				</TableBody>
+			</Table>
+		</AppSection>}
+	</>)
 }
 
 const GroupAddress = (props: {address: string}) => {
