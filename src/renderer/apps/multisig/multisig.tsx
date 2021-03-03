@@ -4,25 +4,21 @@ import { ContractKit } from '@celo/contractkit'
 import { Account } from '../../../lib/accounts'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { MultiSig } from './def'
-import { explorerRootURL } from '../../../lib/cfg'
-import { fmtAddress } from '../../../lib/utils'
-import useLocalStorageState from '../../state/localstorage-state'
 import useOnChainState from '../../state/onchain-state'
 
 import * as React from 'react'
 import {
 	Box, TableBody, Table, TableRow, TableCell, Tab, TableHead, Button,
-	Typography
 } from '@material-ui/core'
 import { Alert, TabContext, TabList, TabPanel } from '@material-ui/lab'
-import { Add } from '@material-ui/icons'
 
 import AppContainer from '../../components/app-container'
 import AppHeader from '../../components/app-header'
 import AppSection from '../../components/app-section'
-import Link from '../../components/link'
 import SectionTitle from '../../components/section-title'
 import { contractName } from '../../../lib/registry'
+import { OwnersTable, SignaturesTable } from './owners'
+import { toTransactionObject } from '@celo/connect'
 
 const MultiSigApp = (props: {
 	accounts: Account[],
@@ -39,11 +35,11 @@ const MultiSigApp = (props: {
 			if (account.type !== "multisig") {
 				return {}
 			}
-			const multisig = await kit.contracts.getMultiSig(account.address)
-			const transactionsP = multisig.getTransactions()
-			const owners = multisig.getOwners()
-			const requiredSigs = multisig.getRequired()
-			const requiredInternalSigs = multisig.getInternalRequired()
+			const multiSig = await kit.contracts.getMultiSig(account.address)
+			const transactionsP = multiSig.getTransactions()
+			const owners = multiSig.getOwners()
+			const requiredSigs = multiSig.getRequired()
+			const requiredInternalSigs = multiSig.getInternalRequired()
 
 			const transactions = (await transactionsP).map((t, idx) => ({...t, idx: idx}))
 			const pendingTXs = transactions.filter((t) => !t.executed)
@@ -63,13 +59,73 @@ const MultiSigApp = (props: {
 		},
 		[account]
 	))
-	const [tab, setTab] = useLocalStorageState("terminal/multisig/tab", "transactions")
+	const [tab, setTab] = React.useState("transactions")
 
 	const requiredConfirms = (
 		destination: string,
 		requiredSigs: BigNumber,
 		requiredInternalSigs: BigNumber) => {
 		return (destination === account.address) ? requiredInternalSigs : requiredSigs
+	}
+	const handleAddOwner = (newOwner: string) => {
+		props.runTXs(
+			async (kit: ContractKit) => {
+				const multiSig = await kit._web3Contracts.getMultiSig(account.address)
+				const tx = toTransactionObject(
+					kit.connection,
+					multiSig.methods.addOwner(newOwner))
+				return [{tx: tx}]
+			},
+			() => { refetch() },
+		)
+	}
+	const handleRemoveOwner = (owner: string) => {
+		props.runTXs(
+			async (kit: ContractKit) => {
+				const multiSig = await kit._web3Contracts.getMultiSig(account.address)
+				const tx = toTransactionObject(
+					kit.connection,
+					multiSig.methods.removeOwner(owner))
+				return [{tx: tx}]
+			},
+			() => { refetch() },
+		)
+	}
+	const handleReplaceOwner = (owner: string, newOwner: string) => {
+		props.runTXs(
+			async (kit: ContractKit) => {
+				const multiSig = await kit._web3Contracts.getMultiSig(account.address)
+				const tx = toTransactionObject(
+					kit.connection,
+					multiSig.methods.replaceOwner(owner, newOwner))
+				return [{tx: tx}]
+			},
+			() => { refetch() },
+		)
+	}
+	const handleChangeRequiredSignatures = (signatures: number) => {
+		props.runTXs(
+			async (kit: ContractKit) => {
+				const multiSig = await kit._web3Contracts.getMultiSig(account.address)
+				const tx = toTransactionObject(
+					kit.connection,
+					multiSig.methods.changeRequirement(signatures))
+				return [{tx: tx}]
+			},
+			() => { refetch() },
+		)
+	}
+	const handleChangeInternalRequiredSignatures = (signatures: number) => {
+		props.runTXs(
+			async (kit: ContractKit) => {
+				const multiSig = await kit._web3Contracts.getMultiSig(account.address)
+				const tx = toTransactionObject(
+					kit.connection,
+					multiSig.methods.changeInternalRequirement(signatures))
+				return [{tx: tx}]
+			},
+			() => { refetch() },
+		)
 	}
 
 	return (
@@ -140,58 +196,23 @@ const MultiSigApp = (props: {
 						</Box>}
 					</TabPanel>
 					<TabPanel value="owners">
-						<Table size="small">
-							<TableBody>
-								{fetched.owners?.map((o) => {
-									return (
-										<TableRow key={o}>
-											<TableCell width="100%"><LinkedAddress address={o} /></TableCell>
-											<TableCell>
-												<Button
-													variant="outlined"
-													color="secondary">Replace</Button>
-											</TableCell>
-											<TableCell>
-												<Button
-													variant="outlined"
-													color="secondary">Remove</Button>
-											</TableCell>
-										</TableRow>
-									)
-								})}
-							</TableBody>
-						</Table>
-						<Box display="flex" flexDirection="column" marginTop={1}>
-							<Button
-								variant="outlined"
-								color="primary"
-								startIcon={<Add />}>
-								Add Owner
-							</Button>
-						</Box>
+						<OwnersTable
+							owners={fetched.owners || []}
+							onAdd={handleAddOwner}
+							onRemove={handleRemoveOwner}
+							onReplace={handleReplaceOwner}
+						/>
 					</TabPanel>
 				</AppSection>
 				{tab === "owners" && <>
 				<AppSection>
 					<SectionTitle>Required signatures</SectionTitle>
-					<Table size="small">
-						<TableBody>
-							<TableRow>
-								<TableCell width="100%">For executing transactions</TableCell>
-								<TableCell>{fetched.requiredSigs?.toString()}</TableCell>
-								<TableCell>
-									<Button variant="outlined" color="secondary">Change</Button>
-								</TableCell>
-							</TableRow>
-							<TableRow>
-								<TableCell width="100%">For changing MultiSig properties</TableCell>
-								<TableCell>{fetched.requiredInternalSigs?.toString()}</TableCell>
-								<TableCell>
-									<Button variant="outlined" color="secondary">Change</Button>
-								</TableCell>
-							</TableRow>
-						</TableBody>
-					</Table>
+					<SignaturesTable
+						requiredSignatures={fetched?.requiredSigs?.toNumber() || 0}
+						internalRequiredSignatures={fetched?.requiredInternalSigs?.toNumber() || 0}
+						onChangeRequiredSignatures={handleChangeRequiredSignatures}
+						onChangeInternalRequiredSignatures={handleChangeInternalRequiredSignatures}
+					/>
 				</AppSection>
 				</>}
 			</TabContext>
@@ -200,12 +221,3 @@ const MultiSigApp = (props: {
 	)
 }
 export default MultiSigApp
-
-const LinkedAddress = (props: {address: string}) => {
-	const url = `${explorerRootURL()}/address/${props.address}`
-	return (
-		<Link href={url}>
-			<Typography style={{fontFamily: "monospace"}}>{fmtAddress(props.address)}</Typography>
-		</Link>
-	)
-}

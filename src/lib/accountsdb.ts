@@ -6,7 +6,6 @@ import * as log from 'electron-log'
 import { ensureLeading0x, toChecksumAddress, privateKeyToAddress } from '@celo/utils/lib/address'
 import { isValidAddress } from 'ethereumjs-util'
 
-
 import { Account, AddressOnlyAccount, LedgerAccount, LocalAccount, MultiSigAccount } from './accounts'
 import { UserError } from './error'
 

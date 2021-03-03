@@ -41,12 +41,15 @@ const CreateMultiSigAccount = (props: {
 	const handleCreate = () => {
 		const requiredSigsN = Number.parseInt(requiredSigs)
 		const requiredInternalSigsN = Number.parseInt(requiredInternalSigs)
-		const ownersAll= [account.address, ...owners]
+		const ownersAll = [account.address, ...owners]
 		ownersAll.forEach((o) => {
 			if (!isValidAddress(o)) {
 				throw new UserError(`Invalid owner address: ${o}`)
 			}
 		})
+		if (new Set(ownersAll).size !== ownersAll.length) {
+			throw new UserError(`All owners must be unique.`)
+		}
 		if (requiredSigsN > ownersAll.length || requiredInternalSigsN > ownersAll.length) {
 			throw new UserError(`Required signatures must be less than or equal to the number of owners.`)
 		}
