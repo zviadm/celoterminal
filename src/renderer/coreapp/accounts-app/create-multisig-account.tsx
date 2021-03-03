@@ -1,17 +1,20 @@
 import { ContractKit } from '@celo/contractkit'
+import { isValidAddress } from 'ethereumjs-util'
+
 import { MultiSigAccount, Account } from '../../../lib/accounts'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
+import { multiSigDeployTXs, multiSigInitializeTXs } from '../../../lib/core-contracts/deploy'
+import { sleep } from '../../../lib/utils'
 
 import * as React from 'react'
 import {
 	Dialog, DialogTitle, DialogContent, DialogActions,
-	Button, TextField, Box, Typography
+	Button, TextField, Box, Typography, InputAdornment, IconButton
  } from '@material-ui/core'
-import { Add } from '@material-ui/icons'
+import { Add, Clear } from '@material-ui/icons'
 
 import NumberInput from '../../components/number-input'
-import { multiSigDeployTXs, multiSigInitializeTXs } from '../../../lib/core-contracts/deploy'
-import { sleep } from '../../../lib/utils'
+import { UserError } from '../../../lib/error'
 
 const CreateMultiSigAccount = (props: {
 	selectedAccount: Account,
@@ -22,10 +25,31 @@ const CreateMultiSigAccount = (props: {
 }): JSX.Element => {
 	const [requiredSigs, setRequiredSigs] = React.useState("1")
 	const [requiredInternalSigs, setRequiredInternalSigs] = React.useState("1")
-	const owners = [props.selectedAccount.address]
+	const [owners, setOwners] = React.useState<string[]>([])
+
+	const handleAddOwner = () => {
+		setOwners((o) => [...o, "0x"])
+	}
+	const handleEditOwner = (idx: number, v: string) => {
+		setOwners((o) => [...o.slice(0, idx), v, ...o.slice(idx+1)])
+	}
+	const handleRemoveOwner = (idx: number) => {
+		setOwners((o) => [...o.slice(0, idx), ...o.slice(idx+1)])
+	}
+
+	const account = props.selectedAccount
 	const handleCreate = () => {
 		const requiredSigsN = Number.parseInt(requiredSigs)
 		const requiredInternalSigsN = Number.parseInt(requiredInternalSigs)
+		const ownersAll= [account.address, ...owners]
+		ownersAll.forEach((o) => {
+			if (!isValidAddress(o)) {
+				throw new UserError(`Invalid owner address: ${o}`)
+			}
+		})
+		if (requiredSigsN > ownersAll.length || requiredInternalSigsN > ownersAll.length) {
+			throw new UserError(`Required signatures must be less than or equal to the number of owners.`)
+		}
 
 		props.runTXs(async (kit: ContractKit) => {
 			const txs = multiSigDeployTXs(kit)
@@ -47,7 +71,7 @@ const CreateMultiSigAccount = (props: {
 					kit,
 					proxyAddress,
 					multiSigAddress,
-					owners,
+					ownersAll,
 					requiredSigsN,
 					requiredInternalSigsN
 				)
@@ -58,9 +82,9 @@ const CreateMultiSigAccount = (props: {
 				}
 				props.onAdd({
 					type: "multisig",
-					name: `MultiSig/${props.selectedAccount.address.slice(0, 6)}`,
+					name: `MultiSig/${account.address.slice(0, 6)}`,
 					address: proxyAddress,
-					ownerAddress: props.selectedAccount.address,
+					ownerAddress: account.address,
 				})
 			})
 		})
@@ -69,17 +93,44 @@ const CreateMultiSigAccount = (props: {
 		<Dialog open={true} onClose={props.onCancel}>
 			<DialogTitle>Create a new MultiSig account</DialogTitle>
 			<DialogContent>
-				<Box display="flex" flexDirection="column" width={350}>
+				<Box display="flex" flexDirection="column" width={380}>
 					<Typography>Owners</Typography>
 					<TextField
 						margin="dense"
-						value={props.selectedAccount.address}
+						value={account.address}
 						size="medium"
 						fullWidth={true}
 						disabled={true}
 						inputProps={{style: {fontFamily: "monospace"}}}
 					/>
-					<Button startIcon={<Add />}>Add Owner</Button>
+					{
+						owners.map((o, idx) => (
+							<TextField
+								key={`owner-${idx}`}
+								margin="dense"
+								size="medium"
+								fullWidth={true}
+								inputProps={{style: {fontFamily: "monospace"}}}
+								value={o}
+								onChange={(e) => { handleEditOwner(idx, e.target.value) }}
+								InputProps={{
+									endAdornment: (
+										<InputAdornment position="end">
+											<IconButton
+												size="small"
+												onClick={() => { handleRemoveOwner(idx) }}>
+												<Clear />
+											</IconButton>
+										</InputAdornment>
+									),
+								}}
+							/>
+						))
+					}
+					<Button
+						startIcon={<Add />}
+						onClick={handleAddOwner}
+						>Add Owner</Button>
 					<NumberInput
 						margin="dense"
 						label="Signatures required to execute TXs"

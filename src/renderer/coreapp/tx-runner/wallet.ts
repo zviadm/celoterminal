@@ -59,11 +59,14 @@ export async function createWallet(
 					tx = await ownerWallet.transformTX(kit, tx)
 				}
 				const data = stringToSolidityBytes(tx.tx.txo.encodeABI())
+				const destination = tx.tx.txo._parent?.options.address
+				if (!destination) {
+					throw new Error(`MultiSig accounts can not deploy new contracts.`)
+				}
 				const txo = multiSig.methods.submitTransaction(
-					tx.tx.txo._parent.options.address, tx.params?.value?.toString() || 0, data)
+					destination, tx.params?.value?.toString() || 0, data)
 				// TODO(zviad): if GAS was provided, we probably want to pass it through and add a bit
 				// more GAS because of MultiSig overhead?
-				console.info(`debug: transformed`, txo)
 				return {tx: toTransactionObject(kit.connection, txo)}
 			}
 			return {
