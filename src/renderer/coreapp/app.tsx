@@ -2,7 +2,7 @@ import log from 'electron-log'
 
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import { ThemeProvider } from '@material-ui/core/styles'
+import { makeStyles, ThemeProvider } from '@material-ui/core/styles'
 import theme from './theme'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Box from '@material-ui/core/Box'
@@ -25,6 +25,7 @@ import AppStore from './appstore-app/def'
 import AppStoreApp, { PinnedApp } from './appstore-app/appstore-app'
 import { ErrorContext, ErrorProvider } from '../state/error-context'
 
+const appBarHeightPX = process.platform === "darwin" ? 85 : 60
 const appsById = new Map(AppList.map((a) => [a.id, a]))
 
 const App = () => {
@@ -116,7 +117,8 @@ const App = () => {
 	}
 
 	return (
-		<Box>
+		<Box display="flex" flexDirection="column" height="100%" >
+			{process.platform === "darwin" ? <AppDragRegion /> : null}
 			<ErrorSnack error={error} onClose={clearError} />
 			{selectedAccount &&
 			<TXRunner
@@ -125,13 +127,21 @@ const App = () => {
 				txFunc={txFunc?.f}
 				onFinish={txOnFinish}
 			/>}
-			<AccountsBar
-				accounts={accounts}
-				selectedAccount={selectedAccount}
-				onSelectAccount={setSelectedAccount}
-			/>
-			<Box display="flex" flexDirection="row" >
-				<Box display="flex" flexDirection="column" >
+			<Box display="flex" flexDirection="column" justifyContent="flex-end" height={`${appBarHeightPX}px`}>
+				<AccountsBar
+					accounts={accounts}
+					selectedAccount={selectedAccount}
+					onSelectAccount={setSelectedAccount}
+				/>
+			</Box>
+			<Box
+				display="flex" flexDirection="row"
+				position="absolute" top={appBarHeightPX} left={0} right={0} bottom={0}
+				overflow="hidden">
+				<Box
+					display="flex" flexDirection="column"
+					overflow="scroll"
+					>
 					<AppMenu
 						selectedApp={selectedApp}
 						setSelectedApp={setSelectedApp}
@@ -144,12 +154,14 @@ const App = () => {
 					</Box>
 				</Box>
 				<Box
-					display="flex"
+					display="flex" flexDirection="column"
+					overflow="scroll"
 					flex={1}
 					paddingLeft={2}
-					paddingRight={2}
-					marginBottom={2}>
-					{renderedApp}
+					paddingRight={2}>
+					<Box
+						display="flex" flexDirection="column"
+						flex={1} paddingBottom={2}>{renderedApp}</Box>
 				</Box>
 			</Box>
 		</Box>
@@ -181,5 +193,21 @@ const ThemedApp = () => (
 		</ErrorProvider>
 	</ThemeProvider>
 )
+
+const appDragRegionStyles = makeStyles(() => ({
+	titleBar: {
+		"-webkit-app-region": "drag",
+		"height": `${appBarHeightPX}px`,
+		"position": "absolute",
+		"top": 0,
+		"left": 0,
+		"right": 0,
+	},
+}))
+
+const AppDragRegion = () => {
+	const classes = appDragRegionStyles()
+	return <Box className={classes.titleBar} />
+}
 
 ReactDOM.render(<ThemedApp />, document.getElementById('app'))
