@@ -20,6 +20,8 @@ import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon } from './a
 import { Account, LocalAccount } from '../../../lib/accounts'
 import { accountsDBFilePath } from './accounts-state'
 import Accounts from './def'
+import AppContainer from '../../components/app-container'
+import AppSection from '../../components/app-section'
 
 const useStyles = makeStyles((theme) => ({
 	accountText: {
@@ -87,7 +89,7 @@ const AccountsApp = (props: {
 	}
 	const forceSetupPassword = !props.hasPassword && (openedAdd === "create-local" || openedAdd === "import-local")
 	return (
-		<Box display="flex" flexDirection="column" flex={1}>
+		<AppContainer>
 			{confirmRemove && <ConfirmRemove account={confirmRemove} onRemove={handleRemove} onCancel={handleCancel} />}
 			{(changePassword || forceSetupPassword) && <ChangePassword
 				hasPassword={props.hasPassword}
@@ -173,58 +175,52 @@ const AccountsApp = (props: {
 					)})
 				}
 			</Box>
-			<Box marginTop={2}>
-				<Paper>
-					<Box display="flex" flexDirection="column" p={2}>
+			<AppSection>
+				<Button
+					color="primary"
+					variant="outlined"
+					startIcon={<LocalAccountIcon />}
+					onClick={() => { setOpenedAdd("create-local") }}>Create Local Account</Button>
+				<Button
+					className={classes.buttonAdd}
+					color="primary"
+					variant="outlined"
+					startIcon={<icons.GetApp />}
+					onClick={() => { setOpenedAdd("import-local") }}>Import Local Account</Button>
+				<Button
+					className={classes.buttonAdd}
+					color="primary"
+					variant="outlined"
+					startIcon={<LedgerAccountIcon />}
+					onClick={() => { setOpenedAdd("add-ledger") }}>Add Ledger Account</Button>
+				<Button
+					className={classes.buttonAdd}
+					color="primary"
+					variant="outlined"
+					startIcon={<AddressOnlyAccountIcon />}
+					onClick={() => { setOpenedAdd("add-addressonly") }}>Add ReadOnly Account</Button>
+			</AppSection>
+			<AppSection>
+				<Box display="flex" flexDirection="row">
+					<Box display="flex" flexDirection="column" flex={1} marginRight={1}>
 						<Button
-							color="primary"
+							color="secondary"
 							variant="outlined"
-							startIcon={<LocalAccountIcon />}
-							onClick={() => { setOpenedAdd("create-local") }}>Create Local Account</Button>
-						<Button
-							className={classes.buttonAdd}
-							color="primary"
-							variant="outlined"
-							startIcon={<icons.GetApp />}
-							onClick={() => { setOpenedAdd("import-local") }}>Import Local Account</Button>
-						<Button
-							className={classes.buttonAdd}
-							color="primary"
-							variant="outlined"
-							startIcon={<LedgerAccountIcon />}
-							onClick={() => { setOpenedAdd("add-ledger") }}>Add Ledger Account</Button>
-						<Button
-							className={classes.buttonAdd}
-							color="primary"
-							variant="outlined"
-							startIcon={<AddressOnlyAccountIcon />}
-							onClick={() => { setOpenedAdd("add-addressonly") }}>Add ReadOnly Account</Button>
+							startIcon={<icons.LockOpen />}
+							onClick={ () => { setChangePassword(true) } }
+							>{props.hasPassword ? "Change" : "Setup"} Password</Button>
 					</Box>
-				</Paper>
-				<Box marginTop={2}>
-					<Paper>
-						<Box display="flex" flexDirection="row" p={2}>
-							<Box display="flex" flexDirection="column" flex={1} marginRight={1}>
-								<Button
-									color="secondary"
-									variant="outlined"
-									startIcon={<icons.LockOpen />}
-									onClick={ () => { setChangePassword(true) } }
-									>{props.hasPassword ? "Change" : "Setup"} Password</Button>
-							</Box>
-							<Box display="flex" flexDirection="column" flex={1} marginLeft={1}>
-								<Button
-									color="secondary"
-									variant="outlined"
-									startIcon={<icons.Backup />}
-									onClick={handleBackup}
-									>Backup Database</Button>
-							</Box>
-						</Box>
-					</Paper>
+					<Box display="flex" flexDirection="column" flex={1} marginLeft={1}>
+						<Button
+							color="secondary"
+							variant="outlined"
+							startIcon={<icons.Backup />}
+							onClick={handleBackup}
+							>Backup Database</Button>
+					</Box>
 				</Box>
-			</Box>
-		</Box>
+			</AppSection>
+		</AppContainer>
 	)
 }
 export default AccountsApp

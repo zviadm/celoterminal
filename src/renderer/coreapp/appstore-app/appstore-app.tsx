@@ -3,14 +3,14 @@ import { AppList } from '../../apps/apps'
 import { AppDefinition } from '../../components/app-definition'
 
 import * as React from 'react'
-import Box from '@material-ui/core/Box'
-import Fab from '@material-ui/core/Fab'
-import AddIcon from '@material-ui/icons/Add'
-import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
+import {
+	Box, Fab, Paper, Typography
+} from '@material-ui/core'
+import { Add } from '@material-ui/icons'
 
 import AppHeader from '../../components/app-header'
 import Link from '../../components/link'
+import AppContainer from '../../components/app-container'
 
 export interface PinnedApp {
 	id: string
@@ -25,7 +25,7 @@ const AppStoreApp = (props: {
 	const pinnedIds = new Set(props.pinnedApps.map((p) => p.id))
 	const optionalAppList = optionalApps.filter((a) => !pinnedIds.has(a.id))
 	return (
-		<Box display="flex" flexDirection="column" flex={1}>
+		<AppContainer>
 			<AppHeader app={MoreApps} />
 			<Box
 				display="flex"
@@ -40,7 +40,7 @@ const AppStoreApp = (props: {
 						/>
 				))}
 			</Box>
-		</Box>
+		</AppContainer>
 	)
 }
 export default AppStoreApp
@@ -83,7 +83,7 @@ const AppCard = (props: {
 							color="primary"
 							size="small"
 							onClick={props.onAdd}>
-							<AddIcon />
+							<Add />
 						</Fab>
 					</Box>
 				</Box>
