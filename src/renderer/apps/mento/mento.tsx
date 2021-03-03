@@ -9,22 +9,20 @@ import { fmtAmount } from '../../../lib/utils'
 import { StableTokens } from './config'
 import { calcCeloAmount, calcStableAmount, fmtTradeAmount } from './rate-utils'
 import { useExchangeHistoryState, useExchangeOnChainState } from './state'
+import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 import * as React from 'react'
-import Box from '@material-ui/core/Box'
-import Paper from '@material-ui/core/Paper'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import HelpOutlineIcon from '@material-ui/icons/HelpOutline'
-import Tooltip from '@material-ui/core/Tooltip'
+import {
+	Box, Select, MenuItem, Typography, Button, Tooltip
+} from '@material-ui/core'
+import { HelpOutline } from '@material-ui/icons'
 
 import AppHeader from '../../components/app-header'
 import ConfirmSwap from './confirm-swap'
 import TradeHistory from './trade-history'
 import NumberInput from '../../components/number-input'
-import { coreErc20Decimals } from '../../../lib/erc20/core'
+import AppSection from '../../components/app-section'
+import AppContainer from '../../components/app-container'
 
 const MentoApp = (props: {
 	accounts: Account[],
@@ -147,7 +145,7 @@ const MentoApp = (props: {
 		)
 
 	return (
-		<Box display="flex" flexDirection="column" flex={1}>
+		<AppContainer>
 			<AppHeader
 				app={Mento}
 				isFetching={isFetching || exchangeHistory.isFetching}
@@ -158,124 +156,122 @@ const MentoApp = (props: {
 				onConfirmSell={handleSell}
 				onCancel={() => setConfirming(undefined)}
 			/>}
-			<Box marginTop={2}>
-				<Paper>
-					<Box p={2}>
-						<Box display="flex" flexDirection="row" alignItems="flex-end">
-							<Box display="flex" flex={1}>
-								<Box display="flex" flexDirection="column" width={150}>
-									<Button
-										style={{textTransform: "none"}}
-										variant={side === "sell" ? "contained" : "text"}
-										color={side === "sell" ? "primary" : "default"}
-										onClick={setSideSell}
-										>
-										Sell CELO
-									</Button>
-								</Box>
-								<Box display="flex" flexDirection="column" width={150}>
-									<Button
-										style={{textTransform: "none"}}
-										variant={side === "buy" ? "contained" : "text"}
-										color={side === "buy" ? "primary" : "default"}
-										onClick={setSideBuy}
-										>
-										Buy CELO
-									</Button>
-								</Box>
-							</Box>
-							<Select
-								value={stableToken}
-								onChange={(event) => { handleChangeStable(event.target.value as string) }}>
+			<AppSection>
+				<Box display="flex" flexDirection="row" alignItems="flex-end">
+					<Box display="flex" flex={1}>
+						<Box display="flex" flexDirection="column" width={150}>
+							<Button
+								style={{textTransform: "none"}}
+								variant={side === "sell" ? "contained" : "text"}
+								color={side === "sell" ? "primary" : "default"}
+								onClick={setSideSell}
+								>
+								Sell CELO
+							</Button>
+						</Box>
+						<Box display="flex" flexDirection="column" width={150}>
+							<Button
+								style={{textTransform: "none"}}
+								variant={side === "buy" ? "contained" : "text"}
+								color={side === "buy" ? "primary" : "default"}
+								onClick={setSideBuy}
+								>
+								Buy CELO
+							</Button>
+						</Box>
+					</Box>
+					<Select
+						value={stableToken}
+						onChange={(event) => { handleChangeStable(event.target.value as string) }}>
+						{
+							stableNames.map((token) => (
+								<MenuItem value={token} key={token}>{token}</MenuItem>
+							))
+						}
+					</Select>
+				</Box>
+				<Box display="flex" flexDirection={side === "sell" ? "column" : "column-reverse"}>
+					<NumberInput
+						margin="normal"
+						label={
+							(!fetched || side !== "sell") ? `CELO` :
+							`CELO (max: ${fmtAmount(fetched.celoBalance, coreErc20Decimals)})`}
+						InputLabelProps={{
+							shrink: true,
+						}}
+						value={celoAmount}
+						placeholder="0.0"
+						onChangeValue={handleChangeCeloAmt}
+						disabled={!fetched}
+					/>
+					<NumberInput
+						margin="normal"
+						label={
+							(!fetched || side !== "buy") ? `${stableToken}` :
+							`${stableToken} (max: ${fmtAmount(fetched.stableBalance, coreErc20Decimals)})`}
+						InputLabelProps={{
+							shrink: true,
+						}}
+						value={stableAmount}
+						placeholder="0.0"
+						onChangeValue={handleChangeStableAmt}
+						disabled={!fetched}
+					/>
+				</Box>
+				<Box
+					display="flex"
+					flexDirection="row"
+					alignItems="flex-end"
+					justifyContent="space-between"
+					marginTop={1}>
+					<Box display="flex" flexDirection="column" alignItems="flex-end">
+						<Box display="flex" flexDirection="column">
+							<Typography variant="caption">
+								Max slippage
+								<Tooltip title="Your transaction will revert if the price changes unfavourably by more than this percentage.">
+									<HelpOutline style={{fontSize: 12}}/>
+								</Tooltip>
+							</Typography>
+							<Box display="flex" flexDirection="row">
 								{
-									stableNames.map((token) => (
-										<MenuItem value={token} key={token}>{token}</MenuItem>
-									))
+								slippageOptions.map((o) => (
+									<Button
+										key={`slippage-${o}`}
+										variant={o === slippagePct ? "outlined" : "text"}
+										onClick={() => { setSlippagePct(o) }}
+										>{o}%</Button>
+								))
 								}
-							</Select>
-						</Box>
-						<Box display="flex" flexDirection={side === "sell" ? "column" : "column-reverse"}>
-							<NumberInput
-								margin="normal"
-								label={
-									(!fetched || side !== "sell") ? `CELO` :
-									`CELO (max: ${fmtAmount(fetched.celoBalance, coreErc20Decimals)})`}
-								InputLabelProps={{
-									shrink: true,
-								}}
-								value={celoAmount}
-								placeholder="0.0"
-								onChangeValue={handleChangeCeloAmt}
-								disabled={!fetched}
-							/>
-							<NumberInput
-								margin="normal"
-								label={
-									(!fetched || side !== "buy") ? `${stableToken}` :
-									`${stableToken} (max: ${fmtAmount(fetched.stableBalance, coreErc20Decimals)})`}
-								InputLabelProps={{
-									shrink: true,
-								}}
-								value={stableAmount}
-								placeholder="0.0"
-								onChangeValue={handleChangeStableAmt}
-								disabled={!fetched}
-							/>
-						</Box>
-						<Box
-							display="flex"
-							flexDirection="row"
-							alignItems="flex-end"
-							justifyContent="space-between"
-							marginTop={1}>
-							<Box display="flex" flexDirection="column" alignItems="flex-end">
-								<Box display="flex" flexDirection="column">
-									<Typography variant="caption">
-										Max slippage
-										<Tooltip title="Your transaction will revert if the price changes unfavourably by more than this percentage.">
-											<HelpOutlineIcon style={{fontSize: 12}}/>
-										</Tooltip>
-									</Typography>
-									<Box display="flex" flexDirection="row">
-										{
-										slippageOptions.map((o) => (
-											<Button
-												key={`slippage-${o}`}
-												variant={o === slippagePct ? "outlined" : "text"}
-												onClick={() => { setSlippagePct(o) }}
-												>{o}%</Button>
-										))
-										}
-									</Box>
-								</Box>
-							</Box>
-							<Box display="flex" flexDirection="column" width={200}>
-								<Button
-									color="primary"
-									variant="outlined"
-									disabled={!canTrade}
-									onClick={() => {
-										if (!fetched) {
-											return
-										}
-										setConfirming({
-											side,
-											celoAmount,
-											stableToken,
-											stableAmount,
-											slippagePct,
-											marketPrice: fetched.stableBucket.div(fetched.celoBucket),
-											spread: fetched.spread,
-										})
-									}}
-									>Trade</Button>
 							</Box>
 						</Box>
 					</Box>
-				</Paper>
-			</Box>
-			<Box marginTop={2}><TradeHistory events={exchangeHistory.fetched} /></Box>
-		</Box>
+					<Box display="flex" flexDirection="column" width={200}>
+						<Button
+							color="primary"
+							variant="outlined"
+							disabled={!canTrade}
+							onClick={() => {
+								if (!fetched) {
+									return
+								}
+								setConfirming({
+									side,
+									celoAmount,
+									stableToken,
+									stableAmount,
+									slippagePct,
+									marketPrice: fetched.stableBucket.div(fetched.celoBucket),
+									spread: fetched.spread,
+								})
+							}}
+							>Trade</Button>
+					</Box>
+				</Box>
+			</AppSection>
+			<AppSection>
+				<TradeHistory events={exchangeHistory.fetched} />
+			</AppSection>
+		</AppContainer>
 	)
 }
 export default MentoApp
