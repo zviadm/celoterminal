@@ -11,7 +11,10 @@ import { Account, AddressOnlyAccount, LedgerAccount, LocalAccount, MultiSigAccou
 import { UserError } from './error'
 
 // Supported `account` row versions. Last version is the current version.
-const supportedVersions = [1]
+// Version must be increased when:
+// * New account type is added.
+// * Encoding is changed for an account type.
+const supportedVersions = [1, 2]
 const currentVersion = supportedVersions[supportedVersions.length - 1]
 
 class AccountsDB {
