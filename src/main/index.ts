@@ -54,6 +54,12 @@ function createMainWindow() {
 			devTools: !noDevTools,
 		},
 		show: noSplash,
+		...(process.platform === "darwin"
+		? {
+				frame: false,
+				titleBarStyle: "hiddenInset",
+			}
+		: {}),
 		...iconOptions,
 	})
 
