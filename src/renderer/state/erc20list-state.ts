@@ -21,13 +21,14 @@ export const useErc20List = (): {
 		const registered = (registeredList()
 			.map((r) => fullList.find((f) => f.address === r.address))
 			.filter((v) => (v !== undefined)) as RegisteredErc20[])
-			.sort((a, b) => a.symbol < b.symbol ? -1 : 1)
 		const custom = customList()
-			.sort((a, b) => a.symbol < b.symbol ? -1 : 1)
-		return [
-			...core,
+		const sorted = [
 			...registered,
 			...custom,
+		].sort((a, b) => a.symbol < b.symbol ? -1 : 1)
+		return [
+			...core,
+			...sorted,
 		]
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [changeN])
@@ -43,14 +44,16 @@ export const useErc20List = (): {
 export const addRegisteredErc20 = (symbol: string): RegisteredErc20 => {
 	const fullList = registeredErc20s()
 	const erc20 = fullList.find((r) => r.symbol === symbol)
-	if (!erc20) {
+	if (!erc20 || !erc20.address) {
 		throw new Error(`Erc20: ${symbol} not found in registry.`)
 	}
 	const list = registeredList()
-	const match = list.find((l) => l.address.toLowerCase() === erc20.address.toLowerCase())
+	const match = list.find((l) => l.address.toLowerCase() === erc20.address?.toLowerCase())
 	if (match) {
 		return erc20
 	}
+	// Remove, in-case this erc20 address was somehow added in to the customList before.
+	removeErc20FromList(erc20.address)
 	list.push({address: erc20.address})
 	setRegisteredList(list)
 	return erc20
@@ -67,7 +70,7 @@ export interface CustomErc20 {
 // through `AddErc20` component.
 export const addCustomErc20 = (erc20: CustomErc20): RegisteredErc20 => {
 	const fullList = registeredErc20s()
-	const registeredErc20 = fullList.find((r) => r.address.toLowerCase() === erc20.address.toLowerCase())
+	const registeredErc20 = fullList.find((r) => r.address?.toLowerCase() === erc20.address.toLowerCase())
 	if (registeredErc20) {
 		return addRegisteredErc20(registeredErc20.symbol)
 	}

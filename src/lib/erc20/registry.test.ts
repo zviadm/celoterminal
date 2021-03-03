@@ -8,6 +8,9 @@ test('sanity check registry constants', () => {
 		const symbolSet = new Set<string>()
 		const addrSet = new Set<string>()
 		erc20s.forEach((e) => {
+			if (!e.address) {
+				fail("address must be set!")
+			}
 			const normalizedAddr = ensureLeading0x(toChecksumAddress(e.address))
 			expect(e.address).toEqual(normalizedAddr)
 
