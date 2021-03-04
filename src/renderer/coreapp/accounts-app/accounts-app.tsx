@@ -141,7 +141,7 @@ const AccountsApp = (props: {
 			<AppHeader app={Accounts} refetch={handleRefetch} isFetching={false} />
 			<Box display="flex" flexDirection="column" marginTop={2}>
 				{
-				props.accounts.map((a) => {
+				props.accounts.map((a, idx) => {
 					return (
 						<Box key={a.address} my={0.5}>
 							<Paper>
@@ -196,6 +196,7 @@ const AccountsApp = (props: {
 								{a.type === "multisig" &&
 								<Tooltip title={"Change associated owner for this MultiSig account"}>
 									<IconButton
+										id={`account-${idx}-settings`}
 										edge="end"
 										onClick={() => setModifyMultiSig(a)}>
 										<icons.Settings />
@@ -203,6 +204,7 @@ const AccountsApp = (props: {
 								</Tooltip>}
 								<Tooltip title="Remove account">
 									<IconButton
+										id={`account-${idx}-remove`}
 										edge="end"
 										color="secondary" onClick={() => setConfirmRemove(a)}>
 										<icons.Delete />

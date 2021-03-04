@@ -50,8 +50,8 @@ const AccountsBar = (props: {
 					}
 				}}>
 				{
-					props.accounts.map((a) => (
-						<MenuItem value={a.address} key={a.address}>
+					props.accounts.map((a, idx) => (
+						<MenuItem id={`select-account-${idx}-item`} value={a.address} key={a.address}>
 							<Box display="flex" alignItems="center">
 								<Box display="flex" alignSelf="flex-end" marginRight={1}>
 									<AccountIcon
@@ -94,6 +94,7 @@ const CopyAddressButton = (props: {
 			title={copied ? "Copied" : "Copy Address"}
 			onClose={resetCopied}>
 			<IconButton
+				id="copy-selected-account-address"
 				size="small"
 				onClick={handleCopyAddress}
 				disabled={!props.address}

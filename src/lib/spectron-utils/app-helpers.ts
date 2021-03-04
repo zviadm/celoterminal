@@ -79,6 +79,16 @@ export const selectApp = async (appId: string): Promise<void> => {
 	await menuItem.click()
 }
 
+export const selectAccount = async (accountIdx: number): Promise<void> => {
+	const accountsSelect = await app.client.$(`#accounts-select`)
+	await accountsSelect.waitForEnabled()
+	await accountsSelect.click()
+
+	const accountItem = await app.client.$(`#select-account-${accountIdx}-item`)
+	await accountItem.waitForEnabled()
+	await accountItem.click()
+}
+
 // Alters current time both for celo-devchain, and for the Celo Terminal app.
 export const adjustNow = async (increaseMS: number): Promise<void> => {
 	const kit = devchainKit()

@@ -97,6 +97,7 @@ const InputAddressDialog = (props: {
 			<DialogContent>
 				<Box display="flex" width={400}>
 					<TextField
+						id="address-input"
 						autoFocus
 						margin="dense"
 						size="medium"
@@ -112,7 +113,9 @@ const InputAddressDialog = (props: {
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.onCancel}>{props.cancelLabel || "Cancel"}</Button>
-				<Button disabled={!canAction} onClick={handleAction}>{props.actionLabel}</Button>
+				<Button
+					id="input-address-action"
+					disabled={!canAction} onClick={handleAction}>{props.actionLabel}</Button>
 			</DialogActions>
 		</Dialog>
 	)
@@ -133,7 +136,7 @@ export const SignaturesTable = (props: {
 				title="Change Required Signatures"
 				actionLabel="Change"
 				inputLabel="Required Signatures"
-				initValue={props.requiredSignatures.toString()}
+				placeholder={props.requiredSignatures.toString()}
 				onCancel={() => { setChangeRequired(false) }}
 				onAction={(v) => {
 					setChangeRequired(false)
@@ -145,7 +148,7 @@ export const SignaturesTable = (props: {
 				title="Change Required Signatures"
 				actionLabel="Change"
 				inputLabel="Required Signatures"
-				initValue={props.internalRequiredSignatures.toString()}
+				placeholder={props.internalRequiredSignatures.toString()}
 				onCancel={() => { setChangeInternalRequired(false) }}
 				onAction={(v) => {
 					setChangeInternalRequired(false)
@@ -158,6 +161,7 @@ export const SignaturesTable = (props: {
 					<TableCell>{props.requiredSignatures.toString()}</TableCell>
 					<TableCell>
 						<Button
+							id="change-required"
 							onClick={() => { setChangeRequired(true) }}
 							variant="outlined" color="secondary">Change</Button>
 					</TableCell>
@@ -167,6 +171,7 @@ export const SignaturesTable = (props: {
 					<TableCell>{props.internalRequiredSignatures.toString()}</TableCell>
 					<TableCell>
 						<Button
+							id="change-internal-required"
 							onClick={() => { setChangeInternalRequired(true) }}
 							variant="outlined" color="secondary">Change</Button>
 					</TableCell>
@@ -180,12 +185,12 @@ const InputNumberDialog = (props: {
 	title: string,
 	actionLabel: string,
 	inputLabel: string,
-	initValue: string,
+	placeholder: string,
 	cancelLabel?: string,
 	onCancel: () => void,
 	onAction: (value: number) => void,
 }) => {
-	const [value, setValue] = React.useState(props.initValue)
+	const [value, setValue] = React.useState("")
 	const handleAction = () => {
 		props.onAction(Number.parseFloat(value))
 	}
@@ -195,9 +200,11 @@ const InputNumberDialog = (props: {
 			<DialogContent>
 				<Box display="flex" width={400}>
 					<NumberInput
+						id="number-input"
 						autoFocus
 						margin="dense"
 						label={props.inputLabel}
+						placeholder={props.placeholder}
 						value={value}
 						onChangeValue={setValue}
 					/>
@@ -205,7 +212,9 @@ const InputNumberDialog = (props: {
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.onCancel}>{props.cancelLabel || "Cancel"}</Button>
-				<Button onClick={handleAction}>{props.actionLabel}</Button>
+				<Button
+					id="input-number-action"
+					onClick={handleAction}>{props.actionLabel}</Button>
 			</DialogActions>
 		</Dialog>
 	)

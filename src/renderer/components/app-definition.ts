@@ -7,9 +7,9 @@ export interface Transaction {
 	tx: CeloTransactionObject<unknown>
 	params? : Pick<CeloTx, "value" | "gas">
 	// This flag is useful for contract/indirect account types. This
-	// flag signals that transaction should be executed using the root account
-	// as it is coming from the root account itself.
-	executeUsingRootAccount?: boolean,
+	// flag signals that transaction should be executed using the parent/owner account
+	// as it is coming from the parent account itself.
+	executeUsingParentAccount?: boolean,
 }
 
 // All transaction running goes through central TXRunner system that has
