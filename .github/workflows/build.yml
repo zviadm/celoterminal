@@ -54,6 +54,7 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
+          name: executables
           path: |
             dist/*-mac*.dmg
             dist/*-linux*.AppImage
