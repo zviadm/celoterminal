@@ -31,9 +31,10 @@ export const confirmTXs = async(opts?: {
 		timeout: 8000,
 		interval: 500,
 	})
-	await checkErrorSnack()
 	if (!opts?.skipWaitForRefetch) {
 		await waitForRefetch()
+	} else {
+		await checkErrorSnack()
 	}
 	return
 }
@@ -54,12 +55,14 @@ export const refetchAppData = async (): Promise<void> => {
 	const refetchData = await app.client.$("#refetch-data")
 	await refetchData.click()
 	await refetchData.waitForEnabled()
+	await checkErrorSnack()
 }
 
 // Waits for `refetch` to complete.
 export const waitForRefetch = async (): Promise<void> => {
 	const refetchData = await app.client.$("#refetch-data")
 	await refetchData.waitForEnabled()
+	await checkErrorSnack()
 }
 
 // Installs optional app from the AppStore.

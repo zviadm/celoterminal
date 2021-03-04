@@ -1,5 +1,5 @@
 import { app, jestSetup } from '../../../../lib/spectron-utils/setup'
-import { confirmTXs, installOptionalApp, selectAccount, selectApp, waitForRefetch } from '../../../../lib/spectron-utils/app-helpers'
+import { checkErrorSnack, confirmTXs, installOptionalApp, selectAccount, selectApp, waitForRefetch } from '../../../../lib/spectron-utils/app-helpers'
 import { SpectronAccounts } from '../../../../lib/spectron-utils/constants'
 
 jestSetup()
@@ -102,6 +102,20 @@ test(`remove and re-import MultiSig`, async (done) => {
 	const confirmRemove = await app.client.$("button=Remove")
 	await confirmRemove.waitForEnabled()
 	await confirmRemove.click()
-	// TODO(zviadm): Test re-import flow.
+
+	const importMultiSig = await app.client.$("button=Import MultiSig Account")
+	await importMultiSig.click()
+	const multiSigAddressInput = await app.client.$("#multisig-address-input")
+	await multiSigAddressInput.click()
+	if (process.platform === "darwin") {
+		await multiSigAddressInput.keys(["Command", "v"])
+	} else {
+		await multiSigAddressInput.keys(["Control", "v"])
+	}
+	const confirmImport = await app.client.$("button=Import")
+	await confirmImport.waitForEnabled()
+	await confirmImport.click()
+
+	await checkErrorSnack()
 	done()
 })

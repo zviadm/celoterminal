@@ -25,6 +25,7 @@ import ChangePassword from './change-password'
 import AccountIcon from './account-icon'
 import CreateMultiSigAccount from './create-multisig-account'
 import ModifyMultiSig from './modify-multisig'
+import ImportMultiSigAccount from './import-multisig-account'
 
 const useStyles = makeStyles((theme) => ({
 	accountText: {
@@ -109,12 +110,17 @@ const AccountsApp = (props: {
 				hasPassword={props.hasPassword}
 				onChangePassword={handleChangePassword}
 				onClose={handleCancel} />}
-			{(!forceSetupPassword && openedAdd === "create-local") && <CreateLocalAccount
+
+			{(!forceSetupPassword && openedAdd === "create-local") &&
+			<CreateLocalAccount
 				onAdd={handleAdd}
-				onCancel={handleCancel}/>}
-			{(!forceSetupPassword && openedAdd === "import-local") && <ImportLocalAccount
+				onCancel={handleCancel}
+			/>}
+			{(!forceSetupPassword && openedAdd === "import-local") &&
+			<ImportLocalAccount
 				onAdd={handleAdd}
-				onCancel={handleCancel} />}
+				onCancel={handleCancel}
+			/>}
 			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} />}
 			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} />}
 			{openedAdd === "create-multisig" && selectedAccount &&
@@ -124,6 +130,13 @@ const AccountsApp = (props: {
 				onAdd={handleAdd}
 				onCancel={handleCancel}
 			/>}
+			{openedAdd === "import-multisig" &&
+			<ImportMultiSigAccount
+				accounts={props.accounts}
+				onAdd={handleAdd}
+				onCancel={handleCancel}
+			/>}
+
 			{revealAccount && <RevealLocalKey account={revealAccount} onClose={handleCancel} />}
 			{modifyMultiSig && <ModifyMultiSig
 				account={modifyMultiSig}
@@ -253,10 +266,7 @@ const AccountsApp = (props: {
 					variant="outlined"
 					startIcon={<AccountIcon type="multisig" />}
 					disabled={!canImportMultiSig}
-					onClick={() => {
-						throw new Error(`Not implemented`)
-						// setOpenedAdd("import-multisig")
-					}}>Import MultiSig Account</Button>
+					onClick={() => { setOpenedAdd("import-multisig") }}>Import MultiSig Account</Button>
 			</AppSection>
 			<AppSection>
 				<Box display="flex" flexDirection="row">
