@@ -11,18 +11,15 @@ import { Add } from '@material-ui/icons'
 import AppHeader from '../../components/app-header'
 import Link from '../../components/link'
 import AppContainer from '../../components/app-container'
-
-export interface PinnedApp {
-	id: string
-}
+import { InstalledApp } from '../installed-apps-state'
 
 const optionalApps = AppList.filter((a) => !a.core)
 
 const AppStoreApp = (props: {
-	pinnedApps: PinnedApp[],
-	onAddApp: (id: string) => void,
+	installedApps: InstalledApp[],
+	onInstallApp: (id: string) => void,
 }): JSX.Element => {
-	const pinnedIds = new Set(props.pinnedApps.map((p) => p.id))
+	const pinnedIds = new Set(props.installedApps.map((p) => p.id))
 	const optionalAppList = optionalApps.filter((a) => !pinnedIds.has(a.id))
 	return (
 		<AppContainer>
@@ -36,7 +33,7 @@ const AppStoreApp = (props: {
 					<AppCard
 						key={a.id}
 						app={a}
-						onAdd={() => { props.onAddApp(a.id) }}
+						onAdd={() => { props.onInstallApp(a.id) }}
 						/>
 				))}
 			</Box>

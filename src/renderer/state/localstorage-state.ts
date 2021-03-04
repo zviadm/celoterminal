@@ -1,5 +1,5 @@
 import log from 'electron-log'
-import useSessionState from './session-state'
+import * as React from 'react'
 
 // useLocalStorageState provides a React hook to store data in Window.localStorage. LocalStorage remains
 // persisted across app restarts. This is useful for global state that needs to be persisted, but is also ok
@@ -8,9 +8,9 @@ import useSessionState from './session-state'
 // key format should be: 'terminal/<app ID>/...'.
 // <T> type must be JSON encodable/decodable.
 const useLocalStorageState = <T>(key: string, initial: T): [T, (v: T) => void] => {
-	const [cachedV, setCachedV] = useSessionState<{v: T} | undefined>(key, undefined)
+	const [_v, setV] = React.useState<{v: T} | undefined>(undefined)
 	let v
-	if (!cachedV) {
+	if (!_v) {
 		const storedV = localStorage.getItem(key)
 		let parsedV: T | undefined = undefined
 		try {
@@ -21,13 +21,13 @@ const useLocalStorageState = <T>(key: string, initial: T): [T, (v: T) => void] =
 			log.error(`LocalStorage: unable to parse: ${key} - ${storedV}`)
 		}
 		v = parsedV !== undefined ? parsedV : initial
-		setCachedV({v: v})
+		setV({v: v})
 	} else {
-		v = cachedV.v
+		v = _v.v
 	}
 	const storeV = (newV: T) => {
-		setCachedV({v: newV})
 		localStorage.setItem(key, JSON.stringify(newV))
+		setV({v: newV})
 	}
 	return [v, storeV]
 }
