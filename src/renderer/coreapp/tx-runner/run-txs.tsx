@@ -5,7 +5,7 @@ import { CeloTxReceipt } from '@celo/connect'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { EstimatedFee, estimateGas } from './fee-estimation'
 import { ParsedTransaction, parseTransaction } from './transaction-parser'
-import { createWallet } from './wallet'
+import { createWallet, rootAccount } from './wallet'
 import { CFG, explorerRootURL } from '../../../lib/cfg'
 import { SpectronNetworkId } from '../../../lib/spectron-utils/constants'
 import { nowMS } from '../../state/time'
@@ -51,6 +51,7 @@ const useStyles = makeStyles((theme) => ({
 
 const RunTXs = (props: {
 	selectedAccount: Account,
+	accounts: Account[],
 	password?: string,
 	txFunc: TXFunc,
 	onFinish: TXFinishFunc,
@@ -73,24 +74,26 @@ const RunTXs = (props: {
 	const txFunc = props.txFunc
 	const onFinish = props.onFinish
 	const selectedAccount = props.selectedAccount
+	const accounts = props.accounts
 	const password = props.password
+	const executingAccount = rootAccount(selectedAccount, accounts)
 	React.useEffect(() => {
 		(async () => {
 			try {
-				const w = await createWallet(selectedAccount, password)
+				const w = await createWallet(selectedAccount, accounts, password)
 				const cfg = CFG()
 				if (cfg.networkId !== SpectronNetworkId) {
 					// NOTE: see comment in `createWallet` about limitations of celo-devchain.
 					const accounts = w.wallet.getAccounts()
 					if (accounts.length !== 1 ||
-						accounts[0].toLowerCase() !== selectedAccount.address.toLowerCase()) {
+						accounts[0].toLowerCase() !== executingAccount.address.toLowerCase()) {
 						throw new Error(
-							`Unexpected Account. Expected: ${selectedAccount.address}, Got: ${accounts[0]}. ` +
+							`Unexpected Account. Expected: ${executingAccount.address}, Got: ${accounts[0]}. ` +
 							`Refusing to run transactions.`)
 					}
 				}
 				const kit = newKit(cfgNetworkURL(), w.wallet)
-				kit.defaultAccount = selectedAccount.address
+				kit.defaultAccount = executingAccount.address
 				try {
 					const networkId = (await kit.web3.eth.net.getId()).toString()
 					if (networkId !== cfg.networkId) {
@@ -111,7 +114,10 @@ const RunTXs = (props: {
 
 					const r: CeloTxReceipt[] = []
 					for (let idx = 0; idx < txs.length; idx += 1) {
-						const tx = txs[idx]
+						let tx = txs[idx]
+						if (w.transformTX) {
+							tx = await w.transformTX(kit, tx)
+						}
 						const estimatedGas = await estimateGas(kit, tx)
 						// TODO(zviadm): Add support for other fee currencies.
 						const gasPrice = await kit.connection.gasPrice()
@@ -140,8 +146,8 @@ const RunTXs = (props: {
 						setTXSendMS(0)
 						setTXProgress(0)
 						setStage("confirming")
-						if (selectedAccount.type === "local") {
-							// No need to show confirmation dialog for Ledger accounts.
+						if (executingAccount.type === "local") {
+							// Only need to show confirmation dialog for Local accounts.
 							await txPromise
 						}
 						const result = await tx.tx.send({
@@ -218,9 +224,13 @@ const RunTXs = (props: {
 										</ListItemIcon>
 										<ListItemText
 											primary={<Typography className={classes.address}>
-											Contract: <Link
-												href={`${explorerURL}/address/${preparedTXs[idx].contractAddress}/contracts`}
-												>{preparedTXs[idx].contractName}</Link>
+											Contract: {
+												preparedTXs[idx].contractAddress ?
+													<Link href={`${explorerURL}/address/${preparedTXs[idx].contractAddress}/contracts`}>
+														{preparedTXs[idx].contractName}
+													</Link> :
+													preparedTXs[idx].contractName
+											}
 											</Typography>}
 										/>
 									</ListItem>
@@ -243,7 +253,7 @@ const RunTXs = (props: {
 				</Box>
 			</DialogContent>
 			<DialogActions>
-				{props.selectedAccount.type === "ledger" ?
+				{executingAccount.type === "ledger" ?
 				stage === "confirming" &&
 				<PromptLedgerAction text="Confirm transaction on Ledger..." />
 				:

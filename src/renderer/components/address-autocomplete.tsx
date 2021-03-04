@@ -21,6 +21,7 @@ const AddressAutocomplete = (props: {
 	address: string,
 	onChange: (address: string) => void,
 	textFieldProps?: TextFieldProps,
+	noFreeSolo?: boolean,
 }): JSX.Element => {
 	const classes = useStyles()
 	const renderOption = (o: Address) => (
@@ -28,11 +29,29 @@ const AddressAutocomplete = (props: {
 			<Typography className={classes.address}>{o.name ? `${o.name}: `: ``}{o.address}</Typography>
 		</React.Fragment>
 	)
+	const changeValueProps = !props.noFreeSolo ? {
+		freeSolo: true,
+		autoSelect: true,
+		inputValue: props.address,
+		onInputChange: (e: unknown, value: string, reason: string) => {
+			if (reason !== "reset" || value !== "") {
+				props.onChange(value)
+			}
+			return value
+		},
+	} : {
+		freeSolo: false,
+		autoSelect: false,
+		defaultValue: props.addresses.find((a) => a.address === props.address),
+		onChange: (e: unknown, value: string | Address | null) => {
+			if (value && typeof value !== "string") {
+				props.onChange(value.address)
+			}
+		},
+	}
 	return (
 		<Autocomplete
 			id={props.id}
-			freeSolo
-			autoSelect
 			options={props.addresses}
 			renderOption={renderOption}
 			getOptionLabel={(o) => o?.address || "" }
@@ -51,13 +70,7 @@ const AddressAutocomplete = (props: {
 					}}
 				/>
 			)}
-			inputValue={props.address}
-			onInputChange={(e, value, reason) => {
-				if (reason !== "reset" || value !== "") {
-					props.onChange(value)
-				}
-				return value
-			}}
+			{...changeValueProps}
 		/>
 	)
 }

@@ -1,5 +1,10 @@
 import { shell } from 'electron'
 
+import { Account, LocalAccount, MultiSigAccount } from '../../../lib/accounts'
+import { accountsDBFilePath } from './accounts-state'
+import Accounts from './def'
+import { TXFinishFunc, TXFunc } from '../../components/app-definition'
+
 import * as React from 'react'
 import {
 	makeStyles, Tooltip, Box, Button, IconButton, Typography,
@@ -7,6 +12,8 @@ import {
 } from '@material-ui/core'
 import * as icons from '@material-ui/icons'
 
+import AppContainer from '../../components/app-container'
+import AppSection from '../../components/app-section'
 import AppHeader from '../../components/app-header'
 import CreateLocalAccount from './create-local-account'
 import ImportLocalAccount from './import-local-account'
@@ -15,13 +22,9 @@ import AddAddressOnlyAccount from './addressonly-account'
 import ConfirmRemove from './confirm-remove'
 import RevealLocalKey from './reveal-local-key'
 import ChangePassword from './change-password'
-import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon } from './account-icons'
-
-import { Account, LocalAccount } from '../../../lib/accounts'
-import { accountsDBFilePath } from './accounts-state'
-import Accounts from './def'
-import AppContainer from '../../components/app-container'
-import AppSection from '../../components/app-section'
+import AccountIcon from './account-icon'
+import CreateMultiSigAccount from './create-multisig-account'
+import ModifyMultiSig from './modify-multisig'
 
 const useStyles = makeStyles((theme) => ({
 	accountText: {
@@ -43,20 +46,28 @@ const useStyles = makeStyles((theme) => ({
 
 const AccountsApp = (props: {
 	accounts: Account[],
+	selectedAccount?: Account,
+	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
+
 	hasPassword: boolean,
-	onAdd: (a?: Account, password?: string) => void,
+	onAdd: (a?: Account, password?: string, update?: boolean) => void,
 	onRemove: (a: Account) => void,
 	onRename: (a: Account, name: string) => void,
 	onChangePassword: (oldPassword: string, newPassword: string) => void,
 }): JSX.Element => {
 	const classes = useStyles()
 	const [openedAdd, setOpenedAdd] = React.useState<
-		undefined | "add-ledger" | "add-addressonly" | "create-local" | "import-local">()
+		undefined |
+		"add-ledger" | "add-addressonly" |
+		"create-local" | "import-local" |
+		"create-multisig" | "import-multisig">()
 	const [confirmRemove, setConfirmRemove] = React.useState<Account | undefined>()
-	const [revealAccount, setRevealAccount] = React.useState<LocalAccount | undefined>()
 	const [renameAccount, setRenameAccount] = React.useState<Account | undefined>()
 	const [changePassword, setChangePassword] = React.useState(false)
 	const [renameNew, setRenameNew] = React.useState("")
+	const [revealAccount, setRevealAccount] = React.useState<LocalAccount | undefined>()
+	const [modifyMultiSig, setModifyMultiSig] = React.useState<MultiSigAccount | undefined>()
+	const selectedAccount = props.selectedAccount
 
 	const handleAdd = (a: Account, password?: string) => {
 		props.onAdd(a, password)
@@ -80,6 +91,7 @@ const AccountsApp = (props: {
 		setOpenedAdd(undefined)
 		setConfirmRemove(undefined)
 		setRevealAccount(undefined)
+		setModifyMultiSig(undefined)
 		setChangePassword(false)
 	}
 	const handleRefetch = () => { props.onAdd() }
@@ -88,6 +100,8 @@ const AccountsApp = (props: {
 		shell.showItemInFolder(accountsDBFilePath())
 	}
 	const forceSetupPassword = !props.hasPassword && (openedAdd === "create-local" || openedAdd === "import-local")
+	const canCreateMultiSig = selectedAccount && selectedAccount.type !== "address-only"
+	const canImportMultiSig = !!props.accounts.find((a) => a.type !== "address-only")
 	return (
 		<AppContainer>
 			{confirmRemove && <ConfirmRemove account={confirmRemove} onRemove={handleRemove} onCancel={handleCancel} />}
@@ -103,7 +117,26 @@ const AccountsApp = (props: {
 				onCancel={handleCancel} />}
 			{openedAdd === "add-ledger" && <AddLedgerAccount onAdd={handleAdd} onCancel={handleCancel} />}
 			{openedAdd === "add-addressonly" && <AddAddressOnlyAccount onAdd={handleAdd} onCancel={handleCancel} />}
+			{openedAdd === "create-multisig" && selectedAccount &&
+			<CreateMultiSigAccount
+				selectedAccount={selectedAccount}
+				runTXs={props.runTXs}
+				onAdd={handleAdd}
+				onCancel={handleCancel}
+			/>}
 			{revealAccount && <RevealLocalKey account={revealAccount} onClose={handleCancel} />}
+			{modifyMultiSig && <ModifyMultiSig
+				account={modifyMultiSig}
+				accounts={props.accounts}
+				onClose={handleCancel}
+				onChangeOwner={(newOwner) => {
+					const modifiedAccount = {
+						...modifyMultiSig,
+						ownerAddress: newOwner,
+					}
+					props.onAdd(modifiedAccount, undefined, true)
+				}}
+			/>}
 
 			<AppHeader app={Accounts} refetch={handleRefetch} isFetching={false} />
 			<Box display="flex" flexDirection="column" marginTop={2}>
@@ -118,11 +151,7 @@ const AccountsApp = (props: {
 									alignItems="center"
 									minWidth={500}
 									p={2}>
-								{
-								a.type === "local" ? <LocalAccountIcon /> :
-								a.type === "ledger" ? <LedgerAccountIcon /> :
-								a.type === "address-only" ? <AddressOnlyAccountIcon /> : <></>
-								}
+								<AccountIcon type={a.type} />
 								<Box
 									display="flex"
 									flexDirection="column"
@@ -155,11 +184,21 @@ const AccountsApp = (props: {
 									<Typography className={classes.accountText}>{a.address}</Typography>
 								</Box>
 								{a.type === "local" &&
-								<Tooltip title="Show the secret mnemonic phrase and the private-key of this account. Never share these secrets with anyone else!">
+								<Tooltip title={
+									"Show the secret mnemonic phrase and the private-key of " +
+									"this account. Never share these secrets with anyone else!"}>
 									<IconButton
 										edge="end"
 										color="secondary" onClick={() => setRevealAccount(a)}>
 										<icons.Lock />
+									</IconButton>
+								</Tooltip>}
+								{a.type === "multisig" &&
+								<Tooltip title={"Change associated owner for this MultiSig account"}>
+									<IconButton
+										edge="end"
+										onClick={() => setModifyMultiSig(a)}>
+										<icons.Settings />
 									</IconButton>
 								</Tooltip>}
 								<Tooltip title="Remove account">
@@ -179,7 +218,7 @@ const AccountsApp = (props: {
 				<Button
 					color="primary"
 					variant="outlined"
-					startIcon={<LocalAccountIcon />}
+					startIcon={<AccountIcon type="local" />}
 					onClick={() => { setOpenedAdd("create-local") }}>Create Local Account</Button>
 				<Button
 					className={classes.buttonAdd}
@@ -191,14 +230,31 @@ const AccountsApp = (props: {
 					className={classes.buttonAdd}
 					color="primary"
 					variant="outlined"
-					startIcon={<LedgerAccountIcon />}
+					startIcon={<AccountIcon type="ledger" />}
 					onClick={() => { setOpenedAdd("add-ledger") }}>Add Ledger Account</Button>
 				<Button
 					className={classes.buttonAdd}
 					color="primary"
 					variant="outlined"
-					startIcon={<AddressOnlyAccountIcon />}
+					startIcon={<AccountIcon type="address-only" />}
 					onClick={() => { setOpenedAdd("add-addressonly") }}>Add ReadOnly Account</Button>
+				<Button
+					className={classes.buttonAdd}
+					color="primary"
+					variant="outlined"
+					startIcon={<AccountIcon type="multisig" />}
+					disabled={!canCreateMultiSig}
+					onClick={() => { setOpenedAdd("create-multisig") }}>Create MultiSig Account</Button>
+				<Button
+					className={classes.buttonAdd}
+					color="primary"
+					variant="outlined"
+					startIcon={<AccountIcon type="multisig" />}
+					disabled={!canImportMultiSig}
+					onClick={() => {
+						throw new Error(`Not implemented`)
+						// setOpenedAdd("import-multisig")
+					}}>Import MultiSig Account</Button>
 			</AppSection>
 			<AppSection>
 				<Box display="flex" flexDirection="row">

@@ -12,12 +12,12 @@ import {
 } from '@material-ui/core'
 import { CropFree, FileCopy } from '@material-ui/icons'
 
-import { AddressOnlyAccountIcon, LedgerAccountIcon, LocalAccountIcon } from './accounts-app/account-icons'
+import AccountIcon from './accounts-app/account-icon'
 import NetworkIndicator from './network-indicator'
 
 const useStyles = makeStyles(() => ({
 	name: {
-		width: 120,
+		width: 180,
 		fontFamily: "monospace",
 		textOverflow: "ellipsis",
 		overflow: "hidden",
@@ -54,11 +54,10 @@ const AccountsBar = (props: {
 						<MenuItem value={a.address} key={a.address}>
 							<Box display="flex" alignItems="center">
 								<Box display="flex" alignSelf="flex-end" marginRight={1}>
-								{
-								a.type === "local" ? <LocalAccountIcon /> :
-								a.type === "ledger" ? <LedgerAccountIcon style={{paddingRight: 5}} /> :
-								a.type === "address-only" ? <AddressOnlyAccountIcon /> : <></>
-								}
+									<AccountIcon
+										type={a.type}
+										style={a.type === "ledger" ? {paddingRight: 5} : undefined}
+										/>
 								</Box>
 								<Typography className={classes.name}>{a.name}</Typography>
 								<Typography className={classes.address}>{fmtAddress(a.address)}</Typography>

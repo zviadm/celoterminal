@@ -68,63 +68,52 @@ const App = () => {
 		setPinnedApps(pinnedAppsCopy)
 	}
 
-	let renderedApp
 	let selectedApp = _selectedApp
-	if (!selectedAccount) {
-		selectedApp = Accounts.id
-		renderedApp = <AccountsApp
-			accounts={accounts}
-			hasPassword={hasPassword}
-			onAdd={addAccount}
-			onRemove={removeAccount}
-			onRename={renameAccount}
-			onChangePassword={changePassword}
-		/>
-	} else {
-		const terminalApp = appListAll.find((a) => a.id === selectedApp)
-		try {
-			switch (selectedApp) {
-			case Accounts.id:
-				renderedApp = <AccountsApp
-					accounts={accounts}
-					hasPassword={hasPassword}
-					onAdd={addAccount}
-					onRemove={removeAccount}
-					onRename={renameAccount}
-					onChangePassword={changePassword}
-				/>
-				break
-			case AppStore.id:
-				renderedApp = <AppStoreApp
-					pinnedApps={pinnedApps}
-					onAddApp={handleAddApp}
-				/>
-				break
-			default:
-				if (!terminalApp) {
-					throw new Error(`Unknown app: '${selectedApp}'`)
-				}
-				renderedApp = <terminalApp.renderApp
-					accounts={accounts}
-					selectedAccount={selectedAccount}
-					runTXs={runTXs}
-				/>
-				break
+	let renderedApp
+	try {
+		if (!selectedAccount || selectedApp === Accounts.id) {
+			selectedApp = Accounts.id
+			renderedApp = <AccountsApp
+				accounts={accounts}
+				selectedAccount={selectedAccount}
+				runTXs={runTXs}
+
+				hasPassword={hasPassword}
+				onAdd={addAccount}
+				onRemove={removeAccount}
+				onRename={renameAccount}
+				onChangePassword={changePassword}
+			/>
+		} else if (selectedApp === AppStore.id) {
+			renderedApp = <AppStoreApp
+				pinnedApps={pinnedApps}
+				onAddApp={handleAddApp}
+			/>
+		} else {
+			const terminalApp = appListAll.find((a) => a.id === selectedApp)
+			if (!terminalApp) {
+				throw new Error(`Unknown app: '${selectedApp}'`)
 			}
-		} catch (e) {
-			renderedApp = <Box><Alert severity="error">{e?.message}</Alert></Box>
-			log.error(`renderApp:`, e)
+			renderedApp = <terminalApp.renderApp
+				accounts={accounts}
+				selectedAccount={selectedAccount}
+				runTXs={runTXs}
+			/>
 		}
+	} catch (e) {
+		renderedApp = <Box><Alert severity="error">{e?.message}</Alert></Box>
+		log.error(`renderApp:`, e)
 	}
+
 	const txOnFinish: TXFinishFunc = (e, r) => {
 		if (e && !(e instanceof TXCancelled)) {
 			setError(e)
 			log.error(`TX:`, e)
 		}
+		setTXFunc(undefined)
 		if (txFunc?.onFinish) {
 			txFunc.onFinish(e, r)
 		}
-		setTXFunc(undefined)
 	}
 
 	return (
@@ -134,6 +123,7 @@ const App = () => {
 			{selectedAccount &&
 			<TXRunner
 				selectedAccount={selectedAccount}
+				accounts={accounts}
 				txFunc={txFunc?.f}
 				onFinish={txOnFinish}
 			/>}

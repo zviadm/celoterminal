@@ -68,9 +68,9 @@ export const useAccounts = () => {
 		accounts = initial.accounts
 		hasPassword = initial.hasPassword
 	}
-	const addAccount = (a?: Account, password?: string) => {
+	const addAccount = (a?: Account, password?: string, update?: boolean) => {
 		if (a) {
-			accountsDB().addAccount(a, password)
+			accountsDB().addAccount(a, password, update)
 		}
 		refreshAccounts()
 	}
@@ -112,6 +112,7 @@ export const accountsDBFilePath = (): string => {
 const accountRank = (a: Account) => {
 	const typeRank = (
 		a.type === "ledger" ? 0 :
-		a.type === "local" ? 1 : 2)
+		a.type === "local" ? 1 :
+		a.type === "multisig" ? 2: 3)
 	return [typeRank, a.name]
 }

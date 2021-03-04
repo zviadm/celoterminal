@@ -6,6 +6,10 @@ import { Account } from '../../lib/accounts'
 export interface Transaction {
 	tx: CeloTransactionObject<unknown>
 	params? : Pick<CeloTx, "value" | "gas">
+	// This flag is useful for contract/indirect account types. This
+	// flag signals that transaction should be executed using the root account
+	// as it is coming from the root account itself.
+	executeUsingRootAccount?: boolean,
 }
 
 // All transaction running goes through central TXRunner system that has

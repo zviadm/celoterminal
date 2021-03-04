@@ -6,12 +6,14 @@ import * as log from 'electron-log'
 import { ensureLeading0x, toChecksumAddress, privateKeyToAddress } from '@celo/utils/lib/address'
 import { isValidAddress } from 'ethereumjs-util'
 
-
-import { Account, AddressOnlyAccount, LedgerAccount, LocalAccount } from './accounts'
+import { Account, AddressOnlyAccount, LedgerAccount, LocalAccount, MultiSigAccount } from './accounts'
 import { UserError } from './error'
 
 // Supported `account` row versions. Last version is the current version.
-const supportedVersions = [1]
+// Version must be increased when:
+// * New account type is added.
+// * Encoding is changed for an account type.
+const supportedVersions = [1, 2]
 const currentVersion = supportedVersions[supportedVersions.length - 1]
 
 class AccountsDB {
@@ -19,6 +21,7 @@ class AccountsDB {
 	// Prepared queries:
 	private pSelectAccounts
 	private pInsertAccount
+	private pUpdateAccount
 	private pRemoveAccount
 	private pRenameAccount
 	private pSelectEncryptedAccounts
@@ -53,6 +56,10 @@ class AccountsDB {
 			`INSERT INTO accounts
 			(address, version, type, name, data, encrypted_data) VALUES
 			(?, ?, ?, ?, ?, ?)`)
+		this.pUpdateAccount = this.db.prepare<
+			[number, string, string, string, string, string]>(
+			`UPDATE accounts SET version = ?, data = ?, encrypted_data = ?
+			WHERE address = ? AND type = ? AND name = ?`)
 		this.pRemoveAccount = this.db.prepare<
 			[string, string]>("DELETE FROM accounts WHERE address = ? AND type = ?")
 		this.pRenameAccount = this.db.prepare<
@@ -91,19 +98,25 @@ class AccountsDB {
 			switch (r.type) {
 			case "address-only":
 				return base as AddressOnlyAccount
-			case "ledger": {
-				const ledgerData = JSON.parse(r.data)
-				return {
-					...base,
-					baseDerivationPath: ledgerData.baseDerivationPath,
-					derivationPathIndex: ledgerData.derivationPathIndex,
-				} as LedgerAccount
-			}
 			case "local":
 				return {
 					...base,
 					encryptedData: r.encrypted_data,
 				} as LocalAccount
+			case "ledger": {
+				const parsedData = JSON.parse(r.data)
+				return {
+					...base,
+					...parsedData,
+				} as LedgerAccount
+			}
+			case "multisig": {
+				const parsedData = JSON.parse(r.data)
+				return {
+					...base,
+					...parsedData,
+				} as MultiSigAccount
+			}
 			default:
 				throw new Error(`Unrecognized account type: ${r.type}.`)
 			}
@@ -111,7 +124,7 @@ class AccountsDB {
 		return accounts
 	}
 
-	public addAccount = (a: Account, password?: string): void => {
+	public addAccount = (a: Account, password?: string, update?: boolean): void => {
 		let data: string
 		let encryptedData: string
 		switch (a.type) {
@@ -140,6 +153,10 @@ class AccountsDB {
 			})
 			encryptedData = ""
 			break
+		case "multisig":
+			data = JSON.stringify({ownerAddress: a.ownerAddress})
+			encryptedData = ""
+			break
 		default:
 			throw new Error(`Unrecognized account type.`)
 		}
@@ -154,10 +171,19 @@ class AccountsDB {
 			}
 			log.info(`accounts-db: adding account: ${a.type}/${address}.`)
 			try {
-				const result = this.pInsertAccount.run(
-					address, currentVersion, a.type, a.name, data, encryptedData)
-				if (result.changes !== 1) {
-					throw new Error(`Unexpected error while adding account. Is Database corrupted?`)
+				if (!update) {
+					const result = this.pInsertAccount.run(
+						address, currentVersion, a.type, a.name, data, encryptedData)
+					if (result.changes !== 1) {
+						throw new Error(`Unexpected error while adding account. Is Database corrupted?`)
+					}
+				} else {
+					const result = this.pUpdateAccount.run(
+						currentVersion, data, encryptedData,
+						address, a.type, a.name)
+					if (result.changes !== 1) {
+						throw new UserError(`Account: ${a.name} - ${address} not found to update.`)
+					}
 				}
 			} catch (e) {
 				if (e instanceof Error && e.message.startsWith("UNIQUE")) {
