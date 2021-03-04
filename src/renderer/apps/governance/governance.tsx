@@ -37,6 +37,7 @@ const GovernanceApp = (props: {
 		async (kit: ContractKit) => {
 			const governance = await kit.contracts.getGovernance()
 			const accounts = await kit.contracts.getAccounts()
+			const lockedGold = await kit.contracts.getLockedGold()
 
 			const upvotes = governance.getQueue()
 			const dequeue = governance.getDequeue(true)
@@ -72,12 +73,15 @@ const GovernanceApp = (props: {
 
 			const upvoteRecord = governance.getUpvoteRecord(mainAccount)
 			const voteRecords = governance.getVoteRecords(mainAccount)
-			const isAccount = accounts.isAccount(mainAccount)
 
 			const proposalsInReferendum = (await proposals).filter((p) => p.stage === ProposalStage.Referendum)
+			const isAccount = await accounts.isAccount(mainAccount)
+			const lockedCELO = !isAccount ? new BigNumber(0) :
+				await lockedGold.getAccountTotalLockedGold(mainAccount)
 			return {
-				mainAccount: await mainAccount,
-				isAccount: await isAccount,
+				mainAccount,
+				isAccount,
+				lockedCELO,
 
 				upvotes: await upvotes,
 				upvoteRecord: await upvoteRecord,
@@ -113,6 +117,7 @@ const GovernanceApp = (props: {
 		() => { refetch() })
 	}
 
+	const canVote = fetched?.isAccount && fetched?.lockedCELO.gt(0)
 	return (
 		<AppContainer>
 			<AppHeader app={Governance} isFetching={isFetching} refetch={refetch} />
@@ -131,7 +136,7 @@ const GovernanceApp = (props: {
 			</AppSection>}
 			{fetched.proposals.length > 0 &&
 			<AppSection>
-				{fetched.isAccount ?
+				{canVote ?
 				<Alert severity="info">
 					Voting on a proposal disables unlocking of CELO until
 					proposal is finished.
@@ -194,7 +199,7 @@ const GovernanceApp = (props: {
 													style={{width: 100}}
 													variant={vote?.value === v ? "contained" : "outlined"}
 													color={vote?.value === v ? "primary" : "default"}
-													disabled={!fetched.isAccount}
+													disabled={!canVote}
 													onClick={() => { handleVote(p.proposalID, v) }}
 													>{v}</Button>
 											</Box>
@@ -210,7 +215,7 @@ const GovernanceApp = (props: {
 			</AppSection>}
 			{fetched.upvotes.length > 0 &&
 			<AppSection>
-				{fetched.isAccount ?
+				{canVote ?
 				<Alert severity="info">
 					Only one proposal can be upvoted at a time.
 				</Alert> :
@@ -243,7 +248,7 @@ const GovernanceApp = (props: {
 										style={{width: 100}}
 										variant={isUpvoted ? "contained" : "outlined"}
 										color={isUpvoted ? "primary" : "default"}
-										disabled={!fetched.isAccount}
+										disabled={!canVote}
 										onClick={() => { handleUpvote(v.proposalID) }}
 										>{isUpvoted ? "Upvoted" : "Upvote"}</Button>
 									</Box>
