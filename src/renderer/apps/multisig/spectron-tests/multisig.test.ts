@@ -107,9 +107,11 @@ test(`remove and re-import MultiSig`, async (done) => {
 	await importMultiSig.click()
 	const multiSigAddressInput = await app.client.$("#multisig-address-input")
 	await multiSigAddressInput.click()
-	await multiSigAddressInput.keys(["Control", "v"])
-	await multiSigAddressInput.keys(["Command", "v"])
-
+	if (process.platform === "darwin") {
+		await multiSigAddressInput.keys(["Command", "v"])
+	} else {
+		await multiSigAddressInput.keys(["Control", "v"])
+	}
 	const confirmImport = await app.client.$("button=Import")
 	await confirmImport.waitForEnabled()
 	await confirmImport.click()
