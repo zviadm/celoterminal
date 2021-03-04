@@ -127,7 +127,7 @@ const MultiSigApp = (props: {
 				const tx = toTransactionObject(
 					kit.connection,
 					multiSig.methods.executeTransaction(txIdx))
-				return [{tx: tx, executeUsingRootAccount: true}]
+				return [{tx: tx, executeUsingParentAccount: true}]
 			},
 			() => { refetch() },
 		)
@@ -139,7 +139,7 @@ const MultiSigApp = (props: {
 				const tx = toTransactionObject(
 					kit.connection,
 					multiSig.methods.confirmTransaction(txIdx))
-				return [{tx: tx, executeUsingRootAccount: true}]
+				return [{tx: tx, executeUsingParentAccount: true}]
 			},
 			() => { refetch() },
 		)
@@ -151,7 +151,7 @@ const MultiSigApp = (props: {
 				const tx = toTransactionObject(
 					kit.connection,
 					multiSig.methods.revokeConfirmation(txIdx))
-				return [{tx: tx, executeUsingRootAccount: true}]
+				return [{tx: tx, executeUsingParentAccount: true}]
 			},
 			() => { refetch() },
 		)

@@ -40,6 +40,7 @@ const ModifyMultiSig = (props: {
 				<Box display="flex" flexDirection="column" width={420}>
 					<Typography>Choose associated owner</Typography>
 					<AddressAutocomplete
+						id="multisig-owner-input"
 						noFreeSolo={true}
 						addresses={ownerOptions}
 						address={props.account.ownerAddress}

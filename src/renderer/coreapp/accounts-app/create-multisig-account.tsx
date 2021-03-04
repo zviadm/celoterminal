@@ -28,7 +28,7 @@ const CreateMultiSigAccount = (props: {
 	const [owners, setOwners] = React.useState<string[]>([])
 
 	const handleAddOwner = () => {
-		setOwners((o) => [...o, "0x"])
+		setOwners((o) => [...o, ""])
 	}
 	const handleEditOwner = (idx: number, v: string) => {
 		setOwners((o) => [...o.slice(0, idx), v, ...o.slice(idx+1)])
@@ -114,6 +114,7 @@ const CreateMultiSigAccount = (props: {
 								size="medium"
 								fullWidth={true}
 								inputProps={{style: {fontFamily: "monospace"}}}
+								placeholder="0x..."
 								value={o}
 								onChange={(e) => { handleEditOwner(idx, e.target.value) }}
 								InputProps={{

@@ -20,20 +20,19 @@ export async function createWallet(
 	transformTX?: (kit: ContractKit, tx: Transaction) => Promise<Transaction>
 	transport?: {close: () => void}
 }> {
-	if (CFG().networkId === SpectronNetworkId) {
-		// NOTE(zviad): celo-devchain (i.e. @celo/ganache-cli) doesn't support
-		// locally signed transactions. Thus it is important to make sure we aren't
-		// locally signing transactions when tests are running.
-		return {wallet: new LocalWallet()}
-	}
 	switch (account.type) {
 		case "local": {
 			if (!password) {
 				throw new UserError("Password must be entered to unlock local accounts.")
 			}
-			const wallet = new LocalWallet()
 			const localKey = decryptLocalKey(account.encryptedData, password)
-			wallet.addAccount(localKey.privateKey)
+			const wallet = new LocalWallet()
+			// NOTE(zviad): celo-devchain (i.e. @celo/ganache-cli) doesn't support
+			// locally signed transactions. Thus it is important to make sure we aren't
+			// locally signing transactions when tests are running.
+			if (CFG().networkId !== SpectronNetworkId) {
+				wallet.addAccount(localKey.privateKey)
+			}
 			return {wallet}
 		}
 		case "ledger": {
@@ -56,9 +55,12 @@ export async function createWallet(
 			const transformTX = async (kit: ContractKit, tx: Transaction): Promise<Transaction> => {
 				const multiSig = await kit._web3Contracts.getMultiSig(account.address)
 				if (ownerWallet.transformTX) {
-					tx = await ownerWallet.transformTX(kit, tx)
+					tx = await ownerWallet.transformTX(kit, {
+						...tx,
+						executeUsingParentAccount: false,
+					})
 				}
-				if (tx.executeUsingRootAccount) {
+				if (tx.executeUsingParentAccount) {
 					return tx
 				}
 				const data = stringToSolidityBytes(tx.tx.txo.encodeABI())
