@@ -27,7 +27,7 @@
       "@material-ui/icons"
     ],
     "renderer": {
-      "webpackConfig": "webpack.additions.js"
+      "webpackConfig": "webpack.renderer.js"
     }
   },
   "dependencies": {
@@ -68,6 +68,7 @@
     "@types/tmp": "^0.2.0",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
+    "babel-plugin-transform-imports": "^2.0.0",
     "celo-devchain": "^2.0.4",
     "css-loader": "^5.0.1",
     "electron": "11.2.1",
