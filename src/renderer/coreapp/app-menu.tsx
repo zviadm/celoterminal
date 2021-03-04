@@ -1,18 +1,16 @@
 import * as React from 'react'
 
-import { makeStyles } from '@material-ui/core/styles'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import Box from '@material-ui/core/Box'
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
-import IconButton from '@material-ui/core/IconButton'
+import {
+	makeStyles, DialogContent, Dialog, DialogTitle, DialogActions, Button,
+	List, ListItem, ListItemText, ListItemIcon, Box, ListItemSecondaryAction,
+	IconButton
+} from '@material-ui/core'
 import HighlightOffIcon from '@material-ui/icons/HighlightOff'
 
 import { AppDefinition } from '../components/app-definition'
 import Accounts from './accounts-app/def'
 import MoreApps from './appstore-app/def'
+import { Alert } from '@material-ui/lab'
 
 const useStyles = makeStyles(() => ({
 	listIcon: {
@@ -20,6 +18,8 @@ const useStyles = makeStyles(() => ({
 		marginRight: 10,
 	},
 }))
+
+type AppDefCommon = Pick<AppDefinition, "id" | "title" | "icon" | "core">
 
 const AppMenu = (props: {
 	selectedApp: string,
@@ -29,7 +29,9 @@ const AppMenu = (props: {
 	onUninstallApp: (id: string) => void,
 }): JSX.Element => {
 	const classes = useStyles()
-	const apps: Pick<AppDefinition, "id" | "title" | "icon" | "core">[] = []
+	const [confirmUninstall, setConfirmUninstall] = React.useState<AppDefCommon | undefined>()
+
+	const apps: AppDefCommon[] = []
 	const coreList = props.appList.filter((a) => a.core)
 	const pinnedList = props.appList.filter((a) => !a.core)
 	apps.push(Accounts)
@@ -38,6 +40,15 @@ const AppMenu = (props: {
 	apps.push(...pinnedList)
 	return (
 		<Box mx={2}>
+			{confirmUninstall &&
+			<ConfirmUninstall
+				app={confirmUninstall}
+				onCancel={() => setConfirmUninstall(undefined) }
+				onUninstall={() => {
+					setConfirmUninstall(undefined)
+					props.onUninstallApp(confirmUninstall.id)
+				}}
+			/>}
 			<List>
 				{
 					apps.map((a) => (
@@ -55,7 +66,7 @@ const AppMenu = (props: {
 							<ListItemSecondaryAction hidden={a.core}>
 								<IconButton
 									edge="end"
-									onClick={() => { props.onUninstallApp(a.id) }}
+									onClick={() => { setConfirmUninstall(a) }}
 									>
 									<HighlightOffIcon />
 								</IconButton>
@@ -69,3 +80,25 @@ const AppMenu = (props: {
 }
 
 export default AppMenu
+
+const ConfirmUninstall = (props: {
+	app: AppDefCommon,
+	onUninstall: () => void,
+	onCancel: () => void,
+}): JSX.Element => {
+	return (
+		<Dialog open={true} onClose={props.onCancel} maxWidth="sm">
+			<DialogTitle>Uninstall Application</DialogTitle>
+			<DialogContent>
+				<Alert severity="warning">
+					Uninstalling an application removes its settings and the local state.
+					You can always re-install the application, but its settings and the local state will be reset.
+				</Alert>
+			</DialogContent>
+			<DialogActions>
+				<Button onClick={props.onCancel}>Cancel</Button>
+				<Button color="secondary" onClick={props.onUninstall}>Uninstall</Button>
+			</DialogActions>
+		</Dialog>
+	)
+}
