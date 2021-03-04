@@ -21,6 +21,7 @@ class AccountsDB {
 	// Prepared queries:
 	private pSelectAccounts
 	private pInsertAccount
+	private pUpdateAccount
 	private pRemoveAccount
 	private pRenameAccount
 	private pSelectEncryptedAccounts
@@ -55,6 +56,10 @@ class AccountsDB {
 			`INSERT INTO accounts
 			(address, version, type, name, data, encrypted_data) VALUES
 			(?, ?, ?, ?, ?, ?)`)
+		this.pUpdateAccount = this.db.prepare<
+			[number, string, string, string, string, string]>(
+			`UPDATE accounts SET version = ?, data = ?, encrypted_data = ?
+			WHERE address = ? AND type = ? AND name = ?`)
 		this.pRemoveAccount = this.db.prepare<
 			[string, string]>("DELETE FROM accounts WHERE address = ? AND type = ?")
 		this.pRenameAccount = this.db.prepare<
@@ -119,7 +124,7 @@ class AccountsDB {
 		return accounts
 	}
 
-	public addAccount = (a: Account, password?: string): void => {
+	public addAccount = (a: Account, password?: string, update?: boolean): void => {
 		let data: string
 		let encryptedData: string
 		switch (a.type) {
@@ -166,10 +171,19 @@ class AccountsDB {
 			}
 			log.info(`accounts-db: adding account: ${a.type}/${address}.`)
 			try {
-				const result = this.pInsertAccount.run(
-					address, currentVersion, a.type, a.name, data, encryptedData)
-				if (result.changes !== 1) {
-					throw new Error(`Unexpected error while adding account. Is Database corrupted?`)
+				if (!update) {
+					const result = this.pInsertAccount.run(
+						address, currentVersion, a.type, a.name, data, encryptedData)
+					if (result.changes !== 1) {
+						throw new Error(`Unexpected error while adding account. Is Database corrupted?`)
+					}
+				} else {
+					const result = this.pUpdateAccount.run(
+						currentVersion, data, encryptedData,
+						address, a.type, a.name)
+					if (result.changes !== 1) {
+						throw new UserError(`Account: ${a.name} - ${address} not found to update.`)
+					}
 				}
 			} catch (e) {
 				if (e instanceof Error && e.message.startsWith("UNIQUE")) {

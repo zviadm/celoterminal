@@ -68,9 +68,9 @@ export const useAccounts = () => {
 		accounts = initial.accounts
 		hasPassword = initial.hasPassword
 	}
-	const addAccount = (a?: Account, password?: string) => {
+	const addAccount = (a?: Account, password?: string, update?: boolean) => {
 		if (a) {
-			accountsDB().addAccount(a, password)
+			accountsDB().addAccount(a, password, update)
 		}
 		refreshAccounts()
 	}

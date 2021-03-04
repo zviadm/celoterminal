@@ -1,6 +1,6 @@
 import { shell } from 'electron'
 
-import { Account, LocalAccount } from '../../../lib/accounts'
+import { Account, LocalAccount, MultiSigAccount } from '../../../lib/accounts'
 import { accountsDBFilePath } from './accounts-state'
 import Accounts from './def'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
@@ -24,6 +24,7 @@ import RevealLocalKey from './reveal-local-key'
 import ChangePassword from './change-password'
 import AccountIcon from './account-icon'
 import CreateMultiSigAccount from './create-multisig-account'
+import ModifyMultiSig from './modify-multisig'
 
 const useStyles = makeStyles((theme) => ({
 	accountText: {
@@ -49,7 +50,7 @@ const AccountsApp = (props: {
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 
 	hasPassword: boolean,
-	onAdd: (a?: Account, password?: string) => void,
+	onAdd: (a?: Account, password?: string, update?: boolean) => void,
 	onRemove: (a: Account) => void,
 	onRename: (a: Account, name: string) => void,
 	onChangePassword: (oldPassword: string, newPassword: string) => void,
@@ -61,10 +62,11 @@ const AccountsApp = (props: {
 		"create-local" | "import-local" |
 		"create-multisig" | "import-multisig">()
 	const [confirmRemove, setConfirmRemove] = React.useState<Account | undefined>()
-	const [revealAccount, setRevealAccount] = React.useState<LocalAccount | undefined>()
 	const [renameAccount, setRenameAccount] = React.useState<Account | undefined>()
 	const [changePassword, setChangePassword] = React.useState(false)
 	const [renameNew, setRenameNew] = React.useState("")
+	const [revealAccount, setRevealAccount] = React.useState<LocalAccount | undefined>()
+	const [modifyMultiSig, setModifyMultiSig] = React.useState<MultiSigAccount | undefined>()
 	const selectedAccount = props.selectedAccount
 
 	const handleAdd = (a: Account, password?: string) => {
@@ -89,6 +91,7 @@ const AccountsApp = (props: {
 		setOpenedAdd(undefined)
 		setConfirmRemove(undefined)
 		setRevealAccount(undefined)
+		setModifyMultiSig(undefined)
 		setChangePassword(false)
 	}
 	const handleRefetch = () => { props.onAdd() }
@@ -122,6 +125,18 @@ const AccountsApp = (props: {
 				onCancel={handleCancel}
 			/>}
 			{revealAccount && <RevealLocalKey account={revealAccount} onClose={handleCancel} />}
+			{modifyMultiSig && <ModifyMultiSig
+				account={modifyMultiSig}
+				accounts={props.accounts}
+				onClose={handleCancel}
+				onChangeOwner={(newOwner) => {
+					const modifiedAccount = {
+						...modifyMultiSig,
+						ownerAddress: newOwner,
+					}
+					props.onAdd(modifiedAccount, undefined, true)
+				}}
+			/>}
 
 			<AppHeader app={Accounts} refetch={handleRefetch} isFetching={false} />
 			<Box display="flex" flexDirection="column" marginTop={2}>
@@ -169,11 +184,21 @@ const AccountsApp = (props: {
 									<Typography className={classes.accountText}>{a.address}</Typography>
 								</Box>
 								{a.type === "local" &&
-								<Tooltip title="Show the secret mnemonic phrase and the private-key of this account. Never share these secrets with anyone else!">
+								<Tooltip title={
+									"Show the secret mnemonic phrase and the private-key of " +
+									"this account. Never share these secrets with anyone else!"}>
 									<IconButton
 										edge="end"
 										color="secondary" onClick={() => setRevealAccount(a)}>
 										<icons.Lock />
+									</IconButton>
+								</Tooltip>}
+								{a.type === "multisig" &&
+								<Tooltip title={"Change associated owner for this MultiSig account"}>
+									<IconButton
+										edge="end"
+										onClick={() => setModifyMultiSig(a)}>
+										<icons.Settings />
 									</IconButton>
 								</Tooltip>}
 								<Tooltip title="Remove account">
