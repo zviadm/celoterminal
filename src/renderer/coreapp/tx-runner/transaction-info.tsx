@@ -35,8 +35,7 @@ const TransactionInfo = (props: {
 							colSpan={2}
 							style={{
 								fontFamily: "monospace",
-								textTransform: "uppercase",
-								overflowWrap: "anywhere"}}>calldata: {props.tx.encodedABI}</TableCell>
+								overflowWrap: "anywhere"}}>CALLDATA: {props.tx.encodedABI}</TableCell>
 					</TableRow>
 					<TableRow>
 						<TableCell></TableCell>
@@ -44,8 +43,7 @@ const TransactionInfo = (props: {
 							colSpan={2}
 							style={{
 								fontFamily: "monospace",
-								textTransform: "uppercase",
-								overflowWrap: "anywhere"}}>gas: {props.fee.estimatedGas.toFixed(0)}</TableCell>
+								overflowWrap: "anywhere"}}>GAS: {props.fee.estimatedGas.toFixed(0)}</TableCell>
 					</TableRow>
 					</>}
 					{props.tx.transferValue &&

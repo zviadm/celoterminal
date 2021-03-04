@@ -17,7 +17,7 @@ import NetworkIndicator from './network-indicator'
 
 const useStyles = makeStyles(() => ({
 	name: {
-		width: 120,
+		width: 180,
 		fontFamily: "monospace",
 		textOverflow: "ellipsis",
 		overflow: "hidden",

@@ -86,7 +86,7 @@ const InputAddressDialog = (props: {
 	onCancel: () => void,
 	onAction: (address: string) => void,
 }) => {
-	const [address, setAddress] = React.useState("0x")
+	const [address, setAddress] = React.useState("")
 	const handleAction = () => {
 		props.onAction(address)
 	}
@@ -102,6 +102,8 @@ const InputAddressDialog = (props: {
 						size="medium"
 						fullWidth={true}
 						inputProps={{style: {fontFamily: "monospace"}, spellCheck: false}}
+						InputLabelProps={{shrink: true}}
+						placeholder="0x..."
 						value={address}
 						label={props.inputLabel || "Address"}
 						onChange={(e) => { setAddress(e.target.value) }}
