@@ -126,6 +126,7 @@ const AddErc20 = (props: {
 							fullWidth={true}
 							spellCheck={false}
 							inputProps={{
+								spellCheck: false,
 								style: {fontFamily: "monospace"}
 							}}
 							value={customAddress}

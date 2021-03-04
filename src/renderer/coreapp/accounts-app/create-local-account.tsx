@@ -43,7 +43,7 @@ const CreateLocalAccount = (props: {
 	}
 	return (
 		<Dialog open={true} onClose={props.onCancel}>
-			<DialogTitle>Create a new local account</DialogTitle>
+			<DialogTitle>Create local account</DialogTitle>
 			<DialogContent>
 				<Alert severity="info">
 					Name is used to identify your account in the app. You can change it at any time later on.

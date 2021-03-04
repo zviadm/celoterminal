@@ -94,7 +94,7 @@ const CreateMultiSigAccount = (props: {
 	}
 	return (
 		<Dialog open={true} onClose={props.onCancel}>
-			<DialogTitle>Create a new MultiSig account</DialogTitle>
+			<DialogTitle>Create MultiSig account</DialogTitle>
 			<DialogContent>
 				<Box display="flex" flexDirection="column" width={380}>
 					<Typography>Owners</Typography>
