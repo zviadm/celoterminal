@@ -58,6 +58,9 @@ export async function createWallet(
 				if (ownerWallet.transformTX) {
 					tx = await ownerWallet.transformTX(kit, tx)
 				}
+				if (tx.executeUsingRootAccount) {
+					return tx
+				}
 				const data = stringToSolidityBytes(tx.tx.txo.encodeABI())
 				const destination = tx.tx.txo._parent?.options.address
 				if (!destination) {

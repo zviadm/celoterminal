@@ -1,5 +1,6 @@
-import BigNumber from 'bignumber.js'
 import { ContractKit } from '@celo/contractkit'
+import { toTransactionObject } from '@celo/connect'
+import { contractName } from '../../../lib/registry'
 
 import { Account } from '../../../lib/accounts'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
@@ -7,18 +8,15 @@ import { MultiSig } from './def'
 import useOnChainState from '../../state/onchain-state'
 
 import * as React from 'react'
-import {
-	Box, TableBody, Table, TableRow, TableCell, Tab, TableHead, Button,
-} from '@material-ui/core'
+import { Tab } from '@material-ui/core'
 import { Alert, TabContext, TabList, TabPanel } from '@material-ui/lab'
 
 import AppContainer from '../../components/app-container'
 import AppHeader from '../../components/app-header'
 import AppSection from '../../components/app-section'
 import SectionTitle from '../../components/section-title'
-import { contractName } from '../../../lib/registry'
 import { OwnersTable, SignaturesTable } from './owners'
-import { toTransactionObject } from '@celo/connect'
+import { TransactionsTable } from './transactions'
 
 const MultiSigApp = (props: {
 	accounts: Account[],
@@ -38,8 +36,8 @@ const MultiSigApp = (props: {
 			const multiSig = await kit.contracts.getMultiSig(account.address)
 			const transactionsP = multiSig.getTransactions()
 			const owners = multiSig.getOwners()
-			const requiredSigs = multiSig.getRequired()
-			const requiredInternalSigs = multiSig.getInternalRequired()
+			const requiredSignatures = multiSig.getRequired()
+			const internalRequiredSignatures = multiSig.getInternalRequired()
 
 			const transactions = (await transactionsP).map((t, idx) => ({...t, idx: idx}))
 			const pendingTXs = transactions.filter((t) => !t.executed)
@@ -53,20 +51,14 @@ const MultiSigApp = (props: {
 				pendingTXs,
 				contractNameMap,
 				owners: await owners,
-				requiredSigs: await requiredSigs,
-				requiredInternalSigs: await requiredInternalSigs,
+				requiredSignatures: await requiredSignatures,
+				internalRequiredSignatures: await internalRequiredSignatures,
 			}
 		},
 		[account]
 	))
 	const [tab, setTab] = React.useState("transactions")
 
-	const requiredConfirms = (
-		destination: string,
-		requiredSigs: BigNumber,
-		requiredInternalSigs: BigNumber) => {
-		return (destination === account.address) ? requiredInternalSigs : requiredSigs
-	}
 	const handleAddOwner = (newOwner: string) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
@@ -128,6 +120,43 @@ const MultiSigApp = (props: {
 		)
 	}
 
+	const handleExecuteTX = (txIdx: number) => {
+		props.runTXs(
+			async (kit: ContractKit) => {
+				const multiSig = await kit._web3Contracts.getMultiSig(account.address)
+				const tx = toTransactionObject(
+					kit.connection,
+					multiSig.methods.executeTransaction(txIdx))
+				return [{tx: tx, executeUsingRootAccount: true}]
+			},
+			() => { refetch() },
+		)
+	}
+	const handleConfirmTX = (txIdx: number) => {
+		props.runTXs(
+			async (kit: ContractKit) => {
+				const multiSig = await kit._web3Contracts.getMultiSig(account.address)
+				const tx = toTransactionObject(
+					kit.connection,
+					multiSig.methods.confirmTransaction(txIdx))
+				return [{tx: tx, executeUsingRootAccount: true}]
+			},
+			() => { refetch() },
+		)
+	}
+	const handleRevokeTX = (txIdx: number) => {
+		props.runTXs(
+			async (kit: ContractKit) => {
+				const multiSig = await kit._web3Contracts.getMultiSig(account.address)
+				const tx = toTransactionObject(
+					kit.connection,
+					multiSig.methods.revokeConfirmation(txIdx))
+				return [{tx: tx, executeUsingRootAccount: true}]
+			},
+			() => { refetch() },
+		)
+	}
+
 	return (
 		<AppContainer>
 			<AppHeader app={MultiSig} isFetching={isFetching} refetch={refetch} />
@@ -149,51 +178,16 @@ const MultiSigApp = (props: {
 						<Alert severity="info">
 							There are no pending transactions.
 						</Alert> :
-						<Box>
-							<Table size="small">
-								<TableHead>
-									<TableCell>ID</TableCell>
-									<TableCell width="100%">Contract & Data</TableCell>
-									<TableCell align="right">Confirms</TableCell>
-									<TableCell></TableCell>
-								</TableHead>
-								<TableBody>
-									{
-										fetched.pendingTXs.map((t) => {
-											const required = requiredConfirms(t.destination, fetched.requiredSigs, fetched.requiredInternalSigs)
-											const canExecute = required.lte(t.confirmations.length)
-											const confirmedBySelf = t.confirmations.indexOf(account.ownerAddress) >= 0
-											return (
-												<TableRow key={t.idx}>
-													<TableCell>{t.idx.toString()}</TableCell>
-													<TableCell>{fetched.contractNameMap.get(t.destination)}</TableCell>
-													<TableCell align="right">
-														{t.confirmations.length} / {required.toString()}
-													</TableCell>
-													<TableCell>
-														{canExecute ?
-														<Button
-															variant="outlined"
-															color="primary"
-														>Execute</Button> : (
-															!confirmedBySelf ?
-															<Button
-																variant="outlined"
-																color="primary"
-															>Confirm</Button> :
-															<Button
-																variant="outlined"
-																color="secondary"
-															>Revoke</Button>
-														)}
-													</TableCell>
-												</TableRow>
-											)
-										})
-									}
-								</TableBody>
-							</Table>
-						</Box>}
+						<TransactionsTable
+							account={account}
+							requiredSignatures={fetched.requiredSignatures.toNumber()}
+							internalRequiredSignatures={fetched.internalRequiredSignatures.toNumber()}
+							pendingTXs={fetched.pendingTXs}
+							contractNames={fetched.contractNameMap}
+							onExecute={handleExecuteTX}
+							onConfirm={handleConfirmTX}
+							onRevoke={handleRevokeTX}
+						/>}
 					</TabPanel>
 					<TabPanel value="owners">
 						<OwnersTable
@@ -208,8 +202,8 @@ const MultiSigApp = (props: {
 				<AppSection>
 					<SectionTitle>Required signatures</SectionTitle>
 					<SignaturesTable
-						requiredSignatures={fetched?.requiredSigs?.toNumber() || 0}
-						internalRequiredSignatures={fetched?.requiredInternalSigs?.toNumber() || 0}
+						requiredSignatures={fetched?.requiredSignatures?.toNumber() || 0}
+						internalRequiredSignatures={fetched?.internalRequiredSignatures?.toNumber() || 0}
 						onChangeRequiredSignatures={handleChangeRequiredSignatures}
 						onChangeInternalRequiredSignatures={handleChangeInternalRequiredSignatures}
 					/>
