@@ -26,7 +26,7 @@ const AppMenu = (props: {
 	setSelectedApp: (selectedApp: string) => void,
 	appList: AppDefinition[],
 	disableApps: boolean,
-	onRemoveApp: (id: string) => void,
+	onUninstallApp: (id: string) => void,
 }): JSX.Element => {
 	const classes = useStyles()
 	const apps: Pick<AppDefinition, "id" | "title" | "icon" | "core">[] = []
@@ -55,7 +55,7 @@ const AppMenu = (props: {
 							<ListItemSecondaryAction hidden={a.core}>
 								<IconButton
 									edge="end"
-									onClick={() => { props.onRemoveApp(a.id) }}
+									onClick={() => { props.onUninstallApp(a.id) }}
 									>
 									<HighlightOffIcon />
 								</IconButton>

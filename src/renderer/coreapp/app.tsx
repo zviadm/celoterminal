@@ -20,13 +20,13 @@ import { AppList } from '../apps/apps'
 import Accounts from './accounts-app/def'
 import { useAccounts } from './accounts-app/accounts-state'
 import useLocalStorageState from '../state/localstorage-state'
-import { AppDefinition, TXFinishFunc, TXFunc } from '../components/app-definition'
+import { TXFinishFunc, TXFunc } from '../components/app-definition'
 import AppStore from './appstore-app/def'
-import AppStoreApp, { PinnedApp } from './appstore-app/appstore-app'
+import AppStoreApp from './appstore-app/appstore-app'
 import { ErrorContext, ErrorProvider } from '../state/error-context'
+import { useInstalledApps } from './installed-apps-state'
 
 const appBarHeightPX = process.platform === "darwin" ? 85 : 60
-const appsById = new Map(AppList.map((a) => [a.id, a]))
 
 const App = () => {
 	const {error, setError, clearError} = React.useContext(ErrorContext)
@@ -47,26 +47,22 @@ const App = () => {
 		onFinish?: TXFinishFunc) => {
 		setTXFunc({f, onFinish})
 	}
-	const [pinnedApps, setPinnedApps] = useLocalStorageState<PinnedApp[]>("terminal/core/pinned-apps", [])
-
-	const appListAll = AppList
-	const pinnedAppList = pinnedApps.map((p) => appsById.get(p.id)).filter((p) => p) as AppDefinition[]
-	const appList = AppList.filter((a) => a.core).concat(...pinnedAppList)
-	const handleAddApp = (id: string) => {
-		if (pinnedApps.find((p) => p.id === id)) {
-			return
-		}
-		const pinnedAppsCopy = pinnedApps.concat({id: id})
-		setPinnedApps(pinnedAppsCopy)
+	const {
+		installedApps,
+		installApp,
+		uninstallApp
+	} = useInstalledApps()
+	const handleInstallApp = (id: string) => {
+		installApp(id)
 		setSelectedApp(id)
 	}
-	const handleRemoveApp = (id: string) => {
-		const pinnedAppsCopy = pinnedApps.filter((p) => p.id !== id)
+	const handleUninstallApp = (id: string) => {
+		uninstallApp(id)
 		if (selectedApp === id) {
 			setSelectedApp(Accounts.id)
 		}
-		setPinnedApps(pinnedAppsCopy)
 	}
+	const appList = AppList.filter((a) => a.core).concat(...installedApps)
 
 	let selectedApp = _selectedApp
 	let renderedApp
@@ -86,11 +82,11 @@ const App = () => {
 			/>
 		} else if (selectedApp === AppStore.id) {
 			renderedApp = <AppStoreApp
-				pinnedApps={pinnedApps}
-				onAddApp={handleAddApp}
+				installedApps={installedApps}
+				onInstallApp={handleInstallApp}
 			/>
 		} else {
-			const terminalApp = appListAll.find((a) => a.id === selectedApp)
+			const terminalApp = appList.find((a) => a.id === selectedApp)
 			if (!terminalApp) {
 				throw new Error(`Unknown app: '${selectedApp}'`)
 			}
@@ -147,7 +143,7 @@ const App = () => {
 						setSelectedApp={setSelectedApp}
 						appList={appList}
 						disableApps={!selectedAccount}
-						onRemoveApp={handleRemoveApp}
+						onUninstallApp={handleUninstallApp}
 					/>
 					<Box m={2} alignSelf="flex-end">
 						<CheckUpdate />
