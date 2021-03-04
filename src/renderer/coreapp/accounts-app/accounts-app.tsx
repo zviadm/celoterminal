@@ -251,7 +251,10 @@ const AccountsApp = (props: {
 					variant="outlined"
 					startIcon={<AccountIcon type="multisig" />}
 					disabled={!canImportMultiSig}
-					onClick={() => { setOpenedAdd("import-multisig") }}>Import MultiSig Account</Button>
+					onClick={() => {
+						throw new Error(`Not implemented`)
+						// setOpenedAdd("import-multisig")
+					}}>Import MultiSig Account</Button>
 			</AppSection>
 			<AppSection>
 				<Box display="flex" flexDirection="row">
