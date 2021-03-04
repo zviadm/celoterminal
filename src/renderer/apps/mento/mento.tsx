@@ -139,10 +139,12 @@ const MentoApp = (props: {
 		})
 	}
 
-	const canTrade = fetched && (
+	const stableAmountN = new BigNumber(stableAmount)
+	const canTrade = fetched && stableAmountN.gt(0) && (
 		(side === "sell" && fetched.celoBalance.shiftedBy(-coreErc20Decimals).gt(celoAmount)) ||
 		(side === "buy" && fetched.stableBalance.shiftedBy(-coreErc20Decimals).gt(stableAmount))
-		)
+	)
+	const price = stableAmountN.div(celoAmount)
 
 	return (
 		<AppContainer>
@@ -217,6 +219,13 @@ const MentoApp = (props: {
 						onChangeValue={handleChangeStableAmt}
 						disabled={!fetched}
 					/>
+				</Box>
+				<Box
+					display="flex" flexDirection="row" justifyContent="flex-end"
+					marginTop={1}>
+					<Typography color="textSecondary" variant="caption">
+						{price.isNaN() ? <br /> : `Price: ${price.toFixed(4)} ${stableToken}`}
+					</Typography>
 				</Box>
 				<Box
 					display="flex"
