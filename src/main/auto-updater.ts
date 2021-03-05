@@ -27,7 +27,7 @@ export const setupAutoUpdater = (): void => {
 	ipcMain.on("set-allow-prerelease", (event, allow) => {
 		log.info(`autoupdater: allow-prerelease = ${allow}`)
 		autoUpdater.allowPrerelease = allow
-		if (!_checkedOnStartup) {
+		if (!_checkedOnStartup && app.isPackaged) {
 			autoUpdater.checkForUpdates()
 			_checkedOnStartup = true
 		}
