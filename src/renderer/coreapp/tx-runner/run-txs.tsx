@@ -11,7 +11,7 @@ import { SpectronNetworkId } from '../../../lib/spectron-utils/constants'
 import { nowMS } from '../../state/time'
 import { sleep } from '../../../lib/utils'
 import { transformError } from '../ledger-utils'
-import { Account } from '../../../lib/accounts'
+import { Account } from '../../../lib/accounts/accounts'
 import { cfgNetworkURL } from '../../state/kit'
 
 import * as React from 'react'

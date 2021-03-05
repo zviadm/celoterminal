@@ -18,8 +18,8 @@ import Radio from '@material-ui/core/Radio'
 import Paper from '@material-ui/core/Paper'
 import Box from '@material-ui/core/Box'
 
-import { LocalAccount } from '../../../lib/accounts'
-import { decryptLocalKey, encryptLocalKey, LocalKey } from '../../../lib/accountsdb'
+import { LocalAccount } from '../../../lib/accounts/accounts'
+import { decryptLocalKey, encryptLocalKey, LocalKey } from '../../../lib/accounts/accountsdb'
 import { UserError } from '../../../lib/error'
 
 const useStyles = makeStyles(() => ({

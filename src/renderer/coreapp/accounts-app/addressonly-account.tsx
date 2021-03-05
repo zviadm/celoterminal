@@ -10,7 +10,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 import Alert from '@material-ui/lab/Alert'
 
-import { AddressOnlyAccount } from '../../../lib/accounts'
+import { AddressOnlyAccount } from '../../../lib/accounts/accounts'
 
 const useStyles = makeStyles(() => ({
 	address: {

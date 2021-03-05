@@ -19,7 +19,7 @@ import TextField from '@material-ui/core/TextField'
 import PromptLedgerAction from '../tx-runner/prompt-ledger-action'
 import Box from '@material-ui/core/Box'
 
-import { LedgerAccount } from '../../../lib/accounts'
+import { LedgerAccount } from '../../../lib/accounts/accounts'
 import { transformError } from '../ledger-utils'
 import { UserError } from '../../../lib/error'
 

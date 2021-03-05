@@ -3,7 +3,7 @@ import * as path from 'path'
 import * as log from 'electron-log'
 import { privateKeyToAddress } from '@celo/utils/lib/address'
 
-import AccountsDB, { encryptLocalKey } from '../lib/accountsdb'
+import AccountsDB, { encryptLocalKey } from '../lib/accounts/accountsdb'
 import { CFG } from '../lib/cfg'
 import { SpectronAccountKeys, SpectronAccountsDBPassword } from '../lib/spectron-utils/constants'
 

@@ -1,4 +1,4 @@
-import { MultiSigAccount } from '../../../lib/accounts'
+import { MultiSigAccount } from '../../../lib/accounts/accounts'
 
 import * as React from 'react'
 import {

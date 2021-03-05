@@ -4,7 +4,7 @@ import { PendingWithdrawal } from '@celo/contractkit/lib/wrappers/LockedGold'
 import { GroupVote } from '@celo/contractkit/lib/wrappers/Election'
 import { toTransactionObject } from '@celo/connect'
 
-import { Account } from '../../../lib/accounts'
+import { Account } from '../../../lib/accounts/accounts'
 import useOnChainState from '../../state/onchain-state'
 import { fmtAmount } from '../../../lib/utils'
 import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definition'

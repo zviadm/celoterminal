@@ -13,8 +13,8 @@ import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
 import Alert from '@material-ui/lab/Alert'
 
-import { LocalAccount } from '../../../lib/accounts'
-import { encryptLocalKey } from '../../../lib/accountsdb'
+import { LocalAccount } from '../../../lib/accounts/accounts'
+import { encryptLocalKey } from '../../../lib/accounts/accountsdb'
 
 const CreateLocalAccount = (props: {
 	onAdd: (a: LocalAccount, password?: string) => void,

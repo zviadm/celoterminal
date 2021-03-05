@@ -3,8 +3,8 @@ import electron from 'electron'
 import path from 'path'
 
 import useLocalStorageState from '../../state/localstorage-state'
-import { Account } from '../../../lib/accounts'
-import AccountsDB from '../../../lib/accountsdb'
+import { Account } from '../../../lib/accounts/accounts'
+import AccountsDB from '../../../lib/accounts/accountsdb'
 import { CFG } from './../../../lib/cfg'
 
 let _db: AccountsDB

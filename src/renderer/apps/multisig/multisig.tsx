@@ -2,7 +2,7 @@ import { ContractKit } from '@celo/contractkit'
 import { toTransactionObject } from '@celo/connect'
 import { contractName } from '../../../lib/registry'
 
-import { Account } from '../../../lib/accounts'
+import { Account } from '../../../lib/accounts/accounts'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { MultiSig } from './def'
 import useOnChainState from '../../state/onchain-state'

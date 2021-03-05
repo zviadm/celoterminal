@@ -1,7 +1,7 @@
 import { clipboard } from 'electron'
 import QRCode from 'qrcode-svg'
 
-import { Account } from '../../lib/accounts'
+import { Account } from '../../lib/accounts/accounts'
 import { fmtAddress } from '../../lib/utils'
 import { encodeDataForQr } from '../../lib/celo-qr-code'
 

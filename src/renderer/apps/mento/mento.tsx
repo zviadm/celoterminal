@@ -1,7 +1,7 @@
 import { ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
 
-import { Account } from '../../../lib/accounts'
+import { Account } from '../../../lib/accounts/accounts'
 import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definition'
 import { Mento } from './def'
 import useLocalStorageState from '../../state/localstorage-state'

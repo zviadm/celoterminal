@@ -7,7 +7,7 @@ import { ensureLeading0x, toChecksumAddress, privateKeyToAddress } from '@celo/u
 import { isValidAddress } from 'ethereumjs-util'
 
 import { Account, AddressOnlyAccount, LedgerAccount, LocalAccount, MultiSigAccount } from './accounts'
-import { UserError } from './error'
+import { UserError } from '../error'
 
 // Supported `account` row versions. Last version is the current version.
 // Version must be increased when:

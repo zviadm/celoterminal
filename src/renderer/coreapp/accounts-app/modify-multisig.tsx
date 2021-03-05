@@ -1,6 +1,6 @@
 import { ContractKit } from '@celo/contractkit'
 
-import { MultiSigAccount, Account } from '../../../lib/accounts'
+import { MultiSigAccount, Account } from '../../../lib/accounts/accounts'
 
 import * as React from 'react'
 import {

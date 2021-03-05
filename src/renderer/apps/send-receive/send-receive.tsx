@@ -4,7 +4,7 @@ import { isValidAddress } from 'ethereumjs-util'
 import { BlockTransactionString } from 'web3-eth'
 import { valueToBigNumber } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 
-import { Account } from '../../../lib/accounts'
+import { Account } from '../../../lib/accounts/accounts'
 import useOnChainState from '../../state/onchain-state'
 import useLocalStorageState from '../../state/localstorage-state'
 import { fmtAmount } from '../../../lib/utils'
