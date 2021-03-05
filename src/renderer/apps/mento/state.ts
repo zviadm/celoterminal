@@ -5,7 +5,7 @@ import { BlockTransactionString } from 'web3-eth'
 
 import useOnChainState from '../../state/onchain-state'
 import { StableTokens } from './config'
-import { Account } from '../../../lib/accounts'
+import { Account } from '../../../lib/accounts/accounts'
 
 import * as React from 'react'
 import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'

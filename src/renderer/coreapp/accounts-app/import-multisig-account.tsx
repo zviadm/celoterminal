@@ -1,7 +1,7 @@
 import { ContractKit } from '@celo/contractkit'
 import { isValidAddress } from 'ethereumjs-util'
 
-import { MultiSigAccount, Account } from '../../../lib/accounts'
+import { MultiSigAccount, Account } from '../../../lib/accounts/accounts'
 
 import * as React from 'react'
 import {

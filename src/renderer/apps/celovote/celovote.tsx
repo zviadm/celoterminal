@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { ContractKit } from '@celo/contractkit'
 import { GroupVote } from '@celo/contractkit/lib/wrappers/Election'
 
-import { Account } from '../../../lib/accounts'
+import { Account } from '../../../lib/accounts/accounts'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { Celovote } from './def'
 import useOnChainState from '../../state/onchain-state'

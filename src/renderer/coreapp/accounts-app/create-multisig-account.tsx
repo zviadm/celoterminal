@@ -1,7 +1,7 @@
 import { ContractKit } from '@celo/contractkit'
 import { isValidAddress } from 'ethereumjs-util'
 
-import { MultiSigAccount, Account } from '../../../lib/accounts'
+import { MultiSigAccount, Account } from '../../../lib/accounts/accounts'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { multiSigDeployTXs, multiSigInitializeTXs } from '../../../lib/core-contracts/deploy'
 import { sleep } from '../../../lib/utils'

@@ -1,6 +1,6 @@
 import { shell } from 'electron'
 
-import { Account, LocalAccount, MultiSigAccount } from '../../../lib/accounts'
+import { Account, LocalAccount, MultiSigAccount } from '../../../lib/accounts/accounts'
 import { accountsDBFilePath } from './accounts-state'
 import Accounts from './def'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'

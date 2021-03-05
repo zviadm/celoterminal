@@ -4,7 +4,7 @@ import { concurrentMap } from '@celo/utils/lib/async'
 import { secondsToDurationString } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 import { ProposalStage, VoteValue } from '@celo/contractkit/lib/wrappers/Governance'
 
-import { Account } from '../../../lib/accounts'
+import { Account } from '../../../lib/accounts/accounts'
 import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { Governance } from './def'
 import useOnChainState from '../../state/onchain-state'

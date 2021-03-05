@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 
 import Erc20Contract, { newErc20 } from '../../../lib/erc20/erc20-contract'
 import { RegisteredErc20 } from '../../../lib/erc20/core'
-import { Account } from '../../../lib/accounts'
+import { Account } from '../../../lib/accounts/accounts'
 import { LockedGoldWrapper } from '@celo/contractkit/lib/wrappers/LockedGold'
 import { AccountsWrapper } from '@celo/contractkit/lib/wrappers/Accounts'
 

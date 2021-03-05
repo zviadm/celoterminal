@@ -1,7 +1,7 @@
 import { ContractKit } from '@celo/contractkit'
 import { CeloTransactionObject, CeloTx, CeloTxReceipt } from '@celo/connect'
 
-import { Account } from '../../lib/accounts'
+import { Account } from '../../lib/accounts/accounts'
 
 export interface Transaction {
 	tx: CeloTransactionObject<unknown>

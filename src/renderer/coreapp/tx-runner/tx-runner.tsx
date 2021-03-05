@@ -1,6 +1,6 @@
-import { Account } from '../../../lib/accounts'
+import { Account } from '../../../lib/accounts/accounts'
 import useSessionState from '../../state/session-state'
-import { decryptLocalKey } from '../../../lib/accountsdb'
+import { decryptLocalKey } from '../../../lib/accounts/accountsdb'
 import { canDecryptLocalKey, rootAccount } from './wallet'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { UserError } from '../../../lib/error'
