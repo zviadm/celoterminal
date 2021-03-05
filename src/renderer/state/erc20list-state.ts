@@ -102,7 +102,7 @@ export const removeErc20FromList = (address: string): void => {
 
 const registeredListKeyPrefix = "terminal/core/erc20/registered-list/"
 const registeredList = (): {address: string}[] => {
-	const registeredListKey = registeredListKeyPrefix + CFG().networkId
+	const registeredListKey = registeredListKeyPrefix + CFG().chainId
 	const json = localStorage.getItem(registeredListKey)
 	if (!json) {
 		return []
@@ -115,13 +115,13 @@ const registeredList = (): {address: string}[] => {
 	}
 }
 const setRegisteredList = (list: {address: string}[]) => {
-	const registeredListKey = registeredListKeyPrefix + CFG().networkId
+	const registeredListKey = registeredListKeyPrefix + CFG().chainId
 	localStorage.setItem(registeredListKey, JSON.stringify(list))
 }
 
 const customListKeyPrefix = "terminal/core/erc20/custom-list/"
 const customList = (): CustomErc20[] => {
-	const customListKey = customListKeyPrefix + CFG().networkId
+	const customListKey = customListKeyPrefix + CFG().chainId
 	const json = localStorage.getItem(customListKey)
 	if (!json) {
 		return []
@@ -134,6 +134,6 @@ const customList = (): CustomErc20[] => {
 	}
 }
 const setCustomList = (list: CustomErc20[]) => {
-	const customListKey = customListKeyPrefix + CFG().networkId
+	const customListKey = customListKeyPrefix + CFG().chainId
 	localStorage.setItem(customListKey, JSON.stringify(list))
 }

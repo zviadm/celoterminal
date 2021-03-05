@@ -6,7 +6,7 @@ let _cfgNetworkURL: string | undefined
 export const cfgNetworkURL = (): string => {
 	if (!_cfgNetworkURL) {
 		const cfg = CFG()
-		const networkURL: string | null = localStorage.getItem(networkURLKeyPrefix + cfg.networkId)
+		const networkURL: string | null = localStorage.getItem(networkURLKeyPrefix + cfg.chainId)
 		_cfgNetworkURL = (networkURL && networkURL !== "") ? networkURL : cfg.defaultNetworkURL
 	}
 	return _cfgNetworkURL
@@ -15,7 +15,7 @@ const setCFGNetworkURL = (v: string) => {
 	_cfgNetworkURL = v
 	const cfg = CFG()
 	const cfgValue = v === cfg.defaultNetworkURL ? "" : v
-	localStorage.setItem(networkURLKeyPrefix + CFG().networkId, cfgValue)
+	localStorage.setItem(networkURLKeyPrefix + CFG().chainId, cfgValue)
 }
 
 let _kit: ContractKit | undefined
