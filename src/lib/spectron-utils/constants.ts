@@ -1,7 +1,7 @@
 // This file gets imported in main & renderer code paths.
 // This file must have no DEV dependencies.
 
-export const SpectronChainId = "1101"
+export const SpectronChainId = "1337"
 export const SpectronAccountsDB = "celoaccounts-test-spectron.db"
 export const SpectronAccountsDBPassword = "spec123"
 
