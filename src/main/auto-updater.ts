@@ -4,12 +4,12 @@ import log from 'electron-log'
 
 import { setForceQuit } from '.'
 
+let _checkedOnStartup = false
 let _updateReady: UpdateInfo | undefined
 export const setupAutoUpdater = (): void => {
 	if (app.isPackaged) {
 		autoUpdater.autoInstallOnAppQuit = false
 		autoUpdater.allowPrerelease = false
-		autoUpdater.checkForUpdates()
 		setInterval(() => {
 			autoUpdater.checkForUpdates()
 		}, 30 * 60 * 1000) // Check every 30 minutes.
@@ -25,8 +25,12 @@ export const setupAutoUpdater = (): void => {
 	}
 
 	ipcMain.on("set-allow-prerelease", (event, allow) => {
-		autoUpdater.allowPrerelease = allow
 		log.info(`autoupdater: allow-prerelease = ${allow}`)
+		autoUpdater.allowPrerelease = allow
+		if (!_checkedOnStartup) {
+			autoUpdater.checkForUpdates()
+			_checkedOnStartup = true
+		}
 		event.returnValue = null
 	})
 	ipcMain.on("check-update-ready", (event) => {
