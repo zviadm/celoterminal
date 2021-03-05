@@ -136,7 +136,7 @@ const App = () => {
 				overflow="hidden">
 				<Box
 					display="flex" flexDirection="column"
-					overflow="scroll"
+					overflow="auto"
 					>
 					<AppMenu
 						selectedApp={selectedApp}
@@ -151,7 +151,7 @@ const App = () => {
 				</Box>
 				<Box
 					display="flex" flexDirection="column"
-					overflow="scroll"
+					overflow="auto"
 					flex={1}
 					paddingLeft={2}
 					paddingRight={2}>
