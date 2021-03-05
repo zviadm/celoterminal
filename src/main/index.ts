@@ -62,6 +62,7 @@ function createMainWindow() {
 		: {}),
 		...iconOptions,
 	})
+	window.removeMenu()
 
 	if (!noDevTools) {
 		window.webContents.openDevTools()
