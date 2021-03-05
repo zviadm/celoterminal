@@ -7,7 +7,7 @@ export const MultiSig: AppDefinition = {
 	id: "multisig",
 	title: "MultiSig",
 	icon: Group,
-	// TODO(zviad): Add URL explaining basics of the Celo MultiSig contract.
+	url: "https://github.com/zviadm/celoterminal/wiki/Using-MultiSig-accounts",
 	description: `
 	Manage MultiSig accounts. Confirm transactions, add/remove owners,
 	change signature requirements and more.
