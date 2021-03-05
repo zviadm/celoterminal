@@ -7,7 +7,7 @@ import { EstimatedFee, estimateGas } from './fee-estimation'
 import { ParsedTransaction, parseTransaction } from './transaction-parser'
 import { createWallet, rootAccount } from './wallet'
 import { CFG, explorerRootURL } from '../../../lib/cfg'
-import { SpectronNetworkId } from '../../../lib/spectron-utils/constants'
+import { SpectronChainId } from '../../../lib/spectron-utils/constants'
 import { nowMS } from '../../state/time'
 import { sleep } from '../../../lib/utils'
 import { transformError } from '../ledger-utils'
@@ -82,7 +82,7 @@ const RunTXs = (props: {
 			try {
 				const w = await createWallet(selectedAccount, accounts, password)
 				const cfg = CFG()
-				if (cfg.networkId !== SpectronNetworkId) {
+				if (cfg.chainId !== SpectronChainId) {
 					// NOTE: see comment in `createWallet` about limitations of celo-devchain.
 					const accounts = w.wallet.getAccounts()
 					if (accounts.length !== 1 ||
@@ -95,10 +95,10 @@ const RunTXs = (props: {
 				const kit = newKit(cfgNetworkURL(), w.wallet)
 				kit.defaultAccount = executingAccount.address
 				try {
-					const networkId = (await kit.web3.eth.net.getId()).toString()
-					if (networkId !== cfg.networkId) {
+					const chainId = (await kit.web3.eth.getChainId()).toString()
+					if (chainId !== cfg.chainId) {
 						throw new Error(
-							`Unexpected NetworkId. Expected: ${cfg.networkId}, Got: ${networkId}. ` +
+							`Unexpected ChainId. Expected: ${cfg.chainId}, Got: ${chainId}. ` +
 							`Refusing to run transactions.`)
 					}
 					const txs = await txFunc(kit)

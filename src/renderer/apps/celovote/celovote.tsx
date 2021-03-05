@@ -8,7 +8,7 @@ import { Account } from '../../../lib/accounts/accounts'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { Celovote } from './def'
 import useOnChainState from '../../state/onchain-state'
-import { CFG, mainnetNetworkId } from '../../../lib/cfg'
+import { CFG, mainnetChainId } from '../../../lib/cfg'
 import { fmtAddress, fmtAmount } from '../../../lib/utils'
 import { UserError } from '../../../lib/error'
 
@@ -60,7 +60,7 @@ const CelovoteApp = (props: {
 		refetch,
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
-			if (CFG().networkId !== mainnetNetworkId) {
+			if (CFG().chainId !== mainnetChainId) {
 				throw new UserError(`Celovote APP only works with Mainnet.`)
 			}
 			const accounts = await kit.contracts.getAccounts()

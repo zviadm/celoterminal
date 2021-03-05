@@ -6,7 +6,7 @@ import { Remote } from 'electron'
 import { ContractKit, newKit } from '@celo/contractkit'
 import * as kill from 'tree-kill'
 
-import { SpectronAccountsDB, SpectronNetworkId } from './constants'
+import { SpectronAccountsDB, SpectronChainId } from './constants'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const failFast = require('jasmine-fail-fast')
@@ -65,7 +65,7 @@ const startApp = async (): Promise<{app: Application, cleanup: () => Promise<voi
 		env: {
 			"SPECTRON_TEST": "true",
 			"CELOTERMINAL_ACCOUNTS_DB": "home/.celoterminal/" + SpectronAccountsDB,
-			"CELOTERMINAL_NETWORK_ID": SpectronNetworkId,
+			"CELOTERMINAL_NETWORK_ID": SpectronChainId,
 			"CELOTERMINAL_NETWORK_URL": `http://localhost:${devchainPort}`,
 		},
 		// enable for chrome-driver verbose debugging.

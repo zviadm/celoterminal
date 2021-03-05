@@ -79,7 +79,7 @@ const NetworkIndicator = (): JSX.Element => {
 		}
 		setOpenNetworkURL(false)
 	}
-	const netName = networkName(CFG().networkId)
+	const netName = networkName(CFG().chainId)
 	const tooltipTitle = <div>Network: {networkURL}{connected ? <></> : <><br />{connectErr}</>}</div>
 	return (
 		<>
@@ -113,12 +113,12 @@ const ChangeNetworkURL = (props: {
 			return
 		}
 		const kit = newKit(networkURL)
-		kit.web3.eth.net
-			.getId()
-			.then((networkId) => {
-				const cfgNetworkId = CFG().networkId
-				if (networkId.toString() !== cfgNetworkId) {
-					throw new UserError(`NetworkId doesn't match. Expected: ${cfgNetworkId}, Got: ${networkId}.`)
+		kit.web3.eth
+			.getChainId()
+			.then((chainId) => {
+				const cfgChainId = CFG().chainId
+				if (chainId.toString() !== cfgChainId) {
+					throw new UserError(`ChainId doesn't match. Expected: ${cfgChainId}, Got: ${chainId}.`)
 				} else {
 					onClose(networkURL)
 				}
