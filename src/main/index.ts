@@ -55,7 +55,7 @@ function createMainWindow() {
 			devTools: !noDevTools,
 		},
 		show: noSplash,
-		// autoHideMenuBar: true,
+		autoHideMenuBar: true,
 		...(process.platform === "darwin"
 		? {
 				frame: false,
