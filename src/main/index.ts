@@ -55,7 +55,7 @@ function createMainWindow() {
 			devTools: !noDevTools,
 		},
 		show: noSplash,
-		autoHideMenuBar: true,
+		// autoHideMenuBar: true,
 		...(process.platform === "darwin"
 		? {
 				frame: false,
@@ -154,7 +154,7 @@ if (!gotLock) {
 
 	// Create main BrowserWindow when electron is ready.
 	app.on('ready', () => {
-		setupMenu()
+		// setupMenu()
 		mainWindow = createMainWindow()
 	})
 
