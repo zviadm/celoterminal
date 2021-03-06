@@ -6,7 +6,7 @@ import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definiti
 import { Mento } from './def'
 import useLocalStorageState from '../../state/localstorage-state'
 import { fmtAmount } from '../../../lib/utils'
-import { StableTokens } from './config'
+import { getExchange, getStableToken, stableTokens } from './config'
 import { calcCeloAmount, calcStableAmount, fmtTradeAmount } from './rate-utils'
 import { useExchangeHistoryState, useExchangeOnChainState } from './state'
 import { coreErc20Decimals } from '../../../lib/erc20/core'
@@ -45,7 +45,7 @@ const MentoApp = (props: {
 		fetched,
 		refetch,
 	} = useExchangeOnChainState(account, stableToken)
-	const exchangeHistory = useExchangeHistoryState(account)
+	const exchangeHistory = useExchangeHistoryState(account, stableToken)
 	const refetchAll = () => {
 		refetch()
 		exchangeHistory.refetch()
@@ -96,7 +96,7 @@ const MentoApp = (props: {
 			}
 		})
 	}
-	const stableNames = Object.keys(StableTokens)
+	const stableNames = stableTokens.map((t) => t.symbol)
 	const handleChangeStable = (t: string) => {
 		setAnchorToken("celo")
 		setStableToken(t)
@@ -119,20 +119,18 @@ const MentoApp = (props: {
 		minAmount: BigNumber) => {
 		setConfirming(undefined)
 		runTXs(async (kit: ContractKit) => {
-			// TODO(zviadm): support multi exchange.
-			const exchange = await kit.contracts.getExchange()
+			const exchange = await getExchange(kit, stableToken)
 			const txSwap = exchange.sell(sellAmount, minAmount, sellCELO)
 			// Set explicit gas based on github.com/celo-org/celo-monorepo/issues/2541
 			const txs: Transaction[] = [{tx: txSwap, params: {gas: 300000}}]
-
 			const approveC = await (
 				sellCELO ?
 				kit.contracts.getGoldToken() :
-				StableTokens[stableToken](kit))
+				getStableToken(kit, stableToken))
 			const allowed = await approveC.allowance(account.address, exchange.address)
 			if (allowed.lt(sellAmount)) {
 				// Exchange is a core-contract, thus infinite-approval should be safe.
-				const txApprove = approveC.increaseAllowance(exchange.address, 1e35)
+				const txApprove = approveC.approve(exchange.address, new BigNumber(1e35).toFixed(0))
 				txs.unshift({tx: txApprove})
 			}
 			return txs
@@ -194,6 +192,7 @@ const MentoApp = (props: {
 				</Box>
 				<Box display="flex" flexDirection={side === "sell" ? "column" : "column-reverse"}>
 					<NumberInput
+						id="sell-amount-input"
 						margin="normal"
 						label={
 							(!fetched || side !== "sell") ? `CELO` :
@@ -207,6 +206,7 @@ const MentoApp = (props: {
 						disabled={!fetched}
 					/>
 					<NumberInput
+						id="buy-amount-input"
 						margin="normal"
 						label={
 							(!fetched || side !== "buy") ? `${stableToken}` :
@@ -278,7 +278,7 @@ const MentoApp = (props: {
 				</Box>
 			</AppSection>
 			<AppSection>
-				<TradeHistory events={exchangeHistory.fetched} />
+				<TradeHistory stableToken={stableToken} events={exchangeHistory.fetched} />
 			</AppSection>
 		</AppContainer>
 	)

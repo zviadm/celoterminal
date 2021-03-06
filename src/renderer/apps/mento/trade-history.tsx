@@ -13,6 +13,7 @@ import {
 import Link from '../../components/link'
 
 const TradeHistory = (props: {
+	stableToken: string,
 	events?: TradeEvent[],
 }): JSX.Element => {
 
@@ -43,8 +44,8 @@ const TradeHistory = (props: {
 									whiteSpace: "nowrap",
 									color: e.soldGold ? "#f44336" : "#4caf50"}}>
 									{e.soldGold ?
-									`${fmtAmount(e.buyAmount, coreErc20Decimals)} cUSD \u2190 ${fmtAmount(e.sellAmount, coreErc20Decimals)} CELO` :
-									`${fmtAmount(e.sellAmount, coreErc20Decimals)} cUSD \u2192 ${fmtAmount(e.buyAmount, coreErc20Decimals)} CELO`
+									`${fmtAmount(e.buyAmount, coreErc20Decimals)} ${props.stableToken} \u2190 ${fmtAmount(e.sellAmount, coreErc20Decimals)} CELO` :
+									`${fmtAmount(e.sellAmount, coreErc20Decimals)} ${props.stableToken} \u2192 ${fmtAmount(e.buyAmount, coreErc20Decimals)} CELO`
 									}
 								</TableCell>
 								<TableCell align="right">

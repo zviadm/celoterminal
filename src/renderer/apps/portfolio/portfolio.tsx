@@ -10,7 +10,7 @@ import { Portfolio } from './def'
 import { fetchBalancesForAccounts, fetchLockedBalanceForAccounts, totalBalances } from './balances'
 import useLocalStorageState from '../../state/localstorage-state'
 import { coreErc20Decimals, RegisteredErc20 } from '../../../lib/erc20/core'
-import { fetchConversionRates } from './conversions'
+import { registeredErc20ConversionRates } from '../../../lib/erc20/conversions'
 
 import * as React from 'react'
 import {
@@ -41,7 +41,7 @@ const PortfolioApp = (props: {
 		async (kit: ContractKit) => {
 			const balances = fetchBalancesForAccounts(kit, accounts, erc20s)
 			const locked = fetchLockedBalanceForAccounts(kit, accounts)
-			const conversionRates = fetchConversionRates(kit, "cUSD", erc20s)
+			const conversionRates = registeredErc20ConversionRates(kit, "cUSD", erc20s)
 			return {
 				balances: await balances,
 				locked: await locked,

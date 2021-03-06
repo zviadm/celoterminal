@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { BlockTransactionString } from 'web3-eth'
 
 import useOnChainState from '../../state/onchain-state'
-import { StableTokens } from './config'
+import { getExchange, getExchangeWeb3, getStableToken } from './config'
 import { Account } from '../../../lib/accounts/accounts'
 
 import * as React from 'react'
@@ -14,10 +14,9 @@ import useEventHistoryState, { estimateTimestamp } from '../../state/event-histo
 export const useExchangeOnChainState = (account: Account, stableToken: string) => {
 	return useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
-			// TODO(zviadm): handle multi-exchange once it is available.
-			const exchange = await kit.contracts.getExchange()
+			const exchange = await getExchange(kit, stableToken)
 			const goldToken = await kit.contracts.getGoldToken()
-			const stableTokenC = await StableTokens[stableToken](kit)
+			const stableTokenC = await getStableToken(kit, stableToken)
 
 			const celoBalance = goldToken.balanceOf(account.address)
 			const stableBalance = stableTokenC.balanceOf(account.address)
@@ -49,14 +48,14 @@ export interface TradeEvent {
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const useExchangeHistoryState = (account: Account) => {
+export const useExchangeHistoryState = (account: Account, stableToken: string) => {
 	const fetchCallback = React.useCallback(
 		async (
 			kit: ContractKit,
 			fromBlock: number,
 			toBlock: number,
 			latestBlock: BlockTransactionString): Promise<TradeEvent[]> => {
-			const exchangeDirect = await kit._web3Contracts.getExchange()
+			const exchangeDirect = await getExchangeWeb3(kit, stableToken)
 			const events = await exchangeDirect.getPastEvents("Exchanged", {
 				fromBlock,
 				toBlock,
@@ -73,7 +72,7 @@ export const useExchangeHistoryState = (account: Account) => {
 					buyAmount: valueToBigNumber(e.returnValues.buyAmount),
 					soldGold: e.returnValues.soldGold,
 			}))
-		}, [account],
+		}, [account, stableToken],
 	)
 
 	return useEventHistoryState(

@@ -100,7 +100,9 @@ const ConfirmSwap = (props: {
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.onCancel}>Cancel</Button>
-				<Button color="primary" onClick={handleConfirm}>Trade</Button>
+				<Button
+					id="confirm-trade"
+					color="primary" onClick={handleConfirm}>Trade</Button>
 			</DialogActions>
 		</Dialog>
 	)

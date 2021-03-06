@@ -1,7 +1,7 @@
 import * as React from "react"
 import * as log from "electron-log"
 import { CFG, registeredErc20s } from "../../lib/cfg"
-import { coreErc20Decimals, coreErc20s, RegisteredErc20 } from "../../lib/erc20/core"
+import { coreErc20s, RegisteredErc20 } from "../../lib/erc20/core"
 
 // useErc20List returns users watched/added list of Erc20 tokens.
 // reload can be used to refresh the list. reload should be called after token
@@ -12,11 +12,6 @@ export const useErc20List = (): {
 } => {
 	const [changeN, setChangeN] = React.useState(0)
 	const erc20s = React.useMemo(() => {
-		const core: RegisteredErc20[] = coreErc20s.map((e) => ({
-			...e,
-			address: "",
-			decimals: coreErc20Decimals,
-		}))
 		const fullList = registeredErc20s()
 		const registered = (registeredList()
 			.map((r) => fullList.find((f) => f.address === r.address))
@@ -27,7 +22,7 @@ export const useErc20List = (): {
 			...custom,
 		].sort((a, b) => a.symbol < b.symbol ? -1 : 1)
 		return [
-			...core,
+			...coreErc20s,
 			...sorted,
 		]
 	// eslint-disable-next-line react-hooks/exhaustive-deps
