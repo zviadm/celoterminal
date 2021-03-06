@@ -55,7 +55,10 @@ function createMainWindow() {
 			devTools: !noDevTools,
 		},
 		show: noSplash,
-		// autoHideMenuBar: true,
+		// autoHide is causing unexpected issues during spectron tests. It is somehow
+		// blocking the test runner to exit gracefully, causing tests to lock up. Thus,
+		// do not autoHideMenuBar during tests.
+		autoHideMenuBar: !isSpectronTest,
 		...(process.platform === "darwin"
 		? {
 				frame: false,
