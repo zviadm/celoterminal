@@ -7,7 +7,7 @@ import { setupAutoUpdater } from './auto-updater'
 import { CFG } from '../lib/cfg'
 import { testOnlySetupAccountsDB } from './test-utils'
 import { SpectronAccountsDB } from '../lib/spectron-utils/constants'
-// import { setupMenu } from './menu'
+import { setupMenu } from './menu'
 
 declare const __static: string
 
@@ -55,7 +55,10 @@ function createMainWindow() {
 			devTools: !noDevTools,
 		},
 		show: noSplash,
-		// autoHideMenuBar: true,
+		// autoHide is causing unexpected issues during spectron tests. It is somehow
+		// blocking the test runner to exit gracefully, causing tests to lock up. Thus,
+		// do not autoHideMenuBar during tests.
+		autoHideMenuBar: !isSpectronTest,
 		...(process.platform === "darwin"
 		? {
 				frame: false,
@@ -154,7 +157,7 @@ if (!gotLock) {
 
 	// Create main BrowserWindow when electron is ready.
 	app.on('ready', () => {
-		// setupMenu()
+		setupMenu()
 		mainWindow = createMainWindow()
 	})
 
