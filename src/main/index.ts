@@ -7,6 +7,7 @@ import { setupAutoUpdater } from './auto-updater'
 import { CFG } from '../lib/cfg'
 import { testOnlySetupAccountsDB } from './test-utils'
 import { SpectronAccountsDB } from '../lib/spectron-utils/constants'
+// import { setupMenu } from './menu'
 
 declare const __static: string
 
@@ -54,6 +55,7 @@ function createMainWindow() {
 			devTools: !noDevTools,
 		},
 		show: noSplash,
+		// autoHideMenuBar: true,
 		...(process.platform === "darwin"
 		? {
 				frame: false,
@@ -62,7 +64,6 @@ function createMainWindow() {
 		: {}),
 		...iconOptions,
 	})
-	window.removeMenu()
 
 	if (!noDevTools) {
 		window.webContents.openDevTools()
@@ -153,6 +154,7 @@ if (!gotLock) {
 
 	// Create main BrowserWindow when electron is ready.
 	app.on('ready', () => {
+		// setupMenu()
 		mainWindow = createMainWindow()
 	})
 
