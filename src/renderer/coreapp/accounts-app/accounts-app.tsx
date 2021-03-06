@@ -26,6 +26,7 @@ import AccountIcon from './account-icon'
 import CreateMultiSigAccount from './create-multisig-account'
 import ModifyMultiSig from './modify-multisig'
 import ImportMultiSigAccount from './import-multisig-account'
+import { AddAccount, AddType } from './add-account'
 
 const useStyles = makeStyles((theme) => ({
 	accountText: {
@@ -57,11 +58,8 @@ const AccountsApp = (props: {
 	onChangePassword: (oldPassword: string, newPassword: string) => void,
 }): JSX.Element => {
 	const classes = useStyles()
-	const [openedAdd, setOpenedAdd] = React.useState<
-		undefined |
-		"add-ledger" | "add-addressonly" |
-		"create-local" | "import-local" |
-		"create-multisig" | "import-multisig">()
+	const [showAddAccount, setShowAddAccount] = React.useState(false)
+	const [openedAdd, setOpenedAdd] = React.useState<undefined | AddType>()
 	const [confirmRemove, setConfirmRemove] = React.useState<Account | undefined>()
 	const [renameAccount, setRenameAccount] = React.useState<Account | undefined>()
 	const [changePassword, setChangePassword] = React.useState(false)
@@ -89,6 +87,7 @@ const AccountsApp = (props: {
 		setChangePassword(false)
 	}
 	const handleCancel = () => {
+		setShowAddAccount(false)
 		setOpenedAdd(undefined)
 		setConfirmRemove(undefined)
 		setRevealAccount(undefined)
@@ -101,15 +100,30 @@ const AccountsApp = (props: {
 		shell.showItemInFolder(accountsDBFilePath())
 	}
 	const forceSetupPassword = !props.hasPassword && (openedAdd === "create-local" || openedAdd === "import-local")
-	const canCreateMultiSig = selectedAccount && selectedAccount.type !== "address-only"
-	const canImportMultiSig = !!props.accounts.find((a) => a.type !== "address-only")
+	const disabledAdds: AddType[] = []
+	if (selectedAccount && selectedAccount.type !== "address-only") {
+		disabledAdds.push("create-multisig")
+	}
+	if (props.accounts.find((a) => a.type !== "address-only")) {
+		disabledAdds.push("import-multisig")
+	}
 	return (
 		<AppContainer>
-			{confirmRemove && <ConfirmRemove account={confirmRemove} onRemove={handleRemove} onCancel={handleCancel} />}
-			{(changePassword || forceSetupPassword) && <ChangePassword
+			{showAddAccount &&
+			<AddAccount
+				disabled={disabledAdds}
+				onAdd={(t) => {
+					setShowAddAccount(false)
+					setOpenedAdd(t)
+				}}
+				onCancel={handleCancel}
+			/>}
+			{(changePassword || forceSetupPassword) &&
+			<ChangePassword
 				hasPassword={props.hasPassword}
 				onChangePassword={handleChangePassword}
-				onClose={handleCancel} />}
+				onClose={handleCancel}
+			/>}
 
 			{(!forceSetupPassword && openedAdd === "create-local") &&
 			<CreateLocalAccount
@@ -138,7 +152,8 @@ const AccountsApp = (props: {
 			/>}
 
 			{revealAccount && <RevealLocalKey account={revealAccount} onClose={handleCancel} />}
-			{modifyMultiSig && <ModifyMultiSig
+			{modifyMultiSig &&
+			<ModifyMultiSig
 				account={modifyMultiSig}
 				accounts={props.accounts}
 				onClose={handleCancel}
@@ -150,8 +165,16 @@ const AccountsApp = (props: {
 					props.onAdd(modifiedAccount, undefined, true)
 				}}
 			/>}
+			{confirmRemove && <ConfirmRemove account={confirmRemove} onRemove={handleRemove} onCancel={handleCancel} />}
 
 			<AppHeader app={Accounts} refetch={handleRefetch} isFetching={false} />
+			<AppSection>
+				<Button
+					color="primary"
+					variant="outlined"
+					startIcon={<icons.Add />}
+					onClick={() => { setShowAddAccount(true) }}>Add Account</Button>
+			</AppSection>
 			<Box display="flex" flexDirection="column" marginTop={2}>
 				{
 				props.accounts.map((a, idx) => {
@@ -229,45 +252,6 @@ const AccountsApp = (props: {
 					)})
 				}
 			</Box>
-			<AppSection>
-				<Button
-					color="primary"
-					variant="outlined"
-					startIcon={<AccountIcon type="local" />}
-					onClick={() => { setOpenedAdd("create-local") }}>Create Local Account</Button>
-				<Button
-					className={classes.buttonAdd}
-					color="primary"
-					variant="outlined"
-					startIcon={<icons.GetApp />}
-					onClick={() => { setOpenedAdd("import-local") }}>Import Local Account</Button>
-				<Button
-					className={classes.buttonAdd}
-					color="primary"
-					variant="outlined"
-					startIcon={<AccountIcon type="ledger" />}
-					onClick={() => { setOpenedAdd("add-ledger") }}>Add Ledger Account</Button>
-				<Button
-					className={classes.buttonAdd}
-					color="primary"
-					variant="outlined"
-					startIcon={<AccountIcon type="address-only" />}
-					onClick={() => { setOpenedAdd("add-addressonly") }}>Add ReadOnly Account</Button>
-				<Button
-					className={classes.buttonAdd}
-					color="primary"
-					variant="outlined"
-					startIcon={<AccountIcon type="multisig" />}
-					disabled={!canCreateMultiSig}
-					onClick={() => { setOpenedAdd("create-multisig") }}>Create MultiSig Account</Button>
-				<Button
-					className={classes.buttonAdd}
-					color="primary"
-					variant="outlined"
-					startIcon={<AccountIcon type="multisig" />}
-					disabled={!canImportMultiSig}
-					onClick={() => { setOpenedAdd("import-multisig") }}>Import MultiSig Account</Button>
-			</AppSection>
 			<AppSection>
 				<Box display="flex" flexDirection="row">
 					<Box display="flex" flexDirection="column" flex={1} marginRight={1}>

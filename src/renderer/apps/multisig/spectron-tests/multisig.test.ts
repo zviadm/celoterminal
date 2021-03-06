@@ -6,6 +6,9 @@ jestSetup()
 
 test('create MultiSig account', async (done) => {
 	await selectApp("accounts")
+	const addAccount = await app.client.$("button=Add Account")
+	await addAccount.waitForEnabled()
+	await addAccount.click()
 	const createMultiSig = await app.client.$("button=Create MultiSig Account")
 	await createMultiSig.waitForEnabled()
 	await createMultiSig.click()
@@ -103,6 +106,9 @@ test(`remove and re-import MultiSig`, async (done) => {
 	await confirmRemove.waitForEnabled()
 	await confirmRemove.click()
 
+	const addAccount = await app.client.$("button=Add Account")
+	await addAccount.waitForEnabled()
+	await addAccount.click()
 	const importMultiSig = await app.client.$("button=Import MultiSig Account")
 	await importMultiSig.click()
 	const multiSigAddressInput = await app.client.$("#multisig-address-input")
