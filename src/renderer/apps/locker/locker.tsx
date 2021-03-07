@@ -17,7 +17,7 @@ import {
 	Button, Typography, Box, Table, TableHead, TableBody,
 	TableCell, TableRow, Tooltip
 } from '@material-ui/core'
-import { Alert } from '@material-ui/lab'
+import Alert from '@material-ui/lab/Alert'
 
 import AppHeader from '../../components/app-header'
 import NumberInput from '../../components/number-input'

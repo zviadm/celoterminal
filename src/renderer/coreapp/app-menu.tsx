@@ -10,7 +10,7 @@ import HighlightOffIcon from '@material-ui/icons/HighlightOff'
 import { AppDefinition } from '../components/app-definition'
 import Accounts from './accounts-app/def'
 import MoreApps from './appstore-app/def'
-import { Alert } from '@material-ui/lab'
+import Alert from '@material-ui/lab/Alert'
 
 const useStyles = makeStyles(() => ({
 	listIcon: {

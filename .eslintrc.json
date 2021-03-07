@@ -23,11 +23,12 @@
 		"no-restricted-imports": [
 			"error",
 			{
-				"paths": ["@material-ui/icons"],
+				"paths": ["@material-ui/icons", "@material-ui/lab"],
 				"patterns": [
 					"@material-ui/*/*/*",
 					"!@material-ui/core/test-utils/*",
-					"!@material-ui/icons/*"
+					"!@material-ui/icons/*",
+					"!@material-ui/lab/*"
 				]
 			}
 		]

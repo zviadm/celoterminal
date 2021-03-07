@@ -9,7 +9,10 @@ import useOnChainState from '../../state/onchain-state'
 
 import * as React from 'react'
 import { Tab } from '@material-ui/core'
-import { Alert, TabContext, TabList, TabPanel } from '@material-ui/lab'
+import Alert from '@material-ui/lab/Alert'
+import TabContext from '@material-ui/lab/TabContext'
+import TabList from '@material-ui/lab/TabList'
+import TabPanel from '@material-ui/lab/TabPanel'
 
 import AppContainer from '../../components/app-container'
 import AppHeader from '../../components/app-header'

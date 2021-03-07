@@ -1,17 +1,21 @@
-import * as React from "react"
 import { isValidAddress } from 'ethereumjs-util'
 import { ensureLeading0x, toChecksumAddress } from '@celo/utils/lib/address'
-import {
-	Button, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Tab,
-	Table, TableBody, TextField, TableRow, TableCell, Paper, TableContainer, Box, ListItemText
-} from "@material-ui/core"
-import { RegisteredErc20 } from "../../lib/erc20/core"
-import { Autocomplete, TabContext, TabList, TabPanel } from "@material-ui/lab"
+
 import { registeredErc20s } from "../../lib/cfg"
 import { addCustomErc20, addRegisteredErc20 } from "../state/erc20list-state"
 import kitInstance from "../state/kit"
 import Erc20Contract from "../../lib/erc20/erc20-contract"
 
+import * as React from "react"
+import {
+	Button, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Tab,
+	Table, TableBody, TextField, TableRow, TableCell, Paper, TableContainer, Box, ListItemText
+} from "@material-ui/core"
+import { RegisteredErc20 } from "../../lib/erc20/core"
+import Autocomplete from "@material-ui/lab/Autocomplete"
+import TabContext from "@material-ui/lab/TabContext"
+import TabList from "@material-ui/lab/TabList"
+import TabPanel from "@material-ui/lab/TabPanel"
 
 // AddErc20 component can be used to let the user select a new token to add
 // in list of watched erc20s. AddErc20 token manages interaction with the
