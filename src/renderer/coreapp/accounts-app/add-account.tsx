@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core'
-import { GetApp } from '@material-ui/icons'
+import GetApp from '@material-ui/icons/GetApp'
 
 import AccountIcon from './account-icon'
 

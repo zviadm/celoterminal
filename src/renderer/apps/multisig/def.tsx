@@ -1,7 +1,6 @@
-import { Group } from '@material-ui/icons';
-
 import { AppDefinition } from "../../components/app-definition"
 import MultiSigApp from "./multisig"
+import Group from '@material-ui/icons/Group'
 
 export const MultiSig: AppDefinition = {
 	id: "multisig",

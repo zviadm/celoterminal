@@ -6,7 +6,7 @@ import * as React from 'react'
 import {
 	Box, Fab, Paper, Typography
 } from '@material-ui/core'
-import { Add } from '@material-ui/icons'
+import Add from '@material-ui/icons/Add'
 
 import AppHeader from '../../components/app-header'
 import Link from '../../components/link'

@@ -17,7 +17,8 @@ import {
 	Table, TableHead, TableRow, TableCell, TableBody, FormControlLabel, Switch,
 	Button, IconButton, Tooltip,
 } from '@material-ui/core'
-import { Add, VisibilityOff } from '@material-ui/icons'
+import Add from '@material-ui/icons/Add'
+import VisibilityOff from '@material-ui/icons/VisibilityOff'
 
 import AppHeader from '../../components/app-header'
 import AppContainer from '../../components/app-container'

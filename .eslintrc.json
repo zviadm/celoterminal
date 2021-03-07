@@ -19,6 +19,19 @@
 			"jsx": true
 		}
 	},
+	"rules": {
+		"no-restricted-imports": [
+			"error",
+			{
+				"paths": ["@material-ui/icons"],
+				"patterns": [
+					"@material-ui/*/*/*",
+					"!@material-ui/core/test-utils/*",
+					"!@material-ui/icons/*"
+				]
+			}
+		]
+	},
 	"settings": {
 		"react": {
 			"version": "detect"

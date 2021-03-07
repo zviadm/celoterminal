@@ -1,6 +1,9 @@
 import * as React from "react"
-import { VpnKey, AccountBalanceWallet, Visibility, Group } from '@material-ui/icons'
 import { SvgIconProps } from "@material-ui/core"
+import VpnKey from '@material-ui/icons/VpnKey'
+import AccountBalanceWallet from '@material-ui/icons/AccountBalanceWallet'
+import Visibility from '@material-ui/icons/Visibility'
+import Group from '@material-ui/icons/Group'
 
 interface AccountIconProps extends SvgIconProps {
 	type: "local" | "ledger" | "multisig" | "address-only",

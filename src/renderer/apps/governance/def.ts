@@ -1,6 +1,6 @@
 import { AppDefinition } from "../../components/app-definition"
 
-import { ThumbsUpDown } from '@material-ui/icons'
+import ThumbsUpDown from '@material-ui/icons/ThumbsUpDown'
 import GovernanceApp from "./governance"
 
 export const Governance: AppDefinition = {
