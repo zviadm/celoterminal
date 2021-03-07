@@ -6,10 +6,10 @@ import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definiti
 import { Mento } from './def'
 import useLocalStorageState from '../../state/localstorage-state'
 import { fmtAmount } from '../../../lib/utils'
-import { StableTokens } from './config'
+import { getExchange, getStableToken, stableTokens } from './config'
 import { calcCeloAmount, calcStableAmount, fmtTradeAmount } from './rate-utils'
 import { useExchangeHistoryState, useExchangeOnChainState } from './state'
-import { coreErc20Decimals } from '../../../lib/erc20/core'
+import { CoreErc20, coreErc20Decimals } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
@@ -29,7 +29,7 @@ const MentoApp = (props: {
 	selectedAccount: Account,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
-	const [stableToken, setStableToken] = useLocalStorageState("terminal/mento/stable-token", "cUSD")
+	const [stableToken, setStableToken] = useLocalStorageState<CoreErc20>("terminal/mento/stable-token", "cUSD")
 	const [side, setSide] = useLocalStorageState<"buy" | "sell">("terminal/mento/side", "sell")
 	const [celoAmount, setCeloAmount] = React.useState("")
 	const [stableAmount, setStableAmount] = React.useState("")
@@ -45,7 +45,7 @@ const MentoApp = (props: {
 		fetched,
 		refetch,
 	} = useExchangeOnChainState(account, stableToken)
-	const exchangeHistory = useExchangeHistoryState(account)
+	const exchangeHistory = useExchangeHistoryState(account, stableToken)
 	const refetchAll = () => {
 		refetch()
 		exchangeHistory.refetch()
@@ -79,7 +79,7 @@ const MentoApp = (props: {
 
 	const [confirming, setConfirming] = React.useState<{
 		side: "sell" | "buy",
-		stableToken: string,
+		stableToken: CoreErc20,
 		celoAmount: string,
 		stableAmount: string,
 		slippagePct: string,
@@ -96,8 +96,8 @@ const MentoApp = (props: {
 			}
 		})
 	}
-	const stableNames = Object.keys(StableTokens)
-	const handleChangeStable = (t: string) => {
+	const stableNames = stableTokens.map((t) => t.symbol)
+	const handleChangeStable = (t: CoreErc20) => {
 		setAnchorToken("celo")
 		setStableToken(t)
 	}
@@ -113,26 +113,24 @@ const MentoApp = (props: {
 	const setSideBuy = () => { setSide("buy") }
 
 	const handleSell = (
-		stableToken: string,
+		stableToken: CoreErc20,
 		sellCELO: boolean,
 		sellAmount: BigNumber,
 		minAmount: BigNumber) => {
 		setConfirming(undefined)
 		runTXs(async (kit: ContractKit) => {
-			// TODO(zviadm): support multi exchange.
-			const exchange = await kit.contracts.getExchange()
+			const exchange = await getExchange(kit, stableToken)
 			const txSwap = exchange.sell(sellAmount, minAmount, sellCELO)
 			// Set explicit gas based on github.com/celo-org/celo-monorepo/issues/2541
 			const txs: Transaction[] = [{tx: txSwap, params: {gas: 300000}}]
-
 			const approveC = await (
 				sellCELO ?
 				kit.contracts.getGoldToken() :
-				StableTokens[stableToken](kit))
+				getStableToken(kit, stableToken))
 			const allowed = await approveC.allowance(account.address, exchange.address)
 			if (allowed.lt(sellAmount)) {
 				// Exchange is a core-contract, thus infinite-approval should be safe.
-				const txApprove = approveC.increaseAllowance(exchange.address, 1e35)
+				const txApprove = approveC.approve(exchange.address, new BigNumber(1e35).toFixed(0))
 				txs.unshift({tx: txApprove})
 			}
 			return txs
@@ -153,7 +151,8 @@ const MentoApp = (props: {
 				isFetching={isFetching || exchangeHistory.isFetching}
 				refetch={refetchAll}
 				/>
-			{confirming && <ConfirmSwap
+			{confirming &&
+			<ConfirmSwap
 				{...confirming}
 				onConfirmSell={handleSell}
 				onCancel={() => setConfirming(undefined)}
@@ -184,7 +183,7 @@ const MentoApp = (props: {
 					</Box>
 					<Select
 						value={stableToken}
-						onChange={(event) => { handleChangeStable(event.target.value as string) }}>
+						onChange={(event) => { handleChangeStable(event.target.value as CoreErc20) }}>
 						{
 							stableNames.map((token) => (
 								<MenuItem value={token} key={token}>{token}</MenuItem>
@@ -194,6 +193,7 @@ const MentoApp = (props: {
 				</Box>
 				<Box display="flex" flexDirection={side === "sell" ? "column" : "column-reverse"}>
 					<NumberInput
+						id="sell-amount-input"
 						margin="normal"
 						label={
 							(!fetched || side !== "sell") ? `CELO` :
@@ -207,6 +207,7 @@ const MentoApp = (props: {
 						disabled={!fetched}
 					/>
 					<NumberInput
+						id="buy-amount-input"
 						margin="normal"
 						label={
 							(!fetched || side !== "buy") ? `${stableToken}` :
@@ -278,7 +279,7 @@ const MentoApp = (props: {
 				</Box>
 			</AppSection>
 			<AppSection>
-				<TradeHistory events={exchangeHistory.fetched} />
+				<TradeHistory stableToken={stableToken} events={exchangeHistory.fetched} />
 			</AppSection>
 		</AppContainer>
 	)

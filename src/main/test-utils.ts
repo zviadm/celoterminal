@@ -20,7 +20,6 @@ export const testOnlySetupAccountsDB = (): void => {
 		privateKey: SpectronAccountKeys[idx],
 		address: privateKeyToAddress(SpectronAccountKeys[idx]),
 	}))
-	// TODO(zviad): This might require some cleanup/rethinking for perf/reuse.
 
 	const toRemove = accounts.filter((a) =>
 		!testAccts.find((ta) => ta.name === a.name && ta.address === a.address))

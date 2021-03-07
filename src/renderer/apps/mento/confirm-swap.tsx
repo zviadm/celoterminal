@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { coreErc20Decimals } from '../../../lib/erc20/core'
+import { CoreErc20, coreErc20Decimals } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
@@ -18,14 +18,14 @@ const useStyles = makeStyles(() => ({
 
 const ConfirmSwap = (props: {
 	side: "sell" | "buy",
+	stableToken: CoreErc20,
 	celoAmount: string,
-	stableToken: string,
 	stableAmount: string,
 	slippagePct: string,
 	marketPrice: BigNumber,
 	spread: BigNumber,
 	onConfirmSell: (
-		stableToken: string,
+		stableToken: CoreErc20,
 		sellCELO: boolean,
 		sellAmount: BigNumber,
 		minAmount: BigNumber) => void,
@@ -100,7 +100,9 @@ const ConfirmSwap = (props: {
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.onCancel}>Cancel</Button>
-				<Button color="primary" onClick={handleConfirm}>Trade</Button>
+				<Button
+					id="confirm-trade"
+					color="primary" onClick={handleConfirm}>Trade</Button>
 			</DialogActions>
 		</Dialog>
 	)

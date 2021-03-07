@@ -10,7 +10,9 @@ import {
 	makeStyles, Tooltip, Box, Button, IconButton, Typography,
 	TextField, Paper,
 } from '@material-ui/core'
-import * as icons from '@material-ui/icons'
+import {
+	Lock, Add, Settings, Backup, Delete, LockOpen
+} from '@material-ui/icons'
 
 import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
@@ -172,7 +174,7 @@ const AccountsApp = (props: {
 				<Button
 					color="primary"
 					variant="outlined"
-					startIcon={<icons.Add />}
+					startIcon={<Add />}
 					onClick={() => { setShowAddAccount(true) }}>Add Account</Button>
 			</AppSection>
 			<Box display="flex" flexDirection="column" marginTop={2}>
@@ -226,7 +228,7 @@ const AccountsApp = (props: {
 									<IconButton
 										edge="end"
 										color="secondary" onClick={() => setRevealAccount(a)}>
-										<icons.Lock />
+										<Lock />
 									</IconButton>
 								</Tooltip>}
 								{a.type === "multisig" &&
@@ -235,7 +237,7 @@ const AccountsApp = (props: {
 										id={`account-${idx}-settings`}
 										edge="end"
 										onClick={() => setModifyMultiSig(a)}>
-										<icons.Settings />
+										<Settings />
 									</IconButton>
 								</Tooltip>}
 								<Tooltip title="Remove account">
@@ -243,7 +245,7 @@ const AccountsApp = (props: {
 										id={`account-${idx}-remove`}
 										edge="end"
 										color="secondary" onClick={() => setConfirmRemove(a)}>
-										<icons.Delete />
+										<Delete />
 									</IconButton>
 								</Tooltip>
 								</Box>
@@ -258,7 +260,7 @@ const AccountsApp = (props: {
 						<Button
 							color="secondary"
 							variant="outlined"
-							startIcon={<icons.LockOpen />}
+							startIcon={<LockOpen />}
 							onClick={ () => { setChangePassword(true) } }
 							>{props.hasPassword ? "Change" : "Setup"} Password</Button>
 					</Box>
@@ -266,7 +268,7 @@ const AccountsApp = (props: {
 						<Button
 							color="secondary"
 							variant="outlined"
-							startIcon={<icons.Backup />}
+							startIcon={<Backup />}
 							onClick={handleBackup}
 							>Backup Database</Button>
 					</Box>
