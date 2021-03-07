@@ -17,7 +17,7 @@ import {
 	Dialog, DialogActions, DialogContent, Box, Button,
 	TableBody, Table, TableRow, TableCell, TableHead, DialogTitle,
 } from '@material-ui/core'
-import { Alert } from '@material-ui/lab'
+import Alert from '@material-ui/lab/Alert'
 
 import AppHeader from '../../components/app-header'
 import Link from '../../components/link'

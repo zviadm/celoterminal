@@ -7,7 +7,8 @@ import {
 	TableContainer, Table, TableRow, TableCell, TableBody,
 	Box, Button, Paper,
 } from '@material-ui/core'
-import { Alert, AlertTitle } from '@material-ui/lab'
+import Alert from '@material-ui/lab/Alert'
+import AlertTitle from '@material-ui/lab/AlertTitle'
 
 const useStyles = makeStyles(() => ({
 	cell: {

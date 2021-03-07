@@ -16,7 +16,8 @@ import {
 	Box, Button, Table, TableBody,
 	TableCell, TableHead, TableRow
 } from '@material-ui/core'
-import { Alert, AlertTitle } from '@material-ui/lab'
+import Alert from '@material-ui/lab/Alert'
+import AlertTitle from '@material-ui/lab/AlertTitle'
 
 import AppHeader from '../../components/app-header'
 import Link from '../../components/link'

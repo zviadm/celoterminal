@@ -11,7 +11,7 @@ import {
 
 import useOnChainState from '../../state/onchain-state'
 import AddressAutocomplete from '../../components/address-autocomplete'
-import { Alert } from '@material-ui/lab'
+import Alert from '@material-ui/lab/Alert'
 
 const ImportMultiSigAccount = (props: {
 	accounts: Account[],
