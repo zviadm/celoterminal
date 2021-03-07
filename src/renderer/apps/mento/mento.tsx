@@ -1,4 +1,4 @@
-import { ContractKit } from '@celo/contractkit'
+import { ContractKit, StableToken } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
 
 import { Account } from '../../../lib/accounts/accounts'
@@ -6,10 +6,10 @@ import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definiti
 import { Mento } from './def'
 import useLocalStorageState from '../../state/localstorage-state'
 import { fmtAmount } from '../../../lib/utils'
-import { getExchange, getStableToken, stableTokens } from './config'
+import { stableTokens } from './config'
 import { calcCeloAmount, calcStableAmount, fmtTradeAmount } from './rate-utils'
 import { useExchangeHistoryState, useExchangeOnChainState } from './state'
-import { CoreErc20, coreErc20Decimals } from '../../../lib/erc20/core'
+import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
@@ -29,7 +29,7 @@ const MentoApp = (props: {
 	selectedAccount: Account,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
-	const [stableToken, setStableToken] = useLocalStorageState<CoreErc20>("terminal/mento/stable-token", "cUSD")
+	const [stableToken, setStableToken] = useLocalStorageState<StableToken>("terminal/mento/stable-token", StableToken.cUSD)
 	const [side, setSide] = useLocalStorageState<"buy" | "sell">("terminal/mento/side", "sell")
 	const [celoAmount, setCeloAmount] = React.useState("")
 	const [stableAmount, setStableAmount] = React.useState("")
@@ -79,7 +79,7 @@ const MentoApp = (props: {
 
 	const [confirming, setConfirming] = React.useState<{
 		side: "sell" | "buy",
-		stableToken: CoreErc20,
+		stableToken: StableToken,
 		celoAmount: string,
 		stableAmount: string,
 		slippagePct: string,
@@ -97,7 +97,7 @@ const MentoApp = (props: {
 		})
 	}
 	const stableNames = stableTokens.map((t) => t.symbol)
-	const handleChangeStable = (t: CoreErc20) => {
+	const handleChangeStable = (t: StableToken) => {
 		setAnchorToken("celo")
 		setStableToken(t)
 	}
@@ -113,20 +113,21 @@ const MentoApp = (props: {
 	const setSideBuy = () => { setSide("buy") }
 
 	const handleSell = (
-		stableToken: CoreErc20,
+		stableToken: StableToken,
 		sellCELO: boolean,
 		sellAmount: BigNumber,
 		minAmount: BigNumber) => {
 		setConfirming(undefined)
 		runTXs(async (kit: ContractKit) => {
-			const exchange = await getExchange(kit, stableToken)
+			const exchange = await kit.contracts.getExchange(stableToken)
 			const txSwap = exchange.sell(sellAmount, minAmount, sellCELO)
 			// Set explicit gas based on github.com/celo-org/celo-monorepo/issues/2541
 			const txs: Transaction[] = [{tx: txSwap, params: {gas: 300000}}]
 			const approveC = await (
 				sellCELO ?
 				kit.contracts.getGoldToken() :
-				getStableToken(kit, stableToken))
+				kit.contracts.getStableToken(stableToken)
+			)
 			const allowed = await approveC.allowance(account.address, exchange.address)
 			if (allowed.lt(sellAmount)) {
 				// Exchange is a core-contract, thus infinite-approval should be safe.
@@ -139,8 +140,8 @@ const MentoApp = (props: {
 
 	const stableAmountN = new BigNumber(stableAmount)
 	const canTrade = fetched && stableAmountN.gt(0) && (
-		(side === "sell" && fetched.celoBalance.shiftedBy(-coreErc20Decimals).gt(celoAmount)) ||
-		(side === "buy" && fetched.stableBalance.shiftedBy(-coreErc20Decimals).gt(stableAmount))
+		(side === "sell" && fetched.celoBalance.shiftedBy(-coreErc20Decimals).gte(celoAmount)) ||
+		(side === "buy" && fetched.stableBalance.shiftedBy(-coreErc20Decimals).gte(stableAmount))
 	)
 	const price = stableAmountN.div(celoAmount)
 
@@ -183,7 +184,7 @@ const MentoApp = (props: {
 					</Box>
 					<Select
 						value={stableToken}
-						onChange={(event) => { handleChangeStable(event.target.value as CoreErc20) }}>
+						onChange={(event) => { handleChangeStable(event.target.value as StableToken) }}>
 						{
 							stableNames.map((token) => (
 								<MenuItem value={token} key={token}>{token}</MenuItem>

@@ -62,7 +62,7 @@ const GovernanceApp = (props: {
 						proposalID: p,
 						stage: isExpired ? ProposalStage.Expiration : record.stage,
 						votes: record.votes,
-						passing: record.passing,
+						passing: record.passed, // TODO(zviad): check if this is same as before.
 						timeUntilExecution,
 					}
 				})
@@ -158,6 +158,9 @@ const GovernanceApp = (props: {
 					{
 						fetched.proposals.map((p) => {
 							const vote = fetched.voteRecords.find((v) => v.proposalID.eq(p.proposalID))
+							if (!p.votes) {
+								return <></>
+							}
 							const total = p.votes.Yes.plus(p.votes.No).plus(p.votes.Abstain)
 							return (
 							<TableRow key={p.proposalID.toString()}>

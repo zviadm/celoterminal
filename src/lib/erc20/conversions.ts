@@ -1,29 +1,26 @@
-import { CeloContract, ContractKit } from "@celo/contractkit"
+import { CeloTokenType, ContractKit } from "@celo/contractkit"
 import BigNumber from "bignumber.js"
 
-import { CoreErc20, coreErc20s, RegisteredErc20, stableTokenSuffix } from "./core"
+import { coreErc20s, RegisteredErc20 } from "./core"
 
 export const coreErc20Conversions = async (
 	kit: ContractKit,
-	to: CoreErc20,
+	to: CeloTokenType,
 ): Promise<Map<string, BigNumber>> => {
 	const sortedOracles = await kit.contracts.getSortedOracles()
 	const one = new BigNumber(1)
 
 	const rateFromCELO = to === "CELO" ? one :
-		(await sortedOracles.medianRate(
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			CeloContract.StableToken + stableTokenSuffix(to) as any)).rate
+		(await sortedOracles.medianRate(kit.celoTokens.getContract(to))).rate
 
 	const r = coreErc20s.map((e) => {
 		return (async () => {
 			if (e.symbol === to) {
 				return [e.symbol, one]
 			}
+
 			const invRateToCELO = e.symbol === "CELO" ? one :
-				(await sortedOracles.medianRate(
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					CeloContract.StableToken + stableTokenSuffix(e.symbol) as any)).rate
+				(await sortedOracles.medianRate(kit.celoTokens.getContract(e.symbol))).rate
 			const rate = rateFromCELO.div(invRateToCELO)
 			return [e.symbol, rate]
 		})() as Promise<[string, BigNumber]>
@@ -33,7 +30,7 @@ export const coreErc20Conversions = async (
 
 export const registeredErc20ConversionRates = async (
 	kit: ContractKit,
-	to: CoreErc20,
+	to: CeloTokenType,
 	erc20s: RegisteredErc20[]): Promise<Map<string, BigNumber>> => {
 
 	const coreConversions = await coreErc20Conversions(kit, to)
