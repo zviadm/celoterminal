@@ -9,7 +9,7 @@ import { fmtAmount } from '../../../lib/utils'
 import { getExchange, getStableToken, stableTokens } from './config'
 import { calcCeloAmount, calcStableAmount, fmtTradeAmount } from './rate-utils'
 import { useExchangeHistoryState, useExchangeOnChainState } from './state'
-import { coreErc20Decimals } from '../../../lib/erc20/core'
+import { CoreErc20, coreErc20Decimals } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
@@ -29,7 +29,7 @@ const MentoApp = (props: {
 	selectedAccount: Account,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
-	const [stableToken, setStableToken] = useLocalStorageState("terminal/mento/stable-token", "cUSD")
+	const [stableToken, setStableToken] = useLocalStorageState<CoreErc20>("terminal/mento/stable-token", "cUSD")
 	const [side, setSide] = useLocalStorageState<"buy" | "sell">("terminal/mento/side", "sell")
 	const [celoAmount, setCeloAmount] = React.useState("")
 	const [stableAmount, setStableAmount] = React.useState("")
@@ -79,7 +79,7 @@ const MentoApp = (props: {
 
 	const [confirming, setConfirming] = React.useState<{
 		side: "sell" | "buy",
-		stableToken: string,
+		stableToken: CoreErc20,
 		celoAmount: string,
 		stableAmount: string,
 		slippagePct: string,
@@ -97,7 +97,7 @@ const MentoApp = (props: {
 		})
 	}
 	const stableNames = stableTokens.map((t) => t.symbol)
-	const handleChangeStable = (t: string) => {
+	const handleChangeStable = (t: CoreErc20) => {
 		setAnchorToken("celo")
 		setStableToken(t)
 	}
@@ -113,7 +113,7 @@ const MentoApp = (props: {
 	const setSideBuy = () => { setSide("buy") }
 
 	const handleSell = (
-		stableToken: string,
+		stableToken: CoreErc20,
 		sellCELO: boolean,
 		sellAmount: BigNumber,
 		minAmount: BigNumber) => {
@@ -151,7 +151,8 @@ const MentoApp = (props: {
 				isFetching={isFetching || exchangeHistory.isFetching}
 				refetch={refetchAll}
 				/>
-			{confirming && <ConfirmSwap
+			{confirming &&
+			<ConfirmSwap
 				{...confirming}
 				onConfirmSell={handleSell}
 				onCancel={() => setConfirming(undefined)}
@@ -182,7 +183,7 @@ const MentoApp = (props: {
 					</Box>
 					<Select
 						value={stableToken}
-						onChange={(event) => { handleChangeStable(event.target.value as string) }}>
+						onChange={(event) => { handleChangeStable(event.target.value as CoreErc20) }}>
 						{
 							stableNames.map((token) => (
 								<MenuItem value={token} key={token}>{token}</MenuItem>

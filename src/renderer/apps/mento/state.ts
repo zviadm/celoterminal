@@ -6,12 +6,13 @@ import { BlockTransactionString } from 'web3-eth'
 import useOnChainState from '../../state/onchain-state'
 import { getExchange, getExchangeWeb3, getStableToken } from './config'
 import { Account } from '../../../lib/accounts/accounts'
+import { CoreErc20 } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const useExchangeOnChainState = (account: Account, stableToken: string) => {
+export const useExchangeOnChainState = (account: Account, stableToken: CoreErc20) => {
 	return useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
 			const exchange = await getExchange(kit, stableToken)
@@ -48,7 +49,7 @@ export interface TradeEvent {
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const useExchangeHistoryState = (account: Account, stableToken: string) => {
+export const useExchangeHistoryState = (account: Account, stableToken: CoreErc20) => {
 	const fetchCallback = React.useCallback(
 		async (
 			kit: ContractKit,

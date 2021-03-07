@@ -21,7 +21,7 @@ import {
 	ListItemText, ListItemSecondaryAction,
 } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
-import * as icons from '@material-ui/icons'
+import { Close, Search } from '@material-ui/icons'
 
 import AddressAutocomplete from '../../components/address-autocomplete'
 import AppHeader from '../../components/app-header'
@@ -180,7 +180,7 @@ const SendReceiveApp = (props: {
 												setToRemove(erc20)
 												event.stopPropagation()
 											}}>
-											<icons.Close />
+											<Close />
 										</IconButton>
 									</ListItemSecondaryAction>}
 								</MenuItem>
@@ -192,7 +192,7 @@ const SendReceiveApp = (props: {
 							<Typography
 								style={{fontStyle: "italic"}}
 								color="textSecondary">Search...</Typography>
-							<icons.Search style={{marginLeft: 5}} />
+							<Search style={{marginLeft: 5}} />
 						</Box>
 					</MenuItem>
 				</Select>

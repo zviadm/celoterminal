@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core'
-import * as icons from '@material-ui/icons'
+import { GetApp } from '@material-ui/icons'
 
 import AccountIcon from './account-icon'
 
@@ -23,7 +23,7 @@ export const AddAccount = (props: {
 		{
 			type: "import-local",
 			label: "Import Local Account",
-			icon: <icons.GetApp />,
+			icon: <GetApp />,
 		},
 		{
 			type: "add-ledger",
