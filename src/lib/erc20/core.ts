@@ -1,7 +1,7 @@
 import { ContractKit } from "@celo/contractkit"
 import BigNumber from "bignumber.js"
 
-export type CoreErc20 = "CELO" | "cUSD" | "cEUR"
+export type CoreErc20 = "CELO" | "cUSD"
 
 export const coreErc20Decimals = 18
 export const coreErc20s: {name: string, symbol: CoreErc20, decimals: number}[] = [
@@ -13,10 +13,10 @@ export const coreErc20s: {name: string, symbol: CoreErc20, decimals: number}[] =
 		name: "Celo Dollar",
 		symbol: "cUSD",
 		decimals: coreErc20Decimals,
-	}, {
-		name: "Celo Euro",
-		symbol: "cEUR",
-		decimals: coreErc20Decimals,
+	// }, {
+	// 	name: "Celo Euro",
+	// 	symbol: "cEUR",
+	// 	decimals: coreErc20Decimals,
 	}
 ]
 export const stableTokenSuffix = (stableTokenSymbol: CoreErc20): string => {
