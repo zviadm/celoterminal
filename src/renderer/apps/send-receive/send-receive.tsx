@@ -21,7 +21,8 @@ import {
 	ListItemText, ListItemSecondaryAction,
 } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
-import { Close, Search } from '@material-ui/icons'
+import Close from '@material-ui/icons/Close'
+import Search from '@material-ui/icons/Search'
 
 import AddressAutocomplete from '../../components/address-autocomplete'
 import AppHeader from '../../components/app-header'

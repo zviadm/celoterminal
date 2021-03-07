@@ -13,7 +13,8 @@ import {
 	makeStyles, Tooltip, Button, Dialog, DialogTitle,
 	DialogContent, DialogActions, TextField, LinearProgress,
 } from '@material-ui/core'
-import { Wifi, WifiOff } from '@material-ui/icons'
+import Wifi from '@material-ui/icons/Wifi'
+import WifiOff from '@material-ui/icons/WifiOff'
 
 const useStyles = makeStyles((theme) => ({
 	connected: {

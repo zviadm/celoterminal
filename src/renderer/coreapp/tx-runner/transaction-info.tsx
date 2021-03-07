@@ -7,7 +7,8 @@ import {
 	TableContainer, Table, TableBody, TableRow, TableCell,
 	Paper, IconButton
 } from '@material-ui/core'
-import { KeyboardArrowDown, KeyboardArrowUp }  from '@material-ui/icons'
+import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown'
+import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp'
 import BigNumber from 'bignumber.js'
 
 const TransactionInfo = (props: {

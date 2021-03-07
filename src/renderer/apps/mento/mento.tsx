@@ -15,7 +15,7 @@ import * as React from 'react'
 import {
 	Box, Select, MenuItem, Typography, Button, Tooltip
 } from '@material-ui/core'
-import { HelpOutline } from '@material-ui/icons'
+import HelpOutline from '@material-ui/icons/HelpOutline'
 
 import AppHeader from '../../components/app-header'
 import ConfirmSwap from './confirm-swap'

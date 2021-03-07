@@ -4,7 +4,7 @@ import * as React from "react"
 import {
 	Box, Table, TableBody, TableRow, TableCell, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField
 } from "@material-ui/core"
-import { Add } from "@material-ui/icons"
+import Add from "@material-ui/icons/Add"
 
 import LinkedAddress from "../../components/linked-address"
 import NumberInput from '../../components/number-input'

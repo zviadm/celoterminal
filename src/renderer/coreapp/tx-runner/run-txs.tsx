@@ -20,7 +20,8 @@ import {
 	Paper, Box, Typography, LinearProgress, List, ListItem, ListItemIcon,
 	Button, ListItemText
 } from '@material-ui/core'
-import { Send, CheckCircle } from '@material-ui/icons'
+import Send from '@material-ui/icons/Send'
+import CheckCircle from '@material-ui/icons/CheckCircle'
 
 import TransactionInfo from './transaction-info'
 import PromptLedgerAction from './prompt-ledger-action'

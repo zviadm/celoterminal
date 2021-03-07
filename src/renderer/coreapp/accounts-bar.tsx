@@ -10,7 +10,8 @@ import {
 	makeStyles, IconButton, Select, MenuItem, Box, Typography,
 	Tooltip, Dialog, DialogContent, Paper
 } from '@material-ui/core'
-import { CropFree, FileCopy } from '@material-ui/icons'
+import CropFree from '@material-ui/icons/CropFree'
+import FileCopy from '@material-ui/icons/FileCopy'
 
 import AccountIcon from './accounts-app/account-icon'
 import NetworkIndicator from './network-indicator'

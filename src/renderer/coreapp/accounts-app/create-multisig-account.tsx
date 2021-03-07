@@ -11,7 +11,8 @@ import {
 	Dialog, DialogTitle, DialogContent, DialogActions,
 	Button, TextField, Box, Typography, InputAdornment, IconButton
  } from '@material-ui/core'
-import { Add, Clear } from '@material-ui/icons'
+import Add from '@material-ui/icons/Add'
+import Clear from '@material-ui/icons/Clear'
 
 import NumberInput from '../../components/number-input'
 import { UserError } from '../../../lib/error'

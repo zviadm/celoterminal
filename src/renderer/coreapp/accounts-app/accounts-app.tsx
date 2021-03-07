@@ -10,9 +10,12 @@ import {
 	makeStyles, Tooltip, Box, Button, IconButton, Typography,
 	TextField, Paper,
 } from '@material-ui/core'
-import {
-	Lock, Add, Settings, Backup, Delete, LockOpen
-} from '@material-ui/icons'
+import Lock from '@material-ui/icons/Lock'
+import Add from '@material-ui/icons/Add'
+import Settings from '@material-ui/icons/Settings'
+import Backup from '@material-ui/icons/Backup'
+import Delete from '@material-ui/icons/Delete'
+import LockOpen from '@material-ui/icons/LockOpen'
 
 import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
