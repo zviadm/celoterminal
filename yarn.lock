@@ -1674,7 +1674,7 @@
     debug "^4.1.1"
     utf8 "3.0.0"
 
-"@celo/contractkit@1.0.1", "@celo/contractkit@1.1.0-beta.1", "@celo/contractkit@^1.0.1":
+"@celo/contractkit@1.0.1", "@celo/contractkit@1.1.0-beta.1", "@celo/contractkit@^1.0.2":
   version "1.1.0-beta.1"
   resolved "https://registry.yarnpkg.com/@celo/contractkit/-/contractkit-1.1.0-beta.1.tgz#3cc24b3d0f1b9c05a1f7e29bc42388a775be09b7"
   integrity sha512-IGyVFUP8bpfT1GEqjndH1S/DUZOyg353XLqXvSYXpwd6MRyVtngJqrB+C6ZNsRbeoLpIu08tL7Z7fyE2Cx9y3A==
@@ -4623,12 +4623,12 @@ caseless@~0.12.0:
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
   integrity sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
 
-celo-devchain@^2.0.4:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/celo-devchain/-/celo-devchain-2.0.4.tgz#c51b5823a6ee6533982b90d7bf8abea861448bf2"
-  integrity sha512-N59HLleF/ov0JSCxzBmdi/7PrTMhN0UWLmaou26i58QXgsQ2gZ5w8U2Ylhu69Gu61tnak0P1+oxpCxb4ul/xSQ==
+celo-devchain@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/celo-devchain/-/celo-devchain-2.1.0.tgz#7684cf45e3cf3a058d1c1902184d7ec7a1d2de8c"
+  integrity sha512-nKRTMpDxH2qBZWvWgNaUqxbdFrT9wY9evrw1sn7D01g3ORMHLtX7eODCjcjHTWaecXYiJMc5XoKvBr/c9FuPTg==
   dependencies:
-    "@celo/contractkit" "^1.0.1"
+    "@celo/contractkit" "^1.0.2"
     "@celo/ganache-cli" "git+https://github.com/celo-org/ganache-cli.git#e933297"
     commander "^6.2.0"
     targz "^1.0.1"
