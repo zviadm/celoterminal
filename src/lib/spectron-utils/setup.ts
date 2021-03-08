@@ -104,7 +104,7 @@ const startDevchain = async () => {
 	const started = new Promise<void>((resolve) => { _resolve = resolve})
 
 	// TODO(zviad): Temporarily switch to v3.baklava core for testing.
-	const devchain = spawn(`yarn`, [`celo-devchain`, `--port`, `${devchainPort}`, `--core`, `v3.baklava`])
+	const devchain = spawn(`yarn`, [`celo-devchain`, `--port`, `${devchainPort}`])
 	devchain.on("error", (err) => {
 		testLog(`[err]devchain: ${err}`)
 	})
