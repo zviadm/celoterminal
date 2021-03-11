@@ -32,7 +32,6 @@ jobs:
       - run: node ./buildcfg/check-publish.js
       - run: yarn config set network-timeout 600000 -g
       - run: yarn
-      - run: yarn compile
 
       - run: yarn electron-builder --mac --publish always
         env:
@@ -51,6 +50,8 @@ jobs:
           CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
         if: runner.os == 'Windows'
 
+      - run: sudo apt-get update && sudo apt-get install libudev-dev libusb-1.0-0-dev
+        if: runner.os == 'Linux'
       - run: yarn electron-builder --linux --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
