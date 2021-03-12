@@ -22,7 +22,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [macos-latest, windows-latest, ubuntu-16.04]
 
     steps:
       - uses: actions/checkout@v1
@@ -30,6 +30,9 @@ jobs:
         with:
           node-version: 10
       - run: node ./buildcfg/check-publish.js
+
+      - run: sudo apt-get update && sudo apt-get install libudev-dev libusb-1.0-0-dev
+        if: runner.os == 'Linux'
       - run: yarn config set network-timeout 600000 -g
       - run: yarn
       - run: yarn compile

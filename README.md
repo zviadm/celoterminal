@@ -30,6 +30,6 @@ guidelines and indicators when any of the DApps interact with the external serve
 
 If you run into a bug, please [file a Bug Report](https://github.com/zviadm/celoterminal/issues/new/choose) on GitHub.
 
-If you have questions or need help, you can ask in #general-owners channel in [Celo Discord](https://discord.com/invite/nfmTPV2). 
+If you have questions or need help, you can ask in `#celo-terminal` channel in [Celo Discord](https://chat.celo.org). 
 Make sure to tag `@zviad | WOTrust`. Alternatively, you can email at: support@celoterminal.com.
 
