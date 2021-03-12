@@ -64,6 +64,23 @@ const SendReceiveApp = (props: {
 		},
 		[selectedAddress, erc20]
 	))
+	const approvalState = useOnChainState(React.useCallback(
+		async (kit: ContractKit) => {
+			const contract = await newErc20(kit, erc20)
+			// TODO(zviad): This might need to be batched up, if there are too many events.
+			const spenderEvents = await contract.web3contract.getPastEvents(
+				"Approval", {fromBlock: 0, filter: {owner: selectedAddress}})
+			const spenders: Set<string> = new Set(spenderEvents.map((e) => e.returnValues.spender))
+			const ownerEvents = await contract.web3contract.getPastEvents(
+				"Approval", {fromBlock: 0, filter: {spender: selectedAddress}})
+			const owners: Set<string> = new Set(ownerEvents.map((e) => e.returnValues.owner))
+			return {
+				spenders,
+				owners,
+			}
+		},
+		[selectedAddress, erc20],
+	))
 	const transferHistory = useEventHistoryState(React.useCallback(
 		async (kit: ContractKit, fromBlock: number, toBlock: number, latestBlock: BlockTransactionString) => {
 			const contractDirect = (await newErc20(kit, erc20)).web3contract
@@ -99,6 +116,7 @@ const SendReceiveApp = (props: {
 
 	const refetchAll = () => {
 		refetch()
+		approvalState.refetch()
 		transferHistory.refetch()
 	}
 
