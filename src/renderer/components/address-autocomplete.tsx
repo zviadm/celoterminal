@@ -31,7 +31,6 @@ const AddressAutocomplete = (props: {
 	)
 	const changeValueProps = !props.noFreeSolo ? {
 		freeSolo: true,
-		autoSelect: true,
 		autoHighlight: true,
 		inputValue: props.address,
 		onInputChange: (e: unknown, value: string, reason: string) => {
@@ -42,7 +41,6 @@ const AddressAutocomplete = (props: {
 		},
 	} : {
 		freeSolo: false,
-		autoSelect: true,
 		autoHighlight: true,
 		defaultValue: props.addresses.find((a) => a.address === props.address),
 		onChange: (e: unknown, value: string | Address | null) => {
