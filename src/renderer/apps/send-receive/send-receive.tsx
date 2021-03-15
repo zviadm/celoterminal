@@ -18,9 +18,12 @@ import { RegisteredErc20 } from '../../../lib/erc20/core'
 import * as React from 'react'
 import {
 	Select, MenuItem, Typography, Button, Box, IconButton,
-	ListItemText, ListItemSecondaryAction,
+	ListItemText, ListItemSecondaryAction, Tab
 } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
+import TabContext from '@material-ui/lab/TabContext'
+import TabPanel from '@material-ui/lab/TabPanel'
+import TabList from '@material-ui/lab/TabList'
 import Close from '@material-ui/icons/Close'
 import Search from '@material-ui/icons/Search'
 
@@ -45,6 +48,7 @@ const SendReceiveApp = (props: {
 	if (erc20.symbol !== _erc20Symbol) {
 		setErc20Symbol(erc20.symbol)
 	}
+	const [tab, setTab] = React.useState("transfer")
 
 	const [showAddToken, setShowAddToken] = React.useState(false)
 	const [toRemove, setToRemove] = React.useState<RegisteredErc20 | undefined>()
@@ -221,40 +225,50 @@ const SendReceiveApp = (props: {
 					</Typography>
 				</Box>
 			</AppSection>
-			<AppSection>
-				<Alert severity="warning">
-					Transfers are non-reversible. Transfering funds to an incorrect address
-					can lead to permanent loss of your funds.
-				</Alert>
-				<AddressAutocomplete
-					id="to-address-input"
-					textFieldProps={{
-						label: "Destination address",
-						margin: "normal",
-						InputLabelProps: {shrink: true},
-					}}
-					addresses={props.accounts}
-					address={toAddress}
-					onChange={setToAddress}
-				/>
-				<NumberInput
-					margin="normal"
-					id="amount-input"
-					label={
-						!fetched ? `Amount` :
-						`Amount (max: ${fmtAmount(fetched.balance, erc20.decimals)})`
-					}
-					InputLabelProps={{shrink: true}}
-					value={toSend}
-					onChangeValue={setToSend}
-					maxValue={maxToSend}
-				/>
-				<Button
-					id="send"
-					variant="outlined" color="primary"
-					disabled={!canSend}
-					onClick={handleSend}>Send</Button>
-			</AppSection>
+
+			<TabContext value={tab}>
+				<AppSection innerPadding={0}>
+					<TabList onChange={(e, v) => { setTab(v) }}>
+						<Tab label="Transfer" value={"transfer"} />
+						<Tab label="Transfer From" value={"transfer-from"} />
+						<Tab label="Approvals" value={"approvals"} />
+					</TabList>
+					<TabPanel value="transfer">
+						<Alert severity="warning">
+							Transfers are non-reversible. Transfering funds to an incorrect address
+							can lead to permanent loss of your funds.
+						</Alert>
+						<AddressAutocomplete
+							id="to-address-input"
+							textFieldProps={{
+								label: "Destination address",
+								margin: "normal",
+								InputLabelProps: {shrink: true},
+							}}
+							addresses={props.accounts}
+							address={toAddress}
+							onChange={setToAddress}
+						/>
+						<NumberInput
+							margin="normal"
+							id="amount-input"
+							label={
+								!fetched ? `Amount` :
+								`Amount (max: ${fmtAmount(fetched.balance, erc20.decimals)})`
+							}
+							InputLabelProps={{shrink: true}}
+							value={toSend}
+							onChangeValue={setToSend}
+							maxValue={maxToSend}
+						/>
+						<Button
+							id="send"
+							variant="outlined" color="primary"
+							disabled={!canSend}
+							onClick={handleSend}>Send</Button>
+					</TabPanel>
+				</AppSection>
+			</TabContext>
 			<AppSection>
 				<TransferHistory
 					address={selectedAddress}
