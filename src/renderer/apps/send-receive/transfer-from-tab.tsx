@@ -8,11 +8,12 @@ import { newErc20 } from '../../../lib/erc20/erc20-contract'
 import useOnChainState from '../../state/onchain-state'
 
 import * as React from 'react'
-import { Button, LinearProgress } from '@material-ui/core'
+import { Button } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 
 import AddressAutocomplete from '../../components/address-autocomplete'
 import NumberInput from '../../components/number-input'
+import HiddenProgress from './hidden-progress'
 
 const TransferFromTab = (props: {
 	erc20: RegisteredErc20,
@@ -90,7 +91,7 @@ const TransferFromTab = (props: {
 			addresses={ownerAddrs}
 			onChange={setOwner}
 		/>
-		{isFetching && <LinearProgress />}
+		<HiddenProgress hidden={!isFetching} />
 		<AddressAutocomplete
 			id="to-address-input"
 			textFieldProps={{

@@ -9,7 +9,7 @@ import { fmtAmount } from '../../../lib/utils'
 
 import * as React from 'react'
 import {
-	Button, LinearProgress, TableHead, Table,
+	Button, TableHead, Table,
 	TableRow, TableCell, Box, TableBody, Typography, ButtonBase
 } from '@material-ui/core'
 import Add from '@material-ui/icons/Add'
@@ -17,6 +17,7 @@ import Add from '@material-ui/icons/Add'
 import SectionTitle from '../../components/section-title'
 import LinkedAddress from '../../components/linked-address'
 import ApproveSpender from './approve-spender'
+import HiddenProgress from './hidden-progress'
 
 const ApprovalsTab = (props: {
 	erc20: RegisteredErc20,
@@ -82,78 +83,81 @@ const ApprovalsTab = (props: {
 			onCancel={() => { setShowApprove(undefined) }}
 			onApprove={handleApprove}
 		/>}
-		{isFetching && <LinearProgress />}
-		{fetched && <>
 		<Box display="flex" flexDirection="column">
 			<SectionTitle>Approved spenders</SectionTitle>
-			{fetched.bySpender.length === 0 ?
-			<Typography variant="body2" color="textSecondary">
-				No accounts are authorized to spend on behalf of this accouunt.
-			</Typography>
-			:
-			<Table size="small">
-				<TableHead>
-					<TableRow>
-						<TableCell width="100%">Spender</TableCell>
-						<TableCell style={{whiteSpace: "nowrap"}} align="right">Authorized Amount</TableCell>
-					</TableRow>
-				</TableHead>
-				<TableBody>
-					{
-						fetched.bySpender.map((s) => {
-							return (
-								<TableRow key={s.spender}>
-									<TableCell><LinkedAddress address={s.spender} /></TableCell>
-									<TableCell style={{whiteSpace: "nowrap"}} align="right">
-										<ButtonBase
-											onClick={() => { setShowApprove({spender: s.spender, allowance: s.allowance}) }}>
-											{fmtAllowance(props.erc20, s.allowance)} {props.erc20.symbol}
-										</ButtonBase>
-									</TableCell>
-								</TableRow>
-							)
-						})
-					}
-				</TableBody>
-			</Table>}
-			<Button
-				color="primary"
-				startIcon={<Add />}
-				onClick={() => { setShowApprove({}) }}>
-				Approve Spender
-			</Button>
+			<HiddenProgress hidden={!isFetching} />
+			{fetched && <>
+				{fetched.bySpender.length === 0 ?
+				<Typography variant="body2" color="textSecondary">
+					No accounts are authorized to spend on behalf of this accouunt.
+				</Typography>
+				:
+				<Table size="small">
+					<TableHead>
+						<TableRow>
+							<TableCell width="100%">Spender</TableCell>
+							<TableCell style={{whiteSpace: "nowrap"}} align="right">Authorized Amount</TableCell>
+						</TableRow>
+					</TableHead>
+					<TableBody>
+						{
+							fetched.bySpender.map((s) => {
+								return (
+									<TableRow key={s.spender}>
+										<TableCell><LinkedAddress address={s.spender} /></TableCell>
+										<TableCell style={{whiteSpace: "nowrap"}} align="right">
+											<ButtonBase
+												onClick={() => { setShowApprove({spender: s.spender, allowance: s.allowance}) }}>
+												{fmtAllowance(props.erc20, s.allowance)} {props.erc20.symbol}
+											</ButtonBase>
+										</TableCell>
+									</TableRow>
+								)
+							})
+						}
+					</TableBody>
+				</Table>}
+				<Button
+					color="primary"
+					startIcon={<Add />}
+					onClick={() => { setShowApprove({}) }}>
+					Approve Spender
+				</Button>
+			</>}
 		</Box>
 		<Box display="flex" flexDirection="column" marginTop={2}>
 			<SectionTitle>Available sources</SectionTitle>
-			{fetched.byOwner.length === 0 ?
-			<Typography variant="body2" color="textSecondary">
-				No sources found that have authorized spending for this account.
-			</Typography>
-			:
-			<Table size="small">
-				<TableHead>
-					<TableRow>
-						<TableCell width="100%">Source</TableCell>
-						<TableCell style={{whiteSpace: "nowrap"}}>Authorized Amount</TableCell>
-					</TableRow>
-				</TableHead>
-				<TableBody>
-					{
-						fetched.byOwner.map((o) => {
-							return (
-								<TableRow key={o.owner}>
-									<TableCell><LinkedAddress address={o.owner} /></TableCell>
-									<TableCell style={{whiteSpace: "nowrap"}} align="right">
-										{fmtAllowance(props.erc20, o.allowance)} {props.erc20.symbol}
-									</TableCell>
-								</TableRow>
-							)
-						})
-					}
-				</TableBody>
-			</Table>}
+			<HiddenProgress hidden={!isFetching} />
+			{fetched && <>
+				{fetched.byOwner.length === 0 ?
+				<Typography variant="body2" color="textSecondary">
+					No sources found that have authorized spending for this account.
+				</Typography>
+				:
+				<Table size="small">
+					<TableHead>
+						<TableRow>
+							<TableCell width="100%">Source</TableCell>
+							<TableCell style={{whiteSpace: "nowrap"}}>Authorized Amount</TableCell>
+						</TableRow>
+					</TableHead>
+					<TableBody>
+						{
+							fetched.byOwner.map((o) => {
+								return (
+									<TableRow key={o.owner}>
+										<TableCell><LinkedAddress address={o.owner} /></TableCell>
+										<TableCell style={{whiteSpace: "nowrap"}} align="right">
+											{fmtAllowance(props.erc20, o.allowance)} {props.erc20.symbol}
+										</TableCell>
+									</TableRow>
+								)
+							})
+						}
+					</TableBody>
+				</Table>}
+			</>}
 		</Box>
-		</>}
 	</>
 }
 export default ApprovalsTab

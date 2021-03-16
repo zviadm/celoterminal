@@ -16,7 +16,7 @@ import { RegisteredErc20 } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
-	Typography, Box, Tab, LinearProgress
+	Typography, Box, Tab,
 } from '@material-ui/core'
 import TabContext from '@material-ui/lab/TabContext'
 import TabPanel from '@material-ui/lab/TabPanel'
@@ -32,6 +32,7 @@ import SelectErc20 from './select-erc20'
 import TransferTab from './transfer-tab'
 import TransferFromTab from './transfer-from-tab'
 import ApprovalsTab from './approvals-tab'
+import HiddenProgress from './hidden-progress'
 
 const SendReceiveApp = (props: {
 	accounts: Account[],
@@ -196,6 +197,7 @@ const SendReceiveApp = (props: {
 						<Tab label="Transfer From" value={"transfer-from"} />
 						<Tab label="Approvals" value={"approvals"} />
 					</TabList>
+					<HiddenProgress hidden={!isFetching && !approvalState.isFetching} />
 					<TabPanel value="transfer">
 						<TransferTab
 							erc20={erc20}
@@ -205,7 +207,6 @@ const SendReceiveApp = (props: {
 						/>
 					</TabPanel>
 					<TabPanel value="transfer-from">
-						{approvalState.isFetching && <LinearProgress />}
 						{approvalState.fetched &&
 						<TransferFromTab
 							erc20={erc20}
@@ -216,7 +217,6 @@ const SendReceiveApp = (props: {
 						/>}
 					</TabPanel>
 					<TabPanel value="approvals">
-						{approvalState.isFetching && <LinearProgress />}
 						{approvalState.fetched &&
 						<ApprovalsTab
 							erc20={erc20}
