@@ -10,7 +10,7 @@ import { fmtAmount } from '../../../lib/utils'
 import * as React from 'react'
 import {
 	Button, LinearProgress, TableHead, Table,
-	TableRow, TableCell, Box, TableBody, Typography
+	TableRow, TableCell, Box, TableBody, Typography, ButtonBase
 } from '@material-ui/core'
 import Add from '@material-ui/icons/Add'
 
@@ -85,7 +85,7 @@ const ApprovalsTab = (props: {
 		{isFetching && <LinearProgress />}
 		{fetched && <>
 		<Box display="flex" flexDirection="column">
-			<SectionTitle>Authorized spenders</SectionTitle>
+			<SectionTitle>Approved spenders</SectionTitle>
 			{fetched.bySpender.length === 0 ?
 			<Typography variant="body2" color="textSecondary">
 				No accounts are authorized to spend on behalf of this accouunt.
@@ -105,7 +105,10 @@ const ApprovalsTab = (props: {
 								<TableRow key={s.spender}>
 									<TableCell><LinkedAddress address={s.spender} /></TableCell>
 									<TableCell style={{whiteSpace: "nowrap"}} align="right">
-										{fmtAllowance(props.erc20, s.allowance)} {props.erc20.symbol}
+										<ButtonBase
+											onClick={() => { setShowApprove({spender: s.spender, allowance: s.allowance}) }}>
+											{fmtAllowance(props.erc20, s.allowance)} {props.erc20.symbol}
+										</ButtonBase>
 									</TableCell>
 								</TableRow>
 							)
@@ -121,7 +124,7 @@ const ApprovalsTab = (props: {
 			</Button>
 		</Box>
 		<Box display="flex" flexDirection="column" marginTop={2}>
-			<SectionTitle>Authorized sources</SectionTitle>
+			<SectionTitle>Available sources</SectionTitle>
 			{fetched.byOwner.length === 0 ?
 			<Typography variant="body2" color="textSecondary">
 				No sources found that have authorized spending for this account.
