@@ -2,6 +2,7 @@ import { AbiItem, CeloTransactionObject, toTransactionObject } from "@celo/conne
 import { CeloTokenType, ContractKit } from "@celo/contractkit"
 import { valueToBigNumber } from "@celo/contractkit/lib/wrappers/BaseWrapper"
 import BigNumber from "bignumber.js"
+
 import { RegisteredErc20 } from "./core"
 import erc20abi from "./erc20-abi.json"
 
@@ -17,6 +18,13 @@ class Erc20Contract {
 		return toTransactionObject(
 			this.kit.connection,
 			this.web3contract.methods.transfer(to, new BigNumber(value).toString(10))
+		)
+	}
+
+	public transferFrom = (from: string, to: string, value: BigNumber.Value): CeloTransactionObject<unknown> => {
+		return toTransactionObject(
+			this.kit.connection,
+			this.web3contract.methods.transferFrom(from, to, new BigNumber(value).toString(10))
 		)
 	}
 
