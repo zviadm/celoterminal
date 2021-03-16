@@ -15,10 +15,13 @@ const TransferTab = (props: {
 	erc20: RegisteredErc20,
 	maxToSend?: BigNumber,
 	addressBook: Account[], // TODO(zviad): This type should be different.
+	resetAmounts: number,
 	onSend: (toAddress: string, amount: BigNumber) => void,
 }): JSX.Element => {
 	const [toSend, setToSend] = React.useState("")
 	const [toAddress, setToAddress] = React.useState("")
+	const resetAmounts = props.resetAmounts
+	React.useEffect(() => { setToSend("") }, [resetAmounts])
 	const canSend = (
 		isValidAddress(toAddress) && (toSend !== "") && props.maxToSend &&
 		props.maxToSend.gte(new BigNumber(toSend).shiftedBy(props.erc20.decimals)))

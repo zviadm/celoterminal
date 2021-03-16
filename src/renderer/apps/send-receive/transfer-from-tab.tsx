@@ -22,11 +22,14 @@ const TransferFromTab = (props: {
 		owners: string[],
 	},
 	addressBook: Account[], // TODO(zviad): This type should be different.
+	resetAmounts: number,
 	onSend: (from: string, to: string, amount: BigNumber) => void,
 }): JSX.Element => {
 	const [owner, setOwner] = React.useState("")
 	const [toAddress, setToAddress] = React.useState("")
 	const [toSend, setToSend] = React.useState("")
+	const resetAmounts = props.resetAmounts
+	React.useEffect(() => { setToSend("") }, [resetAmounts])
 
 	const erc20 = props.erc20
 	const selectedAddress = props.account.address

@@ -46,10 +46,11 @@ const SendReceiveApp = (props: {
 	if (erc20.symbol !== _erc20Symbol) {
 		setErc20Symbol(erc20.symbol)
 	}
-	const [tab, setTab] = useLocalStorageState("terminal/send-receive/tab", "transfers")
+	const [tab, setTab] = useLocalStorageState("terminal/send-receive/tab", "transfer")
 
 	const [showAddToken, setShowAddToken] = React.useState(false)
 	const [toRemove, setToRemove] = React.useState<RegisteredErc20 | undefined>()
+	const [resetAmounts, setResetAmounts] = React.useState(0)
 
 	const selectedAddress = props.selectedAccount.address
 	const {
@@ -121,7 +122,10 @@ const SendReceiveApp = (props: {
 	}
 
 	const runTXs = (f: TXFunc) => {
-		props.runTXs(f, () => { refetchAll() })
+		props.runTXs(f, (e?: Error) => {
+			refetchAll()
+			if (!e) { setResetAmounts((n) => n + 1) }
+		})
 	}
 	const handleSend = (toAddress: string, amount: BigNumber) => {
 		runTXs(
@@ -203,6 +207,7 @@ const SendReceiveApp = (props: {
 							erc20={erc20}
 							maxToSend={maxToSend}
 							addressBook={props.accounts}
+							resetAmounts={resetAmounts}
 							onSend={handleSend}
 						/>
 					</TabPanel>
@@ -213,6 +218,7 @@ const SendReceiveApp = (props: {
 							account={props.selectedAccount}
 							accountData={approvalState.fetched}
 							addressBook={props.accounts}
+							resetAmounts={resetAmounts}
 							onSend={handleSendFrom}
 						/>}
 					</TabPanel>
