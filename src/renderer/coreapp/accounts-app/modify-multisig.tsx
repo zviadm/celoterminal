@@ -29,6 +29,15 @@ const ModifyMultiSig = (props: {
 		},
 		[multiSigAddress]
 	))
+	const [ownerAddress, setOwnerAddress] = React.useState(props.account.ownerAddress)
+	const handleChangeOwner = (newOwner: string) => {
+		if (ownerAddress === newOwner) {
+			return
+		}
+		props.onChangeOwner(newOwner)
+		setOwnerAddress(newOwner)
+	}
+
 	const accounts = props.accounts
 	const ownerOptions =
 		fetched ? accounts.filter((a) => fetched.owners.indexOf(a.address) >= 0) : []
@@ -43,12 +52,8 @@ const ModifyMultiSig = (props: {
 						id="multisig-owner-input"
 						noFreeSolo={true}
 						addresses={ownerOptions}
-						address={props.account.ownerAddress}
-						onChange={(o) => {
-							if (o !== props.account.ownerAddress) {
-								props.onChangeOwner(o)
-							}
-						}}
+						address={ownerAddress}
+						onChange={handleChangeOwner}
 					/>
 				</Box>}
 			</DialogContent>

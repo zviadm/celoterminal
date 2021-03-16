@@ -18,7 +18,7 @@ interface Address {
 const AddressAutocomplete = (props: {
 	id?: string,
 	addresses: Address[],
-	address: string,
+	address?: string,
 	onChange: (address: string) => void,
 	textFieldProps?: TextFieldProps,
 	noFreeSolo?: boolean,
@@ -42,7 +42,7 @@ const AddressAutocomplete = (props: {
 	} : {
 		freeSolo: false,
 		autoHighlight: true,
-		defaultValue: props.addresses.find((a) => a.address === props.address),
+		value: props.addresses.find((a) => a.address === props.address),
 		onChange: (e: unknown, value: string | Address | null) => {
 			if (value && typeof value !== "string") {
 				props.onChange(value.address)
