@@ -1,8 +1,9 @@
+import BigNumber from 'bignumber.js'
 import { ContractKit } from '@celo/contractkit'
 
 import useOnChainState from '../../state/onchain-state'
 import { newErc20 } from '../../../lib/erc20/erc20-contract'
-import { RegisteredErc20 } from '../../../lib/erc20/core'
+import { Erc20InfiniteThreshold, RegisteredErc20 } from '../../../lib/erc20/core'
 import { Account } from '../../../lib/accounts/accounts'
 import { fmtAmount } from '../../../lib/utils'
 
@@ -15,24 +16,29 @@ import Add from '@material-ui/icons/Add'
 
 import SectionTitle from '../../components/section-title'
 import LinkedAddress from '../../components/linked-address'
+import ApproveSpender from './approve-spender'
 
 const ApprovalsTab = (props: {
 	erc20: RegisteredErc20,
-	selectedAccount: Account,
-	owners: string[],
-	spenders: string[],
+	account: Account,
+	accountData: {
+		owners: string[],
+		spenders: string[],
+	},
 	addressBook: Account[], // TODO(zviad): This type should be different.
+	onApprove: (spender: string, amount: BigNumber) => void
 }): JSX.Element => {
-	const owners = props.owners
-	const spenders = props.spenders
+	const accountDataRef = React.useRef(props.accountData)
 	const erc20 = props.erc20
-	const selectedAddress = props.selectedAccount.address
+	const selectedAddress = props.account.address
 	const {
 		isFetching,
 		fetched,
-		// refetch,
+		refetch,
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
+			const owners = accountDataRef.current.owners
+			const spenders = accountDataRef.current.spenders
 			const contract = await newErc20(kit, erc20)
 			const ownerAllowances = await Promise.all(owners.map((a) => contract.allowance(a, selectedAddress)))
 			const spenderAllowances = await Promise.all(spenders.map((a) => contract.allowance(selectedAddress, a)))
@@ -45,10 +51,37 @@ const ApprovalsTab = (props: {
 				bySpender,
 			}
 		},
-		[selectedAddress, erc20, owners, spenders]
+		[selectedAddress, erc20, accountDataRef]
 	))
 
+	const accountData = props.accountData
+	React.useEffect(() => {
+		if (accountDataRef.current !== accountData) {
+			accountDataRef.current = accountData
+			refetch()
+		}
+	}, [refetch, accountData])
+
+	const [showApprove, setShowApprove] = React.useState<undefined | {
+		spender?: string,
+		allowance?: BigNumber,
+	}>()
+
+	const handleApprove = (spender: string, amount: BigNumber) => {
+		setShowApprove(undefined)
+		props.onApprove(spender, amount)
+	}
+
 	return <>
+		{showApprove !== undefined &&
+		<ApproveSpender
+			erc20={props.erc20}
+			account={props.account}
+			spender={showApprove.spender}
+			currentAllowance={showApprove.allowance}
+			onCancel={() => { setShowApprove(undefined) }}
+			onApprove={handleApprove}
+		/>}
 		{isFetching && <LinearProgress />}
 		{fetched && <>
 		<Box display="flex" flexDirection="column">
@@ -72,7 +105,7 @@ const ApprovalsTab = (props: {
 								<TableRow key={s.spender}>
 									<TableCell><LinkedAddress address={s.spender} /></TableCell>
 									<TableCell style={{whiteSpace: "nowrap"}} align="right">
-										{fmtAmount(s.allowance, props.erc20.decimals)} {props.erc20.symbol}
+										{fmtAllowance(props.erc20, s.allowance)} {props.erc20.symbol}
 									</TableCell>
 								</TableRow>
 							)
@@ -82,7 +115,8 @@ const ApprovalsTab = (props: {
 			</Table>}
 			<Button
 				color="primary"
-				startIcon={<Add />}>
+				startIcon={<Add />}
+				onClick={() => { setShowApprove({}) }}>
 				Approve Spender
 			</Button>
 		</Box>
@@ -107,7 +141,7 @@ const ApprovalsTab = (props: {
 								<TableRow key={o.owner}>
 									<TableCell><LinkedAddress address={o.owner} /></TableCell>
 									<TableCell style={{whiteSpace: "nowrap"}} align="right">
-										{fmtAmount(o.allowance, props.erc20.decimals)} {props.erc20.symbol}
+										{fmtAllowance(props.erc20, o.allowance)} {props.erc20.symbol}
 									</TableCell>
 								</TableRow>
 							)
@@ -120,3 +154,10 @@ const ApprovalsTab = (props: {
 	</>
 }
 export default ApprovalsTab
+
+const fmtAllowance = (erc20: RegisteredErc20, allowance: BigNumber) => {
+	if (allowance.gte(Erc20InfiniteThreshold)) {
+		return "Unlimited"
+	}
+	return fmtAmount(allowance, erc20.decimals)
+}

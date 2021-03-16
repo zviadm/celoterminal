@@ -43,7 +43,7 @@ const ModifyMultiSig = (props: {
 						id="multisig-owner-input"
 						noFreeSolo={true}
 						addresses={ownerOptions}
-						address={props.account.ownerAddress}
+						defaultAddress={props.account.ownerAddress}
 						onChange={(o) => {
 							if (o !== props.account.ownerAddress) {
 								props.onChangeOwner(o)

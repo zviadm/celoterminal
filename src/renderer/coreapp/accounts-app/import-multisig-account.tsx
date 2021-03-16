@@ -79,7 +79,7 @@ const ImportMultiSigAccount = (props: {
 								textFieldProps={{label: "Owner account"}}
 								noFreeSolo={true}
 								addresses={ownerOptions}
-								address={ownerAddress}
+								defaultAddress={ownerAddress}
 								onChange={setOwnerAddress}
 							/>
 						)}

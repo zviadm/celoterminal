@@ -15,14 +15,17 @@ const TransferTab = (props: {
 	erc20: RegisteredErc20,
 	maxToSend?: BigNumber,
 	addressBook: Account[], // TODO(zviad): This type should be different.
-	onSend: (toAddress: string, toSend: string) => void,
+	onSend: (toAddress: string, amount: BigNumber) => void,
 }): JSX.Element => {
 	const [toSend, setToSend] = React.useState("")
 	const [toAddress, setToAddress] = React.useState("")
 	const canSend = (
 		isValidAddress(toAddress) && (toSend !== "") && props.maxToSend &&
 		props.maxToSend.gte(new BigNumber(toSend).shiftedBy(props.erc20.decimals)))
-	const handleSend = () => { props.onSend(toAddress, toSend) }
+	const handleSend = () => {
+		const amount = new BigNumber(toSend).shiftedBy(props.erc20.decimals)
+		props.onSend(toAddress, amount)
+	}
 	return (<>
 		<Alert severity="warning">
 			Transfers are non-reversible. Transfering funds to an incorrect address

@@ -9,7 +9,7 @@ import { fmtAmount } from '../../../lib/utils'
 import { getExchange, getStableToken, stableTokens } from './config'
 import { calcCeloAmount, calcStableAmount, fmtTradeAmount } from './rate-utils'
 import { useExchangeHistoryState, useExchangeOnChainState } from './state'
-import { CoreErc20, coreErc20Decimals } from '../../../lib/erc20/core'
+import { CoreErc20, coreErc20Decimals, Erc20InfiniteAmount } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
@@ -130,7 +130,7 @@ const MentoApp = (props: {
 			const allowed = await approveC.allowance(account.address, exchange.address)
 			if (allowed.lt(sellAmount)) {
 				// Exchange is a core-contract, thus infinite-approval should be safe.
-				const txApprove = approveC.approve(exchange.address, new BigNumber(1e35).toFixed(0))
+				const txApprove = approveC.approve(exchange.address, Erc20InfiniteAmount.toString(10))
 				txs.unshift({tx: txApprove})
 			}
 			return txs

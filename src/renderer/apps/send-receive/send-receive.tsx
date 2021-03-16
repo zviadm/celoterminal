@@ -122,16 +122,34 @@ const SendReceiveApp = (props: {
 	const runTXs = (f: TXFunc) => {
 		props.runTXs(f, () => { refetchAll() })
 	}
-	const handleSend = (toAddress: string, toSend: string) => {
+	const handleSend = (toAddress: string, amount: BigNumber) => {
 		runTXs(
 			async (kit: ContractKit) => {
 				const contract = await newErc20(kit, erc20)
-				const tx = contract.transfer(
-					toAddress, new BigNumber(toSend).shiftedBy(erc20.decimals))
+				const tx = contract.transfer(toAddress, amount)
 				return [{tx: tx}]
 			}
 		)
 	}
+	const handleSendFrom = (fromAddress: string, toAddress: string, amount: BigNumber) => {
+		runTXs(
+			async (kit: ContractKit) => {
+				const contract = await newErc20(kit, erc20)
+				const tx = contract.transferFrom(fromAddress, toAddress, amount)
+				return [{tx: tx}]
+			}
+		)
+	}
+	const handleApprove = (spender: string, amount: BigNumber) => {
+		runTXs(
+			async (kit: ContractKit) => {
+				const contract = await newErc20(kit, erc20)
+				const tx = contract.approve(spender, amount)
+				return [{tx: tx}]
+			}
+		)
+	}
+
 	// TODO(zviadm): erc20 should be compared against current `feeCurrency` instead.
 	const estimatedGas = erc20.symbol === "CELO" ? new BigNumber(0.0001).shiftedBy(erc20.decimals) : 0
 	const maxToSend = fetched && BigNumber.maximum(fetched.balance.minus(estimatedGas), 0)
@@ -191,9 +209,10 @@ const SendReceiveApp = (props: {
 						{approvalState.fetched &&
 						<TransferFromTab
 							erc20={erc20}
-							selectedAccount={props.selectedAccount}
-							owners={approvalState.fetched.owners}
+							account={props.selectedAccount}
+							accountData={approvalState.fetched}
 							addressBook={props.accounts}
+							onSend={handleSendFrom}
 						/>}
 					</TabPanel>
 					<TabPanel value="approvals">
@@ -201,10 +220,10 @@ const SendReceiveApp = (props: {
 						{approvalState.fetched &&
 						<ApprovalsTab
 							erc20={erc20}
-							selectedAccount={props.selectedAccount}
-							owners={approvalState.fetched.owners}
-							spenders={approvalState.fetched.spenders}
+							account={props.selectedAccount}
+							accountData={approvalState.fetched}
 							addressBook={props.accounts}
+							onApprove={handleApprove}
 						/>}
 					</TabPanel>
 				</AppSection>

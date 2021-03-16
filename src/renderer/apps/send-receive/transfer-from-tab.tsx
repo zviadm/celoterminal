@@ -1,8 +1,11 @@
+import { ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
 import { isValidAddress } from 'ethereumjs-util'
 import { RegisteredErc20 } from '../../../lib/erc20/core'
 import { Account } from '../../../lib/accounts/accounts'
 import { fmtAmount } from '../../../lib/utils'
+import { newErc20 } from '../../../lib/erc20/erc20-contract'
+import useOnChainState from '../../state/onchain-state'
 
 import * as React from 'react'
 import { Button, LinearProgress } from '@material-ui/core'
@@ -10,26 +13,26 @@ import Alert from '@material-ui/lab/Alert'
 
 import AddressAutocomplete from '../../components/address-autocomplete'
 import NumberInput from '../../components/number-input'
-import useOnChainState from '../../state/onchain-state'
-import { ContractKit } from '@celo/contractkit'
-import { newErc20 } from '../../../lib/erc20/erc20-contract'
 
 const TransferFromTab = (props: {
 	erc20: RegisteredErc20,
-	selectedAccount: Account,
-	owners: string[],
+	account: Account,
+	accountData: {
+		owners: string[],
+	},
 	addressBook: Account[], // TODO(zviad): This type should be different.
+	onSend: (from: string, to: string, amount: BigNumber) => void,
 }): JSX.Element => {
 	const [owner, setOwner] = React.useState("")
 	const [toAddress, setToAddress] = React.useState("")
 	const [toSend, setToSend] = React.useState("")
 
 	const erc20 = props.erc20
-	const selectedAddress = props.selectedAccount.address
+	const selectedAddress = props.account.address
 	const {
 		isFetching,
 		fetched,
-		// refetch,
+		refetch,
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
 			if (owner === "") {
@@ -45,14 +48,28 @@ const TransferFromTab = (props: {
 		},
 		[selectedAddress, erc20, owner]
 	))
-	const ownerAddrs = props.owners.map((a) => ({address: a}))
+	// When `accountData` changes, trigger a refech since underlying on-chain data has
+	// most likely changed.
+	// has most likely changed.
+	const accountData = props.accountData
+	const accountDataRef = React.useRef(accountData)
+	React.useEffect(() => {
+		if (accountDataRef.current !== accountData) {
+			accountDataRef.current = accountData
+			refetch()
+		}
+	}, [refetch, accountData])
+	const ownerAddrs = accountData.owners.map((a) => ({address: a}))
 	const maxToSend = fetched?.allowance && BigNumber.minimum(fetched.allowance, fetched.balance)
 	const canSend = (
 		isValidAddress(toAddress) && (toSend !== "") && maxToSend &&
 		maxToSend.gte(new BigNumber(toSend).shiftedBy(props.erc20.decimals)))
 
-	// const handleSend = () => { props.onSend(toAddress, toSend) }
-	return props.owners.length === 0 ?
+	const handleSend = () => {
+		const amount = new BigNumber(toSend).shiftedBy(props.erc20.decimals)
+		props.onSend(owner, toAddress, amount)
+	}
+	return accountData.owners.length === 0 ?
 		<Alert severity="error">
 			No authorized accounts found that can be used as a source to transfer
 			funds from.
@@ -71,7 +88,6 @@ const TransferFromTab = (props: {
 				InputLabelProps: {shrink: true},
 			}}
 			addresses={ownerAddrs}
-			address={owner}
 			onChange={setOwner}
 		/>
 		{isFetching && <LinearProgress />}
@@ -102,7 +118,7 @@ const TransferFromTab = (props: {
 			id="send"
 			variant="outlined" color="primary"
 			disabled={!canSend}
-			onClick={undefined}>Send</Button>
+			onClick={handleSend}>Send</Button>
 		</>
 }
 export default TransferFromTab
