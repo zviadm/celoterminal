@@ -13,7 +13,6 @@ import NumberInput from '../../components/number-input'
 
 const TransferTab = (props: {
 	erc20: RegisteredErc20,
-	balance?: BigNumber,
 	maxToSend?: BigNumber,
 	addressBook: Account[], // TODO(zviad): This type should be different.
 	onSend: (toAddress: string, toSend: string) => void,
@@ -44,8 +43,8 @@ const TransferTab = (props: {
 			margin="normal"
 			id="amount-input"
 			label={
-				!props.balance ? `Amount` :
-				`Amount (max: ${fmtAmount(props.balance, props.erc20.decimals)})`
+				!props.maxToSend ? `Amount` :
+				`Amount (max: ${fmtAmount(props.maxToSend, props.erc20.decimals)})`
 			}
 			InputLabelProps={{shrink: true}}
 			value={toSend}

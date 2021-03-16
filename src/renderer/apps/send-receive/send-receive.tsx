@@ -16,7 +16,7 @@ import { RegisteredErc20 } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
-	Typography, Box, Tab
+	Typography, Box, Tab, LinearProgress
 } from '@material-ui/core'
 import TabContext from '@material-ui/lab/TabContext'
 import TabPanel from '@material-ui/lab/TabPanel'
@@ -30,6 +30,8 @@ import AddErc20 from '../../components/add-erc20'
 import RemoveErc20 from '../../components/remove-erc20'
 import SelectErc20 from './select-erc20'
 import TransferTab from './transfer-tab'
+import TransferFromTab from './transfer-from-tab'
+import ApprovalsTab from './approvals-tab'
 
 const SendReceiveApp = (props: {
 	accounts: Account[],
@@ -43,7 +45,7 @@ const SendReceiveApp = (props: {
 	if (erc20.symbol !== _erc20Symbol) {
 		setErc20Symbol(erc20.symbol)
 	}
-	const [tab, setTab] = React.useState("transfer")
+	const [tab, setTab] = useLocalStorageState("terminal/send-receive/tab", "transfers")
 
 	const [showAddToken, setShowAddToken] = React.useState(false)
 	const [toRemove, setToRemove] = React.useState<RegisteredErc20 | undefined>()
@@ -74,8 +76,8 @@ const SendReceiveApp = (props: {
 				"Approval", {fromBlock: 0, filter: {spender: selectedAddress}})
 			const owners: Set<string> = new Set(ownerEvents.map((e) => e.returnValues.owner))
 			return {
-				spenders,
-				owners,
+				spenders: Array.from(spenders).sort(),
+				owners: Array.from(owners).sort(),
 			}
 		},
 		[selectedAddress, erc20],
@@ -179,11 +181,31 @@ const SendReceiveApp = (props: {
 					<TabPanel value="transfer">
 						<TransferTab
 							erc20={erc20}
-							balance={fetched?.balance}
 							maxToSend={maxToSend}
 							addressBook={props.accounts}
 							onSend={handleSend}
 						/>
+					</TabPanel>
+					<TabPanel value="transfer-from">
+						{approvalState.isFetching && <LinearProgress />}
+						{approvalState.fetched &&
+						<TransferFromTab
+							erc20={erc20}
+							selectedAccount={props.selectedAccount}
+							owners={approvalState.fetched.owners}
+							addressBook={props.accounts}
+						/>}
+					</TabPanel>
+					<TabPanel value="approvals">
+						{approvalState.isFetching && <LinearProgress />}
+						{approvalState.fetched &&
+						<ApprovalsTab
+							erc20={erc20}
+							selectedAccount={props.selectedAccount}
+							owners={approvalState.fetched.owners}
+							spenders={approvalState.fetched.spenders}
+							addressBook={props.accounts}
+						/>}
 					</TabPanel>
 				</AppSection>
 			</TabContext>
