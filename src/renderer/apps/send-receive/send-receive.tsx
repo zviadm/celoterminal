@@ -67,7 +67,7 @@ const SendReceiveApp = (props: {
 		},
 		[selectedAddress, erc20]
 	))
-	const approvalState = useOnChainState(React.useCallback(
+	const approvalData = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
 			const contract = await newErc20(kit, erc20)
 			// TODO(zviad): This might need to be batched up, if there are too many events.
@@ -117,7 +117,7 @@ const SendReceiveApp = (props: {
 
 	const refetchAll = () => {
 		refetch()
-		approvalState.refetch()
+		approvalData.refetch()
 		transferHistory.refetch()
 	}
 
@@ -160,7 +160,10 @@ const SendReceiveApp = (props: {
 	const maxToSend = fetched && BigNumber.maximum(fetched.balance.minus(estimatedGas), 0)
 	return (
 		<AppContainer>
-			<AppHeader app={SendReceive} isFetching={isFetching || transferHistory.isFetching} refetch={refetchAll} />
+			<AppHeader
+				app={SendReceive}
+				isFetching={isFetching || transferHistory.isFetching || approvalData.isFetching}
+				refetch={refetchAll} />
 			{showAddToken &&
 			<AddErc20
 				onCancel={() => { setShowAddToken(false) }}
@@ -201,7 +204,7 @@ const SendReceiveApp = (props: {
 						<Tab label="Transfer From" value={"transfer-from"} />
 						<Tab label="Approvals" value={"approvals"} />
 					</TabList>
-					<HiddenProgress hidden={!isFetching && !approvalState.isFetching} />
+					<HiddenProgress hidden={!isFetching && !approvalData.isFetching} />
 					<TabPanel value="transfer">
 						<TransferTab
 							erc20={erc20}
@@ -212,22 +215,22 @@ const SendReceiveApp = (props: {
 						/>
 					</TabPanel>
 					<TabPanel value="transfer-from">
-						{approvalState.fetched &&
+						{approvalData.fetched &&
 						<TransferFromTab
 							erc20={erc20}
 							account={props.selectedAccount}
-							accountData={approvalState.fetched}
+							accountData={approvalData.fetched}
 							addressBook={props.accounts}
 							resetAmounts={resetAmounts}
 							onSend={handleSendFrom}
 						/>}
 					</TabPanel>
 					<TabPanel value="approvals">
-						{approvalState.fetched &&
+						{approvalData.fetched &&
 						<ApprovalsTab
 							erc20={erc20}
 							account={props.selectedAccount}
-							accountData={approvalState.fetched}
+							accountData={approvalData.fetched}
 							addressBook={props.accounts}
 							onApprove={handleApprove}
 						/>}

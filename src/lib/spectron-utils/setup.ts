@@ -98,7 +98,7 @@ const startApp = async (): Promise<{app: Application, cleanup: () => Promise<voi
 	}
 }
 
-const devchainPort = 7545
+const devchainPort = 7546
 const startDevchain = async () => {
 	let _resolve: () => void
 	const started = new Promise<void>((resolve) => { _resolve = resolve})

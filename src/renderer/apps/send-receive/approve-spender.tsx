@@ -31,6 +31,8 @@ const ApproveSpender = (props: {
 			<DialogTitle>{props.spender ? "Change amount" : "Approve new spender"}</DialogTitle>
 			<DialogContent>
 				<TextField
+					autoFocus
+					id="spender-input"
 					margin="dense"
 					size="medium"
 					fullWidth={true}
@@ -55,6 +57,7 @@ const ApproveSpender = (props: {
 			<DialogActions>
 				<Button onClick={props.onCancel}>Cancel</Button>
 				<Button
+					id="confirm-approve"
 					disabled={!canApprove}
 					onClick={handleApprove}>
 					{props.spender ? "Change" : "Approve"}
