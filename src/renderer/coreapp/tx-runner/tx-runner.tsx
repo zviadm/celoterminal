@@ -16,7 +16,7 @@ const cacheMS = 60 * 60 * 1000
 function TXRunner(props: {
 	selectedAccount: Account,
 	accounts: Account[],
-	txFunc?: TXFunc,
+	txFunc: TXFunc,
 	onFinish: TXFinishFunc,
 }): JSX.Element {
 	const [pw, setPW] = useSessionState<{
@@ -45,8 +45,7 @@ function TXRunner(props: {
 		decryptLocalKey(executingAccount.encryptedData, p)
 		setPW({password: p, expireMS: nowMS() + cacheMS})
 	}
-	return (<>{props.txFunc && (
-		pwNeeded ?
+	return pwNeeded ?
 		<UnlockAccount
 			onCancel={pwOnCancel}
 			onPassword={pwOnPassword}
@@ -58,6 +57,5 @@ function TXRunner(props: {
 			txFunc={props.txFunc}
 			onFinish={props.onFinish}
 		/>
-	)}</>)
 }
 export default TXRunner
