@@ -76,6 +76,17 @@ export const installOptionalApp = async (appId: string): Promise<void> => {
 	await installApp.click()
 }
 
+// Uninstalls optional app.
+export const uninstallOptionalApp = async (appId: string): Promise<void> => {
+	const uninstallApp = await app.client.$(`#uninstall-app-${appId}`)
+	await uninstallApp.waitForEnabled()
+	await uninstallApp.click()
+
+	const confirmUninstall = await app.client.$("#confirm-uninstall")
+	await confirmUninstall.waitForEnabled()
+	await confirmUninstall.click()
+}
+
 export const selectApp = async (appId: string): Promise<void> => {
 	const menuItem = await app.client.$(`#menu-${appId}`)
 	await menuItem.waitForEnabled()
