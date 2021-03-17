@@ -116,11 +116,11 @@ const App = () => {
 		<Box display="flex" flexDirection="column" height="100%" >
 			{process.platform === "darwin" ? <AppDragRegion /> : null}
 			<ErrorSnack error={error} onClose={clearError} />
-			{selectedAccount &&
+			{selectedAccount && txFunc &&
 			<TXRunner
 				selectedAccount={selectedAccount}
 				accounts={accounts}
-				txFunc={txFunc?.f}
+				txFunc={txFunc.f}
 				onFinish={txOnFinish}
 			/>}
 			<Box display="flex" flexDirection="column" justifyContent="flex-end" height={`${appBarHeightPX}px`}>
