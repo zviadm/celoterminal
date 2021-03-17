@@ -60,8 +60,7 @@ const AppMenu = (props: {
 							selected={props.selectedApp === a.id}
 							disabled={a.id !== Accounts.id && props.disableApps}
 							onClick={() => { props.setSelectedApp(a.id) }}>
-							{a.icon &&
-							<ListItemIcon className={classes.listIcon}><a.icon /></ListItemIcon>}
+							<ListItemIcon className={classes.listIcon}>{a.icon}</ListItemIcon>
 							<ListItemText>{a.title}</ListItemText>
 							<ListItemSecondaryAction hidden={a.core}>
 								<IconButton

@@ -58,7 +58,7 @@ const AppCard = (props: {
 						justifyContent="space-between"
 						alignItems="center">
 						<Typography variant="h6">{props.app.title}</Typography>
-						<props.app.icon fontSize="large" />
+						{props.app.iconLarge}
 					</Box>
 					<Box height={100} overflow="auto" my={0.5}>
 						<Typography variant="body2" color="textSecondary">{description || ''}</Typography>
