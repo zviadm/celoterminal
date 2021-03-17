@@ -25,6 +25,7 @@ import AppStore from './appstore-app/def'
 import AppStoreApp from './appstore-app/appstore-app'
 import { ErrorContext, ErrorProvider } from '../state/error-context'
 import { useInstalledApps } from './installed-apps-state'
+import AlertTitle from '@material-ui/lab/AlertTitle'
 
 const appBarHeightPX = process.platform === "darwin" ? 85 : 60
 
@@ -66,39 +67,35 @@ const App = () => {
 
 	let selectedApp = _selectedApp
 	let renderedApp
-	try {
-		if (!selectedAccount || selectedApp === Accounts.id) {
-			selectedApp = Accounts.id
-			renderedApp = <AccountsApp
-				accounts={accounts}
-				selectedAccount={selectedAccount}
-				runTXs={runTXs}
+	if (!selectedAccount || selectedApp === Accounts.id) {
+		selectedApp = Accounts.id
+		renderedApp = <AccountsApp
+			accounts={accounts}
+			selectedAccount={selectedAccount}
+			runTXs={runTXs}
 
-				hasPassword={hasPassword}
-				onAdd={addAccount}
-				onRemove={removeAccount}
-				onRename={renameAccount}
-				onChangePassword={changePassword}
-			/>
-		} else if (selectedApp === AppStore.id) {
-			renderedApp = <AppStoreApp
-				installedApps={installedApps}
-				onInstallApp={handleInstallApp}
-			/>
-		} else {
-			const terminalApp = appList.find((a) => a.id === selectedApp)
-			if (!terminalApp) {
-				throw new Error(`Unknown app: '${selectedApp}'`)
-			}
-			renderedApp = <terminalApp.renderApp
-				accounts={accounts}
-				selectedAccount={selectedAccount}
-				runTXs={runTXs}
-			/>
+			hasPassword={hasPassword}
+			onAdd={addAccount}
+			onRemove={removeAccount}
+			onRename={renameAccount}
+			onChangePassword={changePassword}
+		/>
+	} else if (selectedApp === AppStore.id) {
+		renderedApp = <AppStoreApp
+			installedApps={installedApps}
+			onInstallApp={handleInstallApp}
+		/>
+	} else {
+		let terminalApp = appList.find((a) => a.id === selectedApp)
+		if (!terminalApp) {
+			terminalApp = appList[0]
+			selectedApp = terminalApp.id
 		}
-	} catch (e) {
-		renderedApp = <Box><Alert severity="error">{e?.message}</Alert></Box>
-		log.error(`renderApp:`, e)
+		renderedApp = <terminalApp.renderApp
+			accounts={accounts}
+			selectedAccount={selectedAccount}
+			runTXs={runTXs}
+		/>
 	}
 
 	const txOnFinish: TXFinishFunc = (e, r) => {
@@ -155,9 +152,11 @@ const App = () => {
 					flex={1}
 					paddingLeft={2}
 					paddingRight={2}>
-					<Box
-						display="flex" flexDirection="column"
-						flex={1} paddingBottom={2}>{renderedApp}</Box>
+					<ErrorBoundary selectedApp={selectedApp}>
+						<Box
+							display="flex" flexDirection="column"
+							flex={1} paddingBottom={2}>{renderedApp}</Box>
+					</ErrorBoundary>
 				</Box>
 			</Box>
 		</Box>
@@ -180,6 +179,35 @@ const ErrorSnack = (props: {
 			onClose={props.onClose}>{props.error?.message}</Alert>
 	</Snackbar>
 )
+
+class ErrorBoundary extends React.Component<{selectedApp: string}, {error?: Error}> {
+	constructor(props: {selectedApp: string}) {
+		super(props)
+		this.state = {}
+	}
+
+	static getDerivedStateFromError(error: Error) {
+		return { error: error }
+	}
+
+	componentDidUpdate(prevProps: {selectedApp: string}) {
+		if (this.props.selectedApp !== prevProps.selectedApp) {
+			this.setState({error: undefined})
+		}
+	}
+
+	render() {
+		if (this.state.error) {
+			return <Box id="error-boundary-fallback">
+				<Alert severity="error">
+					<AlertTitle>UNEXPECTED CRASH</AlertTitle>
+					{this.state.error?.message}
+				</Alert>
+			</Box>
+		}
+		return this.props.children
+	}
+}
 
 const ThemedApp = () => (
 	<ThemeProvider theme={theme}>
