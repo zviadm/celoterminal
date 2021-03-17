@@ -26,7 +26,8 @@ export interface AppDefinition {
 	id: string
 	core?: boolean // core==True only for core Celo apps that are always enabled/visible.
 	title: string
-	icon: <T>(props: T) => JSX.Element
+	icon: JSX.Element      // 24px x 24px in size
+	iconLarge: JSX.Element // 35px x 35px in size
 	url?: string
 	description?: string
 
