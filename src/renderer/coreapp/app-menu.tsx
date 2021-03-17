@@ -65,6 +65,7 @@ const AppMenu = (props: {
 							<ListItemText>{a.title}</ListItemText>
 							<ListItemSecondaryAction hidden={a.core}>
 								<IconButton
+									id={`uninstall-app-${a.id}`}
 									edge="end"
 									onClick={() => { setConfirmUninstall(a) }}
 									>
@@ -97,7 +98,9 @@ const ConfirmUninstall = (props: {
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.onCancel}>Cancel</Button>
-				<Button color="secondary" onClick={props.onUninstall}>Uninstall</Button>
+				<Button
+					id="confirm-uninstall"
+					color="secondary" onClick={props.onUninstall}>Uninstall</Button>
 			</DialogActions>
 		</Dialog>
 	)
