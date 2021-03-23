@@ -54,9 +54,10 @@ test('Lock & Unlock CELO', async (done) => {
 	await pending1.waitForExist({reverse: true})
 
 	const kit = devchainKit()
-	const cfg = await kit.getNetworkConfig()
+	const lockedGold = await kit.contracts.getLockedGold()
+	const cfg = await lockedGold.getConfig()
 	// Pass time to enable withdraws.
-	await adjustNow(cfg.lockedGold.unlockingPeriod.multipliedBy(1000).toNumber())
+	await adjustNow(cfg.unlockingPeriod.multipliedBy(1000).toNumber())
 	await refetchAppData()
 
 	await pending0.waitForEnabled()
