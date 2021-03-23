@@ -10,6 +10,7 @@ import { fmtAmount } from '../../../lib/utils'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { Locker } from './def'
 import { coreErc20Decimals } from '../../../lib/erc20/core'
+import useLocalStorageState from '../../state/localstorage-state'
 
 import * as React from 'react'
 import {
@@ -26,7 +27,6 @@ import NumberInput from '../../components/number-input'
 import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
 import PendingWithdrawals from './pending-withdrawals'
-import useLocalStorageState from '../../state/localstorage-state'
 
 const LockerApp = (props: {
 	accounts: Account[],
