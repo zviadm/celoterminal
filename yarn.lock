@@ -4911,10 +4911,10 @@ caseless@~0.12.0:
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
   integrity sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
 
-celo-devchain@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/celo-devchain/-/celo-devchain-2.2.0.tgz#68ff14efb3805550e553bb63af28b3330011144c"
-  integrity sha512-RAe0mzu0y8lYCGefw3j+JDqpuYMw6r8OVsMR5a0fD/u6d2acNIAZOd91JXANDU3qRhBfEME80+25Znr5R2JOOQ==
+celo-devchain@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/celo-devchain/-/celo-devchain-3.0.0.tgz#35db610d1a12a871e271de60133d137064641ba7"
+  integrity sha512-y6yVepFwicSPpd08CwCLq4/OiYj3QYOJWZSoxUqTzIEfGwN+cRvngwefGAnNbJkxCOp9M3b7trXGi2gmG/QrTg==
   dependencies:
     "@celo/contractkit" "1.1.0"
     "@celo/ganache-cli" "git+https://github.com/celo-org/ganache-cli.git#e933297"
