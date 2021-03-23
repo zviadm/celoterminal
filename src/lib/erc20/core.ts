@@ -1,30 +1,30 @@
-import { ContractKit } from "@celo/contractkit"
+import { CeloTokenType, ContractKit, StableToken, Token } from "@celo/contractkit"
 import BigNumber from "bignumber.js"
 
-export type CoreErc20 = "CELO" | "cUSD"
-
 export const coreErc20Decimals = 18
-export const coreErc20s: {name: string, symbol: CoreErc20, decimals: number}[] = [
+export const coreErc20s: {
+	name: string,
+	symbol: CeloTokenType,
+	decimals: number,
+}[] = [
 	{
 		name: "Celo Native Asset",
-		symbol: "CELO",
+		symbol: Token.CELO,
 		decimals: coreErc20Decimals,
 	}, {
 		name: "Celo Dollar",
-		symbol: "cUSD",
+		symbol: StableToken.cUSD,
 		decimals: coreErc20Decimals,
 	// }, {
 	// 	name: "Celo Euro",
-	// 	symbol: "cEUR",
+	// 	symbol: StableToken.cEUR,
 	// 	decimals: coreErc20Decimals,
 	}
 ]
-export const stableTokenSuffix = (stableTokenSymbol: CoreErc20): string => {
-	return stableTokenSymbol === "cUSD" ? "" : stableTokenSymbol.slice(1)
-}
+export const coreStableTokens = coreErc20s.filter((e) => e.symbol !== "CELO")
 
 export type ConversionFunc = (
-	kit: ContractKit, symbol: string, amount: BigNumber) => Promise<{coreErc20: CoreErc20, amount: BigNumber}>
+	kit: ContractKit, symbol: string, amount: BigNumber) => Promise<{coreErc20: CeloTokenType, amount: BigNumber}>
 
 export interface RegisteredErc20 {
 	name: string,

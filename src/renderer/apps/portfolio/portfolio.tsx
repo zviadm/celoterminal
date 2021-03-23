@@ -1,4 +1,4 @@
-import { ContractKit } from '@celo/contractkit'
+import { ContractKit, StableToken } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
 
 import { Account } from '../../../lib/accounts/accounts'
@@ -42,7 +42,7 @@ const PortfolioApp = (props: {
 		async (kit: ContractKit) => {
 			const balances = fetchBalancesForAccounts(kit, accounts, erc20s)
 			const locked = fetchLockedBalanceForAccounts(kit, accounts)
-			const conversionRates = registeredErc20ConversionRates(kit, "cUSD", erc20s)
+			const conversionRates = registeredErc20ConversionRates(kit, StableToken.cUSD, erc20s)
 			return {
 				balances: await balances,
 				locked: await locked,
