@@ -53,6 +53,10 @@ const CelovoteApp = (props: {
 	selectedAccount: Account,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
+	if (CFG().chainId !== mainnetChainId) {
+		throw new UserError(`Celovote APP only works with Mainnet.`)
+	}
+
 	const account = props.selectedAccount
 	const {
 		isFetching,
@@ -60,9 +64,6 @@ const CelovoteApp = (props: {
 		refetch,
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
-			if (CFG().chainId !== mainnetChainId) {
-				throw new UserError(`Celovote APP only works with Mainnet.`)
-			}
 			const accounts = await kit.contracts.getAccounts()
 			const isAccount = await accounts.isAccount(account.address)
 			if (!isAccount) {
