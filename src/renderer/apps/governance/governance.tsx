@@ -63,6 +63,7 @@ const GovernanceApp = (props: {
 						stage: isExpired ? ProposalStage.Expiration : record.stage,
 						votes: record.votes,
 						passing: record.passed, // TODO(zviad): check if this is same as before.
+						timestamp: record.metadata.timestamp,
 						timeUntilExecution,
 					}
 				})
@@ -75,7 +76,9 @@ const GovernanceApp = (props: {
 			const upvoteRecord = governance.getUpvoteRecord(mainAccount)
 			const voteRecords = governance.getVoteRecords(mainAccount)
 
-			const proposalsInReferendum = (await proposals).filter((p) => p.stage === ProposalStage.Referendum)
+			const proposalsInReferendum = (await proposals)
+				.filter((p) => p.stage === ProposalStage.Referendum)
+				.sort((a, b) => (a.timestamp.lt(b.timestamp) ? -1 : 1))
 			const isAccount = await accounts.isAccount(mainAccount)
 			const lockedCELO = !isAccount ? new BigNumber(0) :
 				await lockedGold.getAccountTotalLockedGold(mainAccount)

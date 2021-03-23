@@ -3,20 +3,18 @@ import useSessionState from '../../state/session-state'
 import { decryptLocalKey } from '../../../lib/accounts/accountsdb'
 import { canDecryptLocalKey, rootAccount } from './wallet'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
-import { UserError } from '../../../lib/error'
 import { nowMS } from '../../state/time'
 
 import * as React from 'react'
-
 import UnlockAccount from './unlock-account'
-import RunTXs from './run-txs'
+import RunTXs, { TXCancelled } from './run-txs'
 
 const cacheMS = 60 * 60 * 1000
 
 function TXRunner(props: {
 	selectedAccount: Account,
 	accounts: Account[],
-	txFunc?: TXFunc,
+	txFunc: TXFunc,
 	onFinish: TXFinishFunc,
 }): JSX.Element {
 	const [pw, setPW] = useSessionState<{
@@ -36,7 +34,7 @@ function TXRunner(props: {
 	}
 	const pwNeeded = executingAccount.type === "local" && !pwValid
 	const pwOnCancel = () => {
-		props.onFinish(new UserError(`Cancelled`), [])
+		props.onFinish(new TXCancelled(), [])
 	}
 	const pwOnPassword = (p: string) => {
 		if (executingAccount.type !== "local") {
@@ -45,8 +43,7 @@ function TXRunner(props: {
 		decryptLocalKey(executingAccount.encryptedData, p)
 		setPW({password: p, expireMS: nowMS() + cacheMS})
 	}
-	return (<>{props.txFunc && (
-		pwNeeded ?
+	return pwNeeded ?
 		<UnlockAccount
 			onCancel={pwOnCancel}
 			onPassword={pwOnPassword}
@@ -58,6 +55,5 @@ function TXRunner(props: {
 			txFunc={props.txFunc}
 			onFinish={props.onFinish}
 		/>
-	)}</>)
 }
 export default TXRunner

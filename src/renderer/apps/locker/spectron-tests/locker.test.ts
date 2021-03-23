@@ -25,6 +25,9 @@ test('Lock & Unlock CELO', async (done) => {
 	await lockCelo.click()
 	await confirmTXs()
 
+	const unlockTab = await app.client.$("span=Unlock")
+	await unlockTab.waitForEnabled()
+	await unlockTab.click()
 	const unlockInput = await app.client.$("#unlock-celo-input")
 	await unlockInput.waitForEnabled()
 	await unlockInput.click()
@@ -82,6 +85,9 @@ test('Revoke & Unlock CELO', async (done) => {
 	expect(nonVoting.toNumber()).toEqual(0)
 
 	await refetchAppData()
+	const unlockTab = await app.client.$("span=Unlock")
+	await unlockTab.waitForEnabled()
+	await unlockTab.click()
 	const unlockInput = await app.client.$("#unlock-celo-input")
 	await unlockInput.waitForEnabled()
 	await unlockInput.click()
@@ -97,6 +103,9 @@ test('Revoke & Unlock CELO', async (done) => {
 })
 
 test(`Unlock MAX`, async (done) => {
+	const unlockTab = await app.client.$("span=Unlock")
+	await unlockTab.waitForEnabled()
+	await unlockTab.click()
 	const unlockInputSetMax = await app.client.$("#unlock-celo-input-set-max")
 	await unlockInputSetMax.waitForEnabled()
 	await unlockInputSetMax.click()
