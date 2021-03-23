@@ -7,22 +7,26 @@ import { toTransactionObject } from '@celo/connect'
 import { Account } from '../../../lib/accounts/accounts'
 import useOnChainState from '../../state/onchain-state'
 import { fmtAmount } from '../../../lib/utils'
-import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definition'
+import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { Locker } from './def'
 import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
-	Button, Typography, Box, Table, TableBody,
-	TableCell, TableRow
+	Button, Box, Table, TableBody,
+	TableCell, TableRow, Tab
 } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
+import TabContext from '@material-ui/lab/TabContext'
+import TabList from '@material-ui/lab/TabList'
+import TabPanel from '@material-ui/lab/TabPanel'
 
 import AppHeader from '../../components/app-header'
 import NumberInput from '../../components/number-input'
 import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
 import PendingWithdrawals from './pending-withdrawals'
+import useLocalStorageState from '../../state/localstorage-state'
 
 const LockerApp = (props: {
 	accounts: Account[],
@@ -65,63 +69,77 @@ const LockerApp = (props: {
 		},
 		[account]
 	))
+	const [tab, setTab] = useLocalStorageState("terminal/locker/tab", "lock")
 	const [toLock, setToLock] = React.useState("")
 	const [toUnlock, setToUnlock] = React.useState("")
 	const toLockWEI = new BigNumber(toLock).shiftedBy(coreErc20Decimals)
 
-	const runTXs = (f: TXFunc) => {
-		props.runTXs(f, (e?: Error) => {
-			refetch()
-			if (!e) {
-				setToLock("")
-				setToUnlock("")
-			}
-		})
+	const onFinishTXs = (e?: Error) => {
+		refetch()
+		if (!e) {
+			setToLock("")
+			setToUnlock("")
+		}
 	}
 	const handleCreateAccount = () => {
-		runTXs(async (kit: ContractKit) => {
-			const accounts = await kit.contracts.getAccounts()
-			const tx = accounts.createAccount()
-			return [{tx: tx}]
-		})
+		props.runTXs(
+			async (kit: ContractKit) => {
+				const accounts = await kit.contracts.getAccounts()
+				const tx = accounts.createAccount()
+				return [{tx: tx}]
+			},
+			onFinishTXs
+		)
 	}
 	const handleLock = () => {
-		runTXs(async (kit: ContractKit): Promise<Transaction[]> => {
-			const lockedGold = await kit.contracts.getLockedGold()
-			const tx = lockedGold.lock()
-			return [{tx: tx, params: {value: toLockWEI.toFixed(0)}}]
-		})
+		props.runTXs(
+			async (kit: ContractKit) => {
+				const lockedGold = await kit.contracts.getLockedGold()
+				const tx = lockedGold.lock()
+				return [{tx: tx, params: {value: toLockWEI.toFixed(0)}}]
+			},
+			onFinishTXs,
+		)
 	}
 	const handleUnlock = (
 		toUnlock: BigNumber,
 		revoke?: {group: string, amount: BigNumber},
 		) => {
-		runTXs(async (kit: ContractKit) => {
-			const lockedGold = await kit.contracts.getLockedGold()
-			const election = await kit.contracts.getElection()
-			const txs = []
-			if (revoke) {
-				const revokeTXs = await election.revoke(account.address, revoke.group, revoke.amount)
-				txs.push(...revokeTXs)
-			}
-			txs.push(lockedGold.unlock(toUnlock))
-			return txs.map((tx) => ({tx: tx}))
-		})
+		props.runTXs(
+			async (kit: ContractKit) => {
+				const lockedGold = await kit.contracts.getLockedGold()
+				const election = await kit.contracts.getElection()
+				const txs = []
+				if (revoke) {
+					const revokeTXs = await election.revoke(account.address, revoke.group, revoke.amount)
+					txs.push(...revokeTXs)
+				}
+				txs.push(lockedGold.unlock(toUnlock))
+				return txs.map((tx) => ({tx: tx}))
+			},
+			onFinishTXs,
+		)
 	}
 	const handleWithdraw = (idx: number) => {
-		runTXs(async (kit: ContractKit) => {
-			const lockedGold = await kit.contracts.getLockedGold()
-			const tx = lockedGold.withdraw(idx)
-			return [{tx: tx}]
-		})
+		props.runTXs(
+			async (kit: ContractKit) => {
+				const lockedGold = await kit.contracts.getLockedGold()
+				const tx = lockedGold.withdraw(idx)
+				return [{tx: tx}]
+			},
+			onFinishTXs,
+		)
 	}
 	const handleCancelWithdraw = (idx: number, pending: PendingWithdrawal) => {
-		runTXs(async (kit: ContractKit) => {
-			const lockedGold = await kit._web3Contracts.getLockedGold()
-			const txo = lockedGold.methods.relock(idx, pending.value.toFixed(0))
-			const tx = toTransactionObject(kit.connection, txo)
-			return [{tx: tx}]
-		})
+		props.runTXs(
+			async (kit: ContractKit) => {
+				const lockedGold = await kit._web3Contracts.getLockedGold()
+				const txo = lockedGold.methods.relock(idx, pending.value.toFixed(0))
+				const tx = toTransactionObject(kit.connection, txo)
+				return [{tx: tx}]
+			},
+			onFinishTXs,
+		)
 	}
 
 	const canLock = (
@@ -151,34 +169,43 @@ const LockerApp = (props: {
 			</AppSection>
 			:
 			<>
-			<AppSection>
-				<Typography>Balance: {fmtAmount(fetched.totalCELO, "CELO")} CELO</Typography>
-				<NumberInput
-					autoFocus
-					margin="dense"
-					variant="outlined"
-					id="lock-celo-input"
-					label={`Lock (max: ${fmtAmount(fetched.totalCELO, "CELO")})`}
-					value={toLock}
-					onChangeValue={setToLock}
-					maxValue={maxToLock}
-				/>
-				<Button
-					id="lock-celo"
-					variant="outlined"
-					color="primary"
-					disabled={!canLock}
-					onClick={handleLock}>Lock</Button>
-			</AppSection>
-			<AppSection>
-				<UnlockWithRevoke
-					{...fetched}
-					toUnlock={toUnlock}
-					onSetToUnlock={setToUnlock}
-					onUnlock={handleUnlock}
-				/>
-			</AppSection>
-			{fetched.pendingWithdrawals.length > 0 &&
+			<TabContext value={tab}>
+				<AppSection innerPadding={0}>
+					<TabList onChange={(e, v) => { setTab(v) }}>
+						<Tab label="Lock" value={"lock"} />
+						<Tab label="Unlock" value={"unlock"} />
+					</TabList>
+					<TabPanel value="lock">
+						<Box display="flex" flexDirection="column">
+							<NumberInput
+								autoFocus
+								margin="dense"
+								variant="outlined"
+								id="lock-celo-input"
+								label={`Lock (max: ${fmtAmount(fetched.totalCELO, "CELO")})`}
+								value={toLock}
+								onChangeValue={setToLock}
+								maxValue={maxToLock}
+							/>
+							<Button
+								id="lock-celo"
+								variant="outlined"
+								color="primary"
+								disabled={!canLock}
+								onClick={handleLock}>Lock</Button>
+						</Box>
+					</TabPanel>
+					<TabPanel value="unlock">
+						<UnlockWithRevoke
+							{...fetched}
+							toUnlock={toUnlock}
+							onSetToUnlock={setToUnlock}
+							onUnlock={handleUnlock}
+						/>
+					</TabPanel>
+				</AppSection>
+			</TabContext>
+			{tab === "unlock" && fetched.pendingWithdrawals.length > 0 &&
 			<AppSection>
 				<PendingWithdrawals
 					pendingWithdrawals={fetched.pendingWithdrawals}
@@ -232,61 +259,64 @@ const UnlockWithRevoke = (props: {
 	const canUnlock = (
 		toUnlockWEI.gt(0) && maxToUnlockWEI.gte(toUnlockWEI))
 	const maxToUnlock = maxToUnlockWEI.shiftedBy(-coreErc20Decimals)
-	return (<>
-		<Box marginBottom={1}>
-			<Alert severity="info">
-				Locked CELO has a delay of {props.unlockingPeriod.div(24*60*60).toString()} days
-				before it can be recovered from the escrow after unlock is initiated.
-			</Alert>
+	return (
+		<Box display="flex" flexDirection="column">
+			<Box marginBottom={1}>
+				<Alert severity="info">
+					Locked CELO has a delay of {props.unlockingPeriod.div(24*60*60).toString()} days
+					before it can be recovered from the escrow after unlock is initiated.
+				</Alert>
+			</Box>
+			<Box marginBottom={1}>
+				<Alert severity="info">
+					To unlock already voting CELO, multiple transactions might be needed to revoke votes
+					first. `Max to unlock` shows maximum amount that can be unlocked in a single transaction.
+				</Alert>
+			</Box>
+			<Table size="small">
+				<TableBody>
+					<TableRow>
+						<TableCell style={{whiteSpace: "nowrap"}}>Locked</TableCell>
+						<TableCell width="100%">{fmtAmount(props.totalLocked, "CELO")} CELO</TableCell>
+					</TableRow>
+					<TableRow>
+						<TableCell style={{whiteSpace: "nowrap"}}>Nonvoting</TableCell>
+						<TableCell>{fmtAmount(props.nonvotingLocked, "CELO")} CELO</TableCell>
+					</TableRow>
+					{!props.isVotingInGovernance &&
+					<TableRow>
+						<TableCell style={{whiteSpace: "nowrap"}}>Max to unlock</TableCell>
+						<TableCell>{fmtAmount(maxToUnlockWEI, "CELO")} CELO</TableCell>
+					</TableRow>}
+				</TableBody>
+			</Table>
+			{props.isVotingInGovernance ?
+			<Box marginTop={1}>
+				<Alert severity="error">
+					Account is participating in Governance voting. CELO can not be unlocked until Governance
+					process is complete.
+				</Alert>
+			</Box>
+			: <>
+			<NumberInput
+				autoFocus
+				margin="dense"
+				variant="outlined"
+				id="unlock-celo-input"
+				label={`Unlock (max: ${fmtAmount(maxToUnlockWEI, "CELO")})`}
+				value={props.toUnlock}
+				onChangeValue={props.onSetToUnlock}
+				maxValue={maxToUnlock}
+			/>
+			<Button
+				id="unlock-celo"
+				variant="outlined"
+				color="primary"
+				disabled={!canUnlock}
+				onClick={handleUnlock}>
+				{toUnlockWEI.gt(props.nonvotingLocked) ? "Revoke and Unlock" : "Unlock"}
+			</Button>
+			</>}
 		</Box>
-		<Box marginBottom={1}>
-			<Alert severity="info">
-				To unlock already voting CELO, multiple transactions might be needed to revoke votes
-				first. `Max to unlock` shows maximum amount that can be unlocked in a single transaction.
-			</Alert>
-		</Box>
-		<Table size="small">
-			<TableBody>
-				<TableRow>
-					<TableCell style={{whiteSpace: "nowrap"}}>Locked</TableCell>
-					<TableCell width="100%">{fmtAmount(props.totalLocked, "CELO")} CELO</TableCell>
-				</TableRow>
-				<TableRow>
-					<TableCell style={{whiteSpace: "nowrap"}}>Nonvoting</TableCell>
-					<TableCell>{fmtAmount(props.nonvotingLocked, "CELO")} CELO</TableCell>
-				</TableRow>
-				{!props.isVotingInGovernance &&
-				<TableRow>
-					<TableCell style={{whiteSpace: "nowrap"}}>Max to unlock</TableCell>
-					<TableCell>{fmtAmount(maxToUnlockWEI, "CELO")} CELO</TableCell>
-				</TableRow>}
-			</TableBody>
-		</Table>
-		{props.isVotingInGovernance ?
-		<Box marginTop={1}>
-			<Alert severity="error">
-				Account is participating in Governance voting. CELO can not be unlocked until Governance
-				process is complete.
-			</Alert>
-		</Box>
-		: <>
-		<NumberInput
-			margin="dense"
-			variant="outlined"
-			id="unlock-celo-input"
-			label={`Unlock (max: ${fmtAmount(maxToUnlockWEI, "CELO")})`}
-			value={props.toUnlock}
-			onChangeValue={props.onSetToUnlock}
-			maxValue={maxToUnlock}
-		/>
-		<Button
-			id="unlock-celo"
-			variant="outlined"
-			color="primary"
-			disabled={!canUnlock}
-			onClick={handleUnlock}>
-			{toUnlockWEI.gt(props.nonvotingLocked) ? "Revoke and Unlock" : "Unlock"}
-		</Button>
-		</>}
-	</>)
+	)
 }

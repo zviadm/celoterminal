@@ -6,7 +6,6 @@ import { Locker } from './locker/def'
 import { Mento } from './mento/def'
 import { MultiSig } from './multisig/def'
 import { Portfolio } from './portfolio/def'
-import { SavingsCELO } from './savingscelo/def'
 import { SendReceive } from './send-receive/def'
 import { Crasher } from './test-crasher/def'
 
@@ -22,7 +21,6 @@ export const AppList: AppDefinition[] = [
 	Mento,
 	Celovote,
 	MultiSig,
-	SavingsCELO,
 ].concat(remote.app.isPackaged ? [] : [
 	// Test/Dev-only Apps.
 	Crasher,
