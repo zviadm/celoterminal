@@ -1,23 +1,21 @@
-import { ContractKit } from '@celo/contractkit'
+import { ContractKit, StableToken } from '@celo/contractkit'
 import { valueToBigNumber } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 import BigNumber from 'bignumber.js'
 import { BlockTransactionString } from 'web3-eth'
 
 import useOnChainState from '../../state/onchain-state'
-import { getExchange, getExchangeWeb3, getStableToken } from './config'
 import { Account } from '../../../lib/accounts/accounts'
-import { CoreErc20 } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const useExchangeOnChainState = (account: Account, stableToken: CoreErc20) => {
+export const useExchangeOnChainState = (account: Account, stableToken: StableToken) => {
 	return useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
-			const exchange = await getExchange(kit, stableToken)
+			const exchange = await kit.contracts.getExchange(stableToken)
 			const goldToken = await kit.contracts.getGoldToken()
-			const stableTokenC = await getStableToken(kit, stableToken)
+			const stableTokenC = await kit.contracts.getStableToken(stableToken)
 
 			const celoBalance = goldToken.balanceOf(account.address)
 			const stableBalance = stableTokenC.balanceOf(account.address)
@@ -49,14 +47,14 @@ export interface TradeEvent {
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const useExchangeHistoryState = (account: Account, stableToken: CoreErc20) => {
+export const useExchangeHistoryState = (account: Account, stableToken: StableToken) => {
 	const fetchCallback = React.useCallback(
 		async (
 			kit: ContractKit,
 			fromBlock: number,
 			toBlock: number,
 			latestBlock: BlockTransactionString): Promise<TradeEvent[]> => {
-			const exchangeDirect = await getExchangeWeb3(kit, stableToken)
+			const exchangeDirect = await kit._web3Contracts.getExchange(stableToken)
 			const events = await exchangeDirect.getPastEvents("Exchanged", {
 				fromBlock,
 				toBlock,

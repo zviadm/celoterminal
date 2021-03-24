@@ -35,8 +35,8 @@ test('Governance upvote & vote', async (done) => {
 	const upvotes2 = await governance.getUpvotes(2)
 	expect(upvotes2.toNumber()).toEqual(101e18)
 
-	const cfg = await kit.getNetworkConfig()
-	await adjustNow(cfg.governance.dequeueFrequency.multipliedBy(1000).toNumber())
+	const cfg = await governance.getConfig()
+	await adjustNow(cfg.dequeueFrequency.multipliedBy(1000).toNumber())
 	await dequeueAndApproveProposal(kit, 2)
 
 	await refetchAppData()
