@@ -63,7 +63,7 @@
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
     "@babel/preset-react": "^7.12.10",
-    "@celo/governance": "^1.0.1",
+    "@celo/governance": "^1.1.0",
     "@svgr/webpack": "^5.5.0",
     "@types/better-sqlite3": "^5.4.1",
     "@types/jest": "^26.0.20",
