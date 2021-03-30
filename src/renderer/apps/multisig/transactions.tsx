@@ -38,6 +38,7 @@ export const TransactionsTable = (props: {
 			<FormControlLabel
 				control={
 					<Switch
+						id="show-no-approvals"
 						checked={showNoApprovals}
 						onChange={(event) => { setShowNoApprovals(event.target.checked) }}
 						color="secondary"
