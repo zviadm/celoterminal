@@ -68,6 +68,10 @@ test('test MultiSig app', async (done) => {
 
 	// reconfirm TX.
 	const confirmTX = await app.client.$("button=Confirm")
+	await confirmTX.waitForExist({reverse: true})
+	const showNoApprovals = await app.client.$("#show-no-approvals")
+	await showNoApprovals.click()
+	await confirmTX.waitForClickable()
 	await confirmTX.click()
 	await confirmTXs()
 	done()
