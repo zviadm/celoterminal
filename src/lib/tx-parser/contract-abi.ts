@@ -48,43 +48,50 @@ const contractCache = new Map<string, ContractABI>()
 
 export const fetchContractAbi = async (kit: ContractKit, contractAddress: string): Promise<ContractABI> => {
 	const cached = contractCache.get(contractAddress)
-	if (cached !== undefined) {
+	if (cached !== undefined && !cached.isProxy) {
 		return cached
 	}
 
-	const code = await kit.web3.eth.getCode(contractAddress)
-	const isProxy = code === proxyBytecode
-	let implAddress = contractAddress
-	let implCode = code
+	let code: string | undefined
+	let isProxy = !!cached?.isProxy
+	if (!cached) {
+		code = await kit.web3.eth.getCode(contractAddress)
+		isProxy = code === proxyBytecode
+	}
+	let r
 	if (isProxy) {
 		const proxyWeb3Contract = new kit.web3.eth.Contract(PROXY_ABI, contractAddress)
-		implAddress = await proxyWeb3Contract.methods._getImplementation().call()
-		implCode = await kit.web3.eth.getCode(implAddress)
-	}
-
-	let abi
-	let contractName
-	const builtin = builtinContracts.find((c) => c.bytecode === implCode)
-	if (builtin) {
-		abi = builtin.abi
-		contractName = `${builtin.name} (${fmtAddress(contractAddress)})`
-	} else {
-		const url = `/contracts/full_match/${CFG().chainId}/${implAddress}/metadata.json`
-		const resp = await cli().get(url, {
-			validateStatus: (status) => status === 200 || status === 404,
-			responseType: "json",
-		})
-		if (resp.status === 404) {
-			throw new Error(`Contract source code is not verified.`)
+		const implAddress = await proxyWeb3Contract.methods._getImplementation().call()
+		const abi = [...(proxyAbi as AbiItem[])]
+		let contractName = `CoreContract:Proxy (${fmtAddress(contractAddress)})`
+		console.info(`DEBUG: Proxy ${contractAddress}`, implAddress)
+		if (implAddress !== "0x0000000000000000000000000000000000000000") {
+			const implAbi = await fetchContractAbi(kit, implAddress)
+			contractName = implAbi.contractName
+			abi.push(...implAbi.abi)
 		}
-		abi = resp.data.output.abi as AbiItem[]
-		contractName = await verifiedContractName(kit, contractAddress)
+		r = {contractName, isProxy, abi}
+	} else {
+		const builtin = builtinContracts.find((c) => c.bytecode === code)
+		let abi
+		let contractName
+		if (builtin) {
+			abi = builtin.abi
+			contractName = `${builtin.name} (${fmtAddress(contractAddress)})`
+		} else {
+			const url = `/contracts/full_match/${CFG().chainId}/${contractAddress}/metadata.json`
+			const resp = await cli().get(url, {
+				validateStatus: (status) => status === 200 || status === 404,
+				responseType: "json",
+			})
+			if (resp.status === 404) {
+				throw new Error(`Contract source code is not verified.`)
+			}
+			abi = resp.data.output.abi as AbiItem[]
+			contractName = await verifiedContractName(kit, contractAddress)
+		}
+		r = {contractName, isProxy, abi}
 	}
-
-	if (isProxy) {
-		abi.push(...(proxyAbi as AbiItem[]))
-	}
-	const r = {contractName, isProxy, abi}
 	contractCache.set(contractAddress, r)
 	return r
 }
