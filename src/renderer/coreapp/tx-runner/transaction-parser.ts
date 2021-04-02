@@ -1,12 +1,15 @@
 import { ContractKit } from "@celo/contractkit"
 import BigNumber from "bignumber.js"
 
-import { contractName } from "../../../lib/registry"
+import { fetchContractAbi, verifiedContractName } from "../../../lib/tx-parser/contract-abi"
+import { ParsedTXData, parseTransactionData } from "../../../lib/tx-parser/tx-parser"
 import { Transaction } from "../../components/app-definition"
 
 export interface ParsedTransaction {
 	encodedABI: string,
-	transferValue?: BigNumber, // Amount of directly transfering CELO.
+	parsedTX?: ParsedTXData,
+	parseErr?: string,
+	sendValue?: BigNumber, // Amount of CELO (as WEI) sent directly.
 
 	// Human readable values.
 	contractName: string,
@@ -17,10 +20,28 @@ export const parseTransaction = async (
 	kit: ContractKit,
 	tx: Transaction): Promise<ParsedTransaction> => {
 	const contractAddress: string | undefined = tx.tx.txo._parent?.options.address
-	const name = contractAddress ? await contractName(kit, contractAddress) : "DEPLOY NEW CONTRACT"
+	const txEncodedAbi = tx.tx.txo.encodeABI()
+
+	let name
+	let parsedTX
+	let parseErr
+	if (contractAddress) {
+		try {
+			const contractAbi = await fetchContractAbi(kit, contractAddress)
+			name = contractAbi.contractName
+			parsedTX = parseTransactionData(kit.web3, contractAbi.abi, txEncodedAbi)
+		} catch (e) {
+			name = await verifiedContractName(kit, contractAddress)
+			parseErr = `${e}`
+		}
+	} else {
+		name = "DEPLOY NEW CONTRACT"
+	}
 	return {
-		encodedABI: tx.tx.txo.encodeABI(),
-		transferValue: tx.params?.value ? new BigNumber(tx.params.value.toString()) : undefined,
+		encodedABI: txEncodedAbi,
+		parsedTX: parsedTX,
+		parseErr: parseErr,
+		sendValue: tx.params?.value ? new BigNumber(tx.params.value.toString()) : undefined,
 
 		contractName: name,
 		contractAddress: contractAddress,

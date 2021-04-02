@@ -1,6 +1,5 @@
 import { ContractKit } from '@celo/contractkit'
 import { toTransactionObject } from '@celo/connect'
-import { contractName } from '../../../lib/registry'
 
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
@@ -20,6 +19,7 @@ import AppSection from '../../components/app-section'
 import SectionTitle from '../../components/section-title'
 import { OwnersTable, SignaturesTable } from './owners'
 import { TransactionsTable } from './transactions'
+import { parseTXs } from './parse-txs'
 
 const MultiSigApp = (props: {
 	accounts: Account[],
@@ -43,16 +43,11 @@ const MultiSigApp = (props: {
 			const internalRequiredSignatures = multiSig.getInternalRequired()
 
 			const transactions = (await transactionsP).map((t, idx) => ({...t, idx: idx}))
-			const pendingTXs = transactions.filter((t) => !t.executed)
-			const destinations = Array.from(new Set(transactions.map((t) => t.destination)))
-			const contractNames = await Promise.all(destinations.map((d) => contractName(kit, d)))
-			const contractNameMap = new Map(
-				destinations.map((d, idx) => [d, contractNames[idx]])
-			)
+			const pendingTXsRaw = transactions.filter((t) => !t.executed)
+			const pendingTXs = await parseTXs(kit, pendingTXsRaw)
 			return {
 				transactions,
 				pendingTXs,
-				contractNameMap,
 				owners: await owners,
 				requiredSignatures: await requiredSignatures,
 				internalRequiredSignatures: await internalRequiredSignatures,
@@ -186,7 +181,6 @@ const MultiSigApp = (props: {
 							requiredSignatures={fetched.requiredSignatures.toNumber()}
 							internalRequiredSignatures={fetched.internalRequiredSignatures.toNumber()}
 							pendingTXs={fetched.pendingTXs}
-							contractNames={fetched.contractNameMap}
 							onExecute={handleExecuteTX}
 							onConfirm={handleConfirmTX}
 							onRevoke={handleRevokeTX}
