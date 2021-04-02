@@ -1,4 +1,3 @@
-import log from 'electron-log'
 import axios, { AxiosInstance } from "axios"
 import { AbiItem } from "web3-utils"
 import { Address, ContractKit, PROXY_ABI, RegisteredContracts } from '@celo/contractkit'
@@ -87,16 +86,6 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 	const r = {contractName, isProxy, abi}
 	contractCache.set(contractAddress, r)
 	return r
-}
-
-export const tryFetchContractAbi = async (kit: ContractKit, contractAddress: string): Promise<ContractABI | null> => {
-	try {
-		const r = await fetchContractAbi(kit, contractAddress)
-		return r
-	} catch (e) {
-		log.error(`fetch-abi[${contractAddress}]: ${e}`)
-		return null
-	}
 }
 
 export const verifiedContractName = async (

@@ -15,7 +15,6 @@ export const parseTransactionData = (
 	contractAbi: AbiItem[],
 	txEncodedAbi: string): ParsedTXData => {
 
-	console.info(`parsing`, contractAbi.length)
 	let txAbi: AbiItem | undefined = undefined
 	for (const abi of contractAbi) {
 		if (abi.type === "fallback") {
@@ -30,7 +29,6 @@ export const parseTransactionData = (
 	if (!txAbi) {
 		throw new TXParsingError("Function signature not found in Contract ABI.")
 	}
-	console.info(`txabi`, txAbi.name)
 	const encodedParameters = txEncodedAbi.slice(fnSignatureLen)
 	let txData: {input: AbiInput, value: unknown}[] = []
 	if (encodedParameters) {
