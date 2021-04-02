@@ -53,6 +53,7 @@ function createMainWindow() {
 			// Session/LocalStorage data is not persisted during testing.
 			partition: !isSpectronTest ? "persist:default" : "test-default",
 			devTools: !noDevTools,
+			webSecurity: false,
 		},
 		show: noSplash,
 		// autoHide is causing unexpected issues during spectron tests. It is somehow
