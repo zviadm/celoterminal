@@ -1,3 +1,5 @@
+import BigNumber from 'bignumber.js'
+
 import { EstimatedFee } from './fee-estimation'
 import { ParsedTransaction } from './transaction-parser'
 import { fmtAmount } from '../../../lib/utils'
@@ -9,7 +11,6 @@ import {
 } from '@material-ui/core'
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown'
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp'
-import BigNumber from 'bignumber.js'
 
 const TransactionInfo = (props: {
 	tx: ParsedTransaction
