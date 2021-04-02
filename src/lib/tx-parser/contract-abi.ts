@@ -13,11 +13,6 @@ const builtinContracts: {
 	bytecode: string,
 }[] = [
 	{
-		name: "CoreContract:Proxy",
-		abi: proxyAbi as AbiItem[],
-		bytecode: proxyBytecode,
-	},
-	{
 		name: "CoreContract:MultiSig",
 		abi: multiSigAbi as AbiItem[],
 		bytecode: multiSigBytecode,
@@ -64,7 +59,6 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 		const implAddress = await proxyWeb3Contract.methods._getImplementation().call()
 		const abi = [...(proxyAbi as AbiItem[])]
 		let contractName = `CoreContract:Proxy (${fmtAddress(contractAddress)})`
-		console.info(`DEBUG: Proxy ${contractAddress}`, implAddress)
 		if (implAddress !== "0x0000000000000000000000000000000000000000") {
 			const implAbi = await fetchContractAbi(kit, implAddress)
 			contractName = implAbi.contractName
