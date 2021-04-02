@@ -1,8 +1,7 @@
-import { TransactionData } from '@celo/contractkit/lib/wrappers/MultiSig'
-
 import { fmtAmount } from '../../../lib/utils'
 import { MultiSigAccount } from '../../../lib/accounts/accounts'
 import useLocalStorageState from '../../state/localstorage-state'
+import { ParsedTX } from './parse-txs'
 
 import * as React from 'react'
 import {
@@ -12,26 +11,20 @@ import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown'
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp'
 import LinkedAddress from '../../components/linked-address'
 
-interface MultiSigTX extends TransactionData {
-	idx: number
-}
-
 export const TransactionsTable = (props: {
 	account: MultiSigAccount,
 	requiredSignatures: number,
 	internalRequiredSignatures: number,
-	pendingTXs: MultiSigTX[],
-	contractNames: Map<string, string>,
+	pendingTXs: ParsedTX[],
 	onExecute: (txIdx: number) => void,
 	onConfirm: (txIdx: number) => void,
 	onRevoke: (txIdx: number) => void,
 }): JSX.Element => {
-
 	const [showNoApprovals, setShowNoApprovals] = useLocalStorageState("terminal/multisig/show-no-approvals", false)
 	const requiredConfirms = (destination: string) => {
 		return (destination === props.account.address) ? props.internalRequiredSignatures : props.requiredSignatures
 	}
-	const pendingTXs = showNoApprovals ? props.pendingTXs : props.pendingTXs.filter((tx) => tx.confirmations.length > 0)
+	const pendingTXs = showNoApprovals ? props.pendingTXs : props.pendingTXs.filter((tx) => tx.tx.confirmations.length > 0)
 	return (
 		<Box display="flex" flexDirection="column">
 		<Tooltip title="Transactions that have 0 approvals are considered deleted.">
@@ -60,15 +53,13 @@ export const TransactionsTable = (props: {
 			<TableBody>
 				{
 					pendingTXs.map((t) => {
-						const required = requiredConfirms(t.destination)
-						const contractName = props.contractNames.get(t.destination)
+						const required = requiredConfirms(t.tx.destination)
 						return (
 							<TXRow
-								key={t.idx}
+								key={t.tx.idx}
 								account={props.account}
 								tx={t}
 								requiredSignatures={required}
-								destinationContractName={contractName}
 								onExecute={props.onExecute}
 								onConfirm={props.onConfirm}
 								onRevoke={props.onRevoke}
@@ -84,23 +75,29 @@ export const TransactionsTable = (props: {
 
 const TXRow = (props: {
 	account: MultiSigAccount,
-	tx: MultiSigTX,
+	tx: ParsedTX,
 	requiredSignatures: number,
-	destinationContractName?: string,
 	onExecute: (txIdx: number) => void,
 	onConfirm: (txIdx: number) => void,
 	onRevoke: (txIdx: number) => void,
 }) => {
 	const [open, setOpen] = React.useState(false)
-	const canExecute = props.requiredSignatures <= props.tx.confirmations.length
-	const confirmedBySelf = props.tx.confirmations.indexOf(props.account.ownerAddress) >= 0
+	const canExecute = props.requiredSignatures <= props.tx.tx.confirmations.length
+	const confirmedBySelf = props.tx.tx.confirmations.indexOf(props.account.ownerAddress) >= 0
+
+	const txData = props.tx.parsedTX ? (<>
+		{props.tx.parsedTX.txAbi.name}
+		{props.tx.parsedTX.txData.map((i, idx) => {
+			return <span key={`txdata-${idx}`}><br />&nbsp;&nbsp;{i.input.name} = {`${i.value}`}</span>
+		})}
+	</>) : `CALLDATA: ${props.tx.tx.data}`
 	return (<>
 		<TableRow>
-			<TableCell>{props.tx.idx.toString()}</TableCell>
+			<TableCell>{props.tx.tx.idx.toString()}</TableCell>
 			<TableCell>
 				<LinkedAddress
-					name={props.destinationContractName}
-					address={props.tx.destination}
+					name={props.tx.destinationName}
+					address={props.tx.tx.destination}
 				/>
 			</TableCell>
 			<TableCell width="1%">
@@ -109,25 +106,25 @@ const TXRow = (props: {
 				</IconButton>
 			</TableCell>
 			<TableCell align="right">
-				{props.tx.confirmations.length} / {props.requiredSignatures.toString()}
+				{props.tx.tx.confirmations.length} / {props.requiredSignatures.toString()}
 			</TableCell>
 			<TableCell>
 				{canExecute ?
 				<Button
 					variant="outlined"
 					color="primary"
-					onClick={() => { props.onExecute(props.tx.idx) }}
+					onClick={() => { props.onExecute(props.tx.tx.idx) }}
 				>Execute</Button> : (
 					!confirmedBySelf ?
 					<Button
 						variant="outlined"
 						color="primary"
-						onClick={() => { props.onConfirm(props.tx.idx) }}
+						onClick={() => { props.onConfirm(props.tx.tx.idx) }}
 					>Confirm</Button> :
 					<Button
 						variant="outlined"
 						color="secondary"
-						onClick={() => { props.onRevoke(props.tx.idx) }}
+						onClick={() => { props.onRevoke(props.tx.tx.idx) }}
 					>Revoke</Button>
 				)}
 			</TableCell>
@@ -139,7 +136,7 @@ const TXRow = (props: {
 				colSpan={2}
 				style={{
 					fontFamily: "monospace",
-					overflowWrap: "anywhere"}}>VALUE: {fmtAmount(props.tx.value, "CELO")} CELO</TableCell>
+					overflowWrap: "anywhere"}}>SEND: {fmtAmount(props.tx.tx.value, "CELO")} CELO</TableCell>
 			<TableCell colSpan={2} />
 		</TableRow>
 		<TableRow>
@@ -148,7 +145,7 @@ const TXRow = (props: {
 				colSpan={2}
 				style={{
 					fontFamily: "monospace",
-					overflowWrap: "anywhere"}}>CALLDATA: {props.tx.data}</TableCell>
+					overflowWrap: "anywhere"}}>{txData}</TableCell>
 			<TableCell colSpan={2} />
 		</TableRow>
 		</>}
