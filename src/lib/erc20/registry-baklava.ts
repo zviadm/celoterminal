@@ -4,7 +4,7 @@ export const erc20Baklava: RegisteredErc20[] = [
 	{
 		name: "Savings CELO",
 		symbol: "sCELO",
-		address: "0x87AF5A902c22917A821077C86EbD873Dc64524Fc",
+		address: "0x08289E751817A8D27c18D81C900387105714efC3",
 		decimals: 18,
 	},
 ]

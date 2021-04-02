@@ -84,9 +84,8 @@ const SavingsCELOApp = (props: {
 				if (!sCELO || !sCELO.address) { return [] }
 				const sKit = new SavingsKit(kit, sCELO.address)
 				const amount = new BigNumber(toDeposit).shiftedBy(coreErc20Decimals)
-				const tx = sKit.deposit(amount)
-				const approveTX = await sKit.infiniteApprove(account.address)
-				return approveTX ? [{tx: approveTX}, {tx: tx}] : [{tx: tx}]
+				const tx = sKit.deposit()
+				return [{tx: tx, params: {value: amount.toFixed(0)}}]
 			},
 			onFinishTXs,
 		)
