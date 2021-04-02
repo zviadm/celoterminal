@@ -72,11 +72,12 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 		const url = `/contracts/full_match/${CFG().chainId}/${implAddress}/metadata.json`
 		const resp = await cli().get(url, {
 			validateStatus: (status) => status === 200 || status === 404,
+			responseType: "json",
 		})
 		if (resp.status === 404) {
 			throw new Error(`Contract source code is not verified.`)
 		}
-		abi = JSON.parse(resp.data)["output"]["abi"] as AbiItem[]
+		abi = resp.data.output.abi as AbiItem[]
 		contractName = await verifiedContractName(kit, contractAddress)
 	}
 
