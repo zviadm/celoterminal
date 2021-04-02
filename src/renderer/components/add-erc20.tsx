@@ -96,7 +96,6 @@ const AddErc20 = (props: {
 					<TabPanel value="search">
 						<Autocomplete
 							id="registered-erc20"
-							autoSelect
 							autoHighlight
 							options={fullList}
 							renderOption={(o) => (

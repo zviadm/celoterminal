@@ -53,18 +53,18 @@ export const createValidatorGroup = async (
 export const createGovernanceProposal = async (kit: ContractKit): Promise<void> => {
 	const governance = await kit.contracts.getGovernance()
 	const proposal = await new ProposalBuilder(kit).build()
-	const cfg = await kit.getNetworkConfig()
+	const cfg = await governance.getConfig()
 
 	await governance
 		.propose(proposal, 'URL')
 		.sendAndWaitForReceipt({
 			from: spectronDefaultAccount,
-			value: cfg.governance.minDeposit.toFixed(0)})
+			value: cfg.minDeposit.toFixed(0)})
 }
 
 export const dequeueAndApproveProposal = async (kit: ContractKit, proposalID: BigNumber.Value): Promise<void> => {
 	const governance = await kit.contracts.getGovernance()
-	const cfg = await kit.getNetworkConfig()
+	const cfg = await governance.getConfig()
 	await governance
 		.dequeueProposalsIfReady()
 		.sendAndWaitForReceipt({from: spectronDefaultAccount})
@@ -75,5 +75,5 @@ export const dequeueAndApproveProposal = async (kit: ContractKit, proposalID: Bi
 	await (await governanceApproverMultiSig
 		.submitOrConfirmTransaction(governance.address, govTX.txo))
 		.sendAndWaitForReceipt({from: spectronDefaultAccount})
-	await adjustNow(cfg.governance.stageDurations.Approval.multipliedBy(1000).toNumber())
+	await adjustNow(cfg.stageDurations.Approval.multipliedBy(1000).toNumber())
 }

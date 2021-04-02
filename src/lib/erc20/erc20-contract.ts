@@ -1,8 +1,9 @@
 import { AbiItem, CeloTransactionObject, toTransactionObject } from "@celo/connect"
-import { CeloContract, ContractKit } from "@celo/contractkit"
+import { CeloTokenType, ContractKit } from "@celo/contractkit"
 import { valueToBigNumber } from "@celo/contractkit/lib/wrappers/BaseWrapper"
 import BigNumber from "bignumber.js"
-import { CoreErc20, RegisteredErc20, stableTokenSuffix } from "./core"
+
+import { RegisteredErc20 } from "./core"
 import erc20abi from "./erc20-abi.json"
 
 class Erc20Contract {
@@ -17,6 +18,13 @@ class Erc20Contract {
 		return toTransactionObject(
 			this.kit.connection,
 			this.web3contract.methods.transfer(to, new BigNumber(value).toString(10))
+		)
+	}
+
+	public transferFrom = (from: string, to: string, value: BigNumber.Value): CeloTransactionObject<unknown> => {
+		return toTransactionObject(
+			this.kit.connection,
+			this.web3contract.methods.transferFrom(from, to, new BigNumber(value).toString(10))
 		)
 	}
 
@@ -55,17 +63,7 @@ export default Erc20Contract
 export const newErc20 = async (kit: ContractKit, erc20: RegisteredErc20): Promise<Erc20Contract> => {
 	let address = erc20.address
 	if (!address) {
-		const coreErc20 = erc20.symbol as CoreErc20
-		switch (coreErc20) {
-		case "CELO":
-			address = await kit.registry.addressFor(CeloContract.GoldToken)
-			break
-		default:
-			address = await kit.registry.addressFor(
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				CeloContract.StableToken + stableTokenSuffix(coreErc20) as any)
-			break
-		}
+		address = await kit.celoTokens.getAddress(erc20.symbol as CeloTokenType)
 	}
 	return new Erc20Contract(kit, address)
 }

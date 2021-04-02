@@ -25,6 +25,9 @@ test('Lock & Unlock CELO', async (done) => {
 	await lockCelo.click()
 	await confirmTXs()
 
+	const unlockTab = await app.client.$("span=Unlock")
+	await unlockTab.waitForEnabled()
+	await unlockTab.click()
 	const unlockInput = await app.client.$("#unlock-celo-input")
 	await unlockInput.waitForEnabled()
 	await unlockInput.click()
@@ -51,9 +54,10 @@ test('Lock & Unlock CELO', async (done) => {
 	await pending1.waitForExist({reverse: true})
 
 	const kit = devchainKit()
-	const cfg = await kit.getNetworkConfig()
+	const lockedGold = await kit.contracts.getLockedGold()
+	const cfg = await lockedGold.getConfig()
 	// Pass time to enable withdraws.
-	await adjustNow(cfg.lockedGold.unlockingPeriod.multipliedBy(1000).toNumber())
+	await adjustNow(cfg.unlockingPeriod.multipliedBy(1000).toNumber())
 	await refetchAppData()
 
 	await pending0.waitForEnabled()
@@ -82,6 +86,9 @@ test('Revoke & Unlock CELO', async (done) => {
 	expect(nonVoting.toNumber()).toEqual(0)
 
 	await refetchAppData()
+	const unlockTab = await app.client.$("span=Unlock")
+	await unlockTab.waitForEnabled()
+	await unlockTab.click()
 	const unlockInput = await app.client.$("#unlock-celo-input")
 	await unlockInput.waitForEnabled()
 	await unlockInput.click()
@@ -97,6 +104,9 @@ test('Revoke & Unlock CELO', async (done) => {
 })
 
 test(`Unlock MAX`, async (done) => {
+	const unlockTab = await app.client.$("span=Unlock")
+	await unlockTab.waitForEnabled()
+	await unlockTab.click()
 	const unlockInputSetMax = await app.client.$("#unlock-celo-input-set-max")
 	await unlockInputSetMax.waitForEnabled()
 	await unlockInputSetMax.click()

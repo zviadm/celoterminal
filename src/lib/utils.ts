@@ -1,5 +1,6 @@
+// import { CeloTokenType } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
-import { CoreErc20, coreErc20Decimals } from './erc20/core'
+import { coreErc20Decimals } from './erc20/core'
 
 export const sleep = (milliseconds: number): Promise<void> => {
 	return new Promise(resolve => setTimeout(resolve, milliseconds))
@@ -34,7 +35,7 @@ const _precisionForZero = 4
 
 export const fmtAmount = (
 	v: BigNumber.Value,
-	decimals: CoreErc20 | number,
+	decimals: "CELO" | "cUSD" | "cEUR" | number,
 	precision?: number | "max"): string => {
 	if (typeof decimals === "string") {
 		decimals = coreErc20Decimals

@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
-import { CoreErc20, coreErc20Decimals } from '../../../lib/erc20/core'
+import { StableToken } from '@celo/contractkit'
+import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
@@ -19,14 +20,14 @@ const useStyles = makeStyles(() => ({
 
 const ConfirmSwap = (props: {
 	side: "sell" | "buy",
-	stableToken: CoreErc20,
+	stableToken: StableToken,
 	celoAmount: string,
 	stableAmount: string,
 	slippagePct: string,
 	marketPrice: BigNumber,
 	spread: BigNumber,
 	onConfirmSell: (
-		stableToken: CoreErc20,
+		stableToken: StableToken,
 		sellCELO: boolean,
 		sellAmount: BigNumber,
 		minAmount: BigNumber) => void,

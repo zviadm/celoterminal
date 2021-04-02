@@ -60,11 +60,11 @@ const AppMenu = (props: {
 							selected={props.selectedApp === a.id}
 							disabled={a.id !== Accounts.id && props.disableApps}
 							onClick={() => { props.setSelectedApp(a.id) }}>
-							{a.icon &&
-							<ListItemIcon className={classes.listIcon}><a.icon /></ListItemIcon>}
+							<ListItemIcon className={classes.listIcon}>{a.icon}</ListItemIcon>
 							<ListItemText>{a.title}</ListItemText>
 							<ListItemSecondaryAction hidden={a.core}>
 								<IconButton
+									id={`uninstall-app-${a.id}`}
 									edge="end"
 									onClick={() => { setConfirmUninstall(a) }}
 									>
@@ -97,7 +97,9 @@ const ConfirmUninstall = (props: {
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.onCancel}>Cancel</Button>
-				<Button color="secondary" onClick={props.onUninstall}>Uninstall</Button>
+				<Button
+					id="confirm-uninstall"
+					color="secondary" onClick={props.onUninstall}>Uninstall</Button>
 			</DialogActions>
 		</Dialog>
 	)
