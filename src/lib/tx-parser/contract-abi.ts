@@ -70,7 +70,7 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 		let verifiedName
 		if (builtin) {
 			abi = builtin.abi
-			verifiedName = `${builtin.name}`
+			verifiedName = builtin.name
 		} else {
 			const url = `/contracts/full_match/${CFG().chainId}/${contractAddress}/metadata.json`
 			const resp = await cli().get(url, {

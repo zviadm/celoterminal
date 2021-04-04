@@ -27,14 +27,16 @@ export const parseTransaction = async (
 	let parsedTX
 	let parseErr
 	if (contractAddress) {
+		let verifiedName
 		try {
 			const contractAbi = await fetchContractAbi(kit, contractAddress)
-			name = contractAbi.verifiedName
+			verifiedName = contractAbi.verifiedName
 			parsedTX = parseTransactionData(kit.web3, contractAbi.abi, txEncodedAbi)
 		} catch (e) {
-			name = await verifiedContractName(kit, contractAddress)
+			verifiedName = await verifiedContractName(kit, contractAddress)
 			parseErr = `${e}`
 		}
+		name = verifiedName ? `${verifiedName} (${fmtAddress(contractAddress)})` : fmtAddress(contractAddress)
 	} else {
 		name = "DEPLOY NEW CONTRACT"
 	}
@@ -44,7 +46,7 @@ export const parseTransaction = async (
 		parseErr: parseErr,
 		sendValue: tx.params?.value ? new BigNumber(tx.params.value.toString()) : undefined,
 
-		contractName: name ? `${name} (${fmtAddress(contractAddress)})` : fmtAddress(contractAddress),
+		contractName: name,
 		contractAddress: contractAddress,
 	}
 }
