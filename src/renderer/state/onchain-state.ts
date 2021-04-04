@@ -12,7 +12,10 @@ import { ErrorContext } from './error-context'
 const useOnChainState = <T>(
 	fetchCallback:
 		(kit: ContractKit, c: CancelPromise) => Promise<T>,
-	opts?: {noErrorPropagation?: boolean, lazyFetch?: boolean},
+	opts?: {
+		noErrorPropagation?: boolean,
+		lazyFetch?: boolean,
+	},
 ): {
 	isFetching: boolean,
 	fetched?: T,

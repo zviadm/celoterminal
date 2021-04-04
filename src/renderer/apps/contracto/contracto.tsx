@@ -22,6 +22,9 @@ import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
 import { ContractABI, fetchContractAbi } from '../../../lib/tx-parser/contract-abi'
 import { AbiItem } from '@celo/connect'
+import LinkedAddress from '../../components/linked-address'
+import Link from '../../components/link'
+import { fmtAddress } from '../../../lib/utils'
 
 const ContractoApp = (props: {
 	accounts: Account[],
@@ -109,7 +112,10 @@ const ContractView = (props: {
 		!(abi.stateMutability === "pure" || abi.stateMutability === "view"))
 	return (<>
 		<AppSection>
-			Contract: {props.contractAbi.contractName}
+			<LinkedAddress
+				name={props.contractAbi.verifiedName || `Contract: ${props.contractAddress}`}
+				address={props.contractAddress}
+			/>
 		</AppSection>
 		<AppSection innerPadding={0}>
 			<TabContext value={tab}>
@@ -188,14 +194,38 @@ const ReadContract = (props: {
 						>Query</Button>
 					</>}
 					{isFetching && <LinearProgress />}
-					{fetched && <>
-					<Typography>{`${fetched.result}`}</Typography>
-					</>}
+					{fetched &&
+					<Table size="small">
+						<TableBody>
+							{
+								props.abi.outputs?.map((o, idx) => {
+									return (
+										<TableRow key={idx}>
+											<TableCell>
+												<Typography style={{fontFamily: "monospace"}}>
+													{o.name || "<output>"}
+												</Typography>
+											</TableCell>
+											<TableCell>
+												<Typography style={{fontFamily: "monospace"}} color="textSecondary">
+													{o.type}
+												</Typography>
+											</TableCell>
+											<TableCell width="100%">
+												<Typography style={{fontFamily: "monospace"}}>
+													{`${props.abi.outputs?.length === 1 ? fetched.result : fetched.result[idx]}`}
+												</Typography>
+											</TableCell>
+										</TableRow>
+									)
+								})
+							}
+						</TableBody>
+					</Table>}
 					{fetchError &&
 					<Alert severity="error">{`${fetchError}`}</Alert>}
 				</Box>
 			</AccordionDetails>
 		</Accordion>
-
 	)
 }
