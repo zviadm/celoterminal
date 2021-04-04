@@ -3,6 +3,7 @@ import BigNumber from "bignumber.js"
 
 import { fetchContractAbi, verifiedContractName } from "../../../lib/tx-parser/contract-abi"
 import { ParsedTXData, parseTransactionData } from "../../../lib/tx-parser/tx-parser"
+import { fmtAddress } from "../../../lib/utils"
 import { Transaction } from "../../components/app-definition"
 
 export interface ParsedTransaction {
@@ -26,14 +27,16 @@ export const parseTransaction = async (
 	let parsedTX
 	let parseErr
 	if (contractAddress) {
+		let verifiedName
 		try {
 			const contractAbi = await fetchContractAbi(kit, contractAddress)
-			name = contractAbi.contractName
+			verifiedName = contractAbi.verifiedName
 			parsedTX = parseTransactionData(kit.web3, contractAbi.abi, txEncodedAbi)
 		} catch (e) {
-			name = await verifiedContractName(kit, contractAddress)
+			verifiedName = await verifiedContractName(kit, contractAddress)
 			parseErr = `${e}`
 		}
+		name = verifiedName ? `${verifiedName} (${fmtAddress(contractAddress)})` : fmtAddress(contractAddress)
 	} else {
 		name = "DEPLOY NEW CONTRACT"
 	}
