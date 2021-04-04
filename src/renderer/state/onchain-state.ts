@@ -12,7 +12,7 @@ import { ErrorContext } from './error-context'
 const useOnChainState = <T>(
 	fetchCallback:
 		(kit: ContractKit, c: CancelPromise) => Promise<T>,
-	noErrorPropagation?: boolean,
+	opts?: {noErrorPropagation?: boolean},
 ): {
 	isFetching: boolean,
 	fetched?: T,
@@ -29,6 +29,7 @@ const useOnChainState = <T>(
 		setFetched(undefined)
 		setFetchError(undefined)
 	}, [fetchCallback])
+	const noErrorPropagation = opts?.noErrorPropagation
 	React.useEffect(() => {
 		log.info(`useOnChainState[${fetchN}]: fetching...`)
 		const c = new CancelPromise()
