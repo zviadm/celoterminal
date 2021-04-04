@@ -12,7 +12,7 @@ import { ErrorContext } from './error-context'
 const useOnChainState = <T>(
 	fetchCallback:
 		(kit: ContractKit, c: CancelPromise) => Promise<T>,
-	opts?: {noErrorPropagation?: boolean},
+	opts?: {noErrorPropagation?: boolean, lazyFetch?: boolean},
 ): {
 	isFetching: boolean,
 	fetched?: T,
@@ -22,7 +22,7 @@ const useOnChainState = <T>(
 	const {setError} = React.useContext(ErrorContext)
 	const [fetched, setFetched] = React.useState<T | undefined>(undefined)
 	const [fetchError, setFetchError] = React.useState<Error | undefined>(undefined)
-	const [isFetching, setIsFetching] = React.useState(true)
+	const [isFetching, setIsFetching] = React.useState(false)
 	const [fetchN, setFetchN] = React.useState(0)
 	React.useEffect(() => {
 		// Reset fetched data and error when `fetchCallback` changes.
@@ -30,7 +30,11 @@ const useOnChainState = <T>(
 		setFetchError(undefined)
 	}, [fetchCallback])
 	const noErrorPropagation = opts?.noErrorPropagation
+	const lazyFetch = opts?.lazyFetch
 	React.useEffect(() => {
+		if (lazyFetch && fetchN === 0) {
+			return
+		}
 		log.info(`useOnChainState[${fetchN}]: fetching...`)
 		const c = new CancelPromise()
 		setIsFetching(true)
@@ -64,7 +68,7 @@ const useOnChainState = <T>(
 				c.cancel()
 			}
 		}
-	}, [fetchN, fetchCallback, noErrorPropagation, setError])
+	}, [fetchN, fetchCallback, setError, noErrorPropagation, lazyFetch])
 
 	const refetch = React.useCallback(() => {
 		setFetchN((fetchN) => (fetchN + 1))
