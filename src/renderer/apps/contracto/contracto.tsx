@@ -39,7 +39,7 @@ const ContractoApp = (props: {
 		}
 		if (isValidAddress(editAddress)) {
 			setContractAddress(editAddress)
-		} else {
+		} else if (contractAddress !== "") {
 			setContractAddress("")
 		}
 	}, [editAddress, contractAddress, setContractAddress])
@@ -113,7 +113,7 @@ const ContractView = (props: {
 	return (<>
 		<AppSection>
 			<LinkedAddress
-				name={props.contractAbi.verifiedName || `Contract: ${props.contractAddress}`}
+				name={`${props.contractAbi.verifiedName || `Unknown Contract `} ${props.contractAddress}`}
 				address={props.contractAddress}
 			/>
 		</AppSection>
