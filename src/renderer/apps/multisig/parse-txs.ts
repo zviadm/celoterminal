@@ -9,7 +9,7 @@ export interface MultiSigTX extends TransactionData {
 
 export interface ParsedTX {
 	tx: MultiSigTX,
-	destinationName: string,
+	verifiedDestinationName: string | null,
 	parsedTX?: ParsedTXData,
 	parseErr?: string,
 }
@@ -17,13 +17,13 @@ export interface ParsedTX {
 export const parseTXs = async (kit: ContractKit, txs: MultiSigTX[]): Promise<ParsedTX[]> => {
 	const destinations = Array.from(new Set(txs.map((tx) => tx.destination)))
 	const contractAbis = await Promise.all(
-		destinations.map(async (d): Promise<[string, {c?: ContractABI, name: string, err?: Error}]> => {
+		destinations.map(async (d): Promise<[string, {c?: ContractABI, verifiedName: string | null, err?: Error}]> => {
 			try {
 				const r = await fetchContractAbi(kit, d)
-				return [d, {c: r, name: r.contractName}]
+				return [d, {c: r, verifiedName: r.verifiedName}]
 			} catch (e) {
-				const name = await verifiedContractName(kit, d)
-				return [d, {name, err: e}]
+				const verifiedName = await verifiedContractName(kit, d)
+				return [d, {verifiedName, err: e}]
 			}
 		})
 	)
@@ -43,7 +43,7 @@ export const parseTXs = async (kit: ContractKit, txs: MultiSigTX[]): Promise<Par
 		}
 		return {
 			tx: tx,
-			destinationName: contractAbi?.name || "",
+			verifiedDestinationName: contractAbi?.verifiedName || null,
 			parsedTX,
 			parseErr,
 		}

@@ -17,7 +17,7 @@ export const parseTransactionData = (
 
 	let txAbi: AbiItem | undefined = undefined
 	for (const abi of contractAbi) {
-		if (abi.type === "fallback") {
+		if (abi.type !== "function") {
 			continue
 		}
 		const signature = web3.eth.abi.encodeFunctionSignature(abi)

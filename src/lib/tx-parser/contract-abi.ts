@@ -5,7 +5,6 @@ import { Address, ContractKit, PROXY_ABI, RegisteredContracts } from '@celo/cont
 import { CFG, registeredErc20s } from "../cfg"
 import { deployedBytecode as proxyBytecode, abi as proxyAbi } from "../core-contracts/Proxy.json"
 import { deployedBytecode as multiSigBytecode, abi as multiSigAbi } from "../core-contracts/MultiSig.json"
-import { fmtAddress } from '../utils'
 
 const builtinContracts: {
 	name: string,
@@ -30,10 +29,10 @@ const cli = () => {
 }
 
 export interface ContractABI {
-	// User readable contractName is only available for contracts that are somehow verified to
+	// User readable verifiedName is only available for contracts that are somehow verified to
 	// be authentic. This is different from source verification, because same source code can
 	// be deployed and verified at different addresses.
-	contractName: string
+	verifiedName: string | null
 	isProxy: boolean
 	abi: AbiItem[]
 }
@@ -58,20 +57,20 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 		const proxyWeb3Contract = new kit.web3.eth.Contract(PROXY_ABI, contractAddress)
 		const implAddress = await proxyWeb3Contract.methods._getImplementation().call()
 		const abi = [...(proxyAbi as AbiItem[])]
-		let contractName = `CoreContract:Proxy (${fmtAddress(contractAddress)})`
+		let verifiedName: string | null = `CoreContract:Proxy`
 		if (implAddress !== "0x0000000000000000000000000000000000000000") {
 			const implAbi = await fetchContractAbi(kit, implAddress)
-			contractName = implAbi.contractName
+			verifiedName = implAbi.verifiedName
 			abi.push(...implAbi.abi)
 		}
-		r = {contractName, isProxy, abi}
+		r = {verifiedName, isProxy, abi}
 	} else {
 		const builtin = builtinContracts.find((c) => c.bytecode === code)
 		let abi
-		let contractName
+		let verifiedName
 		if (builtin) {
 			abi = builtin.abi
-			contractName = `${builtin.name} (${fmtAddress(contractAddress)})`
+			verifiedName = `${builtin.name}`
 		} else {
 			const url = `/contracts/full_match/${CFG().chainId}/${contractAddress}/metadata.json`
 			const resp = await cli().get(url, {
@@ -82,9 +81,9 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 				throw new Error(`Contract source code is not verified.`)
 			}
 			abi = resp.data.output.abi as AbiItem[]
-			contractName = await verifiedContractName(kit, contractAddress)
+			verifiedName = await verifiedContractName(kit, contractAddress)
 		}
-		r = {contractName, isProxy, abi}
+		r = {verifiedName, isProxy, abi}
 	}
 	contractCache.set(contractAddress, r)
 	return r
@@ -92,7 +91,7 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 
 export const verifiedContractName = async (
 	kit: ContractKit,
-	address: Address): Promise<string> => {
+	address: Address): Promise<string | null> => {
 	const registry = await kit.registry
 	const registryAddresses = await Promise.all(
 		await Promise.all(RegisteredContracts.map((r) => registry.addressFor(r).catch(() => undefined))))
@@ -109,5 +108,5 @@ export const verifiedContractName = async (
 		return `${erc20match.name} (${erc20match.symbol})`
 	}
 
-	return fmtAddress(address)
+	return null
 }
