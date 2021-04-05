@@ -44,9 +44,9 @@ export const useNetworkURL = (): [string, (v: string) => void] => {
 export const newKitWithTimeout = (url: string, wallet?: ReadOnlyWallet): ContractKit => {
 	let web3
 	if (url.startsWith("http://") || url.startsWith("https://")) {
-		web3 = new Web3(new Web3.providers.HttpProvider(url, {timeout: 15000}))
+		web3 = new Web3(new Web3.providers.HttpProvider(url, {timeout: 30000}))
 	} else if (url.startsWith("ws://") || url.startsWith("wss://")) {
-		web3 = new Web3(new Web3.providers.WebsocketProvider(url, {timeout: 15000}))
+		web3 = new Web3(new Web3.providers.WebsocketProvider(url, {timeout: 30000}))
 	} else if (url.endsWith('.ipc')) {
 		web3 = new Web3(new Web3.providers.IpcProvider(url, net))
 	} else {
