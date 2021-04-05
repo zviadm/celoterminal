@@ -1,6 +1,7 @@
 import { ContractKit } from '@celo/contractkit'
 import { AbiItem, toTransactionObject } from '@celo/connect'
 import { isValidAddress } from 'ethereumjs-util'
+import BigNumber from 'bignumber.js'
 
 import { Contracto } from './def'
 import { Account } from '../../../lib/accounts/accounts'
@@ -62,13 +63,14 @@ const ContractoApp = (props: {
 		[contractAddress],
 	), {noErrorPropagation: true})
 
-	const handleExecute = (contractAddress: string, abi: AbiItem, inputs: string[]) => {
+	const handleExecute = (
+		contractAddress: string, abi: AbiItem, inputs: string[], value?: BigNumber) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
 				const contract = new kit.web3.eth.Contract([abi], contractAddress)
 				const txo = contract.methods[abi.name || ""](...inputs)
 				const tx = toTransactionObject(kit.connection, txo)
-				return [{tx: tx}]
+				return [{tx: tx, params: {value: value?.toFixed(0)}}]
 			}
 		)
 	}
