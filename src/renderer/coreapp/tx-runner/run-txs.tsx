@@ -11,9 +11,8 @@ import { nowMS } from '../../state/time'
 import { sleep } from '../../../lib/utils'
 import { transformError } from '../ledger-utils'
 import { Account } from '../../../lib/accounts/accounts'
-import { cfgNetworkURL } from '../../state/kit'
+import { cfgNetworkURL, newKitWithTimeout } from '../../state/kit'
 import { coreErc20Decimals } from '../../../lib/erc20/core'
-import { newKitWithTimeout } from '../../../lib/kit-utils'
 
 import * as React from 'react'
 import {

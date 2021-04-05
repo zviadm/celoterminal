@@ -3,11 +3,10 @@ import * as os from 'os'
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process'
 import { Application } from 'spectron'
 import { Remote } from 'electron'
-import { ContractKit } from '@celo/contractkit'
+import { ContractKit, newKit } from '@celo/contractkit'
 import * as kill from 'tree-kill'
 
 import { SpectronAccountsDB, SpectronChainId } from './constants'
-import { newKitWithTimeout } from '../kit-utils'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const failFast = require('jasmine-fail-fast')
@@ -49,7 +48,7 @@ let _devKit: ContractKit | undefined
 // Returns ContractKit that points to celo-devchain instance.
 export const devchainKit = (): ContractKit => {
 	if (!_devKit) {
-		_devKit = newKitWithTimeout(`http://localhost:${devchainPort}`)
+		_devKit = newKit(`http://localhost:${devchainPort}`)
 	}
 	return _devKit
 }
