@@ -152,12 +152,31 @@ const RunTXs = (props: {
 						}
 						setStage("sending")
 						setTXSendMS(nowMS())
-						const result = await tx.tx.send({
-							...tx.params,
-							// perf improvement, avoid re-estimating gas again.
-							gas: estimatedGas.toNumber(),
-						})
-						const txHash = await result.getHash()
+						let result
+						let txHash
+						try {
+							result = await tx.tx.send({
+								...tx.params,
+								// perf improvement, avoid re-estimating gas again.
+								gas: estimatedGas.toNumber(),
+							})
+							txHash = await result.getHash()
+						} catch (e) {
+							if (e?.message?.includes("already known") ||
+								e?.message?.includes("nonce too low")) {
+								throw new Error(
+									`Transaction was aborted due to a potential conflict with another concurrent transaction. ${e}.`)
+							}
+							if (e?.message?.includes("Invalid JSON RPC response")) {
+								throw new Error(
+									`Timed out while trying to send the transaction. ` +
+									`Transaction might have been sent and might get processed anyways. ` +
+									`Wait a bit before retrying to avoid performing your transaction twice.`)
+							}
+							throw new Error(
+								`Unexpected error occured while trying to send the transaction. ` +
+								`Transaction might have been sent and might get processed anyways. ${e}.`)
+						}
 						log.info(`TX-HASH:`, txHash)
 
 						const receipt = await result.waitReceipt()
