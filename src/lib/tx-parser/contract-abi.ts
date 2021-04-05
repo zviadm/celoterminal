@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from "axios"
 import { AbiItem } from "web3-utils"
 import { Address, ContractKit, PROXY_ABI, RegisteredContracts } from '@celo/contractkit'
 
-import { CFG, registeredErc20s } from "../cfg"
+import { CFG, mainnetChainId, registeredErc20s } from "../cfg"
 import { deployedBytecode as proxyBytecode, abi as proxyAbi } from "../core-contracts/Proxy.json"
 import { deployedBytecode as multiSigBytecode, abi as multiSigAbi } from "../core-contracts/MultiSig.json"
 
@@ -72,7 +72,13 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 			abi = builtin.abi
 			verifiedName = builtin.name
 		} else {
-			const url = `/contracts/full_match/${CFG().chainId}/${contractAddress}/metadata.json`
+			const chainId = CFG().chainId
+			if (chainId !== mainnetChainId &&
+				chainId !== "62320" &&
+				chainId !== "44787") {
+				throw new Error(`Contract verification not supported on ChainId: ${chainId}.`)
+			}
+			const url = `/contracts/full_match/${chainId}/${contractAddress}/metadata.json`
 			const resp = await cli().get(url, {
 				validateStatus: (status) => status === 200 || status === 404,
 				responseType: "json",
