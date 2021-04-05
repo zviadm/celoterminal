@@ -1,5 +1,4 @@
 import log from 'electron-log'
-import { newKit } from '@celo/contractkit'
 import { CeloTxReceipt } from '@celo/connect'
 
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
@@ -13,6 +12,8 @@ import { sleep } from '../../../lib/utils'
 import { transformError } from '../ledger-utils'
 import { Account } from '../../../lib/accounts/accounts'
 import { cfgNetworkURL } from '../../state/kit'
+import { coreErc20Decimals } from '../../../lib/erc20/core'
+import { newKitWithTimeout } from '../../../lib/kit-utils'
 
 import * as React from 'react'
 import {
@@ -26,7 +27,6 @@ import CheckCircle from '@material-ui/icons/CheckCircle'
 import TransactionInfo from './transaction-info'
 import PromptLedgerAction from './prompt-ledger-action'
 import Link from '../../components/link'
-import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 export class TXCancelled extends Error {
 	constructor() { super('Cancelled') }
@@ -93,7 +93,7 @@ const RunTXs = (props: {
 							`Refusing to run transactions.`)
 					}
 				}
-				const kit = newKit(cfgNetworkURL(), w.wallet)
+				const kit = newKitWithTimeout(cfgNetworkURL(), w.wallet)
 				kit.defaultAccount = executingAccount.address
 				try {
 					const chainId = (await kit.web3.eth.getChainId()).toString()
@@ -151,14 +151,14 @@ const RunTXs = (props: {
 							// Only need to show confirmation dialog for Local accounts.
 							await txPromise
 						}
+						setStage("sending")
+						setTXSendMS(nowMS())
 						const result = await tx.tx.send({
 							...tx.params,
 							// perf improvement, avoid re-estimating gas again.
 							gas: estimatedGas.toNumber(),
 						})
 						const txHash = await result.getHash()
-						setStage("sending")
-						setTXSendMS(nowMS())
 						log.info(`TX-HASH:`, txHash)
 
 						const receipt = await result.waitReceipt()

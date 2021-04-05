@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js'
-import { newKit } from '@celo/contractkit'
 import { BlockHeader } from '@celo/connect'
 import { secondsToDurationString } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 
 import kitInstance, { useNetworkURL } from '../state/kit'
+import { newKitWithTimeout } from '../../lib/kit-utils'
 import { CFG, networkName } from '../../lib/cfg'
 import { UserError } from '../../lib/error'
 import { nowMS } from '../state/time'
@@ -113,7 +113,7 @@ const ChangeNetworkURL = (props: {
 		if (!isTesting) {
 			return
 		}
-		const kit = newKit(networkURL)
+		const kit = newKitWithTimeout(networkURL)
 		kit.web3.eth
 			.getChainId()
 			.then((chainId) => {

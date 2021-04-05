@@ -1,5 +1,6 @@
-import { ContractKit, newKit } from '@celo/contractkit'
+import { ContractKit } from '@celo/contractkit'
 import { CFG } from '../../lib/cfg'
+import { newKitWithTimeout } from '../../lib/kit-utils'
 
 const networkURLKeyPrefix = "terminal/core/network-url/"
 let _cfgNetworkURL: string | undefined
@@ -28,7 +29,7 @@ const kitInstance = (): ContractKit => {
 	}
 	if (!_kit) {
 		_kitURL = networkURL
-		_kit = newKit(_kitURL)
+		_kit = newKitWithTimeout(_kitURL)
 	}
 	return _kit
 }
