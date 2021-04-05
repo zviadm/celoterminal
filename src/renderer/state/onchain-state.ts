@@ -48,6 +48,7 @@ const useOnChainState = <T>(
 				log.info(`useOnChainState[${fetchN}]: fetched`)
 				log.debug(`useOnChainState[${fetchN}]:`, a)
 				setFetched(a)
+				setFetchError(undefined)
 			}
 		})
 		.catch((e) => {

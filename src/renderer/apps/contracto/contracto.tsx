@@ -1,16 +1,17 @@
 import { ContractKit } from '@celo/contractkit'
+import { AbiItem, toTransactionObject } from '@celo/connect'
 import { isValidAddress } from 'ethereumjs-util'
 
 import { Contracto } from './def'
 import { Account } from '../../../lib/accounts/accounts'
+import { ContractABI, fetchContractAbi } from '../../../lib/tx-parser/contract-abi'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import useOnChainState from '../../state/onchain-state'
 import useLocalStorageState from '../../state/localstorage-state'
 
 import * as React from 'react'
 import {
-	Button, Box, Table, TableBody,
-	TableCell, TableRow, Tab, TextField, LinearProgress, Accordion, AccordionSummary, AccordionDetails, Typography
+	Box, Tab, TextField, LinearProgress,
 } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 import TabContext from '@material-ui/lab/TabContext'
@@ -20,11 +21,9 @@ import TabPanel from '@material-ui/lab/TabPanel'
 import AppHeader from '../../components/app-header'
 import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
-import { ContractABI, fetchContractAbi } from '../../../lib/tx-parser/contract-abi'
-import { AbiItem } from '@celo/connect'
 import LinkedAddress from '../../components/linked-address'
-import Link from '../../components/link'
-import { fmtAddress } from '../../../lib/utils'
+import ReadContract from './read-contract'
+import WriteContract from './write-contract'
 
 const ContractoApp = (props: {
 	accounts: Account[],
@@ -44,7 +43,6 @@ const ContractoApp = (props: {
 		}
 	}, [editAddress, contractAddress, setContractAddress])
 
-	const account = props.selectedAccount
 	const {
 		fetched,
 		isFetching,
@@ -63,6 +61,18 @@ const ContractoApp = (props: {
 		},
 		[contractAddress],
 	), {noErrorPropagation: true})
+
+	const handleExecute = (contractAddress: string, abi: AbiItem, inputs: string[]) => {
+		props.runTXs(
+			async (kit: ContractKit) => {
+				const contract = new kit.web3.eth.Contract([abi], contractAddress)
+				const txo = contract.methods[abi.name || ""](...inputs)
+				const tx = toTransactionObject(kit.connection, txo)
+				return [{tx: tx}]
+			}
+		)
+	}
+
 	return (
 		<AppContainer>
 			<AppHeader app={Contracto} isFetching={isFetching} refetch={refetch} />
@@ -93,6 +103,7 @@ const ContractoApp = (props: {
 			<ContractView
 				contractAddress={fetched.contractAddress}
 				contractAbi={fetched.contractAbi}
+				onExecute={handleExecute}
 			/>}
 		</AppContainer>
 	)
@@ -102,6 +113,7 @@ export default ContractoApp
 const ContractView = (props: {
 	contractAddress: string,
 	contractAbi: ContractABI,
+	onExecute: (contractAddress: string, abi: AbiItem, inputs: string[]) => void
 }) => {
 	const [tab, setTab] = React.useState("read")
 	const readFuncs = props.contractAbi.abi.filter(
@@ -132,100 +144,17 @@ const ContractView = (props: {
 				</TabPanel>
 				<TabPanel value="write">
 					{
-						writeFuncs.map((abi) => {
-							return (
-								<p key={abi.name}>{abi.name}</p>
-							)
-						})
+						writeFuncs.map((abi) => (
+							<WriteContract
+								key={abi.name}
+								contractAddress={props.contractAddress}
+								abi={abi}
+								onExecute={props.onExecute}
+							/>
+						))
 					}
 				</TabPanel>
 			</TabContext>
 		</AppSection>
 	</>)
-}
-
-const ReadContract = (props: {
-	contractAddress: string,
-	abi: AbiItem,
-}) => {
-	const [expanded, setExpanded] = React.useState(false)
-	const [scheduleQuery, setScheduleQuery] = React.useState(false)
-	const contractAddress = props.contractAddress
-	const abi = props.abi
-	const {
-		fetched,
-		fetchError,
-		isFetching,
-		refetch,
-	} = useOnChainState(React.useCallback(
-		async (kit: ContractKit) => {
-			const contract = new kit.web3.eth.Contract([abi], contractAddress)
-			const result = await contract.methods[abi.name || ""]().call()
-			return {result}
-		},
-		[contractAddress, abi],
-	), {noErrorPropagation: true, lazyFetch: true})
-	React.useEffect(() => {
-		if (!isFetching && scheduleQuery) {
-			refetch()
-			setScheduleQuery(false)
-		}
-	}, [refetch, scheduleQuery, isFetching])
-
-	const canQuery = !scheduleQuery && !isFetching
-	return (
-		<Accordion
-			expanded={expanded}
-			onChange={(event, expanded) => {
-				setExpanded(expanded)
-				if (expanded && props.abi.inputs?.length === 0) {
-					setScheduleQuery(true)
-				}
-			}}
-		>
-			<AccordionSummary>{props.abi.name}</AccordionSummary>
-			<AccordionDetails>
-				<Box flex={1} display="flex" flexDirection="column">
-					{props.abi.inputs?.length !== 0 && <>
-					<Button
-						variant="outlined"
-						onClick={() => { setScheduleQuery(true) }}
-						disabled={!canQuery}
-						>Query</Button>
-					</>}
-					{isFetching && <LinearProgress />}
-					{fetched &&
-					<Table size="small">
-						<TableBody>
-							{
-								props.abi.outputs?.map((o, idx) => {
-									return (
-										<TableRow key={idx}>
-											<TableCell>
-												<Typography style={{fontFamily: "monospace"}}>
-													{o.name || "<output>"}
-												</Typography>
-											</TableCell>
-											<TableCell>
-												<Typography style={{fontFamily: "monospace"}} color="textSecondary">
-													{o.type}
-												</Typography>
-											</TableCell>
-											<TableCell width="100%">
-												<Typography style={{fontFamily: "monospace"}}>
-													{`${props.abi.outputs?.length === 1 ? fetched.result : fetched.result[idx]}`}
-												</Typography>
-											</TableCell>
-										</TableRow>
-									)
-								})
-							}
-						</TableBody>
-					</Table>}
-					{fetchError &&
-					<Alert severity="error">{`${fetchError}`}</Alert>}
-				</Box>
-			</AccordionDetails>
-		</Accordion>
-	)
 }
