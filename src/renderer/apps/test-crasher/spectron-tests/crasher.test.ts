@@ -6,10 +6,10 @@ jestSetup()
 test('crasher app', async (done) => {
 	await installOptionalApp("test-crasher")
 	const errorFallback = await app.client.$("#error-boundary-fallback")
-	await errorFallback.waitForExist()
+	await errorFallback.waitForDisplayed()
 
 	await selectApp("portfolio")
-	await errorFallback.waitForExist({reverse: true})
+	await expect(errorFallback.isExisting()).resolves.toEqual(false)
 
 	await uninstallOptionalApp("test-crasher")
 	done()

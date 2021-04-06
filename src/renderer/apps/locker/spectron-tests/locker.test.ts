@@ -37,8 +37,8 @@ test('Lock & Unlock CELO', async (done) => {
 	await confirmTXs()
 
 	const pending0 = await app.client.$("#withdraw-0")
-	await pending0.waitForExist()
-	await expect(pending0.isEnabled()).resolves.toBe(false)
+	await pending0.waitForDisplayed()
+	await expect(pending0.isEnabled()).resolves.toEqual(false)
 
 	await unlockInput.waitForEnabled()
 	await unlockInput.click()
@@ -51,7 +51,7 @@ test('Lock & Unlock CELO', async (done) => {
 	await pending1.click()
 	await confirmTXs()
 
-	await pending1.waitForExist({reverse: true})
+	await expect(pending1.isExisting()).resolves.toEqual(false)
 
 	const kit = devchainKit()
 	const lockedGold = await kit.contracts.getLockedGold()
@@ -66,7 +66,7 @@ test('Lock & Unlock CELO', async (done) => {
 	// would have expired already.
 	await confirmTXs()
 
-	await pending0.waitForExist({reverse: true})
+	await expect(pending0.isExisting()).resolves.toEqual(false)
 	done()
 });
 

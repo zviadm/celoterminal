@@ -68,7 +68,7 @@ test('add/remove erc20', async (done) => {
 	await waitForRefetch()
 
 	const removeToken_tCELO = await app.client.$("#remove-token-tCELO")
-	await removeToken_tCELO.waitForExist()
+	await removeToken_tCELO.waitForDisplayed()
 	// TODO(zviad): Figure out how to click the remove button
 	// await erc20Select.click()
 	// await removeToken_tCELO.waitForEnabled()
@@ -83,7 +83,7 @@ test('add/remove erc20', async (done) => {
 	await erc20Select.click()
 	await addToken.click()
 	const customTab = await app.client.$("span*=Custom Token")
-	await customTab.waitForExist()
+	await customTab.waitForClickable()
 	await customTab.click()
 
 	const erc20Address = await app.client.$("#erc20-address")

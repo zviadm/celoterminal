@@ -1,5 +1,4 @@
 import log from 'electron-log'
-import { newKit } from '@celo/contractkit'
 import { CeloTxReceipt } from '@celo/connect'
 
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
@@ -12,7 +11,8 @@ import { nowMS } from '../../state/time'
 import { sleep } from '../../../lib/utils'
 import { transformError } from '../ledger-utils'
 import { Account } from '../../../lib/accounts/accounts'
-import { cfgNetworkURL } from '../../state/kit'
+import { cfgNetworkURL, newKitWithTimeout } from '../../state/kit'
+import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
@@ -26,7 +26,6 @@ import CheckCircle from '@material-ui/icons/CheckCircle'
 import TransactionInfo from './transaction-info'
 import PromptLedgerAction from './prompt-ledger-action'
 import Link from '../../components/link'
-import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 export class TXCancelled extends Error {
 	constructor() { super('Cancelled') }
@@ -93,7 +92,7 @@ const RunTXs = (props: {
 							`Refusing to run transactions.`)
 					}
 				}
-				const kit = newKit(cfgNetworkURL(), w.wallet)
+				const kit = newKitWithTimeout(cfgNetworkURL(), w.wallet)
 				kit.defaultAccount = executingAccount.address
 				try {
 					const chainId = (await kit.web3.eth.getChainId()).toString()
@@ -150,16 +149,39 @@ const RunTXs = (props: {
 						if (executingAccount.type === "local") {
 							// Only need to show confirmation dialog for Local accounts.
 							await txPromise
+							setStage("sending")
+							setTXSendMS(nowMS())
 						}
 						const result = await tx.tx.send({
 							...tx.params,
 							// perf improvement, avoid re-estimating gas again.
 							gas: estimatedGas.toNumber(),
 						})
-						const txHash = await result.getHash()
-						setStage("sending")
-						setTXSendMS(nowMS())
+						let txHash
+						try {
+							txHash = await result.getHash()
+						} catch (e) {
+							if (e?.message?.includes("already known") ||
+								e?.message?.includes("nonce too low")) {
+								throw new Error(
+									`Transaction was aborted due to a potential conflict with another concurrent transaction. ${e}.`)
+							}
+							if (e?.message?.includes("Invalid JSON RPC response")) {
+								throw new Error(
+									`Timed out while trying to send the transaction. ` +
+									`Transaction might have been sent and might get processed anyways. ` +
+									`Wait a bit before retrying to avoid performing your transaction twice.`)
+							}
+							throw new Error(
+								`Unexpected error occured while trying to send the transaction. ` +
+								`Transaction might have been sent and might get processed anyways. ${e}.`)
+						}
 						log.info(`TX-HASH:`, txHash)
+						// TODO(zviadm): For non-local wallets need to somehow intercept when signing is complete.
+						if (executingAccount.type !== "local") {
+							setStage("sending")
+							setTXSendMS(nowMS())
+						}
 
 						const receipt = await result.waitReceipt()
 						setTXProgress(100)

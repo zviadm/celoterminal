@@ -1,4 +1,4 @@
-import { fmtAmount } from '../../../lib/utils'
+import { fmtAddress, fmtAmount } from '../../../lib/utils'
 import { MultiSigAccount } from '../../../lib/accounts/accounts'
 import useLocalStorageState from '../../state/localstorage-state'
 import { ParsedTX } from './parse-txs'
@@ -91,12 +91,15 @@ const TXRow = (props: {
 			return <span key={`txdata-${idx}`}><br />&nbsp;&nbsp;{i.input.name} = {`${i.value}`}</span>
 		})}
 	</>) : `CALLDATA: ${props.tx.tx.data}`
+	const contractName = props.tx.verifiedDestinationName ?
+		`${props.tx.verifiedDestinationName} (${fmtAddress(props.tx.tx.destination)})` :
+		fmtAddress(props.tx.tx.destination)
 	return (<>
 		<TableRow>
 			<TableCell>{props.tx.tx.idx.toString()}</TableCell>
 			<TableCell>
 				<LinkedAddress
-					name={props.tx.destinationName}
+					name={contractName}
 					address={props.tx.tx.destination}
 				/>
 			</TableCell>
