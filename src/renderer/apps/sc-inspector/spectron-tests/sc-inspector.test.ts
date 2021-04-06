@@ -10,7 +10,7 @@ test('install app', async (done) => {
 	done()
 })
 
-test('test multisig contract', async (done) => {
+test('test sc-inspector read & write', async (done) => {
 	// MultiSig contract is a built-in contract so it is easiest to test with.
 	testLog("Deploying MultiSig contracts...")
 	const kit = devchainKit()
@@ -41,8 +41,8 @@ test('test multisig contract', async (done) => {
 	const getOwners = await app.client.$("#contract-read-getOwners")
 	await getOwners.click()
 	const getOwnersResult = await app.client.$("#contract-result-getOwners-0")
-	await getOwnersResult.waitForExist()
-	await expect(getOwnersResult.getText()).resolves.toBe(SpectronAccounts[0])
+	await getOwnersResult.waitForDisplayed()
+	await expect(getOwnersResult.getText()).resolves.toEqual(SpectronAccounts[0])
 
 	testLog(`Testing replaceOwner() through submitTransaction() write call...`)
 	const multiSig = await kit.contracts.getMultiSig(res0.contractAddress)
@@ -72,14 +72,14 @@ test('test multisig contract', async (done) => {
 	const owners = await app.client.$("#contract-read-owners")
 	await owners.click()
 	const ownersResult = await app.client.$("#contract-result-owners-0")
-	await ownersResult.waitForExist({reverse: true})
+	await expect(ownersResult.isExisting()).resolves.toEqual(false)
 	const ownersIdxInput = await app.client.$("#contract-owners--input")
 	await ownersIdxInput.click()
 	await ownersIdxInput.keys("0")
 	const query = await app.client.$("#contract-action-owners")
 	await query.click()
-	await ownersResult.waitForExist()
-	await expect(ownersResult.getText()).resolves.toBe(SpectronAccounts[1])
+	await ownersResult.waitForDisplayed()
+	await expect(ownersResult.getText()).resolves.toEqual(SpectronAccounts[1])
 
 	// TODO(zviadm): need a test for making call to a `payable` function. Unfortunately
 	// MultiSig contract doesn't have any payable functions to test.
