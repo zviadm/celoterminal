@@ -69,7 +69,7 @@ test('test MultiSig app', async (done) => {
 
 	// reconfirm TX.
 	const confirmTX = await app.client.$("button=Confirm")
-	await confirmTX.waitForExist({reverse: true})
+	await expect(confirmTX.isExisting()).resolves.toEqual(false)
 	const showNoApprovals = await app.client.$("#show-no-approvals")
 	await showNoApprovals.click()
 	await confirmTX.waitForClickable()
@@ -95,7 +95,7 @@ test(`second owner confirmation`, async (done) => {
 	await confirmTX.click()
 	await confirmTXs()
 
-	await (await app.client.$("div*=no pending transactions")).waitForExist()
+	await (await app.client.$("div*=no pending transactions")).waitForDisplayed()
 
 	done()
 })

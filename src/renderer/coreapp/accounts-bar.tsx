@@ -37,6 +37,7 @@ const AccountsBar = (props: {
 	onSelectAccount: (a: Account) => void,
 }): JSX.Element => {
 	const classes = useStyles()
+	const [open, setOpen] = React.useState(false)
 	return (
 		<Box display="flex" flexDirection="row" justifyContent="flex-end" p={2}>
 			<Box display="flex" flexDirection="row" flex={1}>
@@ -46,6 +47,9 @@ const AccountsBar = (props: {
 				id="accounts-select"
 				style={{marginRight: 5}}
 				value={props.selectedAccount?.address || ""}
+				open={open}
+				onOpen={() => { setOpen(true) }}
+				onClose={() => { setOpen(false) }}
 				onChange={(event) => {
 					const selected = props.accounts.find((a) => a.address === event.target.value)
 					if (selected) {
@@ -56,7 +60,9 @@ const AccountsBar = (props: {
 					props.accounts.map((a, idx) => (
 						<MenuItem id={`select-account-${idx}-item`} value={a.address} key={a.address}>
 							<Box display="flex" alignItems="center">
-								<Box display="flex" alignSelf="flex-end" marginRight={1}>
+								<Box display="flex" alignSelf="flex-end"
+									marginRight={1}
+									paddingLeft={open ? 0 : 1}>
 									<AccountIcon
 										type={a.type}
 										style={a.type === "ledger" ? {paddingRight: 5} : undefined}
@@ -64,12 +70,20 @@ const AccountsBar = (props: {
 								</Box>
 								<Typography className={classes.name}>{a.name}</Typography>
 								<Typography className={classes.address}>{fmtAddress(a.address)}</Typography>
+								<Box
+									display="flex"
+									marginLeft={open ? 1 : 0}
+									visibility={open ? "visible" : "hidden"}
+									width={open ? "auto" : "0px"}>
+									<CopyAddressButton address={a.address} />
+									<OpenInExplorerButton address={a.address} />
+								</Box>
 							</Box>
 						</MenuItem>
 					))
 				}
 			</Select>
-			<CopyAddressButton address={props.selectedAccount?.address} />
+			<CopyAddressButton id="copy-selected-account-address" address={props.selectedAccount?.address} />
 			<QRCodeButton address={props.selectedAccount?.address} />
 			<OpenInExplorerButton address={props.selectedAccount?.address} />
 		</Box>
@@ -78,15 +92,17 @@ const AccountsBar = (props: {
 export default AccountsBar
 
 const CopyAddressButton = (props: {
+	id?: string,
 	address?: string,
 }) => {
 	const [copied, setCopied] = React.useState(false)
-	const handleCopyAddress = () => {
+	const handleCopyAddress = (event: React.MouseEvent<HTMLElement>) => {
 		if (!props.address) {
 			return
 		}
 		clipboard.writeText(props.address)
 		setCopied(true)
+		event.stopPropagation()
 	}
 	const resetCopied = () => {
 		if (copied) {
@@ -98,7 +114,7 @@ const CopyAddressButton = (props: {
 			title={copied ? "Copied" : "Copy Address"}
 			onClose={resetCopied}>
 			<IconButton
-				id="copy-selected-account-address"
+				id={props.id}
 				size="small"
 				onClick={handleCopyAddress}
 				disabled={!props.address}
@@ -169,8 +185,9 @@ const OpenInExplorerButton = (props: {address?: string}) => {
 		<Tooltip title="Open in Explorer">
 			<IconButton
 				size="small"
-				onClick={() => {
+				onClick={(event) => {
 					shell.openExternal(`${explorerRootURL()}/address/${props.address}`)
+					event.stopPropagation()
 				}}
 				disabled={!props.address}
 				><OpenInNew /></IconButton>
