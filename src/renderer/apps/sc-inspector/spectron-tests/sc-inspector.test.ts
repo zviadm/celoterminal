@@ -41,7 +41,7 @@ test('test sc-inspector read & write', async (done) => {
 	const getOwners = await app.client.$("#contract-read-getOwners")
 	await getOwners.click()
 	const getOwnersResult = await app.client.$("#contract-result-getOwners-0")
-	await getOwnersResult.waitForDisplayed()
+	await getOwnersResult.waitForClickable()
 	await expect(getOwnersResult.getText()).resolves.toEqual(SpectronAccounts[0])
 
 	testLog(`Testing replaceOwner() through submitTransaction() write call...`)
@@ -78,7 +78,7 @@ test('test sc-inspector read & write', async (done) => {
 	await ownersIdxInput.keys("0")
 	const query = await app.client.$("#contract-action-owners")
 	await query.click()
-	await ownersResult.waitForDisplayed()
+	await ownersResult.waitForClickable()
 	await expect(ownersResult.getText()).resolves.toEqual(SpectronAccounts[1])
 
 	// TODO(zviadm): need a test for making call to a `payable` function. Unfortunately
