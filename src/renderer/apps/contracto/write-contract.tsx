@@ -17,7 +17,7 @@ const WriteContract = (props: {
 		props.onExecute(props.contractAddress, props.abi, inputs, value)
 	}
 	return (
-		<Accordion>
+		<Accordion id={`contract-write-${props.abi.name}`}>
 			<AccordionSummary>{props.abi.name}</AccordionSummary>
 			<AccordionDetails>
 				<Box flex={1} display="flex" flexDirection="column">

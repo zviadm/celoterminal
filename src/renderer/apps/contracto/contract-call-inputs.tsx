@@ -28,7 +28,7 @@ const ContractCallInputs = (props: {
 				return (
 					<TextField
 						key={idx}
-						id={`input-${props.abi.name}-${input.name}`}
+						id={`contract-${props.abi.name}-${input.name}-input`}
 						label={`${input.name || "<input>"} (${input.type})`}
 						InputLabelProps={{shrink: true}}
 						size="medium"
@@ -48,7 +48,7 @@ const ContractCallInputs = (props: {
 		}
 		{(props.abi.payable || props.abi.stateMutability === "payable") &&
 		<TextField
-			id={`input-${props.abi.name}-send-amount`}
+			id={`contract-${props.abi.name}-send-amount-input`}
 			label={`<send amount> (CELO)`}
 			InputLabelProps={{shrink: true}}
 			size="medium"
@@ -64,6 +64,7 @@ const ContractCallInputs = (props: {
 			onChange={(event) => { setSendAmount(event.target.value) }}
 		/>}
 		<Button
+			id={`contract-action-${props.abi.name}`}
 			variant="outlined"
 			style={{marginBottom: 10}}
 			disabled={props.disabled}

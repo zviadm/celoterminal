@@ -41,20 +41,21 @@ const ReadContract = (props: {
 	const canQuery = !isFetching
 	return (
 		<Accordion
+			id={`contract-read-${abi.name}`}
 			expanded={expanded}
 			onChange={(event, expanded) => {
 				setExpanded(expanded)
-				if (expanded && props.abi.inputs?.length === 0) {
+				if (expanded && abi.inputs?.length === 0) {
 					refetch()
 				}
 			}}
 		>
-			<AccordionSummary>{props.abi.name}</AccordionSummary>
+			<AccordionSummary>{abi.name}</AccordionSummary>
 			<AccordionDetails>
 				<Box flex={1} display="flex" flexDirection="column">
-					{props.abi.inputs?.length !== 0 &&
+					{abi.inputs?.length !== 0 &&
 					<ContractCallInputs
-						abi={props.abi}
+						abi={abi}
 						actionLabel="Query"
 						disabled={!canQuery}
 						onAction={handleQuery}
@@ -64,7 +65,7 @@ const ReadContract = (props: {
 					<Table size="small">
 						<TableBody>
 							{
-								props.abi.outputs?.map((o, idx) => {
+								abi.outputs?.map((o, idx) => {
 									return (
 										<TableRow key={idx}>
 											<TableCell>
@@ -79,7 +80,9 @@ const ReadContract = (props: {
 											</TableCell>
 											<TableCell width="100%">
 												<Typography style={{fontFamily: "monospace", overflow: "wrap", overflowWrap: "anywhere"}}>
-													{`${props.abi.outputs?.length === 1 ? fetched.result : fetched.result[idx]}`}
+													<span id={`contract-result-${abi.name}-${idx}`}>
+														{`${abi.outputs?.length === 1 ? fetched.result : fetched.result[idx]}`}
+													</span>
 												</Typography>
 											</TableCell>
 										</TableRow>
