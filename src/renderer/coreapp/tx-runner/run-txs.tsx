@@ -150,13 +150,18 @@ const RunTXs = (props: {
 							// Only need to show confirmation dialog for Local accounts.
 							await txPromise
 						}
-						const txParams = await kit.connection.paramsPopulator.populate({
+						const txParams = {
 							...tx.tx.defaultParams,
-							...tx.tx.txo,
 							...tx.params,
-							// perf improvement, avoid re-estimating gas again.
+							chainId: Number.parseInt(cfg.chainId),
+							from: kit.defaultAccount,
+							to: tx.tx.txo._parent?.options.address,
+							data: tx.tx.txo.encodeABI(),
+							nonce: await kit.connection.nonce(kit.defaultAccount),
+							feeCurrency: kit.defaultFeeCurrency,
+							gasPrice: await kit.connection.gasPrice(kit.defaultFeeCurrency),
 							gas: estimatedGas.toNumber(),
-						})
+						}
 						const signedTX = await w.wallet.signTransaction(txParams)
 						log.info(`TX-SIGNED:`, signedTX.tx)
 
