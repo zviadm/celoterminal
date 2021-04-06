@@ -150,16 +150,15 @@ const RunTXs = (props: {
 							// Only need to show confirmation dialog for Local accounts.
 							await txPromise
 						}
+						const result = await tx.tx.send({
+							...tx.params,
+							// perf improvement, avoid re-estimating gas again.
+							gas: estimatedGas.toNumber(),
+						})
 						setStage("sending")
 						setTXSendMS(nowMS())
-						let result
 						let txHash
 						try {
-							result = await tx.tx.send({
-								...tx.params,
-								// perf improvement, avoid re-estimating gas again.
-								gas: estimatedGas.toNumber(),
-							})
 							txHash = await result.getHash()
 						} catch (e) {
 							if (e?.message?.includes("already known") ||
