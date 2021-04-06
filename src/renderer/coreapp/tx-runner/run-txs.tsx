@@ -141,7 +141,7 @@ const RunTXs = (props: {
 								}
 							})
 						})
-						log.info(`TX:`, parsedTXs[idx])
+						log.info(`TX-PARSED:`, parsedTXs[idx])
 
 						setTXSendMS(0)
 						setTXProgress(0)
@@ -158,7 +158,7 @@ const RunTXs = (props: {
 							gas: estimatedGas.toNumber(),
 						})
 						const signedTX = await w.wallet.signTransaction(txParams)
-						log.info(`TX:`, signedTX)
+						log.info(`TX-SIGNED:`, signedTX.tx)
 
 						setStage("sending")
 						setTXSendMS(nowMS())
