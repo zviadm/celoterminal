@@ -78,16 +78,22 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 				chainId !== "44787") {
 				throw new Error(`Contract verification not supported on ChainId: ${chainId}.`)
 			}
-			const url = `/contracts/full_match/${chainId}/${contractAddress}/metadata.json`
-			const resp = await cli().get(url, {
-				validateStatus: (status) => status === 200 || status === 404,
-				responseType: "json",
-			})
-			if (resp.status === 404) {
+			for (const match of ["full_match", "partial_match"]) {
+				const url = `/contracts/${match}/${chainId}/${contractAddress}/metadata.json`
+				const resp = await cli().get(url, {
+					validateStatus: (status) => status === 200 || status === 404,
+					responseType: "json",
+				})
+				if (resp.status === 404) {
+					continue
+				}
+				abi = resp.data.output.abi as AbiItem[]
+				verifiedName = await verifiedContractName(kit, contractAddress)
+				break
+			}
+			if (abi === undefined || verifiedName === undefined) {
 				throw new Error(`Contract source code is not verified.`)
 			}
-			abi = resp.data.output.abi as AbiItem[]
-			verifiedName = await verifiedContractName(kit, contractAddress)
 		}
 		r = {verifiedName, abi}
 	}
