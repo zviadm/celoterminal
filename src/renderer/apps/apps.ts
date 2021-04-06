@@ -1,6 +1,7 @@
 import { remote } from 'electron'
 import { AppDefinition } from '../components/app-definition'
 import { Celovote } from './celovote/def'
+import { SCInspector } from './sc-inspector/def'
 import { Governance } from './governance/def'
 import { Locker } from './locker/def'
 import { Mento } from './mento/def'
@@ -21,6 +22,7 @@ export const AppList: AppDefinition[] = [
 	Mento,
 	Celovote,
 	MultiSig,
+	SCInspector,
 ].concat(remote.app.isPackaged ? [] : [
 	// Test/Dev-only Apps.
 	Crasher,
