@@ -55,9 +55,9 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 	let r
 	if (proxy) {
 		const proxyWeb3Contract = new kit.web3.eth.Contract(proxy.abi, contractAddress)
-		const implAddress = await proxyWeb3Contract.methods[proxy.implementationFunc]().call()
+		const implAddress = await proxyWeb3Contract.methods[proxy.implementationMethod]().call()
 		const abi = [...proxy.abi]
-		let verifiedName: string | null = `CoreContract:Proxy`
+		let verifiedName: string | null = proxy.verifiedName
 		if (implAddress !== "0x0000000000000000000000000000000000000000") {
 			const implAbi = await fetchContractAbi(kit, implAddress)
 			verifiedName = implAbi.verifiedName
