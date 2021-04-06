@@ -1,10 +1,10 @@
 import axios, { AxiosInstance } from "axios"
 import { AbiItem } from "web3-utils"
-import { Address, ContractKit, PROXY_ABI, RegisteredContracts } from '@celo/contractkit'
+import { Address, ContractKit, RegisteredContracts } from '@celo/contractkit'
 
 import { CFG, mainnetChainId, registeredErc20s } from "../cfg"
-import { deployedBytecode as proxyBytecode, abi as proxyAbi } from "../core-contracts/Proxy.json"
 import { deployedBytecode as multiSigBytecode, abi as multiSigAbi } from "../core-contracts/MultiSig.json"
+import { KnownProxies, KnownProxy } from "./proxy-abi"
 
 const builtinContracts: {
 	name: string,
@@ -33,7 +33,7 @@ export interface ContractABI {
 	// be authentic. This is different from source verification, because same source code can
 	// be deployed and verified at different addresses.
 	verifiedName: string | null
-	isProxy: boolean
+	proxy?: KnownProxy
 	abi: AbiItem[]
 }
 
@@ -42,28 +42,28 @@ const contractCache = new Map<string, ContractABI>()
 
 export const fetchContractAbi = async (kit: ContractKit, contractAddress: string): Promise<ContractABI> => {
 	const cached = contractCache.get(contractAddress)
-	if (cached !== undefined && !cached.isProxy) {
+	if (cached !== undefined && !cached.proxy) {
 		return cached
 	}
 
 	let code: string | undefined
-	let isProxy = !!cached?.isProxy
+	let proxy: KnownProxy | undefined = cached?.proxy
 	if (!cached) {
 		code = await kit.web3.eth.getCode(contractAddress)
-		isProxy = code === proxyBytecode
+		proxy = KnownProxies.find((p) => p.bytecode === code)
 	}
 	let r
-	if (isProxy) {
-		const proxyWeb3Contract = new kit.web3.eth.Contract(PROXY_ABI, contractAddress)
-		const implAddress = await proxyWeb3Contract.methods._getImplementation().call()
-		const abi = [...(proxyAbi as AbiItem[])]
-		let verifiedName: string | null = `CoreContract:Proxy`
+	if (proxy) {
+		const proxyWeb3Contract = new kit.web3.eth.Contract(proxy.abi, contractAddress)
+		const implAddress = await proxyWeb3Contract.methods[proxy.implementationMethod]().call()
+		const abi = [...proxy.abi]
+		let verifiedName: string | null = proxy.verifiedName
 		if (implAddress !== "0x0000000000000000000000000000000000000000") {
 			const implAbi = await fetchContractAbi(kit, implAddress)
 			verifiedName = implAbi.verifiedName
 			abi.push(...implAbi.abi)
 		}
-		r = {verifiedName, isProxy, abi}
+		r = {verifiedName, proxy, abi}
 	} else {
 		const builtin = builtinContracts.find((c) => c.bytecode === code)
 		let abi
@@ -89,7 +89,7 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 			abi = resp.data.output.abi as AbiItem[]
 			verifiedName = await verifiedContractName(kit, contractAddress)
 		}
-		r = {verifiedName, isProxy, abi}
+		r = {verifiedName, abi}
 	}
 	contractCache.set(contractAddress, r)
 	return r
