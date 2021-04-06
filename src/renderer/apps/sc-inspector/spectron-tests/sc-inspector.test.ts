@@ -6,12 +6,12 @@ import { multiSigDeployTXs, multiSigInitializeTXs } from '../../../../lib/core-c
 jestSetup()
 
 test('install app', async (done) => {
-	await installOptionalApp("contracto")
+	await installOptionalApp("sc-inspector")
 	done()
 })
 
 test('test multisig contract', async (done) => {
-	// MultiSig contract is a built-in so it is easiest to test Contracto with.
+	// MultiSig contract is a built-in contract so it is easiest to test with.
 	testLog("Deploying MultiSig contracts...")
 	const kit = devchainKit()
 	const deployTXs = await multiSigDeployTXs(kit)

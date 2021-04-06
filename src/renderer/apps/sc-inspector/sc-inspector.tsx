@@ -3,7 +3,7 @@ import { AbiItem, toTransactionObject } from '@celo/connect'
 import { isValidAddress } from 'ethereumjs-util'
 import BigNumber from 'bignumber.js'
 
-import { Contracto } from './def'
+import { SCInspector } from './def'
 import { Account } from '../../../lib/accounts/accounts'
 import { ContractABI, fetchContractAbi } from '../../../lib/tx-parser/contract-abi'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
@@ -26,12 +26,12 @@ import LinkedAddress from '../../components/linked-address'
 import ReadContract from './read-contract'
 import WriteContract from './write-contract'
 
-const ContractoApp = (props: {
+const SCInspectorApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
-	const [contractAddress, setContractAddress] = useLocalStorageState("terminal/contracto/contract-address", "")
+	const [contractAddress, setContractAddress] = useLocalStorageState("terminal/sc-inspector/contract-address", "")
 	const [editAddress, setEditAddress] = React.useState(contractAddress)
 	React.useEffect(() => {
 		if (editAddress === contractAddress) {
@@ -77,7 +77,7 @@ const ContractoApp = (props: {
 
 	return (
 		<AppContainer>
-			<AppHeader app={Contracto} isFetching={isFetching} refetch={refetch} />
+			<AppHeader app={SCInspector} isFetching={isFetching} refetch={refetch} />
 			<AppSection>
 				<TextField
 					id="contract-address"
@@ -110,7 +110,7 @@ const ContractoApp = (props: {
 		</AppContainer>
 	)
 }
-export default ContractoApp
+export default SCInspectorApp
 
 const ContractView = (props: {
 	contractAddress: string,
