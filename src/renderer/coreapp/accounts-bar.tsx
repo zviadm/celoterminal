@@ -1,9 +1,10 @@
-import { clipboard } from 'electron'
+import { clipboard, shell } from 'electron'
 import QRCode from 'qrcode-svg'
 
 import { Account } from '../../lib/accounts/accounts'
 import { fmtAddress } from '../../lib/utils'
 import { encodeDataForQr } from '../../lib/celo-qr-code'
+import { explorerRootURL } from '../../lib/cfg'
 
 import * as React from 'react'
 import {
@@ -12,6 +13,7 @@ import {
 } from '@material-ui/core'
 import CropFree from '@material-ui/icons/CropFree'
 import FileCopy from '@material-ui/icons/FileCopy'
+import OpenInNew from '@material-ui/icons/OpenInNew'
 
 import AccountIcon from './accounts-app/account-icon'
 import NetworkIndicator from './network-indicator'
@@ -69,6 +71,7 @@ const AccountsBar = (props: {
 			</Select>
 			<CopyAddressButton address={props.selectedAccount?.address} />
 			<QRCodeButton address={props.selectedAccount?.address} />
+			<OpenInExplorerButton address={props.selectedAccount?.address} />
 		</Box>
 	)
 }
@@ -159,4 +162,18 @@ const QRCodeButton = (props: {
 				><CropFree /></IconButton>
 		</Tooltip>
 	</>)
+}
+
+const OpenInExplorerButton = (props: {address?: string}) => {
+	return (
+		<Tooltip title="Open in Explorer">
+			<IconButton
+				size="small"
+				onClick={() => {
+					shell.openExternal(`${explorerRootURL()}/address/${props.address}`)
+				}}
+				disabled={!props.address}
+				><OpenInNew /></IconButton>
+		</Tooltip>
+	)
 }
