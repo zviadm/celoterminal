@@ -26,6 +26,7 @@ import AppSection from '../../components/app-section'
 import SectionTitle from '../../components/section-title'
 import NumberInput from '../../components/number-input'
 import PendingWithdrawals from '../locker/pending-withdrawals'
+import { addRegisteredErc20 } from '../../state/erc20list-state'
 
 const sCELO = registeredErc20s().find((e) => e.symbol === "sCELO")
 
@@ -54,9 +55,13 @@ const SavingsCELOApp = (props: {
 			const pendingWithdrawals = sKit.pendingWithdrawals(account.address)
 			const sCELOAmount = await sKit.contract.methods.balanceOf(account.address).call()
 			const sCELOasCELO = await sKit.contract.methods.savingsToCELO(sCELOAmount).call()
+			const sCELOAmountN = new BigNumber(sCELOAmount)
+			if (sCELOAmountN.gt(0)) {
+				addRegisteredErc20("sCELO")
+			}
 			return {
 				celoAmount: await celoAmount,
-				sCELOAmount: new BigNumber(sCELOAmount),
+				sCELOAmount: sCELOAmountN,
 				sCELOasCELO: new BigNumber(sCELOasCELO),
 				pendingWithdrawals: await pendingWithdrawals,
 			}

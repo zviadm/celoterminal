@@ -139,7 +139,7 @@ const PortfolioApp = (props: {
 										{fmtAmount(balance, erc20.decimals)} {erc20.symbol}
 										{isCELO && <><br />{fmtAmount(lockedBalance, erc20.decimals)} {erc20.symbol}</>}
 									</TableCell>
-									<TableCell align="right">{price ? "$"+price.toFixed(2) : "-"}</TableCell>
+									<TableCell align="right">{price ? "$"+fmtAmount(price, 0, 2) : "-"}</TableCell>
 									<TableCell align="right" style={{fontWeight: "bold"}}>
 										{value ? "$" + fmtAmount(value, 0, 2) : "-"}
 										{isCELO && <><br />${fmtAmount(lockedValue, 0, 2)}</>}
@@ -151,7 +151,7 @@ const PortfolioApp = (props: {
 						<TableRow>
 							<TableCell colSpan={4} align="right">Total</TableCell>
 							<TableCell align="right" style={{fontWeight: "bold"}}>
-								{totalValue ? "$" + fmtAmount(totalValue, 0 ,2) : "-"}
+								{totalValue ? "$" + fmtAmount(totalValue, 0, 2) : "-"}
 							</TableCell>
 						</TableRow>
 					</TableBody>

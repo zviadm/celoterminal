@@ -9,6 +9,7 @@
   "description": "Celo Terminal: Manage accounts and interact with the decentralized apps on Celo platform.",
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
+    "dev:alfajores": "env-cmd -f env.dev.alfajores electron-webpack dev",
     "dev:baklava": "env-cmd -f env.dev.baklava electron-webpack dev",
     "dev:mainnet": "env-cmd -f env.dev.mainnet electron-webpack dev",
     "dev:spectron": "env-cmd -f env.dev.spectron ./node_modules/.bin/electron ./dist/main/main.js",

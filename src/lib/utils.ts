@@ -31,7 +31,7 @@ export class CancelPromise {
 }
 
 const _precisionDefault = 2
-const _precisionForZero = 4
+const _precisionForZero = 6
 
 export const fmtAmount = (
 	v: BigNumber.Value,
