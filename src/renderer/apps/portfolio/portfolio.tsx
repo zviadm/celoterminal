@@ -40,11 +40,13 @@ const PortfolioApp = (props: {
 		refetch,
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
-			const balances = fetchBalancesForAccounts(kit, accounts, erc20s)
 			const locked = fetchLockedBalanceForAccounts(kit, accounts)
-			const conversionRates = registeredErc20ConversionRates(kit, StableToken.cUSD, erc20s)
+			const balances = await fetchBalancesForAccounts(kit, accounts, erc20s)
+			const erc20sWithBalance = erc20s.filter(
+				(erc20) => accounts.find((a) => balances.get(a.address)?.get(erc20.address || erc20.symbol)?.gt(0)))
+			const conversionRates = registeredErc20ConversionRates(kit, StableToken.cUSD, erc20sWithBalance)
 			return {
-				balances: await balances,
+				balances: balances,
 				locked: await locked,
 				conversionRates: await conversionRates,
 			}
