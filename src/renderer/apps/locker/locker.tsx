@@ -27,6 +27,7 @@ import NumberInput from '../../components/number-input'
 import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
 import PendingWithdrawals from './pending-withdrawals'
+import Link from '../../components/link'
 
 const LockerApp = (props: {
 	accounts: Account[],
@@ -177,6 +178,13 @@ const LockerApp = (props: {
 					</TabList>
 					<TabPanel value="lock">
 						<Box display="flex" flexDirection="column">
+							<Box marginBottom={1}>
+								<Alert severity="info">
+									To particiapte in validator elections, earn voting rewards, or vote on governance,
+									CELO needs to be locked up in the LockedGold smart contract. <Link
+										href="https://docs.celo.org/celo-codebase/protocol/proof-of-stake/locked-gold">Learn more.</Link>
+								</Alert>
+							</Box>
 							<NumberInput
 								autoFocus
 								margin="dense"
