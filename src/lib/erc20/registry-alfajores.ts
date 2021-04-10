@@ -2,6 +2,8 @@ import { convertMToken } from "./conversions/moola"
 import { convertSCELO } from "./conversions/savingscelo"
 import { RegisteredErc20 } from "./core"
 
+import { SavingsCELOAddressAlfajores } from "savingscelo"
+
 export const erc20Alfajores: RegisteredErc20[] = [
 	{
 		name: "Moola CELO AToken",
@@ -20,7 +22,7 @@ export const erc20Alfajores: RegisteredErc20[] = [
 	{
 		name: "Savings CELO",
 		symbol: "sCELO",
-		address: "0x1E2B33c756c8f0709A5867ED7408e740F717012A",
+		address: SavingsCELOAddressAlfajores,
 		decimals: 18,
 		conversion: convertSCELO,
 	},
