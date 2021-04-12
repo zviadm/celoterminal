@@ -40,11 +40,13 @@ const PortfolioApp = (props: {
 		refetch,
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
-			const balances = fetchBalancesForAccounts(kit, accounts, erc20s)
 			const locked = fetchLockedBalanceForAccounts(kit, accounts)
-			const conversionRates = registeredErc20ConversionRates(kit, StableToken.cUSD, erc20s)
+			const balances = await fetchBalancesForAccounts(kit, accounts, erc20s)
+			const erc20sWithBalance = erc20s.filter(
+				(erc20) => accounts.find((a) => balances.get(a.address)?.get(erc20.address || erc20.symbol)?.gt(0)))
+			const conversionRates = registeredErc20ConversionRates(kit, StableToken.cUSD, erc20sWithBalance)
 			return {
-				balances: await balances,
+				balances: balances,
 				locked: await locked,
 				conversionRates: await conversionRates,
 			}
@@ -139,7 +141,7 @@ const PortfolioApp = (props: {
 										{fmtAmount(balance, erc20.decimals)} {erc20.symbol}
 										{isCELO && <><br />{fmtAmount(lockedBalance, erc20.decimals)} {erc20.symbol}</>}
 									</TableCell>
-									<TableCell align="right">{price ? "$"+price.toFixed(2) : "-"}</TableCell>
+									<TableCell align="right">{price ? "$"+fmtAmount(price, 0, 2) : "-"}</TableCell>
 									<TableCell align="right" style={{fontWeight: "bold"}}>
 										{value ? "$" + fmtAmount(value, 0, 2) : "-"}
 										{isCELO && <><br />${fmtAmount(lockedValue, 0, 2)}</>}
@@ -151,7 +153,7 @@ const PortfolioApp = (props: {
 						<TableRow>
 							<TableCell colSpan={4} align="right">Total</TableCell>
 							<TableCell align="right" style={{fontWeight: "bold"}}>
-								{totalValue ? "$" + fmtAmount(totalValue, 0 ,2) : "-"}
+								{totalValue ? "$" + fmtAmount(totalValue, 0, 2) : "-"}
 							</TableCell>
 						</TableRow>
 					</TableBody>

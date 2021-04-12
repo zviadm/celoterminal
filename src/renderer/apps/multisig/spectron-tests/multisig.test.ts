@@ -30,6 +30,7 @@ test('test MultiSig app', async (done) => {
 	await waitForRefetch()
 
 	const ownersTab = await app.client.$("span=Owners")
+	await ownersTab.waitForClickable()
 	await ownersTab.click()
 
 	// Add `A1` account as another owner.
@@ -68,6 +69,10 @@ test('test MultiSig app', async (done) => {
 
 	// reconfirm TX.
 	const confirmTX = await app.client.$("button=Confirm")
+	await expect(confirmTX.isExisting()).resolves.toEqual(false)
+	const showNoApprovals = await app.client.$("#show-no-approvals")
+	await showNoApprovals.click()
+	await confirmTX.waitForClickable()
 	await confirmTX.click()
 	await confirmTXs()
 	done()
@@ -90,7 +95,7 @@ test(`second owner confirmation`, async (done) => {
 	await confirmTX.click()
 	await confirmTXs()
 
-	await (await app.client.$("div*=no pending transactions")).waitForExist()
+	await (await app.client.$("div*=no pending transactions")).waitForDisplayed()
 
 	done()
 })

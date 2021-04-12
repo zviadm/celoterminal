@@ -79,7 +79,7 @@ export default function useEventHistoryState <T>(
 		},
 		[fetchCallback, cache, maxEvents, maxHistoryBlocks],
 	),
-	opts.noErrorPropagation)
+	{noErrorPropagation: opts.noErrorPropagation})
 }
 
 const minFetchSize = 1000
