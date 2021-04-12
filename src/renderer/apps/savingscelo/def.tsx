@@ -8,7 +8,7 @@ export const SavingsCELO: AppDefinition = {
 	title: "SavingsCELO",
 	icon: <DesktopMac />,
 	iconLarge: <DesktopMac fontSize="large" />,
-	// url: "https://celovote.com",
+	url: "https://github.com/zviadm/savingscelo/wiki",
 	description: `
 	SavingsCELO is a tokenized representation of locked and voting CELO. Earn voter
 	rewards while still keeping your assets liquid and transferrable.
