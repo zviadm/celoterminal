@@ -11,6 +11,7 @@ import { UserError } from '../../../lib/error'
 import { coreErc20Decimals } from '../../../lib/erc20/core'
 import { fmtAmount } from '../../../lib/utils'
 import useLocalStorageState from '../../state/localstorage-state'
+import { addRegisteredErc20 } from '../../state/erc20list-state'
 
 import * as React from 'react'
 import {
@@ -19,6 +20,7 @@ import {
 import TabContext from '@material-ui/lab/TabContext'
 import TabList from '@material-ui/lab/TabList'
 import TabPanel from '@material-ui/lab/TabPanel'
+import HelpOutline from '@material-ui/icons/HelpOutline'
 
 import AppHeader from '../../components/app-header'
 import AppContainer from '../../components/app-container'
@@ -26,7 +28,7 @@ import AppSection from '../../components/app-section'
 import SectionTitle from '../../components/section-title'
 import NumberInput from '../../components/number-input'
 import PendingWithdrawals from '../locker/pending-withdrawals'
-import { addRegisteredErc20 } from '../../state/erc20list-state'
+import Link from '../../components/link'
 
 const sCELO = registeredErc20s().find((e) => e.symbol === "sCELO")
 
@@ -138,7 +140,12 @@ const SavingsCELOApp = (props: {
 			{fetched && <>
 			<AppSection>
 				<Typography>
-					<SectionTitle>Savings Balance</SectionTitle>
+					<SectionTitle>
+						Savings Balance
+						<Link href="https://github.com/zviadm/savingscelo/wiki#usage">
+							<HelpOutline style={{fontSize: 16, marginLeft: 4, verticalAlign: "text-top"}}/>
+						</Link>
+					</SectionTitle>
 					~{fmtAmount(fetched.sCELOasCELO, "CELO")} CELO&nbsp;
 					<Typography color="textSecondary" component="span">
 						(= {fmtAmount(fetched.sCELOAmount, sCELO.decimals)} sCELO)
