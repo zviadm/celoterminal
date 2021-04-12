@@ -1,6 +1,7 @@
+import { RegisteredErc20 } from "./core"
+
 import { convertMToken } from "./conversions/moola"
 import { convertSCELO } from "./conversions/savingscelo"
-import { RegisteredErc20 } from "./core"
 
 import { SavingsCELOAddressAlfajores } from "savingscelo"
 

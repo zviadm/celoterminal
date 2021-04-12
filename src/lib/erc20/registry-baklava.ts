@@ -1,5 +1,6 @@
-import { convertSCELO } from "./conversions/savingscelo"
 import { RegisteredErc20 } from "./core"
+
+import { convertSCELO } from "./conversions/savingscelo"
 
 import { SavingsCELOAddressBaklava } from "savingscelo"
 
