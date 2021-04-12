@@ -9,7 +9,7 @@ test('check fmtAmount edge cases', () => {
 	expect(
 		fmtAmount(new BigNumber(0.123e18), "CELO", 2)).toEqual("0.12")
 	expect(
-		fmtAmount(new BigNumber(0.00123e18), "CELO")).toEqual("0.0012")
+		fmtAmount(new BigNumber(0.0000123e18), "CELO")).toEqual("0.000012")
 	expect(
 		fmtAmount(new BigNumber(1000.1e18), "CELO")).toEqual("1,000.10")
 	expect(

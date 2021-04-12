@@ -47,9 +47,9 @@ export const registeredErc20ConversionRates = async (
 		if (!erc20.conversion) {
 			continue
 		}
-		const one = new BigNumber(1).shiftedBy(-erc20.decimals)
+		const one = new BigNumber(1).shiftedBy(erc20.decimals)
 		const rate: Promise<[string, BigNumber]> = erc20
-			.conversion(kit, erc20.symbol, one)
+			.conversion(kit, erc20, one)
 			.then(({coreErc20, amount}) => {
 				return [
 					erc20address,

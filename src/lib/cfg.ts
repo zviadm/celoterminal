@@ -67,7 +67,7 @@ export const networkName = (chainId: string): string => {
 const erc20Registry: {[key: string]: RegisteredErc20[]} = {
 	[mainnetChainId]: erc20Mainnet,
 	"62320": erc20Baklava,
-	"44784": erc20Alfajores,
+	"44787": erc20Alfajores,
 	[SpectronChainId]: erc20Devchain,
 }
 export const registeredErc20s = (): RegisteredErc20[] => {

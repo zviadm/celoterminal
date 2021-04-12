@@ -12,7 +12,7 @@ import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { SendReceive } from './def'
 import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
 import { useErc20List } from '../../state/erc20list-state'
-import { RegisteredErc20 } from '../../../lib/erc20/core'
+import { coreErc20Decimals, RegisteredErc20 } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
@@ -60,9 +60,14 @@ const SendReceiveApp = (props: {
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
 			const contract = await newErc20(kit, erc20)
-			const balance = contract.balanceOf(selectedAddress)
+			const balance = await contract.balanceOf(selectedAddress)
+			let asCoreErc20
+			if (erc20.conversion) {
+				asCoreErc20 = await erc20.conversion(kit, erc20, balance)
+			}
 			return {
-				balance: await balance,
+				balance,
+				asCoreErc20,
 			}
 		},
 		[selectedAddress, erc20]
@@ -193,6 +198,10 @@ const SendReceiveApp = (props: {
 				<Box marginTop={1}>
 					<Typography>
 						Balance: {!fetched ? "?" : fmtAmount(fetched.balance, erc20.decimals)} {erc20.symbol}
+						{fetched?.asCoreErc20 &&
+						<Typography color="textSecondary" component="span">
+							&nbsp;(~{fmtAmount(fetched.asCoreErc20.amount, coreErc20Decimals)} {fetched.asCoreErc20.coreErc20})
+						</Typography>}
 					</Typography>
 				</Box>
 			</AppSection>

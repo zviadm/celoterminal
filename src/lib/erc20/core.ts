@@ -24,7 +24,7 @@ export const coreErc20s: {
 export const coreStableTokens = coreErc20s.filter((e) => e.symbol !== "CELO")
 
 export type ConversionFunc = (
-	kit: ContractKit, symbol: string, amount: BigNumber) => Promise<{coreErc20: CeloTokenType, amount: BigNumber}>
+	kit: ContractKit, erc20: RegisteredErc20, amount: BigNumber) => Promise<{coreErc20: CeloTokenType, amount: BigNumber}>
 
 export interface RegisteredErc20 {
 	name: string,

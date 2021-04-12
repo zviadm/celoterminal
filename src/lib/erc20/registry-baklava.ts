@@ -1,10 +1,15 @@
 import { RegisteredErc20 } from "./core"
 
+import { convertSCELO } from "./conversions/savingscelo"
+
+import { SavingsCELOAddressBaklava } from "savingscelo"
+
 export const erc20Baklava: RegisteredErc20[] = [
 	{
 		name: "Savings CELO",
 		symbol: "sCELO",
-		address: "0x87AF5A902c22917A821077C86EbD873Dc64524Fc",
+		address: SavingsCELOAddressBaklava,
 		decimals: 18,
+		conversion: convertSCELO,
 	},
 ]
