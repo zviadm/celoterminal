@@ -30,7 +30,7 @@ import NumberInput from '../../components/number-input'
 import PendingWithdrawals from '../locker/pending-withdrawals'
 import Link from '../../components/link'
 
-const sCELO = registeredErc20s().find((e) => e.symbol === "sCELO")
+const sCELO = registeredErc20s.find((e) => e.symbol === "sCELO")
 
 const SavingsCELOApp = (props: {
 	accounts: Account[],

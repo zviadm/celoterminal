@@ -6,7 +6,7 @@ import { EstimatedFee, estimateGas } from './fee-estimation'
 import { ParsedTransaction, parseTransaction } from './transaction-parser'
 import { createWallet, rootAccount } from './wallet'
 import { CFG, explorerRootURL } from '../../../lib/cfg'
-import { SpectronChainId } from '../../../lib/spectron-utils/constants'
+import { spectronChainId } from '../../../lib/spectron-utils/constants'
 import { nowMS } from '../../state/time'
 import { sleep } from '../../../lib/utils'
 import { transformError } from '../ledger-utils'
@@ -82,7 +82,7 @@ const RunTXs = (props: {
 			try {
 				const w = await createWallet(selectedAccount, accounts, password)
 				const cfg = CFG()
-				if (cfg.chainId !== SpectronChainId) {
+				if (cfg.chainId !== spectronChainId) {
 					// NOTE: see comment in `createWallet` about limitations of celo-devchain.
 					const accounts = w.wallet.getAccounts()
 					if (accounts.length !== 1 ||
