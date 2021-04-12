@@ -1,5 +1,7 @@
-import { convertMToken } from "./conversions/moola"
 import { RegisteredErc20 } from "./core"
+
+import { convertMToken } from "./conversions/moola"
+import { convertSCELO } from "./conversions/savingscelo"
 
 export const erc20Mainnet: RegisteredErc20[] = [
 	{
@@ -15,5 +17,12 @@ export const erc20Mainnet: RegisteredErc20[] = [
 		address: "0x64dEFa3544c695db8c535D289d843a189aa26b98",
 		decimals: 18,
 		conversion: convertMToken,
+	},
+	{
+		name: "Savings CELO",
+		symbol: "sCELO",
+		address: "0x2879BFD5e7c4EF331384E908aaA3Bd3014b703fA",
+		decimals: 18,
+		conversion: convertSCELO,
 	},
 ]
