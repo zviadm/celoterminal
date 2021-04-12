@@ -61,8 +61,7 @@ const AddErc20 = (props: {
 		return () => { cancelled = true }
 	}, [customAddress])
 
-	const fullList = registeredErc20s()
-	const matchingErc20 = fullList.find((f) => f.symbol === erc20Symbol)
+	const matchingErc20 = registeredErc20s.find((f) => f.symbol === erc20Symbol)
 	const canAdd =
 		((tabIdx === "search") && matchingErc20) ||
 		((tabIdx === "custom") && customErc20)
@@ -97,7 +96,7 @@ const AddErc20 = (props: {
 						<Autocomplete
 							id="registered-erc20"
 							autoHighlight
-							options={fullList}
+							options={registeredErc20s}
 							renderOption={(o) => (
 								<ListItemText
 									primary={o.symbol}

@@ -12,9 +12,8 @@ export const useErc20List = (): {
 } => {
 	const [changeN, setChangeN] = React.useState(0)
 	const erc20s = React.useMemo(() => {
-		const fullList = registeredErc20s()
 		const registered = (registeredList()
-			.map((r) => fullList.find((f) => f.address === r.address))
+			.map((r) => registeredErc20s.find((f) => f.address === r.address))
 			.filter((v) => (v !== undefined)) as RegisteredErc20[])
 		const custom = customList()
 		const sorted = [
@@ -37,8 +36,7 @@ export const useErc20List = (): {
 // Adds new RegisteredErc20 to the list. This function should generally be used
 // through `AddErc20` component.
 export const addRegisteredErc20 = (symbol: string): RegisteredErc20 => {
-	const fullList = registeredErc20s()
-	const erc20 = fullList.find((r) => r.symbol === symbol)
+	const erc20 = registeredErc20s.find((r) => r.symbol === symbol)
 	if (!erc20 || !erc20.address) {
 		throw new Error(`Erc20: ${symbol} not found in registry.`)
 	}
@@ -64,8 +62,7 @@ export interface CustomErc20 {
 // Adds new custom ERC20 to the list. This function should generally be used
 // through `AddErc20` component.
 export const addCustomErc20 = (erc20: CustomErc20): RegisteredErc20 => {
-	const fullList = registeredErc20s()
-	const registeredErc20 = fullList.find((r) => r.address?.toLowerCase() === erc20.address.toLowerCase())
+	const registeredErc20 = registeredErc20s.find((r) => r.address?.toLowerCase() === erc20.address.toLowerCase())
 	if (registeredErc20) {
 		return addRegisteredErc20(registeredErc20.symbol)
 	}
