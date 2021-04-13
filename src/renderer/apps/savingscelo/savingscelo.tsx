@@ -1,12 +1,14 @@
-import { SavingsKit } from 'savingscelo'
 import { ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
+
+import { SavingsKit } from 'savingscelo'
+import { newSavingsCELOWithUbeKit } from 'savingscelo-with-ube'
 
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { SavingsCELO } from './def'
 import useOnChainState from '../../state/onchain-state'
-import { registeredErc20s } from '../../../lib/cfg'
+import { alfajoresChainId, CFG, registeredErc20s } from '../../../lib/cfg'
 import { UserError } from '../../../lib/error'
 import { coreErc20Decimals } from '../../../lib/erc20/core'
 import { fmtAmount } from '../../../lib/utils'
@@ -21,6 +23,7 @@ import TabContext from '@material-ui/lab/TabContext'
 import TabList from '@material-ui/lab/TabList'
 import TabPanel from '@material-ui/lab/TabPanel'
 import HelpOutline from '@material-ui/icons/HelpOutline'
+import Alert from '@material-ui/lab/Alert'
 
 import AppHeader from '../../components/app-header'
 import AppContainer from '../../components/app-container'
@@ -29,8 +32,12 @@ import SectionTitle from '../../components/section-title'
 import NumberInput from '../../components/number-input'
 import PendingWithdrawals from '../locker/pending-withdrawals'
 import Link from '../../components/link'
-import Alert from '@material-ui/lab/Alert'
+import ubeswapIcon from './ubeswap-icon.png'
 
+const savingsWithUbeAddresses: {[key: string]: string} = {
+	[alfajoresChainId]: "0x265f3762eb22CFBEb9D8fa00bBc9159e1aF01dA8",
+}
+const savingsWithUbeAddress: string = savingsWithUbeAddresses[CFG().chainId]
 const sCELO = registeredErc20s.find((e) => e.symbol === "sCELO")
 
 const SavingsCELOApp = (props: {
@@ -38,7 +45,7 @@ const SavingsCELOApp = (props: {
 	selectedAccount: Account,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
-	if (!sCELO || !sCELO.address) {
+	if (!sCELO || !sCELO.address || !savingsWithUbeAddress) {
 		throw new UserError(`SavingsCELO not supported on this network.`)
 	}
 	const [tab, setTab] = useLocalStorageState("terminal/savingscelo/tab", "deposit")
@@ -49,26 +56,22 @@ const SavingsCELOApp = (props: {
 		refetch,
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
-			if (!sCELO || !sCELO.address) {
-				throw new UserError(`SavingsCELO not supported on this network.`)
-			}
 			const goldToken = await kit.contracts.getGoldToken()
 			const celoAmount = goldToken.balanceOf(account.address)
-			const sKit = new SavingsKit(kit, sCELO.address)
-			const pendingWithdrawals = sKit.pendingWithdrawals(account.address)
-			const sCELOAmount = await sKit.contract.methods.balanceOf(account.address).call()
-			const sCELOasCELO = await sKit.contract.methods.savingsToCELO(sCELOAmount).call()
-			const sCELOAmountN = new BigNumber(sCELOAmount)
-			if (sCELOAmountN.gt(0)) {
+			const sKit = await newSavingsCELOWithUbeKit(kit, savingsWithUbeAddress)
+			const pendingWithdrawals = sKit.savingsKit.pendingWithdrawals(account.address)
+			const sCELOAmount = new BigNumber(
+				await sKit.savingsKit.contract.methods.balanceOf(account.address).call())
+			const sCELOasCELO = await sKit.savingsKit.savingsToCELO(sCELOAmount)
+			if (sCELOAmount.gt(0)) {
 				addRegisteredErc20("sCELO")
 			}
 			return {
 				celoAmount: await celoAmount,
-				sCELOAmount: sCELOAmountN,
-				sCELOasCELO: new BigNumber(sCELOasCELO),
 				pendingWithdrawals: await pendingWithdrawals,
+				sCELOAmount,
+				sCELOasCELO,
 			}
-
 		},
 		[account],
 	))
@@ -89,8 +92,7 @@ const SavingsCELOApp = (props: {
 	const handleDeposit = () => {
 		props.runTXs(
 			async (kit: ContractKit) => {
-				if (!sCELO || !sCELO.address) { return [] }
-				const sKit = new SavingsKit(kit, sCELO.address)
+				const sKit = await newSavingsCELOWithUbeKit(kit, savingsWithUbeAddress)
 				const amount = new BigNumber(toDeposit).shiftedBy(coreErc20Decimals)
 				const tx = sKit.deposit()
 				return [{tx: tx, params: {value: amount.toFixed(0)}}]
@@ -156,15 +158,23 @@ const SavingsCELOApp = (props: {
 			<TabContext value={tab}>
 				<AppSection innerPadding={0}>
 					<TabList onChange={(e, v) => { setTab(v) }}>
-						<Tab label="Deposit" value={"deposit"} />
-						<Tab label="Withdraw" value={"withdraw"} />
+						<Tab value={"deposit"} label="Deposit" />
+						<Tab value={"withdraw"} label="Withdraw" />
+						<Tab value={"sell"} label="Sell" />
+						<Tab
+							value={"ubeswap"}
+							label={<Box display="flex">
+								<span style={{marginRight: 5}}>Ubeswap</span>
+								<img src={ubeswapIcon} width={20} />
+							</Box>}
+						/>
 					</TabList>
 					<TabPanel value="deposit">
 						<Box display="flex" flexDirection="column">
-							<Alert severity="info">
-								If you want to provide liquidity to CELO&#2194;sCELO Ubeswap pool go to Ubeswap
-								tab directly. That way you can safely and atomically convert portion of your CELO to
-								sCELO and add liquidity to Ubeswap in correct proportions.
+							<Alert severity="info" style={{marginBottom: 10}}>
+								If you want to provide liquidity to CELO+sCELO Ubeswap pool, go to the Ubeswap
+								tab directly. From there, you can safely convert portion of your CELO to
+								sCELO and add liquidity to Ubeswap in correct proportions, all in a single transaction.
 							</Alert>
 							<NumberInput
 								autoFocus
@@ -199,12 +209,18 @@ const SavingsCELOApp = (props: {
 								maxValue={maxToWithdraw}
 							/>
 							<Button
-								id="deposit"
+								id="withdraw"
 								color="primary"
 								variant="outlined"
 								disabled={!canWithdraw}
 								onClick={handleWithdrawStart}>Withdraw</Button>
 						</Box>
+					</TabPanel>
+					<TabPanel value="sell">
+
+					</TabPanel>
+					<TabPanel value="ubeswap">
+
 					</TabPanel>
 				</AppSection>
 				{tab === "withdraw" && fetched && fetched.pendingWithdrawals.length > 0 &&
@@ -221,3 +237,4 @@ const SavingsCELOApp = (props: {
 	)
 }
 export default SavingsCELOApp
+
