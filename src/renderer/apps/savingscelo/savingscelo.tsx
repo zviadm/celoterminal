@@ -29,6 +29,7 @@ import SectionTitle from '../../components/section-title'
 import NumberInput from '../../components/number-input'
 import PendingWithdrawals from '../locker/pending-withdrawals'
 import Link from '../../components/link'
+import Alert from '@material-ui/lab/Alert'
 
 const sCELO = registeredErc20s.find((e) => e.symbol === "sCELO")
 
@@ -160,6 +161,11 @@ const SavingsCELOApp = (props: {
 					</TabList>
 					<TabPanel value="deposit">
 						<Box display="flex" flexDirection="column">
+							<Alert severity="info">
+								If you want to provide liquidity to CELO&#2194;sCELO Ubeswap pool go to Ubeswap
+								tab directly. That way you can safely and atomically convert portion of your CELO to
+								sCELO and add liquidity to Ubeswap in correct proportions.
+							</Alert>
 							<NumberInput
 								autoFocus
 								margin="dense"
