@@ -47,4 +47,12 @@ export const erc20Registry: {
 			alfajores: SavingsCELOAddressAlfajores,
 		},
 	},
+	{
+		name: "Ubeswap LP Token (CELO+sCELO)",
+		symbol: "ULP-CELO+sCELO",
+		decimals: 18,
+		addresses: {
+			alfajores: "0x58a3dc80EC8b6aE44AbD2e2b2A30F230b14B45c3",
+		},
+	}
 ]

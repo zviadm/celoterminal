@@ -17,7 +17,8 @@ import { addRegisteredErc20 } from '../../state/erc20list-state'
 
 import * as React from 'react'
 import {
-	Box, Button, Tab, Typography
+	Box, Button, Tab, Typography,
+	Table, TableBody, TableRow, TableCell,
 } from '@material-ui/core'
 import TabContext from '@material-ui/lab/TabContext'
 import TabList from '@material-ui/lab/TabList'
@@ -63,6 +64,7 @@ const SavingsCELOApp = (props: {
 			const sKit = await newSavingsCELOWithUbeKit(kit, savingsWithUbeAddress)
 			const reserves = sKit.reserves()
 			const pendingWithdrawals = sKit.savingsKit.pendingWithdrawals(account.address)
+			const _liquidityAmount = sKit.liquidityBalanceOf(account.address)
 			const savingsSupplies = await sKit.savingsKit.totalSupplies()
 			const sCELOAmount = new BigNumber(
 				await sKit.savingsKit.contract.methods.balanceOf(account.address).call())
@@ -71,11 +73,21 @@ const SavingsCELOApp = (props: {
 			if (sCELOAmount.gt(0)) {
 				addRegisteredErc20("sCELO")
 			}
+			const liquidityAmount = await _liquidityAmount
+			if (liquidityAmount.liquidity.gt(0)) {
+				addRegisteredErc20("ULP-CELO+sCELO")
+			}
+			const liquidityTotal_sCELOasCELO = savingsToCELO(
+				liquidityAmount.balance_sCELO, savingsSupplies.savingsTotal, savingsSupplies.celoTotal)
+			const liquidityTotal_CELO = liquidityAmount.balance_CELO.plus(liquidityTotal_sCELOasCELO)
+			const liquidityRatio_CELO = liquidityAmount.balance_CELO.div(liquidityTotal_CELO)
 			return {
 				celoAmount: await celoAmount,
 				pendingWithdrawals: await pendingWithdrawals,
 				sCELOAmount,
 				sCELOasCELO,
+				liquidityTotal_CELO,
+				liquidityRatio_CELO,
 				ubeReserves: await reserves,
 				savingsSupplies,
 			}
@@ -185,18 +197,34 @@ const SavingsCELOApp = (props: {
 			<AppHeader app={SavingsCELO} isFetching={isFetching} refetch={refetch} />
 			{fetched && <>
 			<AppSection>
-				<Typography>
-					<SectionTitle>
-						Savings Balance
-						<Link href="https://github.com/zviadm/savingscelo/wiki#usage">
-							<HelpOutline style={{fontSize: 16, marginLeft: 4, verticalAlign: "text-top"}}/>
-						</Link>
-					</SectionTitle>
-					~{fmtAmount(fetched.sCELOasCELO, "CELO")} CELO&nbsp;
-					<Typography color="textSecondary" component="span">
-						(= {fmtAmount(fetched.sCELOAmount, sCELO.decimals)} sCELO)
-					</Typography>
-				</Typography>
+				<SectionTitle>
+					Savings Balance
+					<Link href="https://github.com/zviadm/savingscelo/wiki#usage">
+						<HelpOutline style={{fontSize: 16, marginLeft: 4, verticalAlign: "text-top"}}/>
+					</Link>
+				</SectionTitle>
+				<Table size="small">
+					<TableBody>
+						<TableRow>
+							<TableCell>Savings</TableCell>
+							<TableCell>
+								~{fmtAmount(fetched.sCELOasCELO, "CELO")} CELO&nbsp;
+								<Typography color="textSecondary" component="span">
+									(= {fmtAmount(fetched.sCELOAmount, sCELO.decimals)} sCELO)
+								</Typography>
+							</TableCell>
+						</TableRow>
+						{fetched.liquidityTotal_CELO.gt(0) &&
+						<TableRow>
+							<TableCell>Ubeswap LP</TableCell>
+							<TableCell>
+								~{fmtAmount(fetched.liquidityTotal_CELO, "CELO")} CELO&nbsp;
+								({fetched.liquidityRatio_CELO.multipliedBy(100).toFixed(0)}% CELO&nbsp;/&nbsp;
+								{fetched.liquidityRatio_CELO.minus(1).negated().multipliedBy(100).toFixed(0)}% sCELO)
+							</TableCell>
+						</TableRow>}
+					</TableBody>
+				</Table>
 			</AppSection>
 			<TabContext value={tab}>
 				<AppSection innerPadding={0}>
