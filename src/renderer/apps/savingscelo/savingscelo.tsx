@@ -1,7 +1,7 @@
 import { ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
 
-import { SavingsKit } from 'savingscelo'
+import { SavingsKit, savingsToCELO } from 'savingscelo'
 import { newSavingsCELOWithUbeKit } from 'savingscelo-with-ube'
 
 import { Account } from '../../../lib/accounts/accounts'
@@ -33,6 +33,7 @@ import NumberInput from '../../components/number-input'
 import PendingWithdrawals from '../locker/pending-withdrawals'
 import Link from '../../components/link'
 import ubeswapIcon from './ubeswap-icon.png'
+import SellOnUbe from './sell-on-ube'
 
 const savingsWithUbeAddresses: {[key: string]: string} = {
 	[alfajoresChainId]: "0x265f3762eb22CFBEb9D8fa00bBc9159e1aF01dA8",
@@ -59,10 +60,13 @@ const SavingsCELOApp = (props: {
 			const goldToken = await kit.contracts.getGoldToken()
 			const celoAmount = goldToken.balanceOf(account.address)
 			const sKit = await newSavingsCELOWithUbeKit(kit, savingsWithUbeAddress)
+			const reserves = sKit.reserves()
 			const pendingWithdrawals = sKit.savingsKit.pendingWithdrawals(account.address)
+			const savingsSupplies = await sKit.savingsKit.totalSupplies()
 			const sCELOAmount = new BigNumber(
 				await sKit.savingsKit.contract.methods.balanceOf(account.address).call())
-			const sCELOasCELO = await sKit.savingsKit.savingsToCELO(sCELOAmount)
+			const sCELOasCELO = savingsToCELO(
+				sCELOAmount, savingsSupplies.savingsTotal, savingsSupplies.celoTotal)
 			if (sCELOAmount.gt(0)) {
 				addRegisteredErc20("sCELO")
 			}
@@ -71,6 +75,8 @@ const SavingsCELOApp = (props: {
 				pendingWithdrawals: await pendingWithdrawals,
 				sCELOAmount,
 				sCELOasCELO,
+				ubeReserves: await reserves,
+				savingsSupplies,
 			}
 		},
 		[account],
@@ -160,7 +166,13 @@ const SavingsCELOApp = (props: {
 					<TabList onChange={(e, v) => { setTab(v) }}>
 						<Tab value={"deposit"} label="Deposit" />
 						<Tab value={"withdraw"} label="Withdraw" />
-						<Tab value={"sell"} label="Sell" />
+						<Tab
+							value={"sell"}
+							label={<Box display="flex">
+								<span style={{marginRight: 5}}>Sell</span>
+								<img src={ubeswapIcon} width={20} />
+							</Box>}
+						/>
 						<Tab
 							value={"ubeswap"}
 							label={<Box display="flex">
@@ -217,7 +229,13 @@ const SavingsCELOApp = (props: {
 						</Box>
 					</TabPanel>
 					<TabPanel value="sell">
-
+						<SellOnUbe
+							sCELOasCELO={fetched.sCELOasCELO}
+							ubeReserve_CELO={fetched.ubeReserves.reserve_CELO}
+							ubeReserve_sCELO={fetched.ubeReserves.reserve_sCELO}
+							savingsTotal_CELO={fetched.savingsSupplies.celoTotal}
+							savingsTotal_sCELO={fetched.savingsSupplies.savingsTotal}
+						/>
 					</TabPanel>
 					<TabPanel value="ubeswap">
 
