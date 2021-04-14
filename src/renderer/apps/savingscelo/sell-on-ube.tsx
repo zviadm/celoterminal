@@ -96,7 +96,7 @@ const SellOnUbe = (props: {
 			</Table>
 			{sellImpact.lt(-0.01) &&
 			<Alert severity="error" style={{marginTop: 10, marginBottom: 10}}>
-				If you sell your sCELO right now instead of going through the withdraw flow, you
+				If you sell your sCELO right now, instead of going through the withdraw flow, you
 				will lose {sellImpact.negated().multipliedBy(100).toFixed(2)}% of your value!
 			</Alert>}
 			<Button
