@@ -5,5 +5,8 @@ export const ubeGetAmountOut = (
 	reserveIn: BigNumber,
 	reserveOut: BigNumber): BigNumber => {
 	const amountWithFee = new BigNumber(amountIn).multipliedBy(0.997)
-	return amountWithFee.multipliedBy(reserveOut).div(reserveIn.plus(amountWithFee)).integerValue()
+	return amountWithFee
+		.multipliedBy(reserveOut)
+		.div(reserveIn.plus(amountWithFee))
+		.integerValue(BigNumber.ROUND_DOWN)
 }

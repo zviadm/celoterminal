@@ -12606,22 +12606,22 @@ sass-loader@9.0.3:
     schema-utils "^2.7.0"
     semver "^7.3.2"
 
-savingscelo-with-ube@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/savingscelo-with-ube/-/savingscelo-with-ube-1.1.0.tgz#6747a9ae5e2e3444e549b9c66a8e2ae31cbda89c"
-  integrity sha512-PvXu3K59iS+HV638rMjip6hdccNVl7n5q/EaH6SgXoq5UHMIl/NsHdD5aS6HiF6Wja4L62XZMqcwX7nOQ4Rm6A==
+savingscelo-with-ube@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/savingscelo-with-ube/-/savingscelo-with-ube-1.1.1.tgz#0a4eee2e98087d59cfa23c8a21af4ad971ceaa41"
+  integrity sha512-E9HqeP+BKO2nvEB0Zbyoe7D14qBh8zcxZWFDavPpl/arY96EpOw3j2ytpI65y9FM8zjLZkEYM26LxcnTLWHQnA==
   dependencies:
     "@celo/connect" "1.1.0"
     "@celo/contractkit" "1.1.0"
     bignumber.js "^9.0.1"
-    savingscelo "^3.1.0"
+    savingscelo "^3.1.1"
     web3 "^1.3.4"
     web3-utils "^1.3.0"
 
-savingscelo@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/savingscelo/-/savingscelo-3.1.0.tgz#581bb9433ec8b47c92acd9b27d199d2b2f36e56a"
-  integrity sha512-EFpB5I7DMXG1su0/IVr5ZxL2+SX6kp4NLmyQJrRQhV43FzVxCsj+05v1jWd/+9curFnQCShu67+yRuGVGKDEHw==
+savingscelo@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/savingscelo/-/savingscelo-3.1.1.tgz#6c4d5db72af1fd3640f8755d6bb87fbdb7b44c77"
+  integrity sha512-9f/hufpmduZGh1CVueZoWINaUOQFa1Y8ILUd/lodBKwGaBICMwhKgemaAxCImsSmIRM6UW9qAzo1Rz9IzHIcDA==
   dependencies:
     "@celo/connect" "1.1.0"
     "@celo/contractkit" "1.1.0"

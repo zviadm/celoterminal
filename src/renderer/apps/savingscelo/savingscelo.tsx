@@ -34,6 +34,7 @@ import PendingWithdrawals from '../locker/pending-withdrawals'
 import Link from '../../components/link'
 import ubeswapIcon from './ubeswap-icon.png'
 import SellOnUbe from './sell-on-ube'
+import { toTransactionObject } from '@celo/connect'
 
 const savingsWithUbeAddresses: {[key: string]: string} = {
 	[alfajoresChainId]: "0x265f3762eb22CFBEb9D8fa00bBc9159e1aF01dA8",
@@ -90,10 +91,12 @@ const SavingsCELOApp = (props: {
 	const maxToWithdraw = fetched?.sCELOasCELO.shiftedBy(-coreErc20Decimals)
 	const canWithdraw = maxToWithdraw?.gte(toWithdraw)
 
-	const onFinishTXs = () => {
+	const onFinishTXs = (e?: Error) => {
 		refetch()
-		setToDeposit("")
-		setToWithdraw("")
+		if (!e) {
+			setToDeposit("")
+			setToWithdraw("")
+		}
 	}
 	const handleDeposit = () => {
 		props.runTXs(
@@ -142,6 +145,40 @@ const SavingsCELOApp = (props: {
 			onFinishTXs,
 		)
 	}
+	const handleSellOnUbe = (
+		toSell_CELO: BigNumber,
+		receiveMin_CELO: BigNumber,
+		cb: (e?: Error) => void) => {
+		props.runTXs(
+			async (kit: ContractKit) => {
+				const goldToken = await kit.contracts.getGoldToken()
+				const sKit = await newSavingsCELOWithUbeKit(kit, savingsWithUbeAddress)
+				const toSell_sCELO = fetched?.sCELOasCELO.eq(toSell_CELO) ?
+					fetched.sCELOAmount :
+					await sKit.savingsKit.celoToSavings(toSell_CELO)
+				// TODO(zviad): infinite approval.
+				const approveTX = toTransactionObject(
+					kit.connection,
+					sKit.savingsKit.contract.methods.increaseAllowance(
+						sKit.router.options.address,
+						toSell_sCELO.toString(10)))
+				const tx = toTransactionObject(
+					kit.connection,
+					sKit.router.methods.swapExactTokensForTokens(
+						toSell_sCELO.toString(10),
+						receiveMin_CELO.toString(10),
+						[sKit.savingsKit.contractAddress, goldToken.address],
+						account.address,
+						// Use a long deadline to make sure user can confirm and send the transaction
+						// in that time period.
+						Math.floor((new Date().getTime() / 1000) + 600),
+					))
+				return [{tx: approveTX}, {tx: tx}]
+			},
+			cb,
+		)
+
+	}
 
 	return (
 		<AppContainer>
@@ -186,7 +223,7 @@ const SavingsCELOApp = (props: {
 							<Alert severity="info" style={{marginBottom: 10}}>
 								If you want to provide liquidity to CELO+sCELO Ubeswap pool, go to the Ubeswap
 								tab directly. From there, you can safely convert portion of your CELO to
-								sCELO and add liquidity to Ubeswap in correct proportions, all in a single transaction.
+								sCELO and add liquidity to the Ubeswap pool in correct proportions, all in a single transaction.
 							</Alert>
 							<NumberInput
 								autoFocus
@@ -235,6 +272,7 @@ const SavingsCELOApp = (props: {
 							ubeReserve_sCELO={fetched.ubeReserves.reserve_sCELO}
 							savingsTotal_CELO={fetched.savingsSupplies.celoTotal}
 							savingsTotal_sCELO={fetched.savingsSupplies.savingsTotal}
+							onSell={handleSellOnUbe}
 						/>
 					</TabPanel>
 					<TabPanel value="ubeswap">

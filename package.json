@@ -52,8 +52,8 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-password-strength-bar": "0.3.2",
-    "savingscelo": "^3.1.0",
-    "savingscelo-with-ube": "^1.1.0",
+    "savingscelo": "^3.1.1",
+    "savingscelo-with-ube": "^1.1.1",
     "source-map-support": "^0.5.16",
     "web3": "^1.3.0"
   },
