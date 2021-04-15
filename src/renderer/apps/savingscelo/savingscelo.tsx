@@ -89,6 +89,8 @@ const SavingsCELOApp = (props: {
 				liquidityAmount.balance_sCELO, savingsTotals.savingsTotal, savingsTotals.celoTotal)
 			const liquidityTotal_CELO = liquidityAmount.balance_CELO.plus(liquidityTotal_sCELOasCELO)
 			const liquidityRatio_CELO = liquidityAmount.balance_CELO.div(liquidityTotal_CELO)
+			// TODO(zviad): is there alfajores link?
+			const ubeswapPoolURL = `https://info.ubeswap.org/pair/${sKit.pair.options.address}`
 			return {
 				pendingWithdrawals: await pendingWithdrawals,
 				balance_CELO: await balance_CELO,
@@ -100,6 +102,7 @@ const SavingsCELOApp = (props: {
 				liquidityRatio_CELO,
 				ubeReserves: await reserves,
 				savingsTotals,
+				ubeswapPoolURL,
 			}
 		},
 		[account],
@@ -302,6 +305,7 @@ const SavingsCELOApp = (props: {
 							ubeReserve_sCELO={fetched.ubeReserves.reserve_sCELO}
 							savingsTotal_CELO={fetched.savingsTotals.celoTotal}
 							savingsTotal_sCELO={fetched.savingsTotals.savingsTotal}
+							ubeswapPoolURL={fetched.ubeswapPoolURL}
 							onSell={handleSellOnUbe}
 						/>
 					</TabPanel>
@@ -314,6 +318,7 @@ const SavingsCELOApp = (props: {
 							ubeReserve_sCELO={fetched.ubeReserves.reserve_sCELO}
 							savingsTotal_CELO={fetched.savingsTotals.celoTotal}
 							savingsTotal_sCELO={fetched.savingsTotals.savingsTotal}
+							ubeswapPoolURL={fetched.ubeswapPoolURL}
 							onAddLiquidity={handleAddLiquidity}
 						/>
 					</TabPanel>

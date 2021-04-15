@@ -14,6 +14,7 @@ import Alert from '@material-ui/lab/Alert'
 import HelpOutline from '@material-ui/icons/HelpOutline'
 
 import NumberInput from '../../components/number-input'
+import Link from '../../components/link'
 
 const SellOnUbe = (props: {
 	balance_sCELO: BigNumber,
@@ -22,6 +23,7 @@ const SellOnUbe = (props: {
 	ubeReserve_sCELO: BigNumber,
 	savingsTotal_CELO: BigNumber,
 	savingsTotal_sCELO: BigNumber,
+	ubeswapPoolURL: string,
 	onSell: (
 		toSell_CELO: BigNumber,
 		receiveMin_CELO: BigNumber,
@@ -61,6 +63,9 @@ const SellOnUbe = (props: {
 	}
 	return (
 		<Box display="flex" flexDirection="column">
+			<Alert severity="info" style={{marginBottom: 10}}>
+				<Link href={props.ubeswapPoolURL}>Ubeswap CELO+sCELO Pool</Link>
+			</Alert>
 			<Alert severity="info" style={{marginBottom: 10}}>
 				You can sell your sCELO on the Ubeswap exchange if you do not want to wait for the
 				unlocking period of the withdraw flow.
