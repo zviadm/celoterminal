@@ -56,7 +56,8 @@ const LPOnUbe = (props: {
 		.div(props.ubeReserve_sCELO)
 		.shiftedBy(-coreErc20Decimals).decimalPlaces(2, BigNumber.ROUND_UP)
 	const maxToAdd_sCELO = props.sCELOasCELO.shiftedBy(-coreErc20Decimals)
-	const maxToAdd_CELO = props.balance_CELO.shiftedBy(-coreErc20Decimals)
+	const maxToAdd_CELO = BigNumber.maximum(
+		props.balance_CELO.shiftedBy(-coreErc20Decimals).minus(0.001), 0)
 	const canAdd = (toAdd_sCELO || toAdd_CELO) &&
 		maxToAdd_sCELO.gte(toAdd_sCELO || 0) &&
 		maxToAdd_CELO.gte(toAdd_CELO || 0) &&

@@ -15,7 +15,7 @@ const Deposit = (props: {
 }): JSX.Element => {
 	const [toDeposit, setToDeposit] = React.useState("")
 	const maxToDeposit = BigNumber.maximum(
-		props.balance_CELO.shiftedBy(-coreErc20Decimals).minus(0.0001), 0)
+		props.balance_CELO.shiftedBy(-coreErc20Decimals).minus(0.001), 0)
 	const canDeposit = maxToDeposit.gte(toDeposit)
 	const handleDeposit = () => {
 		props.onDeposit(
