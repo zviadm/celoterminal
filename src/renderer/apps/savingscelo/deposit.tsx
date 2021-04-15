@@ -34,7 +34,7 @@ const Deposit = (props: {
 				autoFocus
 				margin="normal"
 				id="deposit-celo-input"
-				label={`Deposit (max: ${fmtAmount(props.balance_CELO, "CELO")})`}
+				label={`Deposit (max: ${fmtAmount(props.balance_CELO, "CELO")} CELO)`}
 				InputLabelProps={{shrink: true}}
 				value={toDeposit}
 				onChangeValue={setToDeposit}
