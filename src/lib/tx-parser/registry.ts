@@ -1,10 +1,7 @@
-
-// List of manually verified contracts that are confirmed to indeed belong to a
-// specifict projects. Contracts that ERC20 compatible should be placed in
-
 import { SavingsCELOWithUbeV1AddressAlfajores, SavingsCELOWithUbeV1AddressMainnet } from "savingscelo-with-ube";
 
-// ERC20 registry instead.
+// List of manually verified contracts that are confirmed to indeed belong to a
+// specific project. Contracts that ERC20 compatible should be placed in the ERC20 registry instead.
 export const contractNamesRegistry: {
 	name: string,
 	addresses: {
