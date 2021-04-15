@@ -3,13 +3,17 @@ import { toTransactionObject } from '@celo/connect'
 import BigNumber from 'bignumber.js'
 
 import { SavingsKit, savingsToCELO } from 'savingscelo'
-import { newSavingsCELOWithUbeKit, SavingsCELOWithUbeV1AddressAlfajores } from 'savingscelo-with-ube'
+import {
+	newSavingsCELOWithUbeKit,
+	SavingsCELOWithUbeV1AddressAlfajores,
+	SavingsCELOWithUbeV1AddressMainnet,
+} from 'savingscelo-with-ube'
 
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { SavingsCELO } from './def'
 import useOnChainState from '../../state/onchain-state'
-import { alfajoresChainId, CFG, registeredErc20s } from '../../../lib/cfg'
+import { alfajoresChainId, CFG, mainnetChainId, registeredErc20s } from '../../../lib/cfg'
 import { UserError } from '../../../lib/error'
 import { fmtAmount } from '../../../lib/utils'
 import useLocalStorageState from '../../state/localstorage-state'
@@ -39,6 +43,7 @@ import Withdraw from './withdraw'
 
 const savingsWithUbeAddresses: {[key: string]: string} = {
 	[alfajoresChainId]: SavingsCELOWithUbeV1AddressAlfajores,
+	[mainnetChainId]: SavingsCELOWithUbeV1AddressMainnet,
 }
 const savingsWithUbeAddress: string = savingsWithUbeAddresses[CFG().chainId]
 const sCELO = registeredErc20s.find((e) => e.symbol === "sCELO")
@@ -153,11 +158,18 @@ const SavingsCELOApp = (props: {
 				const goldToken = await kit.contracts.getGoldToken()
 				const sKit = await newSavingsCELOWithUbeKit(kit, savingsWithUbeAddress)
 				// TODO(zviad): infinite approval.
-				const approveTX = toTransactionObject(
-					kit.connection,
-					sKit.savingsKit.contract.methods.increaseAllowance(
-						sKit.router.options.address,
-						toSell_sCELO.toString(10)))
+				const allowance_sCELO = await sKit.savingsKit.contract.methods
+					.allowance(account.address, sKit.router.options.address).call()
+				const approveTXs = []
+				if (toSell_sCELO.gt(allowance_sCELO)) {
+					approveTXs.push(
+						toTransactionObject(
+							kit.connection,
+							sKit.savingsKit.contract.methods.increaseAllowance(
+								sKit.router.options.address,
+								toSell_sCELO.toString(10)))
+					)
+				}
 				const tx = toTransactionObject(
 					kit.connection,
 					sKit.router.methods.swapExactTokensForTokens(
@@ -169,7 +181,7 @@ const SavingsCELOApp = (props: {
 						// in that time period.
 						Math.floor((new Date().getTime() / 1000) + 600),
 					))
-				return [{tx: approveTX}, {tx: tx}]
+				return [...approveTXs.map((tx) => ({tx: tx})), {tx: tx}]
 			},
 			onFinishTXs(cb),
 		)

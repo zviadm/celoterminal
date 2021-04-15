@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { celoToSavings, savingsToCELO } from 'savingscelo'
+import { celoToSavings } from 'savingscelo'
 import { maxLossFromPriceChange } from 'savingscelo-with-ube'
 
 import { coreErc20Decimals } from '../../../lib/erc20/core'
@@ -31,7 +31,7 @@ const LPOnUbe = (props: {
 		maxReserveRatio: BigNumber,
 		cb: (e?: Error) => void) => void,
 }): JSX.Element => {
-	const [toAdd_sCELO, setToAdd_sCELO] = React.useState("")
+	const [toAdd_sCELO_as_CELO, setToAdd_sCELO_as_CELO] = React.useState("")
 	const [toAdd_CELO, setToAdd_CELO] = React.useState("")
 	const reserveRatioOptions = ["1.01", "1.05", "1.10"]
 	const [maxReserveRatio, setMaxReserveRatio] = useLocalStorageState(
@@ -40,26 +40,30 @@ const LPOnUbe = (props: {
 		setMaxReserveRatio(reserveRatioOptions[1])
 	}
 
-	const ubeReserve_sCELOasCELO = savingsToCELO(
-		props.ubeReserve_sCELO, props.savingsTotal_sCELO, props.savingsTotal_CELO)
-	const reserveRatio = BigNumber.maximum(
-		props.ubeReserve_CELO.div(ubeReserve_sCELOasCELO),
-		ubeReserve_sCELOasCELO.div(props.ubeReserve_CELO),
-	)
+	const ubeReserve_CELO_as_sCELO = celoToSavings(
+		props.ubeReserve_CELO, props.savingsTotal_CELO, props.savingsTotal_sCELO)
+	const reserveRatio = (props.ubeReserve_CELO.eq(0) && props.ubeReserve_sCELO.eq(0)) ?
+		new BigNumber(1) : BigNumber.maximum(
+			props.ubeReserve_sCELO.div(ubeReserve_CELO_as_sCELO),
+			ubeReserve_CELO_as_sCELO.div(props.ubeReserve_sCELO),
+		)
 	const maxLossPct = maxLossFromPriceChange(reserveRatio).multipliedBy(100)
 
-	const minToAdd_CELO = celoToSavings(
-		new BigNumber(toAdd_sCELO || 0).shiftedBy(coreErc20Decimals),
-		props.savingsTotal_CELO,
-		props.savingsTotal_sCELO)
-		.multipliedBy(props.ubeReserve_CELO)
-		.div(props.ubeReserve_sCELO)
-		.shiftedBy(-coreErc20Decimals).decimalPlaces(2, BigNumber.ROUND_UP)
+	const minToAdd_CELO = ((props.ubeReserve_CELO.eq(0) && props.ubeReserve_sCELO.eq(0)) ?
+		new BigNumber(toAdd_sCELO_as_CELO || 0).shiftedBy(coreErc20Decimals) :
+		celoToSavings(
+			new BigNumber(toAdd_sCELO_as_CELO || 0).shiftedBy(coreErc20Decimals),
+			props.savingsTotal_CELO,
+			props.savingsTotal_sCELO)
+			.multipliedBy(props.ubeReserve_CELO)
+			.div(props.ubeReserve_sCELO)
+		).shiftedBy(-coreErc20Decimals).decimalPlaces(2, BigNumber.ROUND_UP)
+
 	const maxToAdd_sCELO = props.sCELOasCELO.shiftedBy(-coreErc20Decimals)
 	const maxToAdd_CELO = BigNumber.maximum(
 		props.balance_CELO.shiftedBy(-coreErc20Decimals).minus(0.001), 0)
-	const canAdd = (toAdd_sCELO || toAdd_CELO) &&
-		maxToAdd_sCELO.gte(toAdd_sCELO || 0) &&
+	const canAdd = (toAdd_sCELO_as_CELO || toAdd_CELO) &&
+		maxToAdd_sCELO.gte(toAdd_sCELO_as_CELO || 0) &&
 		maxToAdd_CELO.gte(toAdd_CELO || 0) &&
 		minToAdd_CELO.lte(toAdd_CELO || 0) &&
 		reserveRatio.lte(maxReserveRatio)
@@ -67,7 +71,7 @@ const LPOnUbe = (props: {
 	const handleAdd = () => {
 		const _toAdd_CELO = new BigNumber(toAdd_CELO || 0).shiftedBy(coreErc20Decimals)
 		const _toAdd_sCELO = celoToSavingsWithMax(
-			new BigNumber(toAdd_sCELO || 0).shiftedBy(coreErc20Decimals),
+			new BigNumber(toAdd_sCELO_as_CELO || 0).shiftedBy(coreErc20Decimals),
 			props.balance_sCELO,
 			props.savingsTotal_CELO,
 			props.savingsTotal_sCELO,
@@ -77,7 +81,7 @@ const LPOnUbe = (props: {
 			(e?: Error) => {
 				if (!e) {
 					setToAdd_CELO("")
-					setToAdd_sCELO("")
+					setToAdd_sCELO_as_CELO("")
 				}
 			})
 	}
@@ -94,8 +98,8 @@ const LPOnUbe = (props: {
 				id="add-scelo-input"
 				label={`sCELO amount as CELO (max: ${fmtAmount(props.sCELOasCELO, "CELO")})`}
 				InputLabelProps={{shrink: true}}
-				value={toAdd_sCELO}
-				onChangeValue={setToAdd_sCELO}
+				value={toAdd_sCELO_as_CELO}
+				onChangeValue={setToAdd_sCELO_as_CELO}
 				maxValue={maxToAdd_sCELO}
 			/>
 			<NumberInput
