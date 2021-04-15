@@ -4,6 +4,8 @@ import { maxLossFromPriceChange } from 'savingscelo-with-ube'
 
 import { coreErc20Decimals } from '../../../lib/erc20/core'
 import { fmtAmount } from '../../../lib/utils'
+import { celoToSavingsWithMax } from './utils'
+import useLocalStorageState from '../../state/localstorage-state'
 
 import * as React from 'react'
 import {
@@ -13,9 +15,7 @@ import Alert from '@material-ui/lab/Alert'
 import HelpOutline from '@material-ui/icons/HelpOutline'
 
 import NumberInput from '../../components/number-input'
-import useLocalStorageState from '../../state/localstorage-state'
 import Link from '../../components/link'
-import { celoToSavingsWithMax } from './utils'
 
 const LPOnUbe = (props: {
 	balance_CELO: BigNumber,
@@ -103,7 +103,6 @@ const LPOnUbe = (props: {
 				maxValue={maxToAdd_sCELO}
 			/>
 			<NumberInput
-				autoFocus
 				margin="normal"
 				id="add-scelo-input"
 				label={`CELO amount ` +

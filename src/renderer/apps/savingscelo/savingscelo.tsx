@@ -16,8 +16,9 @@ import useOnChainState from '../../state/onchain-state'
 import { alfajoresChainId, CFG, mainnetChainId, registeredErc20s } from '../../../lib/cfg'
 import { UserError } from '../../../lib/error'
 import { fmtAmount } from '../../../lib/utils'
-import useLocalStorageState from '../../state/localstorage-state'
 import { addRegisteredErc20 } from '../../state/erc20list-state'
+import useLocalStorageState from '../../state/localstorage-state'
+import { Erc20InfiniteAmount } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
@@ -40,6 +41,7 @@ import SellOnUbe from './sell-on-ube'
 import LPOnUbe from './lp-on-ube'
 import Deposit from './deposit'
 import Withdraw from './withdraw'
+import RemoveLiquidity from './remove-liquidity'
 
 const savingsWithUbeAddresses: {[key: string]: string} = {
 	[alfajoresChainId]: SavingsCELOWithUbeV1AddressAlfajores,
@@ -78,6 +80,7 @@ const SavingsCELOApp = (props: {
 			if (balance_sCELO.gt(0)) {
 				addRegisteredErc20("sCELO")
 			}
+			const liquidityTotal_ULP = new BigNumber(await sKit.pair.methods.totalSupply().call())
 			const liquidityAmount = await _liquidityAmount
 			if (liquidityAmount.liquidity.gt(0)) {
 				addRegisteredErc20("ULP-CELO+sCELO")
@@ -91,6 +94,8 @@ const SavingsCELOApp = (props: {
 				balance_CELO: await balance_CELO,
 				balance_sCELO,
 				sCELOasCELO,
+				balance_ULP: liquidityAmount.liquidity,
+				liquidityTotal_ULP,
 				liquidityTotal_CELO,
 				liquidityRatio_CELO,
 				ubeReserves: await reserves,
@@ -167,7 +172,7 @@ const SavingsCELOApp = (props: {
 							kit.connection,
 							sKit.savingsKit.contract.methods.increaseAllowance(
 								sKit.router.options.address,
-								toSell_sCELO.toString(10)))
+								Erc20InfiniteAmount.toString(10)))
 					)
 				}
 				const tx = toTransactionObject(
@@ -194,9 +199,26 @@ const SavingsCELOApp = (props: {
 		props.runTXs(
 			async (kit: ContractKit) => {
 				const sKit = await newSavingsCELOWithUbeKit(kit, savingsWithUbeAddress)
-				const approveTXs = await sKit.approveAddLiquidity(account.address, toAdd_CELO, toAdd_sCELO)
+				const approveTXs = await sKit.approveAddLiquidity(account.address, toAdd_CELO, toAdd_sCELO, true)
 				const tx = await sKit.addLiquidity(toAdd_CELO, toAdd_sCELO, maxReserveRatio)
-				console.info(`TXTX`, tx)
+				return [...approveTXs.map((tx) => ({tx: tx})), {tx: tx}]
+			},
+			onFinishTXs(cb),
+		)
+	}
+	const handleRemoveLiquidity = (
+		toRemove_ULP: BigNumber,
+		min_CELO: BigNumber,
+		min_sCELO: BigNumber,
+		cb: (e?: Error) => void) => {
+		props.runTXs(
+			async (kit: ContractKit) => {
+				const sKit = await newSavingsCELOWithUbeKit(kit, savingsWithUbeAddress)
+				const approveTXs = await sKit.approveRemoveLiquidity(account.address, toRemove_ULP, true)
+				const tx = await sKit.removeLiquidity(
+					toRemove_ULP, min_CELO, min_sCELO,
+					account.address,
+					Math.floor((new Date().getTime() / 1000) + 600))
 				return [...approveTXs.map((tx) => ({tx: tx})), {tx: tx}]
 			},
 			onFinishTXs(cb),
@@ -302,6 +324,18 @@ const SavingsCELOApp = (props: {
 						pendingWithdrawals={fetched.pendingWithdrawals}
 						onWithdraw={handleWithdrawFinish}
 						onCancel={handleWithdrawCancel}
+					/>
+				</AppSection>}
+				{tab === "ubeswap" && fetched && fetched.balance_ULP.gt(0) &&
+				<AppSection>
+					<RemoveLiquidity
+						balance_ULP={fetched.balance_ULP}
+						total_ULP={fetched.liquidityTotal_ULP}
+						ubeReserve_CELO={fetched.ubeReserves.reserve_CELO}
+						ubeReserve_sCELO={fetched.ubeReserves.reserve_sCELO}
+						savingsTotal_CELO={fetched.savingsTotals.celoTotal}
+						savingsTotal_sCELO={fetched.savingsTotals.savingsTotal}
+						onRemoveLiquidity={handleRemoveLiquidity}
 					/>
 				</AppSection>}
 			</TabContext>

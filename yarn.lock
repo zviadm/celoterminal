@@ -12606,10 +12606,10 @@ sass-loader@9.0.3:
     schema-utils "^2.7.0"
     semver "^7.3.2"
 
-savingscelo-with-ube@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/savingscelo-with-ube/-/savingscelo-with-ube-1.3.0.tgz#876a219b60742ab33959c0333a25f96d13f1cc38"
-  integrity sha512-ouMJGvGYAZXO/USy/CRyVqglTEOo6DTSPCt/hIB7Cojk6O2vSnAKsQqE4w0atenB0rezIij1sg/6XU5/r1iDyw==
+savingscelo-with-ube@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/savingscelo-with-ube/-/savingscelo-with-ube-1.3.1.tgz#6624c1a9be959514badcac6e68e749691518221c"
+  integrity sha512-q0wRYO3ZGeqZqfcJXlq6U3Ph7aJ29xyV0P5Ex9zs0zfRmFKNY4eHtghr5hbNoHiIvzjUwMSNfUVN4lkh55GyKw==
   dependencies:
     "@celo/connect" "1.1.0"
     "@celo/contractkit" "1.1.0"
