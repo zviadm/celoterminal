@@ -8,8 +8,8 @@ export const convertSCELO: ConversionFunc = async (
 	switch (erc20.symbol) {
 	case "sCELO": {
 		const savingsKit = new SavingsKit(kit, erc20.address || "")
-		const celoAmt = await savingsKit.contract.methods.savingsToCELO(amount.toString(10)).call()
-		return {coreErc20: Token.CELO, amount: new BigNumber(celoAmt)}
+		const celoAmt = await savingsKit.savingsToCELO(amount)
+		return {coreErc20: Token.CELO, amount: celoAmt}
 	}
 	default:
 		throw new Error(`Unexpected token: ${erc20.symbol}`)
