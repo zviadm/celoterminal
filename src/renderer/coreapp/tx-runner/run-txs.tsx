@@ -172,6 +172,9 @@ const RunTXs = (props: {
 									`Transaction might have been sent and might get processed anyways. ` +
 									`Wait a bit before retrying to avoid performing your transaction twice.`)
 							}
+							if (e?.message?.includes("Ledger device:")) {
+								throw e
+							}
 							throw new Error(
 								`Unexpected error occured while trying to send the transaction. ` +
 								`Transaction might have been sent and might get processed anyways. ${e}.`)
