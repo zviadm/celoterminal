@@ -25,6 +25,7 @@ const LPOnUbe = (props: {
 	ubeReserve_sCELO: BigNumber,
 	savingsTotal_CELO: BigNumber,
 	savingsTotal_sCELO: BigNumber,
+	ubeswapPoolURL: string,
 	onAddLiquidity: (
 		toAdd_CELO: BigNumber,
 		toAdd_sCELO: BigNumber,
@@ -87,6 +88,9 @@ const LPOnUbe = (props: {
 	}
 	return (
 		<Box display="flex" flexDirection="column">
+			<Alert severity="info" style={{marginBottom: 10}}>
+				<Link href={props.ubeswapPoolURL}>Ubeswap CELO+sCELO Pool</Link>
+			</Alert>
 			<Alert severity="warning" style={{marginBottom: 10}}>
 				Being a liquidity provider to Ubeswap is an advanced activity and it carries certain level of
 				risk. Make sure to familiarize yourself with the Ubeswap/Uniswap details first to understand
