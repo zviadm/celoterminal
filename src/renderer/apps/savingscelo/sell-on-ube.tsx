@@ -1,20 +1,22 @@
 import BigNumber from 'bignumber.js'
+import { celoToSavings } from 'savingscelo'
 
 import { coreErc20Decimals } from '../../../lib/erc20/core'
 import { fmtAmount } from '../../../lib/utils'
+import useLocalStorageState from '../../state/localstorage-state'
+import { celoToSavingsWithMax, ubeGetAmountOut } from './utils'
 
 import * as React from 'react'
 import {
-	Box, Button, Table, TableBody, TableRow, TableCell,
+	Box, Button, Table, TableBody, TableRow, TableCell, Typography, Tooltip,
 } from '@material-ui/core'
+import Alert from '@material-ui/lab/Alert'
+import HelpOutline from '@material-ui/icons/HelpOutline'
 
 import NumberInput from '../../components/number-input'
-import { ubeGetAmountOut } from './utils'
-import { celoToSavings } from 'savingscelo'
-import Alert from '@material-ui/lab/Alert'
-import useLocalStorageState from '../../state/localstorage-state'
 
 const SellOnUbe = (props: {
+	balance_sCELO: BigNumber,
 	sCELOasCELO: BigNumber,
 	ubeReserve_CELO: BigNumber,
 	ubeReserve_sCELO: BigNumber,
@@ -47,8 +49,14 @@ const SellOnUbe = (props: {
 	const canSell = toSell && maxToSell.gte(toSell) && receive_CELO.gt(0)
 
 	const handleSell = () => {
+		const toSell_sCELO = celoToSavingsWithMax(
+			new BigNumber(toSell).shiftedBy(coreErc20Decimals),
+			props.balance_sCELO,
+			props.savingsTotal_CELO,
+			props.savingsTotal_sCELO,
+		)
 		props.onSell(
-			sell_CELO, receiveMin_CELO,
+			toSell_sCELO, receiveMin_CELO,
 			(e?: Error) => { if (!e) { setToSell("") } })
 	}
 	return (
@@ -63,8 +71,7 @@ const SellOnUbe = (props: {
 			</Alert>
 			<NumberInput
 				autoFocus
-				margin="dense"
-				variant="outlined"
+				margin="normal"
 				id="sell-celo-input"
 				label={`Sell (max: ${fmtAmount(props.sCELOasCELO, "CELO")})`}
 				InputLabelProps={{shrink: true}}
@@ -72,10 +79,29 @@ const SellOnUbe = (props: {
 				onChangeValue={setToSell}
 				maxValue={maxToSell}
 			/>
-			<Table>
+			<Box display="flex" flexDirection="column" marginTop={1} marginBottom={1}>
+				<Typography variant="caption">
+					Max slippage
+					<Tooltip title="Your transaction will revert if the price changes unfavourably by more than this percentage.">
+						<HelpOutline style={{fontSize: 12}}/>
+					</Tooltip>
+				</Typography>
+				<Box display="flex" flexDirection="row">
+					{
+					slippageOptions.map((o) => (
+						<Button
+							key={`slippage-${o}`}
+							variant={o === slippagePct ? "outlined" : "text"}
+							onClick={() => { setSlippagePct(o) }}
+							>{o}%</Button>
+					))
+					}
+				</Box>
+			</Box>
+			<Table size="small" style={{marginBottom: 10}}>
 				<TableBody>
 					<TableRow>
-						<TableCell width="100%">Loss compared to WITHDRAW</TableCell>
+						<TableCell>{sellImpact.lte(0) ? "Loss" : "Gain"} compared to WITHDRAW</TableCell>
 						<TableCell style={{whiteSpace: "nowrap"}}>
 							Maximum: {sellImpactMax.multipliedBy(100).toFixed(2)}%
 						</TableCell>
