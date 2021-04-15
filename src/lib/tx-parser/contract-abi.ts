@@ -5,6 +5,7 @@ import { Address, ContractKit, RegisteredContracts } from '@celo/contractkit'
 import { alfajoresChainId, baklavaChainId, CFG, mainnetChainId, registeredErc20s } from "../cfg"
 import { deployedBytecode as multiSigBytecode, abi as multiSigAbi } from "../core-contracts/MultiSig.json"
 import { KnownProxies, KnownProxy } from "./proxy-abi"
+import { contractNamesRegistry } from "./registry"
 
 const builtinContracts: {
 	name: string,
@@ -117,6 +118,18 @@ export const verifiedContractName = async (
 	const erc20match = registeredErc20s.find((e) => e.address?.toLowerCase() === address.toLowerCase())
 	if (erc20match) {
 		return `${erc20match.name} (${erc20match.symbol})`
+	}
+
+	const addrKey: "mainnet" | "baklava" | "alfajores" | null =
+		CFG().chainId === mainnetChainId ? "mainnet" :
+		CFG().chainId === baklavaChainId ? "baklava" :
+		CFG().chainId === alfajoresChainId ? "alfajores" : null
+	if (addrKey) {
+		const registryMatch = contractNamesRegistry.find(
+			(c) => c.addresses[addrKey]?.toLowerCase() === address.toLowerCase())
+		if (registryMatch) {
+			return registryMatch.name
+		}
 	}
 
 	return null
