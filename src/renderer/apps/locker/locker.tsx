@@ -187,10 +187,10 @@ const LockerApp = (props: {
 							</Box>
 							<NumberInput
 								autoFocus
-								margin="dense"
-								variant="outlined"
+								margin="normal"
 								id="lock-celo-input"
 								label={`Lock (max: ${fmtAmount(fetched.totalCELO, "CELO")})`}
+								InputLabelProps={{shrink: true}}
 								value={toLock}
 								onChangeValue={setToLock}
 								maxValue={maxToLock}
@@ -308,10 +308,10 @@ const UnlockWithRevoke = (props: {
 			: <>
 			<NumberInput
 				autoFocus
-				margin="dense"
-				variant="outlined"
+				margin="normal"
 				id="unlock-celo-input"
 				label={`Unlock (max: ${fmtAmount(maxToUnlockWEI, "CELO")})`}
+				InputLabelProps={{shrink: true}}
 				value={props.toUnlock}
 				onChangeValue={props.onSetToUnlock}
 				maxValue={maxToUnlock}
