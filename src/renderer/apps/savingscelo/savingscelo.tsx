@@ -2,7 +2,7 @@ import { ContractKit } from '@celo/contractkit'
 import { toTransactionObject } from '@celo/connect'
 import BigNumber from 'bignumber.js'
 
-import { SavingsKit, savingsToCELO } from 'savingscelo'
+import { SavingsKit } from 'savingscelo'
 import {
 	newSavingsCELOWithUbeKit,
 	SavingsCELOWithUbeV1AddressAlfajores,
@@ -12,13 +12,13 @@ import {
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { SavingsCELO } from './def'
-import useOnChainState from '../../state/onchain-state'
 import { alfajoresChainId, CFG, mainnetChainId, registeredErc20s } from '../../../lib/cfg'
 import { UserError } from '../../../lib/error'
 import { fmtAmount } from '../../../lib/utils'
-import { addRegisteredErc20 } from '../../state/erc20list-state'
 import useLocalStorageState from '../../state/localstorage-state'
 import { Erc20InfiniteAmount } from '../../../lib/erc20/core'
+import { useSavingsEventHistoryState } from './history-state'
+import { useSavingsOnChainState } from './onchain-state'
 
 import * as React from 'react'
 import {
@@ -42,6 +42,7 @@ import LPOnUbe from './lp-on-ube'
 import Deposit from './deposit'
 import Withdraw from './withdraw'
 import RemoveLiquidity from './remove-liquidity'
+import SavingsEventHistory from './savings-event-history'
 
 const savingsWithUbeAddresses: {[key: string]: string} = {
 	[alfajoresChainId]: SavingsCELOWithUbeV1AddressAlfajores,
@@ -64,56 +65,16 @@ const SavingsCELOApp = (props: {
 		fetched,
 		isFetching,
 		refetch,
-	} = useOnChainState(React.useCallback(
-		async (kit: ContractKit) => {
-			const goldToken = await kit.contracts.getGoldToken()
-			const lockedGold = await kit.contracts.getLockedGold()
-			const lockedGoldCfg = lockedGold.getConfig()
-			const balance_CELO = goldToken.balanceOf(account.address)
-			const sKit = await newSavingsCELOWithUbeKit(kit, savingsWithUbeAddress)
-			const reserves = sKit.reserves()
-			const pendingWithdrawals = sKit.savingsKit.pendingWithdrawals(account.address)
-			const _liquidityAmount = sKit.liquidityBalanceOf(account.address)
-			const savingsTotals = await sKit.savingsKit.totalSupplies()
-			const balance_sCELO = new BigNumber(
-				await sKit.savingsKit.contract.methods.balanceOf(account.address).call())
-			const sCELOasCELO = savingsToCELO(
-				balance_sCELO, savingsTotals.savingsTotal, savingsTotals.celoTotal)
-			if (balance_sCELO.gt(0)) {
-				addRegisteredErc20("sCELO")
-			}
-			const liquidityTotal_ULP = new BigNumber(await sKit.pair.methods.totalSupply().call())
-			const liquidityAmount = await _liquidityAmount
-			if (liquidityAmount.liquidity.gt(0)) {
-				addRegisteredErc20("ULP-CELO+sCELO")
-			}
-			const liquidityTotal_sCELOasCELO = savingsToCELO(
-				liquidityAmount.balance_sCELO, savingsTotals.savingsTotal, savingsTotals.celoTotal)
-			const liquidityTotal_CELO = liquidityAmount.balance_CELO.plus(liquidityTotal_sCELOasCELO)
-			const liquidityRatio_CELO = liquidityAmount.balance_CELO.div(liquidityTotal_CELO)
-			// TODO(zviad): is there alfajores link?
-			const ubeswapPoolURL = `https://info.ubeswap.org/pair/${sKit.pair.options.address}`
-			return {
-				pendingWithdrawals: await pendingWithdrawals,
-				unlockingPeriod: (await lockedGoldCfg).unlockingPeriod,
-				balance_CELO: await balance_CELO,
-				balance_sCELO,
-				sCELOasCELO,
-				balance_ULP: liquidityAmount.liquidity,
-				liquidityTotal_ULP,
-				liquidityTotal_CELO,
-				liquidityRatio_CELO,
-				ubeReserves: await reserves,
-				savingsTotals,
-				ubeswapPoolURL,
-			}
-		},
-		[account],
-	))
+	} = useSavingsOnChainState(account, savingsWithUbeAddress)
+	const eventHistory = useSavingsEventHistoryState(account, savingsWithUbeAddress)
 
+	const refetchAll = () => {
+		refetch()
+		eventHistory.refetch()
+	}
 	const onFinishTXs = (cb?: (e?: Error) => void) => {
 		return (e?: Error) => {
-			refetch()
+			refetchAll()
 			if (cb) { cb(e) }
 		}
 	}
@@ -233,7 +194,7 @@ const SavingsCELOApp = (props: {
 
 	return (
 		<AppContainer>
-			<AppHeader app={SavingsCELO} isFetching={isFetching} refetch={refetch} />
+			<AppHeader app={SavingsCELO} isFetching={isFetching || eventHistory.isFetching} refetch={refetchAll} />
 			{fetched && <>
 			<AppSection>
 				<SectionTitle>
@@ -349,6 +310,13 @@ const SavingsCELOApp = (props: {
 					/>
 				</AppSection>}
 			</TabContext>
+			<AppSection>
+				<SavingsEventHistory
+					events={eventHistory.fetched}
+					savingsTotal_CELO={fetched?.savingsTotals.celoTotal}
+					savingsTotal_sCELO={fetched?.savingsTotals.savingsTotal}
+				/>
+			</AppSection>
 			</>}
 		</AppContainer>
 	)
