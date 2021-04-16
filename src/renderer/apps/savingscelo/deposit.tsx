@@ -28,7 +28,7 @@ const Deposit = (props: {
 	return (
 		<Box display="flex" flexDirection="column">
 			<Alert severity="info" style={{marginBottom: 10}}>
-				Deposit transaction automatically chooses between depositing CELO to SavingsCELO contract
+				Deposit action automatically chooses between depositing CELO to SavingsCELO contract
 				to receive equivalent amount of sCELO tokens, or trading CELO for sCELO through <Link href={props.ubeswapPoolURL}>
 				Ubeswap CELO+sCELO pool.</Link><br /><br />
 				You are guaranteed to receive at least equivalent amount of sCELO tokens, but you might also receive more
