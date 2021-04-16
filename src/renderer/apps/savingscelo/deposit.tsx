@@ -8,9 +8,11 @@ import { Box, Button } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 
 import NumberInput from '../../components/number-input'
+import Link from '../../components/link'
 
 const Deposit = (props: {
 	balance_CELO: BigNumber,
+	ubeswapPoolURL: string,
 	onDeposit: (toDeposit_CELO: BigNumber, cb: (e?: Error) => void) => void,
 }): JSX.Element => {
 	const [toDeposit, setToDeposit] = React.useState("")
@@ -26,9 +28,11 @@ const Deposit = (props: {
 	return (
 		<Box display="flex" flexDirection="column">
 			<Alert severity="info" style={{marginBottom: 10}}>
-				If you want to provide liquidity to CELO+sCELO Ubeswap pool, go to the Ubeswap
-				tab directly. From there, you can safely convert portion of your CELO to
-				sCELO and add liquidity to the Ubeswap pool in correct proportions, all in a single transaction.
+				Deposit transaction automatically chooses between depositing CELO to SavingsCELO contract
+				to receive equivalent amount of sCELO tokens, or trading CELO for sCELO through <Link href={props.ubeswapPoolURL}>
+				Ubeswap CELO+sCELO pool.</Link><br /><br />
+				You are guaranteed to receive at least equivalent amount of sCELO tokens, but you might also receive more
+				if there is cheap sCELO available in the Ubeswap pool.
 			</Alert>
 			<NumberInput
 				autoFocus

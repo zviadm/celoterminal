@@ -67,6 +67,8 @@ const SavingsCELOApp = (props: {
 	} = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
 			const goldToken = await kit.contracts.getGoldToken()
+			const lockedGold = await kit.contracts.getLockedGold()
+			const lockedGoldCfg = lockedGold.getConfig()
 			const balance_CELO = goldToken.balanceOf(account.address)
 			const sKit = await newSavingsCELOWithUbeKit(kit, savingsWithUbeAddress)
 			const reserves = sKit.reserves()
@@ -93,6 +95,7 @@ const SavingsCELOApp = (props: {
 			const ubeswapPoolURL = `https://info.ubeswap.org/pair/${sKit.pair.options.address}`
 			return {
 				pendingWithdrawals: await pendingWithdrawals,
+				unlockingPeriod: (await lockedGoldCfg).unlockingPeriod,
 				balance_CELO: await balance_CELO,
 				balance_sCELO,
 				sCELOasCELO,
@@ -285,6 +288,7 @@ const SavingsCELOApp = (props: {
 					<TabPanel value="deposit">
 						<Deposit
 							balance_CELO={fetched.balance_CELO}
+							ubeswapPoolURL={fetched.ubeswapPoolURL}
 							onDeposit={handleDeposit}
 						/>
 					</TabPanel>
@@ -294,6 +298,7 @@ const SavingsCELOApp = (props: {
 							sCELOasCELO={fetched.sCELOasCELO}
 							savingsTotal_CELO={fetched.savingsTotals.celoTotal}
 							savingsTotal_sCELO={fetched.savingsTotals.savingsTotal}
+							unlockingPeriod={fetched.unlockingPeriod}
 							onWithdrawStart={handleWithdrawStart}
 						/>
 					</TabPanel>
