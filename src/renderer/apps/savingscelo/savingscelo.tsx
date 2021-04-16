@@ -19,6 +19,7 @@ import { fmtAmount } from '../../../lib/utils'
 import { addRegisteredErc20 } from '../../state/erc20list-state'
 import useLocalStorageState from '../../state/localstorage-state'
 import { Erc20InfiniteAmount } from '../../../lib/erc20/core'
+import { useSavingsEventHistoryState } from './state'
 
 import * as React from 'react'
 import {
@@ -42,6 +43,7 @@ import LPOnUbe from './lp-on-ube'
 import Deposit from './deposit'
 import Withdraw from './withdraw'
 import RemoveLiquidity from './remove-liquidity'
+import SavingsEventHistory from './savings-event-history'
 
 const savingsWithUbeAddresses: {[key: string]: string} = {
 	[alfajoresChainId]: SavingsCELOWithUbeV1AddressAlfajores,
@@ -110,10 +112,15 @@ const SavingsCELOApp = (props: {
 		},
 		[account],
 	))
+	const eventHistory = useSavingsEventHistoryState(account, savingsWithUbeAddress)
 
+	const refetchAll = () => {
+		refetch()
+		eventHistory.refetch()
+	}
 	const onFinishTXs = (cb?: (e?: Error) => void) => {
 		return (e?: Error) => {
-			refetch()
+			refetchAll()
 			if (cb) { cb(e) }
 		}
 	}
@@ -233,7 +240,7 @@ const SavingsCELOApp = (props: {
 
 	return (
 		<AppContainer>
-			<AppHeader app={SavingsCELO} isFetching={isFetching} refetch={refetch} />
+			<AppHeader app={SavingsCELO} isFetching={isFetching || eventHistory.isFetching} refetch={refetchAll} />
 			{fetched && <>
 			<AppSection>
 				<SectionTitle>
@@ -349,6 +356,13 @@ const SavingsCELOApp = (props: {
 					/>
 				</AppSection>}
 			</TabContext>
+			<AppSection>
+				<SavingsEventHistory
+					events={eventHistory.fetched}
+					savingsTotal_CELO={fetched?.savingsTotals.celoTotal}
+					savingsTotal_sCELO={fetched?.savingsTotals.savingsTotal}
+				/>
+			</AppSection>
 			</>}
 		</AppContainer>
 	)
