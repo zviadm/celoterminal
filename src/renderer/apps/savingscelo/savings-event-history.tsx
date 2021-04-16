@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { savingsToCELO } from 'savingscelo'
 
-import { SavingsEvent } from './state'
+import { SavingsEvent } from './history-state'
 import { fmtAddress, fmtAmount } from '../../../lib/utils'
 import { explorerRootURL } from '../../../lib/cfg'
 

@@ -36,14 +36,14 @@ export interface SwapEvent extends BaseEvent {
 export type SavingsEvent = DepositEvent | WithdrawEvent | SwapEvent
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const useSavingsEventHistoryState = (account: Account, withUbeAddress: string) => {
+export const useSavingsEventHistoryState = (account: Account, savingsWithUbeAddress: string) => {
 	const fetchCallback = React.useCallback(
 		async (
 			kit: ContractKit,
 			fromBlock: number,
 			toBlock: number,
 			latestBlock: BlockTransactionString): Promise<SavingsEvent[]> => {
-			const sKit = await newSavingsCELOWithUbeKit(kit, withUbeAddress)
+			const sKit = await newSavingsCELOWithUbeKit(kit, savingsWithUbeAddress)
 			const token0 = await sKit.pair.methods.token0().call()
 			const [deposits, depositsWithUbe, withdraws, swaps] = await Promise.all([
 				// from, celoAmount, savingsAmount
@@ -127,7 +127,7 @@ export const useSavingsEventHistoryState = (account: Account, withUbeAddress: st
 			const events: SavingsEvent[] = [...deposits, ...depositsWithUbe, ...withdraws, ...swaps]
 			events.sort((a, b) => a.blockNumber - b.blockNumber)
 			return events
-		}, [account, withUbeAddress],
+		}, [account, savingsWithUbeAddress],
 	)
 
 	return useEventHistoryState(
