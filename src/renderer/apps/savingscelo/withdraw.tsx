@@ -6,14 +6,17 @@ import { celoToSavingsWithMax } from './utils'
 
 import * as React from 'react'
 import { Box, Button } from '@material-ui/core'
+import Alert from '@material-ui/lab/Alert'
 
 import NumberInput from '../../components/number-input'
+import Link from '../../components/link'
 
 const Withdraw = (props: {
 	balance_sCELO: BigNumber,
 	sCELOasCELO: BigNumber,
 	savingsTotal_CELO: BigNumber,
 	savingsTotal_sCELO: BigNumber,
+	unlockingPeriod: BigNumber,
 	onWithdrawStart: (toWithdraw_sCELO: BigNumber, cb: (e?: Error) => void) => void,
 }): JSX.Element => {
 	const [toWithdraw, setToWithdraw] = React.useState("")
@@ -33,6 +36,11 @@ const Withdraw = (props: {
 	}
 	return (
 		<Box display="flex" flexDirection="column">
+			<Alert severity="info" style={{marginBottom: 10}}>
+				Withdraws are delayed by the standard {props.unlockingPeriod.div(24*60*60).toString()} day&nbsp;
+				<Link href="https://docs.celo.org/celo-codebase/protocol/proof-of-stake/locked-gold#unlocking-period">
+				unlocking period</Link>.
+			</Alert>
 			<NumberInput
 				autoFocus
 				margin="normal"
