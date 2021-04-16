@@ -94,7 +94,7 @@ const LPOnUbe = (props: {
 			<Alert severity="warning" style={{marginBottom: 10}}>
 				Being a liquidity provider to Ubeswap is an advanced activity and it carries certain level of
 				risk. Make sure to familiarize yourself with the Ubeswap/Uniswap details first to understand
-				these risks. <Link href="https://uniswap.org/docs/v2/core-concepts/pools/">Learn more.</Link>
+				these risks. <Link href="https://github.com/zviadm/savingscelo/wiki/SavingsCELO-x-Ubeswap">Learn more.</Link>
 			</Alert>
 			<NumberInput
 				autoFocus
@@ -122,7 +122,7 @@ const LPOnUbe = (props: {
 				Ubeswap CELO+sCELO pool is out of balance. Adding liquidity now can lead to large levels
 				of losses due to future price changes. It is strongly recommended to avoid supplying
 				liquidity until pool becomes more balanced. <br /><br />
-				Expected future &quot;Impermanent Loss&quot; {maxLossPct.toFixed(3)}%.
+				Expected future &quot;Divergence Loss&quot; {maxLossPct.toFixed(3)}%.
 			</Alert>}
 			<Box
 				display="flex"
@@ -133,7 +133,7 @@ const LPOnUbe = (props: {
 				<Box display="flex" flexDirection="column" alignItems="flex-end">
 					<Box display="flex" flexDirection="column">
 						<Typography variant="caption">
-							Max &quot;Impermanent Loss&quot;
+							Max &quot;Divergence Loss&quot;
 							<Tooltip title="Maximum amount of loss you might incur due to future price changes.">
 								<HelpOutline style={{fontSize: 12}}/>
 							</Tooltip>
