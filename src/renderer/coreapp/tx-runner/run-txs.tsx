@@ -79,6 +79,8 @@ const RunTXs = (props: {
 	const executingAccount = rootAccount(selectedAccount, accounts)
 	React.useEffect(() => {
 		(async () => {
+			let onFinishErr: Error | undefined
+			let onFinishResult: CeloTxReceipt[] | undefined
 			try {
 				const w = await createWallet(selectedAccount, accounts, password)
 				const cfg = CFG()
@@ -195,7 +197,7 @@ const RunTXs = (props: {
 					// Wait a bit after final TX so that it is more likely that blockchain state
 					// is now updated in most of the full nodes.
 					await sleep(500)
-					onFinish(undefined, r)
+					onFinishResult = r
 				} finally {
 					kit.stop()
 					if (w.transport) {
@@ -203,7 +205,9 @@ const RunTXs = (props: {
 					}
 				}
 			} catch (e) {
-				onFinish(transformError(e))
+				onFinishErr = transformError(e)
+			} finally {
+				onFinish(onFinishErr, onFinishResult)
 			}
 		})()
 	// NOTE: This effect is expected to run only once on first render and it is expected
