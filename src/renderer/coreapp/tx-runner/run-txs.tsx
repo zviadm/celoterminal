@@ -6,7 +6,7 @@ import { EstimatedFee, estimateGas } from './fee-estimation'
 import { ParsedTransaction, parseTransaction } from './transaction-parser'
 import { createWallet, rootAccount } from './wallet'
 import { CFG, explorerRootURL } from '../../../lib/cfg'
-import { SpectronChainId } from '../../../lib/spectron-utils/constants'
+import { spectronChainId } from '../../../lib/spectron-utils/constants'
 import { nowMS } from '../../state/time'
 import { sleep } from '../../../lib/utils'
 import { transformError } from '../ledger-utils'
@@ -79,10 +79,12 @@ const RunTXs = (props: {
 	const executingAccount = rootAccount(selectedAccount, accounts)
 	React.useEffect(() => {
 		(async () => {
+			let onFinishErr: Error | undefined
+			let onFinishResult: CeloTxReceipt[] | undefined
 			try {
 				const w = await createWallet(selectedAccount, accounts, password)
 				const cfg = CFG()
-				if (cfg.chainId !== SpectronChainId) {
+				if (cfg.chainId !== spectronChainId) {
 					// NOTE: see comment in `createWallet` about limitations of celo-devchain.
 					const accounts = w.wallet.getAccounts()
 					if (accounts.length !== 1 ||
@@ -172,6 +174,9 @@ const RunTXs = (props: {
 									`Transaction might have been sent and might get processed anyways. ` +
 									`Wait a bit before retrying to avoid performing your transaction twice.`)
 							}
+							if (e?.message?.includes("Ledger device:")) {
+								throw e
+							}
 							throw new Error(
 								`Unexpected error occured while trying to send the transaction. ` +
 								`Transaction might have been sent and might get processed anyways. ${e}.`)
@@ -192,7 +197,7 @@ const RunTXs = (props: {
 					// Wait a bit after final TX so that it is more likely that blockchain state
 					// is now updated in most of the full nodes.
 					await sleep(500)
-					onFinish(undefined, r)
+					onFinishResult = r
 				} finally {
 					kit.stop()
 					if (w.transport) {
@@ -200,7 +205,9 @@ const RunTXs = (props: {
 					}
 				}
 			} catch (e) {
-				onFinish(transformError(e))
+				onFinishErr = transformError(e)
+			} finally {
+				onFinish(onFinishErr, onFinishResult)
 			}
 		})()
 	// NOTE: This effect is expected to run only once on first render and it is expected

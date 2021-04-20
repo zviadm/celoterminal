@@ -34,7 +34,7 @@ export const estimateGas = async (
 			if (tryN >= 2) {
 				throw e
 			}
-			await sleep(500)
+			await sleep(1000)
 		}
 	}
 }

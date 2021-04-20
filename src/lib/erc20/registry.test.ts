@@ -1,27 +1,20 @@
 import { ensureLeading0x, toChecksumAddress } from '@celo/utils/lib/address'
 import { isValidAddress } from 'ethereumjs-util'
 
-import { erc20Alfajores } from "./registry-alfajores"
-import { erc20Baklava } from "./registry-baklava"
-import { erc20Mainnet } from "./registry-mainnet"
+import { erc20Registry } from "./registry"
 
 test('sanity check registry constants', () => {
-	for (const erc20s of [erc20Alfajores, erc20Baklava, erc20Mainnet]) {
-		const symbolSet = new Set<string>()
-		const addrSet = new Set<string>()
-		erc20s.forEach((e) => {
-			if (!e.address) {
-				fail("address must be set!")
+	const symbolSet = new Set<string>()
+	erc20Registry.forEach((e) => {
+		Object.values(e.addresses).forEach((addr) => {
+			if (!addr) {
+				return
 			}
-			const normalizedAddr = ensureLeading0x(toChecksumAddress(e.address))
-			expect(e.address).toEqual(normalizedAddr)
-			expect(isValidAddress(e.address)).toEqual(true)
-
-			symbolSet.add(e.symbol)
-			addrSet.add(e.address)
+			const normalizedAddr = ensureLeading0x(toChecksumAddress(addr))
+			expect(addr).toEqual(normalizedAddr)
+			expect(isValidAddress(addr)).toEqual(true)
 		})
-
-		expect(erc20s.length).toEqual(symbolSet.size)
-		expect(erc20s.length).toEqual(addrSet.size)
-	}
+		symbolSet.add(e.symbol)
+	})
+	expect(erc20Registry.length).toEqual(symbolSet.size)
 })

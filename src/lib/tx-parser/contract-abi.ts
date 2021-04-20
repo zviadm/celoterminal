@@ -2,9 +2,10 @@ import axios, { AxiosInstance } from "axios"
 import { AbiItem } from "web3-utils"
 import { Address, ContractKit, RegisteredContracts } from '@celo/contractkit'
 
-import { CFG, mainnetChainId, registeredErc20s } from "../cfg"
+import { alfajoresChainId, baklavaChainId, CFG, mainnetChainId, registeredErc20s } from "../cfg"
 import { deployedBytecode as multiSigBytecode, abi as multiSigAbi } from "../core-contracts/MultiSig.json"
 import { KnownProxies, KnownProxy } from "./proxy-abi"
+import { contractNamesRegistry } from "./registry"
 
 const builtinContracts: {
 	name: string,
@@ -74,8 +75,8 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 		} else {
 			const chainId = CFG().chainId
 			if (chainId !== mainnetChainId &&
-				chainId !== "62320" &&
-				chainId !== "44787") {
+				chainId !== baklavaChainId &&
+				chainId !== alfajoresChainId) {
 				throw new Error(`Contract verification not supported on ChainId: ${chainId}.`)
 			}
 			for (const match of ["full_match", "partial_match"]) {
@@ -114,10 +115,21 @@ export const verifiedContractName = async (
 		return `CoreContract:` + match[0]
 	}
 
-	const registeredList = registeredErc20s()
-	const erc20match = registeredList.find((e) => e.address?.toLowerCase() === address.toLowerCase())
+	const erc20match = registeredErc20s.find((e) => e.address?.toLowerCase() === address.toLowerCase())
 	if (erc20match) {
 		return `${erc20match.name} (${erc20match.symbol})`
+	}
+
+	const addrKey: "mainnet" | "baklava" | "alfajores" | null =
+		CFG().chainId === mainnetChainId ? "mainnet" :
+		CFG().chainId === baklavaChainId ? "baklava" :
+		CFG().chainId === alfajoresChainId ? "alfajores" : null
+	if (addrKey) {
+		const registryMatch = contractNamesRegistry.find(
+			(c) => c.addresses[addrKey]?.toLowerCase() === address.toLowerCase())
+		if (registryMatch) {
+			return registryMatch.name
+		}
 	}
 
 	return null

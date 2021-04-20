@@ -1,18 +1,18 @@
-import { erc20Alfajores } from "./erc20/registry-alfajores"
-import { erc20Baklava } from "./erc20/registry-baklava"
-import { erc20Mainnet } from "./erc20/registry-mainnet"
+import { erc20Registry } from "./erc20/registry"
 import { erc20Devchain } from "./erc20/registry-devchain"
 import { RegisteredErc20 } from "./erc20/core"
-import { SpectronChainId } from "./spectron-utils/constants"
+import { spectronChainId } from "./spectron-utils/constants"
 
 export const mainnetChainId = "42220"
+export const baklavaChainId = "62320"
+export const alfajoresChainId = "44787"
 const defaultChainId = mainnetChainId
 const defaultAccountsDB = "home/.celoterminal/celoaccounts.db"
 
 const defaultNetworks: {[key: string]: string} = {
 	[mainnetChainId]: "https://forno.celo.org",
-	"62320": "https://baklava-forno.celo-testnet.org",
-	"44787": "https://alfajores-forno.celo-testnet.org",
+	[baklavaChainId]: "https://baklava-forno.celo-testnet.org",
+	[alfajoresChainId]: "https://alfajores-forno.celo-testnet.org",
 }
 const fallbackNetworkURL = "http://localhost:7545"
 
@@ -57,29 +57,41 @@ export const CFG = (): Config => {
 
 const networkNames: {[key: string]: string} = {
 	[mainnetChainId]: "Mainnet",
-	"62320": "Baklava",
-	"44787": "Alfajores",
+	[baklavaChainId]: "Baklava",
+	[alfajoresChainId]: "Alfajores",
 }
 export const networkName = (chainId: string): string => {
 	return networkNames[chainId] || `ChainId: ${chainId}`
 }
 
-const erc20Registry: {[key: string]: RegisteredErc20[]} = {
-	[mainnetChainId]: erc20Mainnet,
-	"62320": erc20Baklava,
-	"44787": erc20Alfajores,
-	[SpectronChainId]: erc20Devchain,
+const _registeredErc20s = (): RegisteredErc20[] => {
+	const chainId = CFG().chainId
+	switch (chainId) {
+	case spectronChainId:
+		return erc20Devchain
+	default:
+		return erc20Registry.map((e) => ({
+			name: e.name,
+			symbol: e.symbol,
+			decimals: e.decimals,
+			conversion: e.conversion,
+			address:
+				chainId === mainnetChainId ? e.addresses.mainnet :
+				chainId === baklavaChainId ? e.addresses.baklava :
+				chainId === alfajoresChainId ? e.addresses.alfajores : undefined,
+		})).filter((e) => e.address !== undefined)
+	}
 }
-export const registeredErc20s = (): RegisteredErc20[] => {
-	return Array.from(erc20Registry[CFG().chainId] || [])
-}
+export const registeredErc20s = _registeredErc20s()
 
 export const explorerRootURL = (): string => {
 	switch (CFG().chainId) {
 	case mainnetChainId:
 		return "https://explorer.celo.org"
-	case "62320":
+	case baklavaChainId:
 		return "https://baklava-blockscout.celo-testnet.org"
+	case alfajoresChainId:
+		return "https://alfajores-blockscout.celo-testnet.org"
 	default:
 		// just a fake URL.
 		return `https://explorer.network.${CFG().chainId}`
