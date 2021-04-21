@@ -199,7 +199,7 @@ const SavingsCELOApp = (props: {
 			<AppSection>
 				<SectionTitle>
 					Savings Balance
-					<Link href="https://github.com/zviadm/savingscelo/wiki#usage">
+					<Link href="https://docs.savingscelo.com/usage">
 						<HelpOutline style={{fontSize: 16, marginLeft: 4, verticalAlign: "text-top"}}/>
 					</Link>
 				</SectionTitle>
