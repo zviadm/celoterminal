@@ -5,7 +5,7 @@ Desktop app to manage accounts and interact with the decentralized apps on the C
 MacOS, Windows and Linux versions available:
 * https://celoterminal.com
 
-Wiki: https://github.com/zviadm/celoterminal/wiki
+Docs: https://docs.celoterminal.com
 
 ## App Platform
 
@@ -30,6 +30,6 @@ guidelines and indicators when any of the DApps interact with the external serve
 
 If you run into a bug, please [file a Bug Report](https://github.com/zviadm/celoterminal/issues/new/choose) on GitHub.
 
-If you have questions or need help, you can ask in `#celo-terminal` channel in [Celo Discord](https://chat.celo.org). 
+If you have questions or need help, you can ask in `#celo-terminal` channel in [Celo Discord](https://chat.celo.org).
 Make sure to tag `@zviad | WOTrust`. Alternatively, you can email at: support@celoterminal.com.
 
