@@ -18,7 +18,7 @@ export const setupMenu = (): void => {
 			}, {
 				label: "Guides and Tutorials",
 				click: async () => {
-          await shell.openExternal('https://github.com/zviadm/celoterminal/wiki')
+          await shell.openExternal('https://docs.celoterminal.com')
         }
 			}],
 		},
