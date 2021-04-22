@@ -221,8 +221,8 @@ const SavingsCELOApp = (props: {
 							<TableCell>Ubeswap LP</TableCell>
 							<TableCell>
 								~{fmtAmount(fetched.balance_ULPasCELO, "CELO")} CELO&nbsp;
-								({fetched.balance_ULP_CELO_ratio.multipliedBy(100).toFixed(0)}% CELO&nbsp;/&nbsp;
-								{fetched.balance_ULP_CELO_ratio.minus(1).negated().multipliedBy(100).toFixed(0)}% sCELO)
+								({fetched.balance_ULP_CELO_ratio.multipliedBy(100).toFixed(2)}% CELO&nbsp;+&nbsp;
+								{fetched.balance_ULP_CELO_ratio.minus(1).negated().multipliedBy(100).toFixed(2)}% sCELO)
 							</TableCell>
 						</TableRow>}
 						{fetched.farmingBalance_ULPasCELO.gt(0) &&
@@ -230,8 +230,8 @@ const SavingsCELOApp = (props: {
 							<TableCell>Ubeswap LP (in <Link href={fetched.ubeswapFarmURL}>Farm</Link>)</TableCell>
 							<TableCell>
 								~{fmtAmount(fetched.farmingBalance_ULPasCELO, "CELO")} CELO&nbsp;
-								({fetched.farmingBalance_ULP_CELO_ratio.multipliedBy(100).toFixed(0)}% CELO&nbsp;/&nbsp;
-								{fetched.farmingBalance_ULP_CELO_ratio.minus(1).negated().multipliedBy(100).toFixed(0)}% sCELO)
+								({fetched.farmingBalance_ULP_CELO_ratio.multipliedBy(100).toFixed(2)}% CELO&nbsp;+&nbsp;
+								{fetched.farmingBalance_ULP_CELO_ratio.minus(1).negated().multipliedBy(100).toFixed(2)}% sCELO)
 							</TableCell>
 						</TableRow>}
 					</TableBody>
