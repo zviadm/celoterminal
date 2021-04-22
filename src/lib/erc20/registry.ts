@@ -73,12 +73,12 @@ export const erc20Registry: {
 		},
 	},
 	{
-		name: "Moola cEUR AToken",
+		name: "Moola cEUR MToken",
 		symbol: "mCEUR",
 		decimals: 18,
 		conversion: convertMToken,
 		addresses: {
-			// mainnet: "0xa8d0E6799FF3Fd19c6459bf02689aE09c4d78Ba7",
+			mainnet: "0xa8d0E6799FF3Fd19c6459bf02689aE09c4d78Ba7",
 			alfajores: "0x32974C7335e649932b5766c5aE15595aFC269160",
 		},
 	},
