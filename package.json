@@ -32,8 +32,8 @@
     }
   },
   "dependencies": {
-    "@celo/connect": "^1.1.0",
-    "@celo/contractkit": "^1.1.0",
+    "@celo/connect": "^1.1.1-beta",
+    "@celo/contractkit": "^1.1.1-beta",
     "@celo/wallet-ledger": "^1.1.0",
     "@celo/wallet-local": "^1.1.0",
     "@celo/wallet-walletconnect": "^1.1.0",
