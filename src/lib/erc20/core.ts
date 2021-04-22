@@ -15,10 +15,10 @@ export const coreErc20s: {
 		name: "Celo Dollar",
 		symbol: StableToken.cUSD,
 		decimals: coreErc20Decimals,
-	// }, {
-	// 	name: "Celo Euro",
-	// 	symbol: StableToken.cEUR,
-	// 	decimals: coreErc20Decimals,
+	}, {
+		name: "Celo Euro",
+		symbol: StableToken.cEUR,
+		decimals: coreErc20Decimals,
 	}
 ]
 export const coreStableTokens = coreErc20s.filter((e) => e.symbol !== "CELO")
