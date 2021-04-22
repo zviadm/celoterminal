@@ -49,6 +49,8 @@ const savingsWithUbeAddresses: {[key: string]: string} = {
 	[mainnetChainId]: SavingsCELOWithUbeV1AddressMainnet,
 }
 const savingsWithUbeAddress: string = savingsWithUbeAddresses[CFG().chainId]
+const sCELOUbeFarmAddress: string | undefined =
+	CFG().chainId === mainnetChainId ? "0xd4C9675b0AE1397fC5b2D3356736A02d86347f2d" : undefined
 const sCELO = registeredErc20s.find((e) => e.symbol === "sCELO")
 
 const SavingsCELOApp = (props: {
@@ -65,7 +67,7 @@ const SavingsCELOApp = (props: {
 		fetched,
 		isFetching,
 		refetch,
-	} = useSavingsOnChainState(account, savingsWithUbeAddress)
+	} = useSavingsOnChainState(account, savingsWithUbeAddress, sCELOUbeFarmAddress)
 	const eventHistory = useSavingsEventHistoryState(account, savingsWithUbeAddress)
 
 	const refetchAll = () => {
@@ -214,13 +216,22 @@ const SavingsCELOApp = (props: {
 								</Typography>
 							</TableCell>
 						</TableRow>
-						{fetched.liquidityTotal_CELO.gt(0) &&
+						{fetched.balance_ULPasCELO.gt(0) &&
 						<TableRow>
 							<TableCell>Ubeswap LP</TableCell>
 							<TableCell>
-								~{fmtAmount(fetched.liquidityTotal_CELO, "CELO")} CELO&nbsp;
-								({fetched.liquidityRatio_CELO.multipliedBy(100).toFixed(0)}% CELO&nbsp;/&nbsp;
-								{fetched.liquidityRatio_CELO.minus(1).negated().multipliedBy(100).toFixed(0)}% sCELO)
+								~{fmtAmount(fetched.balance_ULPasCELO, "CELO")} CELO&nbsp;
+								({fetched.balance_ULP_CELO_ratio.multipliedBy(100).toFixed(0)}% CELO&nbsp;/&nbsp;
+								{fetched.balance_ULP_CELO_ratio.minus(1).negated().multipliedBy(100).toFixed(0)}% sCELO)
+							</TableCell>
+						</TableRow>}
+						{fetched.farmingBalance_ULPasCELO.gt(0) &&
+						<TableRow>
+							<TableCell>Ubeswap LP (in <Link href={fetched.ubeswapFarmURL}>Farm</Link>)</TableCell>
+							<TableCell>
+								~{fmtAmount(fetched.farmingBalance_ULPasCELO, "CELO")} CELO&nbsp;
+								({fetched.farmingBalance_ULP_CELO_ratio.multipliedBy(100).toFixed(0)}% CELO&nbsp;/&nbsp;
+								{fetched.farmingBalance_ULP_CELO_ratio.minus(1).negated().multipliedBy(100).toFixed(0)}% sCELO)
 							</TableCell>
 						</TableRow>}
 					</TableBody>
