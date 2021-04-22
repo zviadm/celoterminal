@@ -55,5 +55,31 @@ export const erc20Registry: {
 			mainnet: "0xa813Bb1DF70128d629F1A41830578fA616dAEeEc",
 			alfajores: "0x58a3dc80EC8b6aE44AbD2e2b2A30F230b14B45c3",
 		},
-	}
+	},
+	{
+		name: "Ubeswap",
+		symbol: "UBE",
+		decimals: 18,
+		addresses: {
+			mainnet: "0x00Be915B9dCf56a3CBE739D9B9c202ca692409EC",
+		},
+	},
+	{
+		name: "Release Ube",
+		symbol: "rUBE",
+		decimals: 18,
+		addresses: {
+			mainnet: "0x5Ed248077bD07eE9B530f7C40BE0c1dAE4c131C0",
+		},
+	},
+	{
+		name: "Moola cEUR AToken",
+		symbol: "mCEUR",
+		decimals: 18,
+		conversion: convertMToken,
+		addresses: {
+			// mainnet: "0xa8d0E6799FF3Fd19c6459bf02689aE09c4d78Ba7",
+			alfajores: "0x32974C7335e649932b5766c5aE15595aFC269160",
+		},
+	},
 ]
