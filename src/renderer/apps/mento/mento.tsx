@@ -51,11 +51,6 @@ const MentoApp = (props: {
 		exchangeHistory.refetch()
 	}
 
-	React.useEffect(() => {
-		const timer = setInterval(() => { refetch() }, 20000)
-		return () => { clearInterval(timer) }
-	}, [refetch])
-
 	const [anchorToken, setAnchorToken] = React.useState<"celo" | "stable">("celo")
 	React.useEffect(() => {
 		if (!fetched) {

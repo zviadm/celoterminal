@@ -8,7 +8,7 @@ export const MultiSig: AppDefinition = {
 	title: "MultiSig",
 	icon: <Group />,
 	iconLarge: <Group fontSize="large" />,
-	url: "https://github.com/zviadm/celoterminal/wiki/Using-MultiSig-accounts",
+	url: "https://docs.celoterminal.com/guides/multisig-accounts",
 	description: `
 	Manage MultiSig accounts. Confirm transactions, add/remove owners,
 	change signature requirements and more.

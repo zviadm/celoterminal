@@ -9,12 +9,15 @@ import { ErrorContext } from './error-context'
 // useOnChainState provides a React hook to help with on-chain data fetching.
 // fetchCallback must be wrapped in React.useCallback to be memoized based on its
 // dependencies.
+// By default, state will be refetched every 30 minutes, to change this behaviour
+// set opts.autoRefetchSecs to 0.
 const useOnChainState = <T>(
 	fetchCallback:
 		(kit: ContractKit, c: CancelPromise) => Promise<T>,
 	opts?: {
 		noErrorPropagation?: boolean,
 		lazyFetch?: boolean,
+		autoRefetchSecs?: number,
 	},
 ): {
 	isFetching: boolean,
@@ -77,6 +80,15 @@ const useOnChainState = <T>(
 	const refetch = React.useCallback(() => {
 		setFetchN((fetchN) => (fetchN + 1))
 	}, [setFetchN])
+	const refetchMs = opts?.autoRefetchSecs === undefined ?
+		30 * 60 * 1000.0 : opts.autoRefetchSecs * 1000.0
+	React.useEffect(() => {
+		if (refetchMs === 0) {
+			return
+		}
+		const timer = setTimeout(() => { refetch() }, refetchMs)
+		return () => { clearTimeout(timer) }
+	}, [refetch, refetchMs, fetchN])
 	return {
 		isFetching,
 		fetched,

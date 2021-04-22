@@ -94,7 +94,7 @@ const LPOnUbe = (props: {
 			<Alert severity="warning" style={{marginBottom: 10}}>
 				Being a liquidity provider to Ubeswap is an advanced activity and it carries certain level of
 				risk. Make sure to familiarize yourself with the Ubeswap/Uniswap details first to understand
-				these risks. <Link href="https://github.com/zviadm/savingscelo/wiki/SavingsCELO-x-Ubeswap">Learn more.</Link>
+				these risks. <Link href="https://docs.savingscelo.com/savingscelo-x-ubeswap/overview">Learn more.</Link>
 			</Alert>
 			<NumberInput
 				autoFocus

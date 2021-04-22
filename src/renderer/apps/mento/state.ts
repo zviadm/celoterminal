@@ -33,7 +33,10 @@ export const useExchangeOnChainState = (account: Account, stableToken: StableTok
 			}
 		},
 		[account, stableToken]
-	))
+	), {
+		// Faster constant refetch to continue updating the exchange rate.
+		autoRefetchSecs: 20,
+	})
 }
 
 export interface TradeEvent {
