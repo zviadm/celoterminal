@@ -64,6 +64,15 @@ export const networkName = (chainId: string): string => {
 	return networkNames[chainId] || `ChainId: ${chainId}`
 }
 
+export const cmpErc20ASC = (a: RegisteredErc20, b: RegisteredErc20): number => {
+	const isLowerA = a.symbol[0] === a.symbol[0].toLowerCase()
+	const isLowerB = b.symbol[0] === b.symbol[0].toLowerCase()
+	return (
+		isLowerA && !isLowerB ? -1 :
+		!isLowerA && isLowerB ? 1 :
+		a.symbol < b.symbol ? -1 : 1
+	)
+}
 const _registeredErc20s = (): RegisteredErc20[] => {
 	const chainId = CFG().chainId
 	switch (chainId) {
@@ -79,7 +88,9 @@ const _registeredErc20s = (): RegisteredErc20[] => {
 				chainId === mainnetChainId ? e.addresses.mainnet :
 				chainId === baklavaChainId ? e.addresses.baklava :
 				chainId === alfajoresChainId ? e.addresses.alfajores : undefined,
-		})).filter((e) => e.address !== undefined)
+		}))
+		.filter((e) => e.address !== undefined)
+		.sort(cmpErc20ASC)
 	}
 }
 export const registeredErc20s = _registeredErc20s()
