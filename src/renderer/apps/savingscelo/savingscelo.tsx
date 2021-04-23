@@ -296,6 +296,7 @@ const SavingsCELOApp = (props: {
 							savingsTotal_CELO={fetched.savingsTotals.celoTotal}
 							savingsTotal_sCELO={fetched.savingsTotals.savingsTotal}
 							ubeswapPoolURL={fetched.ubeswapPoolURL}
+							ubeswapFarmURL={fetched.ubeswapFarmURL}
 							onAddLiquidity={handleAddLiquidity}
 						/>
 					</TabPanel>
