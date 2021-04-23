@@ -49,6 +49,11 @@ test('test sc-inspector read & write', async (done) => {
 	const replaceTX = multiSig.replaceOwner(SpectronAccounts[0], SpectronAccounts[1])
 	const replaceTXData = replaceTX.txo.encodeABI()
 
+	// Test lower-case contractAddress too.
+	await contractAddress.doubleClick()
+	await contractAddress.keys(res0.contractAddress.toLowerCase())
+	await waitForRefetch()
+
 	const writeTab = await app.client.$("span=Write")
 	await writeTab.click()
 	const addOwner = await app.client.$("#contract-write-submitTransaction")
