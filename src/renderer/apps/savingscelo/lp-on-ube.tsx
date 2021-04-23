@@ -26,6 +26,7 @@ const LPOnUbe = (props: {
 	savingsTotal_CELO: BigNumber,
 	savingsTotal_sCELO: BigNumber,
 	ubeswapPoolURL: string,
+	ubeswapFarmURL: string,
 	onAddLiquidity: (
 		toAdd_CELO: BigNumber,
 		toAdd_sCELO: BigNumber,
@@ -90,6 +91,9 @@ const LPOnUbe = (props: {
 		<Box display="flex" flexDirection="column">
 			<Alert severity="info" style={{marginBottom: 10}}>
 				<Link href={props.ubeswapPoolURL}>Ubeswap CELO+sCELO Pool</Link>
+			</Alert>
+			<Alert severity="info" style={{marginBottom: 10}}>
+				<Link href={props.ubeswapFarmURL}>Ubeswap CELO+sCELO Farm</Link>
 			</Alert>
 			<Alert severity="warning" style={{marginBottom: 10}}>
 				Being a liquidity provider to Ubeswap is an advanced activity and it carries certain level of
