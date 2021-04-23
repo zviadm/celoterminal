@@ -1,7 +1,6 @@
 import axios, { AxiosInstance } from "axios"
 import { AbiItem } from "web3-utils"
 import { Address, ContractKit, RegisteredContracts } from '@celo/contractkit'
-import { toChecksumAddress } from '@celo/utils/lib/address'
 
 import { alfajoresChainId, baklavaChainId, CFG, mainnetChainId, registeredErc20s } from "../cfg"
 import { deployedBytecode as multiSigBytecode, abi as multiSigAbi } from "../core-contracts/MultiSig.json"
@@ -43,7 +42,6 @@ export interface ContractABI {
 const contractCache = new Map<string, ContractABI>()
 
 export const fetchContractAbi = async (kit: ContractKit, contractAddress: string): Promise<ContractABI> => {
-	contractAddress = toChecksumAddress(contractAddress)
 	const cached = contractCache.get(contractAddress)
 	if (cached !== undefined && !cached.proxy) {
 		return cached

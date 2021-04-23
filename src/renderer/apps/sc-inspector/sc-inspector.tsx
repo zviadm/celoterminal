@@ -1,5 +1,6 @@
 import { ContractKit } from '@celo/contractkit'
 import { AbiItem, toTransactionObject } from '@celo/connect'
+import { toChecksumAddress } from '@celo/utils/lib/address'
 import { isValidAddress } from 'ethereumjs-util'
 import BigNumber from 'bignumber.js'
 
@@ -54,9 +55,10 @@ const SCInspectorApp = (props: {
 			if (contractAddress === "") {
 				return {}
 			}
-			const contractAbi = await fetchContractAbi(kit, contractAddress)
+			const contractAddressChk = toChecksumAddress(contractAddress)
+			const contractAbi = await fetchContractAbi(kit, contractAddressChk)
 			return {
-				contractAddress: contractAddress,
+				contractAddress: contractAddressChk,
 				contractAbi,
 			}
 		},
