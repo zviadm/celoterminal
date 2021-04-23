@@ -50,7 +50,7 @@ test('test sc-inspector read & write', async (done) => {
 	const replaceTXData = replaceTX.txo.encodeABI()
 
 	// Test lower-case contractAddress too.
-	await contractAddress.click()
+	await contractAddress.doubleClick()
 	await contractAddress.keys(res0.contractAddress.toLowerCase())
 	await waitForRefetch()
 
