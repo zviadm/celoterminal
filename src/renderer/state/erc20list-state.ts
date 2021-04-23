@@ -1,6 +1,6 @@
 import * as React from "react"
 import * as log from "electron-log"
-import { CFG, registeredErc20s } from "../../lib/cfg"
+import { CFG, cmpErc20ASC, registeredErc20s } from "../../lib/cfg"
 import { coreErc20s, RegisteredErc20 } from "../../lib/erc20/core"
 
 // useErc20List returns users watched/added list of Erc20 tokens.
@@ -19,7 +19,7 @@ export const useErc20List = (): {
 		const sorted = [
 			...registered,
 			...custom,
-		].sort((a, b) => a.symbol < b.symbol ? -1 : 1)
+		].sort(cmpErc20ASC)
 		return [
 			...coreErc20s,
 			...sorted,
