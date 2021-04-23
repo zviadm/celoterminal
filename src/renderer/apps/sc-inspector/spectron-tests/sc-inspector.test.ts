@@ -44,6 +44,11 @@ test('test sc-inspector read & write', async (done) => {
 	await getOwnersResult.waitForClickable()
 	await expect(getOwnersResult.getText()).resolves.toEqual(SpectronAccounts[0])
 
+	// Test lower-case contractAddress too.
+	await contractAddress.click()
+	await contractAddress.keys(res0.contractAddress.toLowerCase())
+	await waitForRefetch()
+
 	testLog(`Testing replaceOwner() through submitTransaction() write call...`)
 	const multiSig = await kit.contracts.getMultiSig(res0.contractAddress)
 	const replaceTX = multiSig.replaceOwner(SpectronAccounts[0], SpectronAccounts[1])
