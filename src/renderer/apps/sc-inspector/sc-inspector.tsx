@@ -55,10 +55,12 @@ const SCInspectorApp = (props: {
 			if (contractAddress === "") {
 				return {}
 			}
-			const contractAddressChk = toChecksumAddress(contractAddress)
-			const contractAbi = await fetchContractAbi(kit, contractAddressChk)
+			const _contractAddress =
+				contractAddress === contractAddress.toLowerCase() ?
+				toChecksumAddress(contractAddress) : contractAddress
+			const contractAbi = await fetchContractAbi(kit, _contractAddress)
 			return {
-				contractAddress: contractAddressChk,
+				contractAddress: _contractAddress,
 				contractAbi,
 			}
 		},
