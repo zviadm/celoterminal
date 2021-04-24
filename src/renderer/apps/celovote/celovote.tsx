@@ -154,7 +154,7 @@ const CelovoteApp = (props: {
 		() => { refetch() })
 	}
 
-	const minLocked = new BigNumber(100e18)
+	const minLocked = new BigNumber(10e18)
 	const canAuthorize = fetched?.totalLocked.gte(minLocked)
 	return (
 		<AppContainer>
