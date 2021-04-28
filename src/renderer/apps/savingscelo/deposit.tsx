@@ -34,6 +34,11 @@ const Deposit = (props: {
 				You are guaranteed to receive at least equivalent amount of sCELO tokens, but you might also receive more
 				if there is cheap sCELO available in the Ubeswap pool.
 			</Alert>
+			<Alert severity="warning" style={{marginBottom: 10}}>
+				If you want to provide liquidity to CELO+sCELO Ubeswap pool, go to the Ubeswap
+				tab directly. From there, you can safely convert portion of your CELO to
+				sCELO and add liquidity to the Ubeswap pool in correct proportions, all in a single transaction.
+			</Alert>
 			<NumberInput
 				autoFocus
 				margin="normal"
