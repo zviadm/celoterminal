@@ -1,7 +1,9 @@
 import { fmtAmount } from '../../../lib/utils'
 import BigNumber from 'bignumber.js'
+import { savingsToCELO } from 'savingscelo'
 
 import { coreErc20Decimals } from '../../../lib/erc20/core'
+import { ubeGetAmountOut } from './utils'
 
 import * as React from 'react'
 import { Box, Button } from '@material-ui/core'
@@ -9,8 +11,6 @@ import Alert from '@material-ui/lab/Alert'
 
 import NumberInput from '../../components/number-input'
 import Link from '../../components/link'
-import { ubeGetAmountOut } from './utils'
-import { savingsToCELO } from 'savingscelo'
 
 const Deposit = (props: {
 	balance_CELO: BigNumber,
