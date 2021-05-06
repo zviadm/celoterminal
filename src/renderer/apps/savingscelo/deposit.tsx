@@ -9,9 +9,15 @@ import Alert from '@material-ui/lab/Alert'
 
 import NumberInput from '../../components/number-input'
 import Link from '../../components/link'
+import { ubeGetAmountOut } from './utils'
+import { savingsToCELO } from 'savingscelo'
 
 const Deposit = (props: {
 	balance_CELO: BigNumber,
+	ubeReserve_CELO: BigNumber,
+	ubeReserve_sCELO: BigNumber,
+	savingsTotal_CELO: BigNumber,
+	savingsTotal_sCELO: BigNumber,
 	ubeswapPoolURL: string,
 	onDeposit: (toDeposit_CELO: BigNumber, cb: (e?: Error) => void) => void,
 }): JSX.Element => {
@@ -25,13 +31,22 @@ const Deposit = (props: {
 			(e?: Error) => { if (!e) { setToDeposit("") } }
 		)
 	}
+
+	const toDeposit_CELO = new BigNumber(toDeposit).shiftedBy(coreErc20Decimals)
+	const fromUBE_CELO = savingsToCELO(
+		ubeGetAmountOut(
+			toDeposit_CELO,
+			props.ubeReserve_CELO, props.ubeReserve_sCELO),
+		props.savingsTotal_sCELO, props.savingsTotal_CELO)
+	const toReceive_CELO = BigNumber.maximum(toDeposit_CELO, fromUBE_CELO)
+
 	return (
 		<Box display="flex" flexDirection="column">
 			<Alert severity="info" style={{marginBottom: 10}}>
 				Deposit action automatically chooses between depositing CELO to SavingsCELO contract
-				to receive equivalent amount of sCELO tokens, or trading CELO for sCELO through <Link href={props.ubeswapPoolURL}>
+				to receive equivalent value in sCELO tokens, or trading CELO for sCELO through <Link href={props.ubeswapPoolURL}>
 				Ubeswap CELO+sCELO pool.</Link><br /><br />
-				You are guaranteed to receive at least equivalent amount of sCELO tokens, but you might also receive more
+				You are guaranteed to receive at least equivalent value of sCELO tokens, but you might also receive more
 				if there is cheap sCELO available in the Ubeswap pool.
 			</Alert>
 			<Alert severity="warning" style={{marginBottom: 10}}>
@@ -44,6 +59,7 @@ const Deposit = (props: {
 				margin="normal"
 				id="deposit-celo-input"
 				label={`Deposit (max: ${fmtAmount(props.balance_CELO, "CELO")} CELO)`}
+				helperText={!toReceive_CELO.isNaN() && `Receive ${fmtAmount(toReceive_CELO, "CELO")} CELO worth of sCELO.`}
 				InputLabelProps={{shrink: true}}
 				value={toDeposit}
 				onChangeValue={setToDeposit}
