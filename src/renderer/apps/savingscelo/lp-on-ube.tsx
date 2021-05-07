@@ -123,9 +123,9 @@ const LPOnUbe = (props: {
 			/>
 			{reserveRatio.gt(maxReserveRatio) &&
 			<Alert severity="error">
-				Ubeswap CELO+sCELO pool is out of balance. Adding liquidity now can lead to large levels
-				of losses due to future price changes. It is strongly recommended to avoid supplying
-				liquidity until pool becomes more balanced. <br /><br />
+				Ubeswap CELO+sCELO pool is out of balance. Adding liquidity now can lead to losses due to
+				future price changes. It is recommended to avoid supplying liquidity until pool becomes more balanced.
+				<br /><br />
 				Expected future &quot;Divergence Loss&quot; {maxLossPct.toFixed(3)}%.
 			</Alert>}
 			<Box
