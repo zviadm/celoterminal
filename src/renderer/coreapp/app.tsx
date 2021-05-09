@@ -57,12 +57,12 @@ const App = () => {
 		installApp(id)
 		setSelectedApp(id)
 	}, [installApp, setSelectedApp])
-	const handleUninstallApp = (id: string) => {
+	const handleUninstallApp = React.useCallback((id: string) => {
 		uninstallApp(id)
-		if (selectedApp === id) {
+		if (_selectedApp === id) {
 			setSelectedApp(Accounts.id)
 		}
-	}
+	}, [uninstallApp, setSelectedApp, _selectedApp])
 	const appList = AppList.filter((a) => a.core).concat(...installedApps)
 
 	let selectedApp = _selectedApp
