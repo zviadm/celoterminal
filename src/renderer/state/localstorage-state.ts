@@ -25,10 +25,10 @@ const useLocalStorageState = <T>(key: string, initial: T): [T, (v: T) => void] =
 	} else {
 		v = _v.v
 	}
-	const storeV = (newV: T) => {
+	const storeV = React.useCallback((newV: T) => {
 		localStorage.setItem(key, JSON.stringify(newV))
 		setV({v: newV})
-	}
+	}, [key])
 	return [v, storeV]
 }
 

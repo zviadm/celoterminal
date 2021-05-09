@@ -1,4 +1,5 @@
 import * as log from 'electron-log'
+import * as React from 'react'
 
 import { AppList } from '../apps/apps'
 import { AppDefinition } from '../components/app-definition'
@@ -14,14 +15,14 @@ export interface InstalledApp {
 export const useInstalledApps = () => {
 	const [installedApps, setInstalledApps] = useLocalStorageState<InstalledApp[]>("terminal/core/pinned-apps", [])
 
-	const installApp = (id: string) => {
+	const installApp = React.useCallback((id: string) => {
 		if (installedApps.find((p) => p.id === id)) {
 			return
 		}
 		const installedAppsCopy = installedApps.concat({id: id})
 		setInstalledApps(installedAppsCopy)
-	}
-	const uninstallApp = (id: string) => {
+	}, [installedApps, setInstalledApps])
+	const uninstallApp = React.useCallback((id: string) => {
 		// Wipe localStorage state for the app.
 		const keyPrefix = `terminal/${id}/`
 		const appKeys = Object.keys(localStorage).filter((k) => k.startsWith(keyPrefix))
@@ -30,7 +31,7 @@ export const useInstalledApps = () => {
 
 		const installedAppsCopy = installedApps.filter((p) => p.id !== id)
 		setInstalledApps(installedAppsCopy)
-	}
+	}, [installedApps, setInstalledApps])
 	return {
 		installedApps: installedApps.map((p) => appsById.get(p.id)).filter((p) => p) as AppDefinition[],
 		installApp,
