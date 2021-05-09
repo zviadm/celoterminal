@@ -43,26 +43,26 @@ const App = () => {
 		setSelectedAccount} = useAccounts()
 	const [txFunc, setTXFunc] = React.useState<
 		{f: TXFunc, onFinish?: TXFinishFunc} | undefined>()
-	const runTXs = (
+	const runTXs = React.useCallback((
 		f: TXFunc,
 		onFinish?: TXFinishFunc) => {
 		setTXFunc({f, onFinish})
-	}
+	}, [])
 	const {
 		installedApps,
 		installApp,
 		uninstallApp
 	} = useInstalledApps()
-	const handleInstallApp = (id: string) => {
+	const handleInstallApp = React.useCallback((id: string) => {
 		installApp(id)
 		setSelectedApp(id)
-	}
-	const handleUninstallApp = (id: string) => {
+	}, [installApp, setSelectedApp])
+	const handleUninstallApp = React.useCallback((id: string) => {
 		uninstallApp(id)
-		if (selectedApp === id) {
+		if (_selectedApp === id) {
 			setSelectedApp(Accounts.id)
 		}
-	}
+	}, [uninstallApp, setSelectedApp, _selectedApp])
 	const appList = AppList.filter((a) => a.core).concat(...installedApps)
 
 	let selectedApp = _selectedApp
@@ -98,7 +98,7 @@ const App = () => {
 		/>
 	}
 
-	const txOnFinish: TXFinishFunc = (e, r) => {
+	const txOnFinish: TXFinishFunc = React.useCallback((e, r) => {
 		if (e && !(e instanceof TXCancelled)) {
 			setError(e)
 			log.error(`TX:`, e)
@@ -107,7 +107,7 @@ const App = () => {
 		if (txFunc?.onFinish) {
 			txFunc.onFinish(e, r)
 		}
-	}
+	}, [txFunc, setError])
 
 	return (
 		<Box display="flex" flexDirection="column" height="100%" >

@@ -38,7 +38,7 @@ export const useAccounts = () => {
 	const [_selectedAccount, setSelectedAccount] =
 		useLocalStorageState<Account | undefined>("terminal/core/selected-account", undefined)
 	const [_hasPassword, setHasPassword] = React.useState(false)
-	const refreshAccounts = () => {
+	const refreshAccounts = React.useCallback(() => {
 		const accounts = accountsDB().readAccounts()
 		accounts.sort((a, b) => {
 			const rankA = accountRank(a)
@@ -58,7 +58,7 @@ export const useAccounts = () => {
 		}
 		setAccounts(accounts)
 		return {accounts, hasPassword}
-	}
+	}, [_hasPassword])
 	// _accounts will be undefined only once. Load accounts synchronously since
 	// all database access is synchronous anyways.
 	let accounts = _accounts
@@ -68,24 +68,24 @@ export const useAccounts = () => {
 		accounts = initial.accounts
 		hasPassword = initial.hasPassword
 	}
-	const addAccount = (a?: Account, password?: string, update?: boolean) => {
+	const addAccount = React.useCallback((a?: Account, password?: string, update?: boolean) => {
 		if (a) {
 			accountsDB().addAccount(a, password, update)
 		}
 		refreshAccounts()
-	}
-	const removeAccount = (a: Account) => {
+	}, [refreshAccounts])
+	const removeAccount = React.useCallback((a: Account) => {
 		accountsDB().removeAccount(a)
 		refreshAccounts()
-	}
-	const renameAccount = (a: Account, name: string) => {
+	}, [refreshAccounts])
+	const renameAccount = React.useCallback((a: Account, name: string) => {
 		accountsDB().renameAccount(a, name)
 		refreshAccounts()
-	}
-	const changePassword = (oldPassword: string, newPassword: string) => {
+	}, [refreshAccounts])
+	const changePassword = React.useCallback((oldPassword: string, newPassword: string) => {
 		accountsDB().changePassword(oldPassword, newPassword)
 		refreshAccounts()
-	}
+	}, [refreshAccounts])
 	const selectedAccount =
 		!accounts ? _selectedAccount :
 		accounts.length === 0 ? undefined :
