@@ -19,9 +19,6 @@ test('create MultiSig account', async (done) => {
 
 	// Deploy contracts && Initialize, total of 4 transactions.
 	await confirmTXs({txCount: 4, skipWaitForRefetch: true})
-
-	// select created multisig account. there are 3 test accounts, 4th one will be MultiSig.
-	await selectAccount(3)
 	done()
 })
 
@@ -29,8 +26,12 @@ test('test MultiSig app', async (done) => {
 	await installOptionalApp("multisig")
 	await waitForRefetch()
 
+	// select created multisig account. there are 3 test accounts, 4th one will be MultiSig.
+	await selectAccount(3)
+	await waitForRefetch()
+
 	const ownersTab = await app.client.$("span=Owners")
-	await ownersTab.waitForClickable({timeout: 20000})
+	await ownersTab.waitForClickable()
 	await ownersTab.click()
 
 	// Add `A1` account as another owner.
