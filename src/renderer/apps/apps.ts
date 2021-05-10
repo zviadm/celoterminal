@@ -9,8 +9,8 @@ import { MultiSig } from './multisig/def'
 import { Portfolio } from './portfolio/def'
 import { SavingsCELO } from './savingscelo/def'
 import { SendReceive } from './send-receive/def'
+import { WalletConnect } from './wallet-connect/def'
 import { Crasher } from './test-crasher/def'
-
 
 export const AppList: AppDefinition[] = [
 	// Core Apps.
@@ -18,6 +18,7 @@ export const AppList: AppDefinition[] = [
 	SendReceive,
 	Locker,
 	Governance,
+	WalletConnect,
 
 	// Optional Apps.
 	Mento,
