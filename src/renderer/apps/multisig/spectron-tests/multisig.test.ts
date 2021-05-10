@@ -30,7 +30,7 @@ test('test MultiSig app', async (done) => {
 	await waitForRefetch()
 
 	const ownersTab = await app.client.$("span=Owners")
-	await ownersTab.waitForClickable()
+	await ownersTab.waitForClickable({timeout: 20000})
 	await ownersTab.click()
 
 	// Add `A1` account as another owner.
