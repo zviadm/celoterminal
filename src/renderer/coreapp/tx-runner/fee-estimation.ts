@@ -19,6 +19,9 @@ export const estimateGas = async (
 	if (tx.params?.gas) {
 		return new BigNumber(tx.params?.gas)
 	}
+	if (tx.tx === "eth_signTransaction") {
+		throw new Error("Gas must be provided before signing transaction!")
+	}
 	if (tx.tx.defaultParams?.gas) {
 		return new BigNumber(tx.tx.defaultParams?.gas)
 	}

@@ -17,36 +17,45 @@ export interface ParsedTransaction {
 	contractAddress?: string,
 }
 
+export const extractTXDestinationAndData = (tx: Transaction): {destination?: string, data?: string} => {
+	return {
+		destination: tx.tx === "eth_signTransaction" ? tx.params?.to : tx.tx.txo._parent?.options.address,
+		data: tx.tx === "eth_signTransaction" ? tx.params?.data : tx.tx.txo.encodeABI(),
+	}
+}
+
 export const parseTransaction = async (
 	kit: ContractKit,
 	tx: Transaction): Promise<ParsedTransaction> => {
-	const contractAddress: string | undefined = tx.tx.txo._parent?.options.address
-	const txEncodedAbi = tx.tx.txo.encodeABI()
+	const {destination, data} = extractTXDestinationAndData(tx)
+	if (!data) {
+		throw new Error(`Transaction is missing data.`)
+	}
 
 	let name
 	let parsedTX
 	let parseErr
-	if (contractAddress) {
+	if (destination) {
 		let verifiedName
 		try {
-			const contractAbi = await fetchContractAbi(kit, contractAddress)
+			const contractAbi = await fetchContractAbi(kit, destination)
 			verifiedName = contractAbi.verifiedName
-			parsedTX = parseTransactionData(kit.web3, contractAbi.abi, txEncodedAbi)
+			parsedTX = parseTransactionData(kit.web3, contractAbi.abi, data)
 		} catch (e) {
-			verifiedName = await verifiedContractName(kit, contractAddress)
+			verifiedName = await verifiedContractName(kit, destination)
 			parseErr = `${e}`
 		}
-		name = verifiedName ? `${verifiedName} (${fmtAddress(contractAddress)})` : fmtAddress(contractAddress)
+		name = verifiedName ? `${verifiedName} (${fmtAddress(destination)})` : fmtAddress(destination)
 	} else {
 		name = "DEPLOY NEW CONTRACT"
 	}
 	return {
-		encodedABI: txEncodedAbi,
+		encodedABI: data,
 		parsedTX: parsedTX,
 		parseErr: parseErr,
 		sendValue: tx.params?.value ? new BigNumber(tx.params.value.toString()) : undefined,
 
 		contractName: name,
-		contractAddress: contractAddress,
+		contractAddress: destination,
 	}
 }

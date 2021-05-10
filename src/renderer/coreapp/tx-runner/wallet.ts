@@ -1,5 +1,7 @@
 import TransportNodeHid from '@ledgerhq/hw-transport-node-hid-noevents'
 import { ReadOnlyWallet, toTransactionObject } from '@celo/connect'
+import { ContractKit } from '@celo/contractkit'
+import { stringToSolidityBytes } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 import { AddressValidation, newLedgerWalletWithSetup } from '@celo/wallet-ledger'
 import { LocalWallet } from '@celo/wallet-local'
 
@@ -9,8 +11,7 @@ import { UserError } from '../../../lib/error'
 import { CFG } from '../../../lib/cfg'
 import { spectronChainId } from '../../../lib/spectron-utils/constants'
 import { Transaction } from '../../components/app-definition'
-import { ContractKit } from '@celo/contractkit'
-import { stringToSolidityBytes } from '@celo/contractkit/lib/wrappers/BaseWrapper'
+import { extractTXDestinationAndData } from './transaction-parser'
 
 export async function createWallet(
 	account: Account,
@@ -63,13 +64,16 @@ export async function createWallet(
 				if (tx.executeUsingParentAccount) {
 					return tx
 				}
-				const data = stringToSolidityBytes(tx.tx.txo.encodeABI())
-				const destination = tx.tx.txo._parent?.options.address
+				const {destination, data} = extractTXDestinationAndData(tx)
 				if (!destination) {
 					throw new Error(`MultiSig accounts can not deploy new contracts.`)
 				}
+				if (!data) {
+					throw new Error(`Transaction is missing data.`)
+				}
+				const dataBytes = stringToSolidityBytes(data)
 				const txo = multiSig.methods.submitTransaction(
-					destination, tx.params?.value?.toString() || 0, data)
+					destination, tx.params?.value?.toString() || 0, dataBytes)
 				// TODO(zviad): if GAS was provided, we probably want to pass it through and add a bit
 				// more GAS because of MultiSig overhead?
 				return {tx: toTransactionObject(kit.connection, txo)}

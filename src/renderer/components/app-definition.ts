@@ -1,11 +1,12 @@
 import { ContractKit } from '@celo/contractkit'
-import { CeloTransactionObject, CeloTx, CeloTxReceipt } from '@celo/connect'
+import { CeloTransactionObject, CeloTx, CeloTxReceipt, EncodedTransaction } from '@celo/connect'
 
 import { Account } from '../../lib/accounts/accounts'
 
 export interface Transaction {
-	tx: CeloTransactionObject<unknown>
-	params? : Pick<CeloTx, "value" | "gas">
+	tx: CeloTransactionObject<unknown> | "eth_signTransaction"
+	params?: CeloTx,
+
 	// This flag is useful for contract/indirect account types. This
 	// flag signals that transaction should be executed using the parent/owner account
 	// as it is coming from the parent account itself.
@@ -18,7 +19,8 @@ export interface Transaction {
 // by supplying a TXFunc callback that prepares transactions to run. Once
 // TXRunner completes (or errors out), supplied onFinish call back will be called.
 export type TXFunc = (kit: ContractKit) => Promise<Transaction[]>
-export type TXFinishFunc = (e?: Error, r?: CeloTxReceipt[]) => void
+export type TXFinishFunc = (
+	e?: Error, receipts?: CeloTxReceipt[], signedTXs?: EncodedTransaction[]) => void
 
 export interface AppDefinition {
 	// ID should match the app directory name. It is best to avoid changing the ID
