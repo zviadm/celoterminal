@@ -29,7 +29,7 @@ export const parseTransaction = async (
 	tx: Transaction): Promise<ParsedTransaction> => {
 	const {destination, data} = extractTXDestinationAndData(tx)
 	if (!data) {
-		throw new Error(`Transaction is missing data.`)
+		throw new Error(`Unexpected Error: Failed to parse transaction data.`)
 	}
 
 	let name

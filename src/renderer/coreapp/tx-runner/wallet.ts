@@ -66,10 +66,10 @@ export async function createWallet(
 				}
 				const {destination, data} = extractTXDestinationAndData(tx)
 				if (!destination) {
-					throw new Error(`MultiSig accounts can not deploy new contracts.`)
+					throw new UserError(`MultiSig accounts can not deploy new contracts.`)
 				}
 				if (!data) {
-					throw new Error(`Transaction is missing data.`)
+					throw new Error(`Unexpected Error: Failed to parse transaction data.`)
 				}
 				const dataBytes = stringToSolidityBytes(data)
 				const txo = multiSig.methods.submitTransaction(

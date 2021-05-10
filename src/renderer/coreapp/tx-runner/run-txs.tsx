@@ -13,7 +13,6 @@ import { transformError } from '../ledger-utils'
 import { Account } from '../../../lib/accounts/accounts'
 import { cfgNetworkURL, newKitWithTimeout } from '../../state/kit'
 import { coreErc20Decimals } from '../../../lib/erc20/core'
-import { UserError } from '../../../lib/error'
 
 import * as React from 'react'
 import {
@@ -159,7 +158,7 @@ const RunTXs = (props: {
 						}
 						if (tx.tx === "eth_signTransaction") {
 							if (!tx.params) {
-								throw new UserError(`Transaction information missing.`)
+								throw new Error(`eth_signTransaction: Params must be provided to sign a transaction.`)
 							}
 							const signedTX = await w.wallet.signTransaction(tx.params)
 							signedTXs.push(signedTX)
