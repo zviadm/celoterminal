@@ -3,7 +3,8 @@ import * as React from 'react'
 import {
 	makeStyles, DialogContent, Dialog, DialogTitle, DialogActions, Button,
 	List, ListItem, ListItemText, ListItemIcon, Box, ListItemSecondaryAction,
-	IconButton
+	IconButton,
+	Badge
 } from '@material-ui/core'
 import HighlightOffIcon from '@material-ui/icons/HighlightOff'
 
@@ -25,6 +26,7 @@ const AppMenu = (props: {
 	selectedApp: string,
 	setSelectedApp: (selectedApp: string) => void,
 	appList: AppDefinition[],
+	notificationsByApp: Map<string, number>,
 	disableApps: boolean,
 	onUninstallApp: (id: string) => void,
 }): JSX.Element => {
@@ -60,7 +62,11 @@ const AppMenu = (props: {
 							selected={props.selectedApp === a.id}
 							disabled={a.id !== Accounts.id && props.disableApps}
 							onClick={() => { props.setSelectedApp(a.id) }}>
-							<ListItemIcon className={classes.listIcon}>{a.icon}</ListItemIcon>
+							<ListItemIcon className={classes.listIcon}>
+								<Badge color="secondary" badgeContent={props.notificationsByApp.get(a.id) || 0}>
+									{a.icon}
+								</Badge>
+							</ListItemIcon>
 							<ListItemText>{a.title}</ListItemText>
 							<ListItemSecondaryAction hidden={a.core}>
 								<IconButton

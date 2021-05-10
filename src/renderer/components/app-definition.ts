@@ -38,4 +38,10 @@ export interface AppDefinition {
 		selectedAccount: Account,
 		runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 	}) => JSX.Element
+
+	// notifyCount function gets called periodically by the core app framework.
+	// Apps that do any kind of background fetching can return notification count
+	// that will be displayed as a badge counter in the app-menu.
+	// This function mustn't do any calculations internally and must return immediatelly.
+	notifyCount?: () => number,
 }
