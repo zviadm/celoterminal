@@ -63,7 +63,32 @@ const App = () => {
 			setSelectedApp(Accounts.id)
 		}
 	}, [uninstallApp, setSelectedApp, _selectedApp])
-	const appList = AppList.filter((a) => a.core).concat(...installedApps)
+	const appList = React.useMemo(
+		() => (AppList.filter((a) => a.core).concat(...installedApps)),
+		[installedApps])
+	const [notificationsByApp, setNotificationsByApp] = React.useState<Map<string, number>>(new Map<string, number>())
+	React.useEffect(() => {
+		const t = setInterval(
+			() => {
+				const byApp = new Map<string, number>()
+				for (const app of appList) {
+					const notifications = app.notifyCount && app.notifyCount()
+					if (notifications) {
+						byApp.set(app.id, notifications)
+					}
+				}
+				setNotificationsByApp((n) => {
+					let changed = n.size !== byApp.size
+					if (!changed) {
+						n.forEach((v, k) => {
+							changed ||= (byApp.get(k) !== v)
+						})
+					}
+					return changed ? byApp : n
+				})
+			}, 500)
+		return () => { clearInterval(t) }
+	}, [appList])
 
 	let selectedApp = _selectedApp
 	let renderedApp
@@ -139,6 +164,7 @@ const App = () => {
 						selectedApp={selectedApp}
 						setSelectedApp={setSelectedApp}
 						appList={appList}
+						notificationsByApp={notificationsByApp}
 						disableApps={!selectedAccount}
 						onUninstallApp={handleUninstallApp}
 					/>
