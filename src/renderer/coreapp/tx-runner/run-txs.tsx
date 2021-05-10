@@ -1,5 +1,5 @@
 import log from 'electron-log'
-import { CeloTxReceipt } from '@celo/connect'
+import { CeloTxReceipt, EncodedTransaction } from '@celo/connect'
 
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { EstimatedFee, estimateGas } from './fee-estimation'
@@ -80,7 +80,8 @@ const RunTXs = (props: {
 	React.useEffect(() => {
 		(async () => {
 			let onFinishErr: Error | undefined
-			let onFinishResult: CeloTxReceipt[] | undefined
+			let onFinishReceipts: CeloTxReceipt[] | undefined
+			let onFinishSignedTXs: EncodedTransaction[] | undefined
 			try {
 				const w = await createWallet(selectedAccount, accounts, password)
 				const cfg = CFG()
@@ -114,7 +115,8 @@ const RunTXs = (props: {
 					}
 					setPreparedTXs(parsedTXs)
 
-					const r: CeloTxReceipt[] = []
+					const receipts: CeloTxReceipt[] = []
+					const signedTXs: EncodedTransaction[] = []
 					for (let idx = 0; idx < txs.length; idx += 1) {
 						let tx = txs[idx]
 						if (w.transformTX) {
@@ -154,50 +156,59 @@ const RunTXs = (props: {
 							setStage("sending")
 							setTXSendMS(nowMS())
 						}
-						const result = await tx.tx.send({
-							...tx.params,
-							// perf improvement, avoid re-estimating gas again.
-							gas: estimatedGas.toNumber(),
-						})
-						let txHash
-						try {
-							txHash = await result.getHash()
-						} catch (e) {
-							if (e?.message?.includes("already known") ||
-								e?.message?.includes("nonce too low")) {
+						if (tx.tx === "eth_signTransaction") {
+							if (!tx.params) {
+								throw new Error(`eth_signTransaction: Params must be provided to sign a transaction.`)
+							}
+							const signedTX = await w.wallet.signTransaction(tx.params)
+							signedTXs.push(signedTX)
+						} else {
+							const result = await tx.tx.send({
+								...tx.params,
+								// perf improvement, avoid re-estimating gas again.
+								gas: estimatedGas.toNumber(),
+							})
+							let txHash
+							try {
+								txHash = await result.getHash()
+							} catch (e) {
+								if (e?.message?.includes("already known") ||
+									e?.message?.includes("nonce too low")) {
+									throw new Error(
+										`Transaction was aborted due to a potential conflict with another concurrent transaction. ${e}.`)
+								}
+								if (e?.message?.includes("Invalid JSON RPC response")) {
+									throw new Error(
+										`Timed out while trying to send the transaction. ` +
+										`Transaction might have been sent and might get processed anyways. ` +
+										`Wait a bit before retrying to avoid performing your transaction twice.`)
+								}
+								if (e?.message?.includes("Ledger device:")) {
+									throw e
+								}
 								throw new Error(
-									`Transaction was aborted due to a potential conflict with another concurrent transaction. ${e}.`)
+									`Unexpected error occured while trying to send the transaction. ` +
+									`Transaction might have been sent and might get processed anyways. ${e}.`)
 							}
-							if (e?.message?.includes("Invalid JSON RPC response")) {
-								throw new Error(
-									`Timed out while trying to send the transaction. ` +
-									`Transaction might have been sent and might get processed anyways. ` +
-									`Wait a bit before retrying to avoid performing your transaction twice.`)
+							log.info(`TX-HASH:`, txHash)
+							// TODO(zviadm): For non-local wallets need to somehow intercept when signing is complete.
+							if (executingAccount.type !== "local") {
+								setStage("sending")
+								setTXSendMS(nowMS())
 							}
-							if (e?.message?.includes("Ledger device:")) {
-								throw e
-							}
-							throw new Error(
-								`Unexpected error occured while trying to send the transaction. ` +
-								`Transaction might have been sent and might get processed anyways. ${e}.`)
-						}
-						log.info(`TX-HASH:`, txHash)
-						// TODO(zviadm): For non-local wallets need to somehow intercept when signing is complete.
-						if (executingAccount.type !== "local") {
-							setStage("sending")
-							setTXSendMS(nowMS())
-						}
 
-						const receipt = await result.waitReceipt()
-						setTXProgress(100)
-						log.info(`TX-RECEIPT:`, receipt)
-						r.push(receipt)
+							const receipt = await result.waitReceipt()
+							setTXProgress(100)
+							log.info(`TX-RECEIPT:`, receipt)
+							receipts.push(receipt)
+						}
 					}
 					setStage("finishing")
 					// Wait a bit after final TX so that it is more likely that blockchain state
 					// is now updated in most of the full nodes.
 					await sleep(500)
-					onFinishResult = r
+					onFinishReceipts = receipts
+					onFinishSignedTXs = signedTXs
 				} finally {
 					kit.stop()
 					if (w.transport) {
@@ -207,7 +218,7 @@ const RunTXs = (props: {
 			} catch (e) {
 				onFinishErr = transformError(e)
 			} finally {
-				onFinish(onFinishErr, onFinishResult)
+				onFinish(onFinishErr, onFinishReceipts, onFinishSignedTXs)
 			}
 		})()
 	// NOTE: This effect is expected to run only once on first render and it is expected

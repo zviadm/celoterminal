@@ -98,14 +98,14 @@ const App = () => {
 		/>
 	}
 
-	const txOnFinish: TXFinishFunc = React.useCallback((e, r) => {
+	const txOnFinish: TXFinishFunc = React.useCallback((e, ...args) => {
 		if (e && !(e instanceof TXCancelled)) {
 			setError(e)
 			log.error(`TX:`, e)
 		}
 		setTXFunc(undefined)
 		if (txFunc?.onFinish) {
-			txFunc.onFinish(e, r)
+			txFunc.onFinish(e, ...args)
 		}
 	}, [txFunc, setError])
 
