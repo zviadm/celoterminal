@@ -1,47 +1,80 @@
+import { Account } from '../../../lib/accounts/accounts'
+
 import * as React from 'react'
 
-import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogContent from '@material-ui/core/DialogContent'
+import {
+	Dialog, DialogTitle, DialogContent,
+	LinearProgress, TextField, Button, DialogActions, Box
+ } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import DialogActions from '@material-ui/core/DialogActions'
 
 const UnlockAccount = (props: {
-	onPassword: (p: string) => void,
+	account: Account,
+	unlocking: boolean,
+	onUnlock: (p: string) => void,
 	onCancel: () => void,
 }): JSX.Element => {
 	const [password, setPassword] = React.useState("")
 	const handleUnlock = () => {
-		props.onPassword(password)
+		props.onUnlock(password)
 	}
 	const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => { setPassword(e.target.value) }
 	const handleOnKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => { (e.key === "Enter") && handleUnlock() }
+
+	const accountType = props.account.type
+	const onCancel = props.onCancel
+	React.useEffect(() => {
+		if (
+			accountType !== "local" &&
+			accountType !== "ledger"
+			) {
+			onCancel()
+		}
+	}, [accountType, onCancel])
 	return (
 		<Dialog open={true} onClose={props.onCancel}>
 			<DialogTitle>Unlock account</DialogTitle>
-			<DialogContent>
-				<Alert severity="info">
-					Password is required to unlock your local account.
-				</Alert>
-				<TextField
-					id="password-input"
-					autoFocus
-					margin="dense"
-					type="password"
-					label={`Password`}
-					variant="outlined"
-					value={password}
-					size="medium"
-					fullWidth={true}
-					onChange={handleOnChange}
-					onKeyPress={handleOnKeyPress}
-				/>
+			<DialogContent style={{width: 500}}>
+				<Box display="flex" flexDirection="column">
+					{
+					accountType === "local" ?
+					<>
+						<Alert severity="info">
+							Password is required to unlock your local account.
+						</Alert>
+						<TextField
+							id="password-input"
+							autoFocus
+							margin="dense"
+							type="password"
+							label={`Password`}
+							variant="outlined"
+							value={password}
+							size="medium"
+							fullWidth={true}
+							onChange={handleOnChange}
+							onKeyPress={handleOnKeyPress}
+							disabled={props.unlocking}
+						/>
+					</> :
+					accountType === "ledger" ?
+					<>
+					<Alert severity="info">
+						Make sure your Ledger device is connected, unlocked, and the Celo app is launched.
+					</Alert>
+					</> :
+					<></>
+					}
+					{props.unlocking && <LinearProgress color="primary" />}
+				</Box>
 			</DialogContent>
 			<DialogActions>
 				<Button
+					disabled={props.unlocking}
+					onClick={props.onCancel}>Cancel</Button>
+				<Button
 					id="unlock-password"
+					disabled={props.unlocking}
 					onClick={handleUnlock}>Unlock</Button>
 			</DialogActions>
 		</Dialog>

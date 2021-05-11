@@ -6,7 +6,7 @@ export const transformError = (e: Error): Error => {
 		e.message.includes("Ledger device: INS_NOT_SUPPORTED")) {
 		return new UserError(
 			`Ledger device: Can not connect. Make sure your Ledger device is ` +
-			`connected, unlocked, and Celo app is launched.`)
+			`connected, unlocked, and the Celo app is launched.`)
 	}
 	if (e.message.includes("Ledger device:")) {
 		return new UserError(e.message)

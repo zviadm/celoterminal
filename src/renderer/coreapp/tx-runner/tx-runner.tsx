@@ -1,11 +1,13 @@
 import { Account } from '../../../lib/accounts/accounts'
 import useSessionState from '../../state/session-state'
 import { decryptLocalKey } from '../../../lib/accounts/accountsdb'
-import { canDecryptLocalKey, rootAccount } from './wallet'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { nowMS } from '../../state/time'
+import { transformError } from '../ledger-utils'
+import { canDecryptLocalKey, createWallet, rootAccount, Wallet } from './wallet'
 
 import * as React from 'react'
+
 import UnlockAccount from './unlock-account'
 import RunTXs, { TXCancelled } from './run-txs'
 
@@ -21,39 +23,71 @@ function TXRunner(props: {
 		password: string,
 		expireMS: number,
 	} | undefined>("terminal/core/password", undefined)
-	let pwValid = false
-	const executingAccount = rootAccount(props.selectedAccount, props.accounts)
-	if (executingAccount.type === "local") {
-		// check password.
-		pwValid = (pw ?
-			pw && pw.expireMS > nowMS() &&
-			canDecryptLocalKey(executingAccount, pw.password) : false)
-		if (!pwValid && pw) {
-			setPW(undefined)
-		}
-	}
-	const pwNeeded = executingAccount.type === "local" && !pwValid
-	const pwOnCancel = () => {
-		props.onFinish(new TXCancelled(), [])
-	}
-	const pwOnPassword = (p: string) => {
-		if (executingAccount.type !== "local") {
+	const [wallet, setWallet] = React.useState<
+		"create-wallet" |
+		"unlock-wallet" |
+		Wallet>("create-wallet")
+
+	const selectedAccount = props.selectedAccount
+	const accounts = props.accounts
+	const executingAccount = rootAccount(selectedAccount, accounts)
+
+	React.useEffect(() => {
+		if (wallet !== "create-wallet") {
 			return
 		}
-		decryptLocalKey(executingAccount.encryptedData, p)
-		setPW({password: p, expireMS: nowMS() + cacheMS})
+		if (executingAccount.type === "local") {
+			// check password.
+			const pwValid = (pw ?
+				pw && pw.expireMS > nowMS() &&
+				canDecryptLocalKey(executingAccount, pw.password) : false)
+			if (!pwValid) {
+				if (pw) { setPW(undefined) }
+				setWallet("unlock-wallet")
+				return
+			}
+		}
+		let cancelled = false
+		;(async () => {
+			const w = await createWallet(selectedAccount, accounts, pw?.password)
+			if (cancelled) { return }
+			setWallet(w)
+		})()
+		.catch((e) => {
+			setWallet("unlock-wallet")
+			throw transformError(e)
+		})
+		return () => { cancelled = true }
+	}, [wallet, selectedAccount, accounts, executingAccount, pw, setPW])
+
+	const handleCancel = () => {
+		props.onFinish(new TXCancelled())
 	}
-	return pwNeeded ?
-		<UnlockAccount
-			onCancel={pwOnCancel}
-			onPassword={pwOnPassword}
-		/> :
-		<RunTXs
+	const handleUnlock = (p: string) => {
+		if (executingAccount.type === "local") {
+			decryptLocalKey(executingAccount.encryptedData, p)
+			setPW({password: p, expireMS: nowMS() + cacheMS})
+		}
+		setWallet("create-wallet")
+	}
+
+	switch (wallet) {
+	case "create-wallet":
+	case "unlock-wallet":
+		return <UnlockAccount
+			account={executingAccount}
+			unlocking={wallet === "create-wallet"}
+			onCancel={handleCancel}
+			onUnlock={handleUnlock}
+		/>
+	default:
+		return <RunTXs
 			selectedAccount={props.selectedAccount}
 			accounts={props.accounts}
-			password={pw?.password}
+			wallet={wallet}
 			txFunc={props.txFunc}
 			onFinish={props.onFinish}
 		/>
+	}
 }
 export default TXRunner
