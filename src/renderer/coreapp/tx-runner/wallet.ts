@@ -13,14 +13,16 @@ import { spectronChainId } from '../../../lib/spectron-utils/constants'
 import { Transaction } from '../../components/app-definition'
 import { extractTXDestinationAndData } from './transaction-parser'
 
-export async function createWallet(
-	account: Account,
-	accounts: Account[],
-	password?: string): Promise<{
+export interface Wallet {
 	wallet: ReadOnlyWallet
 	transformTX?: (kit: ContractKit, tx: Transaction) => Promise<Transaction>
 	transport?: {close: () => void}
-}> {
+}
+
+export async function createWallet(
+	account: Account,
+	accounts: Account[],
+	password?: string): Promise<Wallet> {
 	switch (account.type) {
 		case "local": {
 			if (!password) {
