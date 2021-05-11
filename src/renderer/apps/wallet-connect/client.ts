@@ -28,8 +28,8 @@ export class WalletConnectGlobal {
 			}
 			const storage = new SessionStorage()
 			this._wc = await WalletConnectClient.init({
-				relayProvider: "wss://walletconnect.celo-networks-dev.org",
-				// relayProvider: "wss://walletconnect.celo.org",
+				relayProvider: "wss://walletconnect.celo.org",
+				// relayProvider: "wss://walletconnect.celo-networks-dev.org",
 				controller: true,
 				storage: storage,
 			})
