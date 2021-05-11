@@ -171,7 +171,7 @@ const WalletConnectApp = (props: {
 				</Alert>
 				{initState === "initializing" && <LinearProgress />}
 			</AppSection>
-			{(requestsByAccount.size > 0) &&
+			{requestsByAccount.size > 0 &&
 			<AppSection>
 				<Alert severity="info" style={{marginTop: 10}}>
 					Switch account using the account selector drop-down to sign pending transactions.
@@ -226,6 +226,7 @@ const WalletConnectApp = (props: {
 					disabled={connectURI === ""}
 					>Connect</Button>
 			</AppSection>
+			{sessions.length > 0 &&
 			<AppSection>
 				<SectionTitle>Connected DApps</SectionTitle>
 				<List>
@@ -237,7 +238,7 @@ const WalletConnectApp = (props: {
 					/>
 				})}
 				</List>
-			</AppSection>
+			</AppSection>}
 			</>}
 		</AppContainer>
 	)
