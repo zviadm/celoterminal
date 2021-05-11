@@ -130,7 +130,7 @@ export class WalletConnectGlobal {
 	}
 
 	public notifyCount = (): number => {
-		this.init()
+		if (!this._wc) { this.init() }
 		return this.requests.length
 	}
 
