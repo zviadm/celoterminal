@@ -42,7 +42,9 @@ const RevealLocalKey = (props: {
 	if (!localKey) {
 		return (
 			<UnlockAccount
-				onPassword={handlePassword}
+				account={props.account}
+				unlocking={false}
+				onUnlock={handlePassword}
 				onCancel={props.onClose}
 			/>
 		)

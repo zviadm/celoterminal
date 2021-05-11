@@ -4,7 +4,7 @@ import { CeloTxReceipt, EncodedTransaction } from '@celo/connect'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { EstimatedFee, estimateGas } from './fee-estimation'
 import { ParsedTransaction, parseTransaction } from './transaction-parser'
-import { createWallet, rootAccount } from './wallet'
+import { rootAccount, Wallet } from './wallet'
 import { CFG, explorerRootURL } from '../../../lib/cfg'
 import { spectronChainId } from '../../../lib/spectron-utils/constants'
 import { nowMS } from '../../state/time'
@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
 const RunTXs = (props: {
 	selectedAccount: Account,
 	accounts: Account[],
-	password?: string,
+	wallet: Wallet,
 	txFunc: TXFunc,
 	onFinish: TXFinishFunc,
 }): JSX.Element => {
@@ -73,17 +73,14 @@ const RunTXs = (props: {
 
 	const txFunc = props.txFunc
 	const onFinish = props.onFinish
-	const selectedAccount = props.selectedAccount
-	const accounts = props.accounts
-	const password = props.password
-	const executingAccount = rootAccount(selectedAccount, accounts)
+	const executingAccount = rootAccount(props.selectedAccount, props.accounts)
+	const w = props.wallet
 	React.useEffect(() => {
 		(async () => {
 			let onFinishErr: Error | undefined
 			let onFinishReceipts: CeloTxReceipt[] | undefined
 			let onFinishSignedTXs: EncodedTransaction[] | undefined
 			try {
-				const w = await createWallet(selectedAccount, accounts, password)
 				const cfg = CFG()
 				if (cfg.chainId !== spectronChainId) {
 					// NOTE: see comment in `createWallet` about limitations of celo-devchain.
