@@ -36,6 +36,7 @@ export class WalletConnectGlobal {
 			})
 			this.cleanupPairings()
 			this._wc.on(CLIENT_EVENTS.session.request, this.onRequest)
+			this._wc.on(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
 			return this._wc
 		} finally {
 			this.wcMX.release()

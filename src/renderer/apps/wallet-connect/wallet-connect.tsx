@@ -33,6 +33,9 @@ const WalletConnectApp = (props: {
 	const [initError, setInitError] = React.useState<Error | undefined>()
 	const [sessions, setSessions] = React.useState<SessionTypes.Settled[]>([])
 
+	const sessionsSync = React.useCallback(() => {
+		setSessions([...wcGlobal.wc().session.values])
+	}, [])
 	React.useEffect(() => {
 		if (initState !== "initializing") {
 			return
@@ -41,13 +44,8 @@ const WalletConnectApp = (props: {
 		;(async () => {
 			const wc = await wcGlobal.init()
 			if (!cancelled) {
-				wc.on(CLIENT_EVENTS.session.created, () => {
-					setSessions([...wc.session.values])
-				})
-				wc.on(CLIENT_EVENTS.session.deleted, () => {
-					setSessions([...wc.session.values])
-					wcGlobal.cleanupPairings()
-				})
+				wc.on(CLIENT_EVENTS.session.created, sessionsSync)
+				wc.on(CLIENT_EVENTS.session.deleted, sessionsSync)
 				setSessions([...wc.session.values])
 				setInitState("initialized")
 			}
@@ -60,15 +58,15 @@ const WalletConnectApp = (props: {
 			throw e
 		})
 		return () => { cancelled = true }
-	}, [initState])
+	}, [initState, sessionsSync])
 	React.useEffect(() => {
 		return () => {
 			const wc = wcGlobal.wcMaybe()
 			if (!wc) { return }
-			wc.events.removeAllListeners(CLIENT_EVENTS.session.created)
-			wc.events.removeAllListeners(CLIENT_EVENTS.session.deleted)
+			wc.removeListener(CLIENT_EVENTS.session.created, sessionsSync)
+			wc.removeListener(CLIENT_EVENTS.session.deleted, sessionsSync)
 		}
-	}, [])
+	}, [sessionsSync])
 
 	const [requests, setRequests] = React.useState([...wcGlobal.requests])
 	React.useEffect(() => {
