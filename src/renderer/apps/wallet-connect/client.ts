@@ -3,7 +3,6 @@ import WalletConnectClient, { CLIENT_EVENTS } from '@walletconnect/client'
 import { ERROR, getError } from '@walletconnect/utils'
 import { SessionTypes } from '@walletconnect/types'
 import { Lock } from '@celo/base/lib/lock'
-import { SupportedMethods } from '@celo/wallet-walletconnect'
 
 import SessionStorage from './storage'
 import { CFG } from '../../../lib/cfg'
@@ -98,7 +97,7 @@ export class WalletConnectGlobal {
 		}
 
 		switch (event.request.method) {
-		case SupportedMethods.signTransaction:
+		case "eth_signTransaction":
 			this.requests.push(event)
 			break
 		default:
