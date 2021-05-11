@@ -44,6 +44,7 @@ const WalletConnectApp = (props: {
 				})
 				wc.on(CLIENT_EVENTS.session.deleted, () => {
 					setSessions([...wc.session.values])
+					wcGlobal.cleanupPairings()
 				})
 				setSessions([...wc.session.values])
 				setInitState("initialized")

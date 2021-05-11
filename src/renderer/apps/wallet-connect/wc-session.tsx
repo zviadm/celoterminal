@@ -14,7 +14,8 @@ import Link from '../../components/link'
 const WCSession = (props: {
 	session: SessionTypes.Settled,
 }): JSX.Element => {
-	const icon = props.session.peer.metadata.icons[0]
+	const peer = props.session.peer
+	const icon = peer.metadata.icons[0]
 	const handleDisconnect = () => {
 		const wc = wcGlobal.wc()
 		if (!wc) {
@@ -31,11 +32,11 @@ const WCSession = (props: {
 			<ListItemAvatar><Avatar src={icon} /></ListItemAvatar>}
 			<ListItemText
 				primary={
-					<Link href={props.session.peer.metadata.url}>
-						{props.session.peer.metadata.name}
+					<Link href={peer.metadata.url}>
+						{peer.metadata.name}
 					</Link>
 				}
-				secondary={props.session.peer.metadata.description} />
+				secondary={peer.metadata.description} />
 			<ListItemSecondaryAction>
 				<Tooltip title="Disconnect">
 					<IconButton

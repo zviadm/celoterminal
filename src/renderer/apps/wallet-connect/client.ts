@@ -1,5 +1,6 @@
 import * as log from 'electron-log'
 import WalletConnectClient, { CLIENT_EVENTS } from '@walletconnect/client'
+import { ERROR, getError } from '@walletconnect/utils'
 import { SessionTypes } from '@walletconnect/types'
 import { Lock } from '@celo/base/lib/lock'
 import { SupportedMethods } from '@celo/wallet-walletconnect'
@@ -33,6 +34,7 @@ export class WalletConnectGlobal {
 				controller: true,
 				storage: storage,
 			})
+			this.cleanupPairings()
 			this._wc.on(CLIENT_EVENTS.session.request, this.onRequest)
 			return this._wc
 		} finally {
@@ -49,6 +51,21 @@ export class WalletConnectGlobal {
 
 	public wcMaybe = (): WalletConnectClient | undefined => {
 		return this._wc
+	}
+
+	public cleanupPairings = (): void => {
+		if (!this._wc) {
+			return
+		}
+		const peers = new Set(this._wc.session.values.map((v) => v.peer.publicKey))
+		const pairingsToDelete = this._wc.pairing.values.filter((p) => !peers.has(p.peer.publicKey))
+		for (const pairing of pairingsToDelete) {
+			log.info(`wallet-connect: deleting disconnected pairing`, pairing.topic)
+			this._wc.pairing.delete({
+				topic: pairing.topic,
+				reason: getError(ERROR.USER_DISCONNECTED),
+			})
+		}
 	}
 
 	public approve = async (
@@ -69,7 +86,7 @@ export class WalletConnectGlobal {
 		return wcGlobal.wc().approve({proposal, response})
 	}
 
-	private onRequest = async (event: SessionTypes.RequestParams) => {
+	private onRequest = (event: SessionTypes.RequestParams) => {
 		const chainId = `celo:${CFG().chainId}`
 		if (event.chainId !== chainId) {
 			this.reject(event, {
