@@ -9,7 +9,8 @@ import { wcGlobal } from './client'
 
 import * as React from 'react'
 import {
-	Button, LinearProgress, List, TextField, ListItem, ListItemText, ListItemSecondaryAction, Badge
+	Button, LinearProgress, List, TextField,
+	ListItem, ListItemText, ListItemSecondaryAction, Badge
 } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 import AlertTitle from '@material-ui/lab/AlertTitle'
@@ -19,6 +20,7 @@ import AppHeader from '../../components/app-header'
 import AppSection from '../../components/app-section'
 import AppContainer from '../../components/app-container'
 import SectionTitle from '../../components/section-title'
+import Link from '../../components/link'
 import WCSession from './wc-session'
 import EstablishSession from './establish-session'
 
@@ -168,7 +170,7 @@ const WalletConnectApp = (props: {
 				<Alert severity="warning">
 					<AlertTitle>EXPERIMENTAL</AlertTitle>
 					WalletConnect support is still under development in Celo network. This is an
-					experimental feature for now.
+					experimental feature for now. <Link href="https://docs.celoterminal.com/guides/using-walletconnect">Learn More.</Link>
 				</Alert>
 				{initState === "initializing" && <LinearProgress />}
 			</AppSection>

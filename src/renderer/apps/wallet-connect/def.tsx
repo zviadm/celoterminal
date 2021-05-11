@@ -20,7 +20,7 @@ export const WalletConnect: AppDefinition = {
 	title: "WalletConnect",
 	icon: <WCIcon />,
 	iconLarge: <WCIcon fontSize="large" />,
-	url: "https://walletconnect.org",
+	url: "https://docs.celoterminal.com/guides/using-walletconnect",
 	renderApp: WalletConnectApp,
 	notifyCount: wcGlobal.notifyCount,
 }
