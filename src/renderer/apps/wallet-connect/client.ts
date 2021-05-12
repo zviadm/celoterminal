@@ -8,6 +8,10 @@ import SessionStorage from './storage'
 import { CFG } from '../../../lib/cfg'
 import { Account } from '../../../lib/accounts/accounts'
 
+if (module.hot) {
+	module.hot.decline()
+}
+
 export interface ErrorResponse {
     code: number;
     message: string;
@@ -27,6 +31,11 @@ export class WalletConnectGlobal {
 				return this._wc
 			}
 			const storage = new SessionStorage()
+			const storageKeys = await storage.getKeys()
+			// for (const key of storageKeys) {
+			// 	await storage.removeItem(key)
+			// }
+			log.info(`wallet-connect: initialized with Storage`, storageKeys)
 			this._wc = await WalletConnectClient.init({
 				relayProvider: "wss://walletconnect.celo.org",
 				// relayProvider: "wss://walletconnect.celo-networks-dev.org",
@@ -57,15 +66,35 @@ export class WalletConnectGlobal {
 		if (!this._wc) {
 			return
 		}
+		log.info(
+			`wallet-connect: sessions: ` +
+			`settled: ${this._wc.session.length}, ` +
+			`pending: ${this._wc.session.pending.length}, ` +
+			`history: ${this._wc.session.history.size}`)
+		log.info(
+			`wallet-connect: pairings: ` +
+			`settled: ${this._wc.pairing.length}, ` +
+			`pending: ${this._wc.pairing.pending.length}, ` +
+			`history: ${this._wc.session.history.size}`)
+		// for (const pending of this._wc.session.pending.values) {
+		// 	log.info(`wallet-connect: deleting pending sessions`, pending.topic)
+		// 	this._wc.session.pending.delete(pending.topic, getError(ERROR.USER_DISCONNECTED))
+		// }
 		const peers = new Set(this._wc.session.values.map((v) => v.peer.publicKey))
-		const pairingsToDelete = this._wc.pairing.values.filter((p) => !peers.has(p.peer.publicKey))
-		for (const pairing of pairingsToDelete) {
-			log.info(`wallet-connect: deleting disconnected pairing`, pairing.topic)
-			this._wc.pairing.delete({
-				topic: pairing.topic,
-				reason: getError(ERROR.USER_DISCONNECTED),
-			})
-		}
+		log.info(`wallet-connect: connected peers`, Array.from(peers.values()))
+		// const pairingsToDelete = this._wc.pairing.values.filter((p) => !peers.has(p.peer.publicKey))
+		// for (const pairing of pairingsToDelete) {
+		// 	log.info(`wallet-connect: deleting disconnected settled pairing`, pairing.topic, pairing.peer.publicKey)
+		// 	this._wc.pairing.delete({
+		// 		topic: pairing.topic,
+		// 		reason: getError(ERROR.USER_DISCONNECTED),
+		// 	})
+		// }
+		// const pendingsToDelete = this._wc.pairing.pending.values.filter((p) => !peers.has(p.data.proposal.proposer.publicKey))
+		// for (const pairing of pendingsToDelete) {
+		// 	log.info(`wallet-connect: deleting disconnected pending pairing`, pairing.topic)
+		// 	this._wc.pairing.pending.delete(pairing.topic, getError(ERROR.USER_DISCONNECTED))
+		// }
 	}
 
 	public approve = async (
