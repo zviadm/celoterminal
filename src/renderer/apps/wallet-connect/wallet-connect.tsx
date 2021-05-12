@@ -1,6 +1,6 @@
 import { CeloTx, CeloTxReceipt, EncodedTransaction } from '@celo/connect'
 import { SessionTypes } from '@walletconnect/types'
-import { CLIENT_EVENTS } from '@walletconnect/client'
+import { SESSION_EVENTS } from '@walletconnect/client'
 
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
@@ -44,8 +44,7 @@ const WalletConnectApp = (props: {
 		;(async () => {
 			const wc = await wcGlobal.init()
 			if (!cancelled) {
-				wc.on(CLIENT_EVENTS.session.created, sessionsSync)
-				wc.on(CLIENT_EVENTS.session.deleted, sessionsSync)
+				wc.session.events.on(SESSION_EVENTS.sync, sessionsSync)
 				setSessions([...wc.session.values])
 				setInitState("initialized")
 			}
@@ -63,8 +62,7 @@ const WalletConnectApp = (props: {
 		return () => {
 			const wc = wcGlobal.wcMaybe()
 			if (!wc) { return }
-			wc.removeListener(CLIENT_EVENTS.session.created, sessionsSync)
-			wc.removeListener(CLIENT_EVENTS.session.deleted, sessionsSync)
+			wc.session.events.removeListener(SESSION_EVENTS.sync, sessionsSync)
 		}
 	}, [sessionsSync])
 
