@@ -27,25 +27,57 @@ export class WalletConnectGlobal {
 	public init = async (): Promise<WalletConnectClient> => {
 		await this.wcMX.acquire()
 		try {
+			const wc = await this._init()
+			return wc
+		} finally {
+			this.wcMX.release()
+		}
+	}
+
+	private _init = async (): Promise<WalletConnectClient> => {
+		if (this._wc) {
+			return this._wc
+		}
+		const storage = new SessionStorage()
+		log.info(`wallet-connect: initialized with Storage`, await storage.getKeys())
+		this._wc = await WalletConnectClient.init({
+			relayProvider: "wss://walletconnect.celo.org",
+			// relayProvider: "wss://walletconnect.celo-networks-dev.org",
+			controller: true,
+			storage: storage,
+		})
+		this.cleanupPairings()
+		this._wc.on(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
+		this._wc.on(CLIENT_EVENTS.session.request, this.onRequest)
+		return this._wc
+	}
+
+	public resetStorage = async (afterMX?: () => void): Promise<void> => {
+		await this.wcMX.acquire()
+		try {
+			if (afterMX) { afterMX() }
 			if (this._wc) {
-				return this._wc
+				this._wc.off(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
+				this._wc.off(CLIENT_EVENTS.session.request, this.onRequest)
+				for (const session of this._wc.session.values) {
+					await this._wc.disconnect({topic: session.topic, reason: getError(ERROR.USER_DISCONNECTED)})
+				}
+				for (const pairing of this._wc.pairing.values) {
+					await this._wc.pairing.delete({topic: pairing.topic, reason: getError(ERROR.USER_DISCONNECTED)})
+				}
+				this._wc.relayer.provider.events.removeAllListeners()
+				await this._wc.relayer.provider.disconnect()
+				this._wc.session.events.removeAllListeners()
+				this._wc = undefined
+				this.requests = []
 			}
 			const storage = new SessionStorage()
 			const storageKeys = await storage.getKeys()
-			// for (const key of storageKeys) {
-			// 	await storage.removeItem(key)
-			// }
-			log.info(`wallet-connect: initialized with Storage`, storageKeys)
-			this._wc = await WalletConnectClient.init({
-				relayProvider: "wss://walletconnect.celo.org",
-				// relayProvider: "wss://walletconnect.celo-networks-dev.org",
-				controller: true,
-				storage: storage,
-			})
-			this.cleanupPairings()
-			this._wc.on(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
-			this._wc.on(CLIENT_EVENTS.session.request, this.onRequest)
-			return this._wc
+			log.info(`wallet-connect: clearing storage`, storageKeys)
+			for (const key of storageKeys) {
+				await storage.removeItem(key)
+			}
+			return
 		} finally {
 			this.wcMX.release()
 		}

@@ -137,7 +137,7 @@ const WalletConnectApp = (props: {
 		if (initState === "error") {
 			setInitState("initializing")
 		} else if (initState === "initialized") {
-			setSessions([...wcGlobal.wc().session.values])
+			sessionsSync()
 		}
 	}
 
@@ -208,6 +208,7 @@ const WalletConnectApp = (props: {
 			{initState === "initialized" && <>
 			<AppSection>
 				<TextField
+					autoFocus
 					label="QRCode (Copy & Paste from the DApp)"
 					InputLabelProps={{shrink: true}}
 					multiline={true}
@@ -225,7 +226,6 @@ const WalletConnectApp = (props: {
 					disabled={connectURI === ""}
 					>Connect</Button>
 			</AppSection>
-			{sessions.length > 0 &&
 			<AppSection>
 				<SectionTitle>Connected DApps</SectionTitle>
 				<List>
@@ -237,7 +237,16 @@ const WalletConnectApp = (props: {
 					/>
 				})}
 				</List>
-			</AppSection>}
+				<Button
+					variant="outlined"
+					color="secondary"
+					onClick={() => {
+						wcGlobal.resetStorage(
+							() => { setInitState("initializing")})
+					}}>
+					Disconnect all DApps and reset state
+				</Button>
+			</AppSection>
 			</>}
 		</AppContainer>
 	)
