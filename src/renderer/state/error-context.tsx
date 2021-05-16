@@ -27,7 +27,7 @@ export const ErrorContext = React.createContext<IErrorContext>({
 export function ErrorProvider(props: {children: React.ReactNode}): JSX.Element {
 	const [error, setError] = React.useState<Error | undefined>()
 	const handleError = (error?: Error) => {
-		const ignore = errsToIgnore.find((msg) => error?.message.includes(msg))
+		const ignore = errsToIgnore.find((msg) => error?.message?.includes(msg))
 		if (!ignore) {
 			setError(error)
 		}
