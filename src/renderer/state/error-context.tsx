@@ -6,10 +6,11 @@ import * as React from "react"
 // NOTE(zviadm): Ideally there wouldn't be any errors to ignore at the top level. However,
 // if there are special circumstances due to which errors can not actually be caught at the module
 // boudary, errsToIgnore escape hatch can be used to not show certain type of errors to the user.
-const errsToIgnore = [
+const errsToIgnore: string[] = [
 	// WalleConnectV2 library doesn't have a way to catch unhandled errors from its event emitters.
 	// And it throws quite a few benign but spammy errors.
-	"Cannot use 'in' operator to search for 'id'",
+	"Bad MAC",
+	// "Cannot use 'in' operator to search for 'id'",
 ]
 
 interface IErrorContext {

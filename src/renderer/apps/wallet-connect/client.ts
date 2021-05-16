@@ -118,32 +118,47 @@ export class WalletConnectGlobal {
 			`settled: ${this._wc.pairing.length}, ` +
 			`pending: ${this._wc.pairing.pending.length}, ` +
 			`history: ${this._wc.session.history.size}`)
-		for (const pending of this._wc.session.pending.values) {
-			log.info(`wallet-connect: deleting pending sessions`, pending.topic)
-			this._wc.session.pending.delete(pending.topic, getError(ERROR.USER_DISCONNECTED))
+		const sessionsToKeep = new Set(this._wc.session.values.map((v) => v.topic).filter((t) => this.pairingBySession.has(t)))
+		for (const session of this._wc.session.pending.values) {
+			if (sessionsToKeep.has(session.topic)) {
+				continue
+			}
+			log.info(`wallet-connect: deleting pending sessions`, session.topic)
+			this._wc.session.pending.delete(session.topic, getError(ERROR.USER_DISCONNECTED))
 		}
-		const sessionTopics = new Set(this._wc.session.values.map((v) => v.topic))
+		for (const session of this._wc.session.values) {
+			if (sessionsToKeep.has(session.topic)) {
+				continue
+			}
+			log.info(`wallet-connect: deleting settled sessions`, session.topic)
+			this._wc.disconnect({topic: session.topic, reason: getError(ERROR.USER_DISCONNECTED)})
+		}
+
 		this.pairingBySession.forEach((v, k) => {
-			if (!sessionTopics.has(k)) {
+			if (!sessionsToKeep.has(k)) {
 				this.pairingBySession.delete(k)
 			}
 		})
 		this.persistPairingBySession()
-
 		const pairingsToKeep = new Set(this.pairingBySession.values())
 		log.info(`wallet-connect: connected pairings`, Array.from(pairingsToKeep.values()))
-		const pairingsToDelete = this._wc.pairing.values.filter((p) => !pairingsToKeep.has(p.topic))
-		for (const pairing of pairingsToDelete) {
+
+		for (const pairing of this._wc.pairing.pending.values) {
+			if (pairingsToKeep.has(pairing.topic)) {
+				continue
+			}
+			log.info(`wallet-connect: deleting disconnected pending pairing`, pairing.topic)
+			this._wc.pairing.pending.delete(pairing.topic, getError(ERROR.USER_DISCONNECTED))
+		}
+		for (const pairing of this._wc.pairing.values) {
+			if (pairingsToKeep.has(pairing.topic)) {
+				continue
+			}
 			log.info(`wallet-connect: deleting disconnected settled pairing`, pairing.topic)
 			this._wc.pairing.delete({
 				topic: pairing.topic,
 				reason: getError(ERROR.USER_DISCONNECTED),
 			})
-		}
-		const pendingsToDelete = this._wc.pairing.pending.values.filter((p) => !pairingsToKeep.has(p.topic))
-		for (const pairing of pendingsToDelete) {
-			log.info(`wallet-connect: deleting disconnected pending pairing`, pairing.topic)
-			this._wc.pairing.pending.delete(pairing.topic, getError(ERROR.USER_DISCONNECTED))
 		}
 	}
 
