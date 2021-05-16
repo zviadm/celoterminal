@@ -8,11 +8,17 @@ import SessionStorage from './storage'
 import { CFG } from '../../../lib/cfg'
 import { Account } from '../../../lib/accounts/accounts'
 
+if (module.hot) {
+	module.hot.decline()
+}
+
 export interface ErrorResponse {
     code: number;
     message: string;
     data?: string;
 }
+
+const pairingBySessionKey = "xxx:session-pairings"
 
 export class WalletConnectGlobal {
 	public requests: SessionTypes.RequestParams[] = []
@@ -20,23 +26,68 @@ export class WalletConnectGlobal {
 	private _wc: WalletConnectClient | undefined
 	private wcMX = new Lock()
 
+	// Manually maintain a mapping from Session Topic -> Pairing Topic. This is helpful
+	// to clean up pairings after sessions have been disconnected. Otherwise pairings will
+	// stay around until their expiry period which can be quite long. Also defunct pairings
+	// can generate additional random error messages at the startup.
+	private pairingBySession = new Map<string, string>()
+
 	public init = async (): Promise<WalletConnectClient> => {
 		await this.wcMX.acquire()
 		try {
+			const wc = await this._init()
+			return wc
+		} finally {
+			this.wcMX.release()
+		}
+	}
+
+	private _init = async (): Promise<WalletConnectClient> => {
+		if (this._wc) {
+			return this._wc
+		}
+		const storage = new SessionStorage()
+		log.info(`wallet-connect: initialized with Storage`, await storage.getKeys())
+		const pairingData = await storage.getItem<[string, string][]>(pairingBySessionKey)
+		this.pairingBySession = new Map<string, string>(pairingData || [])
+		this._wc = await WalletConnectClient.init({
+			relayProvider: "wss://walletconnect.celo.org",
+			// relayProvider: "wss://walletconnect.celo-networks-dev.org",
+			controller: true,
+			storage: storage,
+		})
+		this.cleanupPairings()
+		this._wc.on(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
+		this._wc.on(CLIENT_EVENTS.session.request, this.onRequest)
+		return this._wc
+	}
+
+	public resetStorage = async (afterMX?: () => void): Promise<void> => {
+		await this.wcMX.acquire()
+		try {
+			if (afterMX) { afterMX() }
 			if (this._wc) {
-				return this._wc
+				this._wc.off(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
+				this._wc.off(CLIENT_EVENTS.session.request, this.onRequest)
+				for (const session of this._wc.session.values) {
+					await this._wc.disconnect({topic: session.topic, reason: getError(ERROR.USER_DISCONNECTED)})
+				}
+				for (const pairing of this._wc.pairing.values) {
+					await this._wc.pairing.delete({topic: pairing.topic, reason: getError(ERROR.USER_DISCONNECTED)})
+				}
+				this._wc.relayer.provider.events.removeAllListeners()
+				await this._wc.relayer.provider.disconnect()
+				this._wc.session.events.removeAllListeners()
+				this._wc = undefined
+				this.requests = []
 			}
 			const storage = new SessionStorage()
-			this._wc = await WalletConnectClient.init({
-				relayProvider: "wss://walletconnect.celo.org",
-				// relayProvider: "wss://walletconnect.celo-networks-dev.org",
-				controller: true,
-				storage: storage,
-			})
-			this.cleanupPairings()
-			this._wc.on(CLIENT_EVENTS.session.request, this.onRequest)
-			this._wc.on(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
-			return this._wc
+			const storageKeys = await storage.getKeys()
+			log.info(`wallet-connect: clearing storage`, storageKeys)
+			for (const key of storageKeys) {
+				await storage.removeItem(key)
+			}
+			return
 		} finally {
 			this.wcMX.release()
 		}
@@ -57,10 +108,53 @@ export class WalletConnectGlobal {
 		if (!this._wc) {
 			return
 		}
-		const peers = new Set(this._wc.session.values.map((v) => v.peer.publicKey))
-		const pairingsToDelete = this._wc.pairing.values.filter((p) => !peers.has(p.peer.publicKey))
-		for (const pairing of pairingsToDelete) {
-			log.info(`wallet-connect: deleting disconnected pairing`, pairing.topic)
+		log.info(
+			`wallet-connect: sessions: ` +
+			`settled: ${this._wc.session.length}, ` +
+			`pending: ${this._wc.session.pending.length}, ` +
+			`history: ${this._wc.session.history.size}`)
+		log.info(
+			`wallet-connect: pairings: ` +
+			`settled: ${this._wc.pairing.length}, ` +
+			`pending: ${this._wc.pairing.pending.length}, ` +
+			`history: ${this._wc.session.history.size}`)
+		const sessionsToKeep = new Set(this._wc.session.values.map((v) => v.topic).filter((t) => this.pairingBySession.has(t)))
+		for (const session of this._wc.session.pending.values) {
+			if (sessionsToKeep.has(session.topic)) {
+				continue
+			}
+			log.info(`wallet-connect: deleting pending sessions`, session.topic)
+			this._wc.session.pending.delete(session.topic, getError(ERROR.USER_DISCONNECTED))
+		}
+		for (const session of this._wc.session.values) {
+			if (sessionsToKeep.has(session.topic)) {
+				continue
+			}
+			log.info(`wallet-connect: deleting settled sessions`, session.topic)
+			this._wc.disconnect({topic: session.topic, reason: getError(ERROR.USER_DISCONNECTED)})
+		}
+
+		this.pairingBySession.forEach((v, k) => {
+			if (!sessionsToKeep.has(k)) {
+				this.pairingBySession.delete(k)
+			}
+		})
+		this.persistPairingBySession()
+		const pairingsToKeep = new Set(this.pairingBySession.values())
+		log.info(`wallet-connect: connected pairings`, Array.from(pairingsToKeep.values()))
+
+		for (const pairing of this._wc.pairing.pending.values) {
+			if (pairingsToKeep.has(pairing.topic)) {
+				continue
+			}
+			log.info(`wallet-connect: deleting disconnected pending pairing`, pairing.topic)
+			this._wc.pairing.pending.delete(pairing.topic, getError(ERROR.USER_DISCONNECTED))
+		}
+		for (const pairing of this._wc.pairing.values) {
+			if (pairingsToKeep.has(pairing.topic)) {
+				continue
+			}
+			log.info(`wallet-connect: deleting disconnected settled pairing`, pairing.topic)
 			this._wc.pairing.delete({
 				topic: pairing.topic,
 				reason: getError(ERROR.USER_DISCONNECTED),
@@ -83,7 +177,16 @@ export class WalletConnectGlobal {
         accounts: accounts.map((a) => `${a.address}@${chainId}`),
       },
     }
-		return wcGlobal.wc().approve({proposal, response})
+		const settled = await this.wc().approve({proposal, response})
+		this.pairingBySession.set(
+			settled.topic,
+			proposal.signal.params.topic)
+		await this.persistPairingBySession()
+		return settled
+	}
+
+	private persistPairingBySession = async () => {
+		return this.wc().storage.setItem(pairingBySessionKey, Array.from(this.pairingBySession.entries()))
 	}
 
 	private onRequest = (event: SessionTypes.RequestParams) => {

@@ -157,6 +157,11 @@ const RunTXs = (props: {
 							if (!tx.params) {
 								throw new Error(`eth_signTransaction: Params must be provided to sign a transaction.`)
 							}
+							if (tx.params.chainId?.toString() !== cfg.chainId) {
+								throw new Error(
+									`Unexpected ChainId. Expected: ${cfg.chainId}, Got: ${tx.params.chainId}. ` +
+									`Refusing to sign transactions.`)
+							}
 							const signedTX = await w.wallet.signTransaction(tx.params)
 							signedTXs.push(signedTX)
 						} else {

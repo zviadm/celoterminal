@@ -1,6 +1,6 @@
 import { CeloTx, CeloTxReceipt, EncodedTransaction } from '@celo/connect'
 import { SessionTypes } from '@walletconnect/types'
-import { CLIENT_EVENTS } from '@walletconnect/client'
+import { SESSION_EVENTS } from '@walletconnect/client'
 
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
@@ -44,8 +44,7 @@ const WalletConnectApp = (props: {
 		;(async () => {
 			const wc = await wcGlobal.init()
 			if (!cancelled) {
-				wc.on(CLIENT_EVENTS.session.created, sessionsSync)
-				wc.on(CLIENT_EVENTS.session.deleted, sessionsSync)
+				wc.session.events.on(SESSION_EVENTS.sync, sessionsSync)
 				setSessions([...wc.session.values])
 				setInitState("initialized")
 			}
@@ -63,8 +62,7 @@ const WalletConnectApp = (props: {
 		return () => {
 			const wc = wcGlobal.wcMaybe()
 			if (!wc) { return }
-			wc.removeListener(CLIENT_EVENTS.session.created, sessionsSync)
-			wc.removeListener(CLIENT_EVENTS.session.deleted, sessionsSync)
+			wc.session.events.removeListener(SESSION_EVENTS.sync, sessionsSync)
 		}
 	}, [sessionsSync])
 
@@ -139,7 +137,7 @@ const WalletConnectApp = (props: {
 		if (initState === "error") {
 			setInitState("initializing")
 		} else if (initState === "initialized") {
-			setSessions([...wcGlobal.wc().session.values])
+			sessionsSync()
 		}
 	}
 
@@ -210,6 +208,7 @@ const WalletConnectApp = (props: {
 			{initState === "initialized" && <>
 			<AppSection>
 				<TextField
+					autoFocus
 					label="QRCode (Copy & Paste from the DApp)"
 					InputLabelProps={{shrink: true}}
 					multiline={true}
@@ -227,7 +226,6 @@ const WalletConnectApp = (props: {
 					disabled={connectURI === ""}
 					>Connect</Button>
 			</AppSection>
-			{sessions.length > 0 &&
 			<AppSection>
 				<SectionTitle>Connected DApps</SectionTitle>
 				<List>
@@ -239,7 +237,16 @@ const WalletConnectApp = (props: {
 					/>
 				})}
 				</List>
-			</AppSection>}
+				<Button
+					variant="outlined"
+					color="secondary"
+					onClick={() => {
+						wcGlobal.resetStorage(
+							() => { setInitState("initializing")})
+					}}>
+					Disconnect all DApps and reset state
+				</Button>
+			</AppSection>
 			</>}
 		</AppContainer>
 	)
