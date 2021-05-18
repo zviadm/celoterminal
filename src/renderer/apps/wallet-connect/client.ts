@@ -1,3 +1,4 @@
+import { remote } from 'electron'
 import * as log from 'electron-log'
 import WalletConnectClient, { CLIENT_EVENTS } from '@walletconnect/client'
 import { ERROR, getError } from '@walletconnect/utils'
@@ -55,7 +56,7 @@ export class WalletConnectGlobal {
 			// relayProvider: "wss://walletconnect.celo-networks-dev.org",
 			controller: true,
 			storage: storage,
-			logger: "info",
+			logger: remote.app.isPackaged ? "info" : "debug",
 		})
 		this.cleanupPairings()
 		this._wc.on(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
