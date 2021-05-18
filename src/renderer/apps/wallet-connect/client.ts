@@ -59,7 +59,14 @@ export class WalletConnectGlobal {
 			storage: storage,
 			logger: remote.app.isPackaged ?
 				pino(
-					{ level: "info" },
+					{
+						level: "info",
+						prettyPrint: {
+							colorize: false,
+							translateTime: 'SYS:standard',
+							ignore: 'pid,hostname',
+						},
+					},
 					pino.destination(log.transports.file.getFile().path),
 				) :
 				"debug",
