@@ -1,4 +1,6 @@
+import { remote } from 'electron'
 import * as log from 'electron-log'
+import * as pino from 'pino'
 import WalletConnectClient, { CLIENT_EVENTS } from '@walletconnect/client'
 import { ERROR, getError } from '@walletconnect/utils'
 import { SessionTypes } from '@walletconnect/types'
@@ -55,6 +57,19 @@ export class WalletConnectGlobal {
 			// relayProvider: "wss://walletconnect.celo-networks-dev.org",
 			controller: true,
 			storage: storage,
+			logger: remote.app.isPackaged ?
+				pino(
+					{
+						level: "info",
+						prettyPrint: {
+							colorize: false,
+							translateTime: 'SYS:standard',
+							ignore: 'pid,hostname',
+						},
+					},
+					pino.destination(log.transports.file.getFile().path),
+				) :
+				"debug",
 		})
 		this.cleanupPairings()
 		this._wc.on(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
