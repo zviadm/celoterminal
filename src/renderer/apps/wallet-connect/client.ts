@@ -55,6 +55,7 @@ export class WalletConnectGlobal {
 			// relayProvider: "wss://walletconnect.celo-networks-dev.org",
 			controller: true,
 			storage: storage,
+			logger: "info",
 		})
 		this.cleanupPairings()
 		this._wc.on(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
