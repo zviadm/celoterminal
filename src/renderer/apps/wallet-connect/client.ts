@@ -184,7 +184,7 @@ export class WalletConnectGlobal {
 		const response: SessionTypes.Response = {
       metadata: {
         name: "Celo Terminal",
-        description: "Celo Terminal",
+        description: "The one-stop shop for everything Celo",
         url: "https://celoterminal.com",
         icons: ["https://celoterminal.com/static/favicon.ico"],
       },
