@@ -3,7 +3,7 @@ import { CFG } from "../../../lib/cfg"
 
 const storagePrefix = `terminal/wallet-connect/storage/${CFG().chainId}/`
 
-export class SessionStorage {
+export class PrefixedStorage {
   public getKeys = async (): Promise<string[]> => {
 		return Object.keys(localStorage)
 			.filter((k) => k.startsWith(storagePrefix))
@@ -45,5 +45,5 @@ export class SessionStorage {
 	}
 }
 
-export default SessionStorage
+export default PrefixedStorage
 

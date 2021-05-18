@@ -6,7 +6,7 @@ import { ERROR, getError } from '@walletconnect/utils'
 import { SessionTypes } from '@walletconnect/types'
 import { Lock } from '@celo/base/lib/lock'
 
-import SessionStorage from './storage'
+import PrefixedStorage from './storage'
 import { CFG } from '../../../lib/cfg'
 import { Account } from '../../../lib/accounts/accounts'
 
@@ -48,11 +48,11 @@ export class WalletConnectGlobal {
 		if (this._wc) {
 			return this._wc
 		}
-		const storage = new SessionStorage()
+		const storage = new PrefixedStorage()
 		log.info(`wallet-connect: initialized with Storage`, await storage.getKeys())
 		const pairingData = await storage.getItem<[string, string][]>(pairingBySessionKey)
 		this.pairingBySession = new Map<string, string>(pairingData || [])
-		this._wc = await WalletConnectClient.init({
+		const wc = new WalletConnectClient({
 			relayProvider: "wss://walletconnect.celo.org",
 			// relayProvider: "wss://walletconnect.celo-networks-dev.org",
 			controller: true,
@@ -71,6 +71,10 @@ export class WalletConnectGlobal {
 				) :
 				"debug",
 		})
+		await wc.crypto.init()
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		await (wc as any).initialize()
+		this._wc = wc
 		this.cleanupPairings()
 		this._wc.on(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
 		this._wc.on(CLIENT_EVENTS.session.request, this.onRequest)
@@ -96,7 +100,7 @@ export class WalletConnectGlobal {
 				this._wc = undefined
 				this.requests = []
 			}
-			const storage = new SessionStorage()
+			const storage = new PrefixedStorage()
 			const storageKeys = await storage.getKeys()
 			log.info(`wallet-connect: clearing storage`, storageKeys)
 			for (const key of storageKeys) {
