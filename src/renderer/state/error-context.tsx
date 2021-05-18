@@ -10,7 +10,6 @@ const errsToIgnore: string[] = [
 	// WalleConnectV2 library doesn't have a way to catch unhandled errors from its event emitters.
 	// And it throws quite a few benign but spammy errors.
 	"Bad MAC",
-	"Cannot use 'in' operator to search for 'id'",
 ]
 
 interface IErrorContext {
