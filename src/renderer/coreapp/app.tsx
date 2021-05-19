@@ -68,14 +68,19 @@ const App = () => {
 		[installedApps])
 	const [notificationsByApp, setNotificationsByApp] = React.useState<Map<string, number>>(new Map<string, number>())
 	React.useEffect(() => {
+		let lastLogMs = 0
 		const t = setInterval(
 			() => {
 				const byApp = new Map<string, number>()
 				for (const app of appList) {
 					const notifications = app.notifyCount && app.notifyCount()
-					if (notifications) {
+					if (notifications !== undefined) {
 						byApp.set(app.id, notifications)
 					}
+				}
+				if (Date.now() - lastLogMs > 30 * 1000) {
+					lastLogMs = Date.now()
+					log.info(`coreapp: pending notifications`, Array.from(byApp.entries()))
 				}
 				setNotificationsByApp((n) => {
 					let changed = n.size !== byApp.size
