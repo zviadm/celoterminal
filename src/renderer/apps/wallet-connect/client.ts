@@ -9,6 +9,7 @@ import { Lock } from '@celo/base/lib/lock'
 import PrefixedStorage from './storage'
 import { CFG } from '../../../lib/cfg'
 import { Account } from '../../../lib/accounts/accounts'
+import { showWindowAndFocus } from './electron-utils'
 
 if (module.hot) {
 	module.hot.decline()
@@ -217,6 +218,7 @@ export class WalletConnectGlobal {
 		switch (event.request.method) {
 		case "eth_signTransaction":
 			this.requests.push(event)
+			showWindowAndFocus()
 			break
 		default:
 			log.info(`wallet-connect: rejected not supported request`, event)

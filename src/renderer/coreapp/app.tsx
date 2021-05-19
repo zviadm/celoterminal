@@ -81,13 +81,12 @@ const App = () => {
 						totalCount += notifications
 					}
 				}
-				const prevCount = remote.app.getBadgeCount()
-				if (totalCount !== prevCount) {
+				if (totalCount !== remote.app.getBadgeCount()) {
 					remote.app.setBadgeCount(totalCount)
 				}
 				if (Date.now() - lastLogMs > 30 * 1000) {
 					lastLogMs = Date.now()
-					log.info(`coreapp: pending notifications`, Array.from(byApp.entries()))
+					log.info(`coreapp: pending notifications: ${totalCount}`, Array.from(byApp.entries()))
 				}
 				setNotificationsByApp((n) => {
 					let changed = n.size !== byApp.size
