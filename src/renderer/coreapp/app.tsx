@@ -1,3 +1,4 @@
+import { remote } from 'electron'
 import log from 'electron-log'
 
 import * as React from 'react'
@@ -72,11 +73,17 @@ const App = () => {
 		const t = setInterval(
 			() => {
 				const byApp = new Map<string, number>()
+				let totalCount = 0
 				for (const app of appList) {
 					const notifications = app.notifyCount && app.notifyCount()
 					if (notifications !== undefined) {
 						byApp.set(app.id, notifications)
+						totalCount += notifications
 					}
+				}
+				const prevCount = remote.app.getBadgeCount()
+				if (totalCount !== prevCount) {
+					remote.app.setBadgeCount(totalCount)
 				}
 				if (Date.now() - lastLogMs > 30 * 1000) {
 					lastLogMs = Date.now()
@@ -91,7 +98,7 @@ const App = () => {
 					}
 					return changed ? byApp : n
 				})
-			}, 500)
+			}, 1000)
 		return () => { clearInterval(t) }
 	}, [appList])
 
