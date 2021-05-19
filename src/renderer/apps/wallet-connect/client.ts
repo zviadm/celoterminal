@@ -2,7 +2,7 @@ import { remote } from 'electron'
 import * as log from 'electron-log'
 import * as pino from 'pino'
 import WalletConnectClient, { CLIENT_EVENTS } from '@walletconnect/client'
-import { ERROR, getError } from '@walletconnect/utils'
+import { ERROR } from '@walletconnect/utils'
 import { SessionTypes } from '@walletconnect/types'
 import { Lock } from '@celo/base/lib/lock'
 
@@ -52,7 +52,7 @@ export class WalletConnectGlobal {
 		log.info(`wallet-connect: initialized with Storage`, await storage.getKeys())
 		const pairingData = await storage.getItem<[string, string][]>(pairingBySessionKey)
 		this.pairingBySession = new Map<string, string>(pairingData || [])
-		const wc = new WalletConnectClient({
+		this._wc = await WalletConnectClient.init({
 			relayProvider: "wss://walletconnect.celo.org",
 			// relayProvider: "wss://walletconnect.celo-networks-dev.org",
 			controller: true,
@@ -60,7 +60,7 @@ export class WalletConnectGlobal {
 			logger: remote.app.isPackaged ?
 				pino(
 					{
-						level: "info",
+						level: "warn",
 						prettyPrint: {
 							colorize: false,
 							translateTime: 'SYS:standard',
@@ -71,10 +71,6 @@ export class WalletConnectGlobal {
 				) :
 				"debug",
 		})
-		await wc.crypto.init()
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		await (wc as any).initialize()
-		this._wc = wc
 		this.cleanupPairings()
 		this._wc.on(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
 		this._wc.on(CLIENT_EVENTS.session.request, this.onRequest)
@@ -89,10 +85,10 @@ export class WalletConnectGlobal {
 				this._wc.off(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
 				this._wc.off(CLIENT_EVENTS.session.request, this.onRequest)
 				for (const session of this._wc.session.values) {
-					await this._wc.disconnect({topic: session.topic, reason: getError(ERROR.USER_DISCONNECTED)})
+					await this._wc.disconnect({topic: session.topic, reason: ERROR.USER_DISCONNECTED.format()})
 				}
 				for (const pairing of this._wc.pairing.values) {
-					await this._wc.pairing.delete({topic: pairing.topic, reason: getError(ERROR.USER_DISCONNECTED)})
+					await this._wc.pairing.delete({topic: pairing.topic, reason: ERROR.USER_DISCONNECTED.format()})
 				}
 				this._wc.relayer.provider.events.removeAllListeners()
 				await this._wc.relayer.provider.disconnect()
@@ -143,14 +139,14 @@ export class WalletConnectGlobal {
 				continue
 			}
 			log.info(`wallet-connect: deleting pending sessions`, session.topic)
-			this._wc.session.pending.delete(session.topic, getError(ERROR.USER_DISCONNECTED))
+			this._wc.session.pending.delete(session.topic, ERROR.USER_DISCONNECTED.format())
 		}
 		for (const session of this._wc.session.values) {
 			if (sessionsToKeep.has(session.topic)) {
 				continue
 			}
 			log.info(`wallet-connect: deleting settled sessions`, session.topic)
-			this._wc.disconnect({topic: session.topic, reason: getError(ERROR.USER_DISCONNECTED)})
+			this._wc.disconnect({topic: session.topic, reason: ERROR.USER_DISCONNECTED.format()})
 		}
 
 		this.pairingBySession.forEach((v, k) => {
@@ -167,7 +163,7 @@ export class WalletConnectGlobal {
 				continue
 			}
 			log.info(`wallet-connect: deleting disconnected pending pairing`, pairing.topic)
-			this._wc.pairing.pending.delete(pairing.topic, getError(ERROR.USER_DISCONNECTED))
+			this._wc.pairing.pending.delete(pairing.topic, ERROR.USER_DISCONNECTED.format())
 		}
 		for (const pairing of this._wc.pairing.values) {
 			if (pairingsToKeep.has(pairing.topic)) {
@@ -176,7 +172,7 @@ export class WalletConnectGlobal {
 			log.info(`wallet-connect: deleting disconnected settled pairing`, pairing.topic)
 			this._wc.pairing.delete({
 				topic: pairing.topic,
-				reason: getError(ERROR.USER_DISCONNECTED),
+				reason: ERROR.USER_DISCONNECTED.format(),
 			})
 		}
 	}

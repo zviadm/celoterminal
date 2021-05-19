@@ -1,5 +1,5 @@
 import { SessionTypes } from '@walletconnect/types'
-import { ERROR, getError } from '@walletconnect/utils'
+import { ERROR } from '@walletconnect/utils'
 
 import { wcGlobal } from './client'
 
@@ -23,7 +23,7 @@ const WCSession = (props: {
 		}
 		wc.disconnect({
 			topic: props.session.topic,
-			reason: getError(ERROR.USER_DISCONNECTED),
+			reason: ERROR.USER_DISCONNECTED.format(),
 		})
 	}
 	return (
