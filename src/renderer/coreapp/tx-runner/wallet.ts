@@ -106,14 +106,3 @@ const findMultiSigOwner = (account: MultiSigAccount, accounts: Account[]): Accou
 	}
 	return owner
 }
-
-export const canDecryptLocalKey = (
-	account: LocalAccount,
-	password: string): boolean => {
-	try {
-		decryptLocalKey(account.encryptedData, password)
-		return true
-	} catch (e) {
-		return false
-	}
-}

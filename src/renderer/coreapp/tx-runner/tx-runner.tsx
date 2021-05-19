@@ -4,7 +4,7 @@ import { decryptLocalKey } from '../../../lib/accounts/accountsdb'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { nowMS } from '../../state/time'
 import { transformError } from '../ledger-utils'
-import { canDecryptLocalKey, createWallet, rootAccount, Wallet } from './wallet'
+import { createWallet, rootAccount, Wallet } from './wallet'
 
 import * as React from 'react'
 
@@ -32,20 +32,19 @@ function TXRunner(props: {
 	const accounts = props.accounts
 	const executingAccount = rootAccount(selectedAccount, accounts)
 
+	const firstErr = React.useRef(true)
 	React.useEffect(() => {
 		if (wallet !== "create-wallet") {
 			return
 		}
-		if (executingAccount.type === "local") {
-			// check password.
-			const pwValid = (pw ?
-				pw && pw.expireMS > nowMS() &&
-				canDecryptLocalKey(executingAccount, pw.password) : false)
-			if (!pwValid) {
-				if (pw) { setPW(undefined) }
-				setWallet("unlock-wallet")
-				return
-			}
+		if (
+			executingAccount.type === "local" &&
+			pw && pw.expireMS < nowMS()
+			) {
+			// if password is expired, reset it.
+			setPW(undefined)
+			setWallet("unlock-wallet")
+			return
 		}
 		let cancelled = false
 		;(async () => {
@@ -55,7 +54,11 @@ function TXRunner(props: {
 		})()
 		.catch((e) => {
 			setWallet("unlock-wallet")
-			throw transformError(e)
+			if (firstErr.current) {
+				firstErr.current = false
+			} else {
+				throw transformError(e)
+			}
 		})
 		return () => { cancelled = true }
 	}, [wallet, selectedAccount, accounts, executingAccount, pw, setPW])

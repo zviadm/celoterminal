@@ -97,7 +97,7 @@ const App = () => {
 					}
 					return changed ? byApp : n
 				})
-			}, 1000)
+			}, 500)
 		return () => { clearInterval(t) }
 	}, [appList])
 
