@@ -5,7 +5,7 @@ import { stringToSolidityBytes } from '@celo/contractkit/lib/wrappers/BaseWrappe
 import { AddressValidation, newLedgerWalletWithSetup } from '@celo/wallet-ledger'
 import { LocalWallet } from '@celo/wallet-local'
 
-import { Account, LocalAccount, MultiSigAccount } from '../../../lib/accounts/accounts'
+import { Account, MultiSigAccount } from '../../../lib/accounts/accounts'
 import { decryptLocalKey } from '../../../lib/accounts/accountsdb'
 import { UserError } from '../../../lib/error'
 import { CFG } from '../../../lib/cfg'
@@ -105,15 +105,4 @@ const findMultiSigOwner = (account: MultiSigAccount, accounts: Account[]): Accou
 		throw new UserError(`MultiSig owner: ${account.ownerAddress} not found in accounts.`)
 	}
 	return owner
-}
-
-export const canDecryptLocalKey = (
-	account: LocalAccount,
-	password: string): boolean => {
-	try {
-		decryptLocalKey(account.encryptedData, password)
-		return true
-	} catch (e) {
-		return false
-	}
 }

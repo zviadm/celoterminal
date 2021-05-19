@@ -54,7 +54,6 @@ const UnlockAccount = (props: {
 							fullWidth={true}
 							onChange={handleOnChange}
 							onKeyPress={handleOnKeyPress}
-							disabled={props.unlocking}
 						/>
 					</> :
 					accountType === "ledger" ?
