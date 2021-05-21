@@ -18,7 +18,7 @@ jobs:
       - run: yarn compile
       - run: xvfb-run --auto-servernum --server-args='-screen 0, 1600x900x24' yarn test:spectron-all
 
-  publish:
+  build:
     needs: test
     runs-on: ${{ matrix.os }}
     strategy:
@@ -59,3 +59,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: runner.os == 'Linux'
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 10
+      - run: yarn config set network-timeout 600000 -g
+      - run: yarn
+      - run: node ./buildcfg/finish-publish.js
