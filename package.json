@@ -99,6 +99,7 @@
     "jasmine-fail-fast": "^2.0.1",
     "jest": "^26.6.3",
     "node-sass": "4.14.1",
+    "octokit": "^1.0.5",
     "resolve-url-loader": "^3.1.2",
     "sass-loader": "9.0.3",
     "spectron": "^13.0.0",
