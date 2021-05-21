@@ -20,7 +20,7 @@ const runAction = async () => {
 	})
 	const release = releases.data.find((r) => r.name === packageJSON.version)
 	if (!release) {
-		console.error(`Release note found: ${packageJSON.version}!`)
+		console.error(`Release not found: ${packageJSON.version}!`)
 		process.exit(1)
 	}
 	if (!release.draft) {
