@@ -52,7 +52,9 @@ function createMainWindow() {
 			enableRemoteModule: true,
 			// Session/LocalStorage data is not persisted during testing.
 			partition: !isSpectronTest ? "persist:default" : "test-default",
-			devTools: !noDevTools,
+			// Keep dev tools available in prod builds too. Can be helpful for
+			// debuging production binaries.
+			devTools: true,
 			webSecurity: false,
 		},
 		show: noSplash,
