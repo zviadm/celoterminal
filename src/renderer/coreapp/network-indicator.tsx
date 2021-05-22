@@ -14,6 +14,7 @@ import {
 } from '@material-ui/core'
 import Wifi from '@material-ui/icons/Wifi'
 import WifiOff from '@material-ui/icons/WifiOff'
+import { runWithInterval } from '../../lib/interval'
 
 const useStyles = makeStyles((theme) => ({
 	connected: {
@@ -34,39 +35,42 @@ const NetworkIndicator = (): JSX.Element => {
 		let errCnt = 0
 		let lastBlock: BlockHeader
 		const maxBlockDelayMs = 3 * expectedBlockMs
-		const timer = setInterval(async () => {
-			const k = kitInstance()
-			try {
-				let blockN: number
-				if (!lastBlock ||
-					new BigNumber(lastBlock.timestamp)
-					.multipliedBy(1000)
-					.plus(blockRefetchMs)
-					.lt(nowMS())) {
-					lastBlock = await k.web3.eth.getBlock('latest')
-					blockN = lastBlock.number
-				} else {
-					blockN = await k.web3.eth.getBlockNumber()
+		const cancel = runWithInterval(
+			"coreapp-network",
+			async () => {
+				const k = kitInstance()
+				try {
+					let blockN: number
+					if (!lastBlock ||
+						new BigNumber(lastBlock.timestamp)
+						.multipliedBy(1000)
+						.plus(blockRefetchMs)
+						.lt(nowMS())) {
+						lastBlock = await k.web3.eth.getBlock('latest')
+						blockN = lastBlock.number
+					} else {
+						blockN = await k.web3.eth.getBlockNumber()
+					}
+					errCnt = 0
+					const blockTsMs = new BigNumber(lastBlock.timestamp)
+						.multipliedBy(1000)
+						.plus((blockN - lastBlock.number) * expectedBlockMs)
+					const delayMs = nowMS() - blockTsMs.toNumber()
+					setConnected(delayMs <= maxBlockDelayMs)
+					if (delayMs > maxBlockDelayMs) {
+						const delayTxt = secondsToDurationString(delayMs/1000)
+						setConnectErr(`Out of sync. Last block: ${delayTxt} ago...`)
+					}
+				} catch (e) {
+					errCnt += 1
+					if (errCnt >= 2) {
+						setConnected(false)
+						setConnectErr(`Unable to establish connection: ${e}`)
+					}
 				}
-				errCnt = 0
-				const blockTsMs = new BigNumber(lastBlock.timestamp)
-					.multipliedBy(1000)
-					.plus((blockN - lastBlock.number) * expectedBlockMs)
-				const delayMs = nowMS() - blockTsMs.toNumber()
-				setConnected(delayMs <= maxBlockDelayMs)
-				if (delayMs > maxBlockDelayMs) {
-					const delayTxt = secondsToDurationString(delayMs/1000)
-					setConnectErr(`Out of sync. Last block: ${delayTxt} ago...`)
-				}
-			} catch (e) {
-				errCnt += 1
-				if (errCnt >= 2) {
-					setConnected(false)
-					setConnectErr(`Unable to establish connection: ${e}`)
-				}
-			}
-		}, expectedBlockMs)
-		return () => { clearInterval(timer) }
+			},
+			expectedBlockMs)
+		return cancel
 	}, [])
 	const [networkURL, setNetworkURL] = useNetworkURL()
 	const [openNetworkURL, setOpenNetworkURL] = React.useState(false)

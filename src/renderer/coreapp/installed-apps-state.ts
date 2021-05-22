@@ -13,15 +13,15 @@ export interface InstalledApp {
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useInstalledApps = () => {
-	const [installedApps, setInstalledApps] = useLocalStorageState<InstalledApp[]>("terminal/core/pinned-apps", [])
+	const [_installedApps, setInstalledApps] = useLocalStorageState<InstalledApp[]>("terminal/core/pinned-apps", [])
 
 	const installApp = React.useCallback((id: string) => {
-		if (installedApps.find((p) => p.id === id)) {
+		if (_installedApps.find((p) => p.id === id)) {
 			return
 		}
-		const installedAppsCopy = installedApps.concat({id: id})
+		const installedAppsCopy = _installedApps.concat({id: id})
 		setInstalledApps(installedAppsCopy)
-	}, [installedApps, setInstalledApps])
+	}, [_installedApps, setInstalledApps])
 	const uninstallApp = React.useCallback((id: string) => {
 		// Wipe localStorage state for the app.
 		const keyPrefix = `terminal/${id}/`
@@ -29,11 +29,14 @@ export const useInstalledApps = () => {
 		log.info(`uninstall[${id}]: removing keys: ${appKeys}...`)
 		appKeys.forEach((key) => { localStorage.removeItem(key) })
 
-		const installedAppsCopy = installedApps.filter((p) => p.id !== id)
+		const installedAppsCopy = _installedApps.filter((p) => p.id !== id)
 		setInstalledApps(installedAppsCopy)
-	}, [installedApps, setInstalledApps])
+	}, [_installedApps, setInstalledApps])
+	const installedApps = React.useMemo(
+		() => (_installedApps.map((p) => appsById.get(p.id)).filter((p) => p) as AppDefinition[]),
+		[_installedApps])
 	return {
-		installedApps: installedApps.map((p) => appsById.get(p.id)).filter((p) => p) as AppDefinition[],
+		installedApps,
 		installApp,
 		uninstallApp,
 	}

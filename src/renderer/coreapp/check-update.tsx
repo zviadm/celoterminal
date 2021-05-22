@@ -14,6 +14,7 @@ import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
 
 import useLocalStorageState from '../state/localstorage-state'
 import Typography from '@material-ui/core/Typography'
+import { runWithInterval } from '../../lib/interval'
 
 let _version: string
 const version = () => {
@@ -38,17 +39,18 @@ const CheckUpdate = (): JSX.Element => {
 	const [beta, setBeta] = useLocalStorageState<boolean>("terminal/core/update-beta", false)
 	const [newVersion, setNewVersion] = React.useState("")
 	const [isUpdating, setIsUpdating] = React.useState(false)
-	const checkUpdate = () => {
-		const updateReady: string | undefined = ipcRenderer.sendSync("check-update-ready")
-		if (updateReady) {
-			log.info(`autoupdater[renderer]: `, updateReady)
-			setNewVersion(updateReady)
-		}
-	}
 	React.useEffect(() => {
-		checkUpdate()
-		const timer = setInterval(() => { checkUpdate() }, 30*1000) // Check it often, why not.
-		return () => { clearInterval(timer) }
+		const cancel = runWithInterval(
+			"coreapp-update",
+			async () => {
+				const updateReady: string | undefined = ipcRenderer.sendSync("check-update-ready")
+				if (updateReady) {
+					log.info(`autoupdater[renderer]: `, updateReady)
+					setNewVersion(updateReady)
+				}
+			},
+			30*1000) // Check it often, why not.
+		return cancel
 	}, [])
 	React.useEffect(() => {
 		ipcRenderer.sendSync("set-allow-prerelease", beta)
