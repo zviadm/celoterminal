@@ -14,14 +14,18 @@ const runAction = async () => {
 	console.info(`COMMITS: ${commits}`)
 
 	const octokit = new Octokit({auth: process.env.GITHUB_TOKEN})
-	const releases = await octokit.request('GET /repos/{owner}/{repo}/releases', {
-		owner: 'zviadm',
-		repo: 'celoterminal',
-	})
-	const release = releases.data.find((r) => r.name === packageJSON.version)
-	if (!release) {
-		console.error(`Release not found: ${packageJSON.version}!`)
-		process.exit(1)
+	let release;
+	while (true) {
+		const releases = await octokit.request('GET /repos/{owner}/{repo}/releases', {
+			owner: 'zviadm',
+			repo: 'celoterminal',
+		})
+		release = releases.data.find((r) => r.name === packageJSON.version)
+		if (release) {
+			break
+		}
+		console.error(`Release not found: ${packageJSON.version}...`)
+		await (new Promise(resolve => setTimeout(resolve, 5000)))
 	}
 	if (!release.draft) {
 		console.error(`Release: ${packageJSON.version} is no longer a draft! Not updating...`)
