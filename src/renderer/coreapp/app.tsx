@@ -10,6 +10,7 @@ import Box from '@material-ui/core/Box'
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
 
+import { runWithInterval } from '../../lib/interval'
 import AccountsBar from './accounts-bar'
 import AppMenu from './app-menu'
 import CheckUpdate from './check-update'
@@ -70,8 +71,9 @@ const App = () => {
 	const [notificationsByApp, setNotificationsByApp] = React.useState<Map<string, number>>(new Map<string, number>())
 	React.useEffect(() => {
 		let lastLogMs = 0
-		const t = setInterval(
-			() => {
+		const cancel = runWithInterval(
+			"coreapp-notify",
+			async () => {
 				const byApp = new Map<string, number>()
 				let totalCount = 0
 				for (const app of appList) {
@@ -97,8 +99,9 @@ const App = () => {
 					}
 					return changed ? byApp : n
 				})
-			}, 500)
-		return () => { clearInterval(t) }
+			},
+			500)
+		return cancel
 	}, [appList])
 
 	let selectedApp = _selectedApp

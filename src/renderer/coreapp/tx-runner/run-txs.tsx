@@ -26,6 +26,7 @@ import CheckCircle from '@material-ui/icons/CheckCircle'
 import TransactionInfo from './transaction-info'
 import PromptLedgerAction from './prompt-ledger-action'
 import Link from '../../components/link'
+import { runWithInterval } from '../../../lib/interval'
 
 export class TXCancelled extends Error {
 	constructor() { super('Cancelled') }
@@ -232,12 +233,15 @@ const RunTXs = (props: {
 		if (stage !== "sending") {
 			return
 		}
-		const timer = setInterval(() => {
-			const progress = (
-				txSendMS === 0 ? 0 : Math.min(99, (nowMS() - txSendMS) / 5000 * 100.0))
-			setTXProgress((txProgress) => Math.max(progress, txProgress))
-		}, 200)
-		return () => { clearInterval(timer) }
+		const cancel = runWithInterval(
+			"coreapp-tx-progress",
+			async () => {
+				const progress = (
+					txSendMS === 0 ? 0 : Math.min(99, (nowMS() - txSendMS) / 5000 * 100.0))
+				setTXProgress((txProgress) => Math.max(progress, txProgress))
+			},
+			200)
+		return cancel
 	}, [stage, txSendMS]);
 	const explorerURL = explorerRootURL()
 	return (

@@ -13,9 +13,6 @@ const runAction = () => {
 		console.error(`Version ${packageJSON.version} already published as ${matchingTag}!`)
 		process.exit(1)
 	}
-	const range = tags.length === 0 ? "" : `${tags[tags.length-1]}..HEAD`
-	const commits = execSync(`git log ${range} --pretty=format:%s --no-merges`).toString().trim()
-	console.info(`COMMITS (since: ${tags[tags.length-1]}):\n${commits}`)
 };
 
 runAction();

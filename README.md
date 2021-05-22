@@ -26,6 +26,13 @@ Non-core DApps might require interacting with external servers other than the bl
 those interactions only happen when DApp is in active use. As Celo Terminal evolves, it will provide clearer
 guidelines and indicators when any of the DApps interact with the external servers.
 
+### Network Endpoints
+
+Out-of-the box, Celo Terminal communicates with the following services:
+* Celo Blockchain: https://forno.celo.org (can be changed to any other client node).
+* Celo WalletConnect Relay: wss://walletconnect.celo.org
+* Github: https://api.github.com/... (for checking and downloading Celo Terminal upgrades).
+
 ## Need Help? Have Questions?
 
 If you run into a bug, please [file a Bug Report](https://github.com/zviadm/celoterminal/issues/new/choose) on GitHub.
