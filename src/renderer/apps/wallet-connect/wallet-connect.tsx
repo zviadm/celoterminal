@@ -23,6 +23,7 @@ import SectionTitle from '../../components/section-title'
 import Link from '../../components/link'
 import WCSession from './wc-session'
 import EstablishSession from './establish-session'
+import { runWithInterval } from '../../../lib/interval'
 
 const WalletConnectApp = (props: {
 	accounts: Account[],
@@ -68,17 +69,19 @@ const WalletConnectApp = (props: {
 
 	const [requests, setRequests] = React.useState([...wcGlobal.requests])
 	React.useEffect(() => {
-		const _update = () => {
-			setRequests((reqs) => {
-				const requestsUpdated = (
-					reqs.length !== wcGlobal.requests.length ||
-					!reqs.every((r, idx) => r === wcGlobal.requests[idx])
-				)
-				return requestsUpdated ? [...wcGlobal.requests] : reqs
-			})
-		}
-		const t = setInterval(_update, 500)
-		return () => { clearInterval(t) }
+		const cancel = runWithInterval(
+			"wallet-connect",
+			async () => {
+				setRequests((reqs) => {
+					const requestsUpdated = (
+						reqs.length !== wcGlobal.requests.length ||
+						!reqs.every((r, idx) => r === wcGlobal.requests[idx])
+					)
+					return requestsUpdated ? [...wcGlobal.requests] : reqs
+				})
+			},
+			500)
+		return cancel
 	}, [])
 	const accounts = props.accounts
 	React.useEffect(() => {

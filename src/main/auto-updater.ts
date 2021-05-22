@@ -3,6 +3,7 @@ import { autoUpdater, UpdateInfo } from '@ledgerhq/electron-updater'
 import log from 'electron-log'
 
 import { setForceQuit } from '.'
+import { runWithInterval } from '../lib/interval'
 
 let _checkedOnStartup = false
 let _updateReady: UpdateInfo | undefined
@@ -10,9 +11,11 @@ export const setupAutoUpdater = (): void => {
 	if (app.isPackaged) {
 		autoUpdater.autoInstallOnAppQuit = false
 		autoUpdater.allowPrerelease = false
-		setInterval(() => {
-			autoUpdater.checkForUpdates()
-		}, 30 * 60 * 1000) // Check every 30 minutes.
+		runWithInterval(
+			"main-update",
+			autoUpdater.checkForUpdates,
+			30 * 60 * 1000,
+		) // Check every 30 minutes.
 		autoUpdater.on("error", (e: Error) => {
 			log.error("autoupdater:", e)
 		})
