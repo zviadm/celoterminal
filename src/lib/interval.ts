@@ -12,7 +12,7 @@ export const runWithInterval = (
 			try {
 				await f()
 			} catch (e) {
-				console.error(`bg-job[${name}]: ${e}`)
+				log.error(`bg-job[${name}]: ${e}`)
 			}
 			if (c.isCancelled()) {
 				return

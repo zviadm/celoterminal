@@ -30,8 +30,8 @@ function createMainWindow() {
 
 	const noDevTools = app.isPackaged || isSpectronTest
 	const noSplash = isSpectronTest // No splash screen during Spectron testing.
+	const width = noDevTools ? 950 : 1100
 
-	const width = noDevTools ? minWidth : minWidth + 270
 	const iconOptions = isSpectronTest ? {} : {
 		icon: path.join(__static, 'icon.png')
 	}
