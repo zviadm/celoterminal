@@ -27,10 +27,10 @@ const hideInsteadOfQuit = () => {
 function createMainWindow() {
 	const height = 800
 	const minWidth = 850
-	const width = 1100
 
 	const noDevTools = app.isPackaged || isSpectronTest
 	const noSplash = isSpectronTest // No splash screen during Spectron testing.
+	const width = noDevTools ? 950 : 1100
 
 	const iconOptions = isSpectronTest ? {} : {
 		icon: path.join(__static, 'icon.png')
