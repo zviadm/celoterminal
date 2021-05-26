@@ -5,6 +5,11 @@ const { Octokit } = require("octokit");
 
 const semVerRegex = /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 
+process.on('unhandledRejection', error => {
+  console.log('unhandledRejection', error.message);
+	process.exit(1);
+});
+
 const runAction = async () => {
 	const packageJSON = JSON.parse(readFileSync("./package.json").toString())
 	const tags = execSync("git tag --list --sort=version:refname").toString()
@@ -20,6 +25,7 @@ const runAction = async () => {
 			owner: 'zviadm',
 			repo: 'celoterminal',
 		})
+		console.info(`Releases:`, releases.data)
 		release = releases.data.find((r) => r.name === packageJSON.version)
 		if (release) {
 			break

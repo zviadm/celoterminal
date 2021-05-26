@@ -4,6 +4,11 @@ const { readFileSync } = require("fs");
 
 const semVerRegex = /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 
+process.on('unhandledRejection', error => {
+  console.log('unhandledRejection', error.message);
+	process.exit(1);
+});
+
 const runAction = () => {
 	const packageJSON = JSON.parse(readFileSync("./package.json"))
 	const tags = execSync("git tag --list --sort=version:refname").toString()

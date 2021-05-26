@@ -5,13 +5,14 @@ const chalk = require("chalk");
 require("dotenv").config();
 require("debug").enable("electron-notarize");
 
-const info = str => {
-  console.log(chalk.blue(str));
-};
+process.on('unhandledRejection', error => {
+  console.log('unhandledRejection', error.message);
+	process.exit(1);
+});
 
 async function notarizeApp(context) {
   if (platform !== "darwin" || !process.env.OSX_NOTARIZE) {
-    info(`OS: ${platform}, skipping notarization.`);
+    console.log(`OS: ${platform}, skipping notarization.`);
     return;
   }
 
