@@ -12,6 +12,7 @@ import { CFG } from '../../../lib/cfg'
 import { spectronChainId } from '../../../lib/spectron-utils/constants'
 import { Transaction } from '../../components/app-definition'
 import { extractTXDestinationAndData } from './transaction-parser'
+import { estimateGas } from './fee-estimation'
 
 export interface Wallet {
 	wallet: ReadOnlyWallet
@@ -76,9 +77,27 @@ export async function createWallet(
 				const dataBytes = stringToSolidityBytes(data)
 				const txo = multiSig.methods.submitTransaction(
 					destination, tx.params?.value?.toString() || 0, dataBytes)
-				// TODO(zviad): if GAS was provided, we probably want to pass it through and add a bit
-				// more GAS because of MultiSig overhead?
-				return {tx: toTransactionObject(kit.connection, txo)}
+				// TODO(zviad): we need to figure out if there is need for additional logic for
+				// GAS estimation. If the original transaction has GAS provided, should we somehow
+				// take that into account for transformed TX?
+				if (tx.tx === "eth_signTransaction") {
+					const nonce = await kit.connection.nonce(owner.address)
+					const estimatedGas = await estimateGas(kit, {tx: toTransactionObject(kit.connection, txo)})
+					return {
+						tx: "eth_signTransaction",
+						params: {
+							...tx.params,
+							nonce: nonce,
+							from: owner.address,
+							to: account.address,
+							data: txo.encodeABI(),
+							value: "",
+							gas: estimatedGas.toFixed(0),
+						}
+					}
+				} else {
+					return {tx: toTransactionObject(kit.connection, txo)}
+				}
 			}
 			return {
 				wallet: ownerWallet.wallet,
