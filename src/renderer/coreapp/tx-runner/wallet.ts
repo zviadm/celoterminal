@@ -54,56 +54,7 @@ export async function createWallet(
 			}
 		}
 		case "multisig": {
-			const owner = findMultiSigOwner(account, accounts)
-			const ownerWallet = await createWallet(owner, accounts, password)
-			const transformTX = async (kit: ContractKit, tx: Transaction): Promise<Transaction> => {
-				const multiSig = await kit._web3Contracts.getMultiSig(account.address)
-				if (ownerWallet.transformTX) {
-					tx = await ownerWallet.transformTX(kit, {
-						...tx,
-						executeUsingParentAccount: false,
-					})
-				}
-				if (tx.executeUsingParentAccount) {
-					return tx
-				}
-				const {destination, data} = extractTXDestinationAndData(tx)
-				if (!destination) {
-					throw new UserError(`MultiSig accounts can not deploy new contracts.`)
-				}
-				if (!data) {
-					throw new Error(`Unexpected Error: Failed to parse transaction data.`)
-				}
-				const dataBytes = stringToSolidityBytes(data)
-				const txo = multiSig.methods.submitTransaction(
-					destination, tx.params?.value?.toString() || 0, dataBytes)
-				// TODO(zviad): we need to figure out if there is need for additional logic for
-				// GAS estimation. If the original transaction has GAS provided, should we somehow
-				// take that into account for transformed TX?
-				if (tx.tx === "eth_signTransaction") {
-					const nonce = await kit.connection.nonce(owner.address)
-					const estimatedGas = await estimateGas(kit, {tx: toTransactionObject(kit.connection, txo)})
-					return {
-						tx: "eth_signTransaction",
-						params: {
-							...tx.params,
-							nonce: nonce,
-							from: owner.address,
-							to: account.address,
-							data: txo.encodeABI(),
-							value: "",
-							gas: estimatedGas.toFixed(0),
-						}
-					}
-				} else {
-					return {tx: toTransactionObject(kit.connection, txo)}
-				}
-			}
-			return {
-				wallet: ownerWallet.wallet,
-				transport: ownerWallet.transport,
-				transformTX,
-			}
+			return createMultiSigWallet(account, accounts, password)
 		}
 		default:
 			throw new UserError(`Read-only accounts can not sign transactions.`)
@@ -124,4 +75,60 @@ const findMultiSigOwner = (account: MultiSigAccount, accounts: Account[]): Accou
 		throw new UserError(`MultiSig owner: ${account.ownerAddress} not found in accounts.`)
 	}
 	return owner
+}
+
+const createMultiSigWallet = async (
+	account: MultiSigAccount,
+	accounts: Account[],
+	password?: string): Promise<Wallet> => {
+	const owner = findMultiSigOwner(account, accounts)
+	const ownerWallet = await createWallet(owner, accounts, password)
+	const transformTX = async (kit: ContractKit, tx: Transaction): Promise<Transaction> => {
+		const multiSig = await kit._web3Contracts.getMultiSig(account.address)
+		if (ownerWallet.transformTX) {
+			tx = await ownerWallet.transformTX(kit, {
+				...tx,
+				executeUsingParentAccount: false,
+			})
+		}
+		if (tx.executeUsingParentAccount) {
+			return tx
+		}
+		const {destination, data} = extractTXDestinationAndData(tx)
+		if (!destination) {
+			throw new UserError(`MultiSig accounts can not deploy new contracts.`)
+		}
+		if (!data) {
+			throw new Error(`Unexpected Error: Failed to parse transaction data.`)
+		}
+		const dataBytes = stringToSolidityBytes(data)
+		const txo = multiSig.methods.submitTransaction(
+			destination, tx.params?.value?.toString() || 0, dataBytes)
+		// TODO(zviad): we need to figure out if there is need for additional logic for
+		// GAS estimation. If the original transaction has GAS provided, should we somehow
+		// take that into account for transformed TX?
+		if (tx.tx === "eth_signTransaction") {
+			const nonce = await kit.connection.nonce(owner.address)
+			const estimatedGas = await estimateGas(kit, {tx: toTransactionObject(kit.connection, txo)})
+			return {
+				tx: "eth_signTransaction",
+				params: {
+					...tx.params,
+					nonce: nonce,
+					from: owner.address,
+					to: account.address,
+					data: txo.encodeABI(),
+					value: "",
+					gas: estimatedGas.toFixed(0),
+				}
+			}
+		} else {
+			return {tx: toTransactionObject(kit.connection, txo)}
+		}
+	}
+	return {
+		wallet: ownerWallet.wallet,
+		transport: ownerWallet.transport,
+		transformTX,
+	}
 }
