@@ -9,6 +9,12 @@ import { testOnlySetupAccountsDB } from './test-utils'
 import { SpectronAccountsDB } from '../lib/spectron-utils/constants'
 import { setupMenu } from './menu'
 
+// List of URLs that don't allow CORS requests. Celo Terminal is a native app thus
+// CORS restrictions are completely unnecessary.
+const CORSByPassURLs = [
+	'https://repo.sourcify.dev/*',
+]
+
 declare const __static: string
 
 const isSpectronTest = !app.isPackaged && !!process.env.SPECTRON_TEST
@@ -47,15 +53,18 @@ function createMainWindow() {
 		width: width,
 		title: "Celo Terminal",
 		webPreferences: {
-			nodeIntegration: true,
-			contextIsolation: false,
-			enableRemoteModule: true,
 			// Session/LocalStorage data is not persisted during testing.
 			partition: !isSpectronTest ? "persist:default" : "test-default",
 			// Keep dev tools available in prod builds too. Can be helpful for
 			// debuging production binaries.
 			devTools: true,
-			webSecurity: false,
+
+			// Celo Terminal renderer app is mostly treated as a native app too since
+			// it needs to have access to USB (for hardware wallet) and to local file system
+			// for accounts database.
+			nodeIntegration: true,
+			contextIsolation: false,
+			enableRemoteModule: true,
 		},
 		show: noSplash,
 		// autoHide is causing unexpected issues during spectron tests. It is somehow
@@ -126,6 +135,28 @@ function createMainWindow() {
 		log.error(`main: navigation is not allowed...`)
 		event.preventDefault()
 	})
+
+	// Bypass CORS restrictions since this is a native app, not a random website running
+	// in the browser. Bypass happens by clearing `Origin` in the request headers.
+	// Alternative approach would have been to set `webSecurity: false` when creating BrowserWindow,
+	// but that is a bigger security relaxation compared to just overriding request headers.
+	const corsFilter = {urls: CORSByPassURLs}
+	let corsOrigin: string
+	window.webContents.session.webRequest.onBeforeSendHeaders(
+		corsFilter, (details, callback) => {
+			corsOrigin = details.requestHeaders['Origin']
+			details.requestHeaders['Origin'] = ''
+			callback({ requestHeaders: details.requestHeaders })
+		}
+	)
+	window.webContents.session.webRequest.onHeadersReceived(
+    corsFilter, (details, callback) => {
+			if (details.responseHeaders) {
+				details.responseHeaders['Access-Control-Allow-Origin'] = [corsOrigin]
+			}
+      callback({ responseHeaders: details.responseHeaders });
+    }
+  )
 
 	window.webContents.on('devtools-opened', () => {
 		window.focus()
