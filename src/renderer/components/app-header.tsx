@@ -1,10 +1,8 @@
 import * as React from 'react'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import {
+	CircularProgress, IconButton, Typography, Box, Paper
+} from '@material-ui/core'
 import Sync from '@material-ui/icons/Sync'
-import IconButton from '@material-ui/core/IconButton'
-import Typography from '@material-ui/core/Typography'
-import Box from '@material-ui/core/Box'
-import Paper from '@material-ui/core/Paper'
 
 import Link from './link'
 
