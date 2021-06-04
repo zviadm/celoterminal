@@ -115,6 +115,18 @@ function createMainWindow() {
 		mainWindow = null
 	})
 
+	// Prevent any type of navigation. While nothing should be attempting to navigate
+	// in the first place, this provides an additional safeguard if accidental mistakes
+	// are made.
+	window.webContents.on('will-navigate', (event) => {
+		log.error(`main: navigation is not allowed...`)
+		event.preventDefault()
+	})
+	window.webContents.on('will-redirect', (event) => {
+		log.error(`main: navigation is not allowed...`)
+		event.preventDefault()
+	})
+
 	window.webContents.on('devtools-opened', () => {
 		window.focus()
 		setImmediate(() => {
