@@ -135,6 +135,10 @@ function createMainWindow() {
 		log.error(`main: navigation is not allowed...`)
 		event.preventDefault()
 	})
+	window.webContents.on('new-window', (event) => {
+		log.error(`main: new-window is not allowed...`)
+		event.preventDefault()
+	})
 
 	// Bypass CORS restrictions since this is a native app, not a random website running
 	// in the browser. Bypass happens by clearing `Origin` in the request headers.
