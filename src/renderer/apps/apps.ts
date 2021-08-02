@@ -2,6 +2,7 @@ import { remote } from 'electron'
 import { AppDefinition } from '../components/app-definition'
 import { Celovote } from './celovote/def'
 import { SCInspector } from './sc-inspector/def'
+import { MultiSend } from './multisend/def'
 import { Governance } from './governance/def'
 import { Locker } from './locker/def'
 import { Mento } from './mento/def'
@@ -23,6 +24,7 @@ export const AppList: AppDefinition[] = [
 	// Optional Apps.
 	Mento,
 	Celovote,
+	MultiSend,
 	MultiSig,
 	SCInspector,
 	SavingsCELO,

@@ -54,7 +54,8 @@ const RunTXs = (props: {
 	selectedAccount: Account,
 	accounts: Account[],
 	wallet: Wallet,
-	txFunc: TXFunc,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	txFunc: TXFunc | any,
 	onFinish: TXFinishFunc,
 }): JSX.Element => {
 	const classes = useStyles()
@@ -102,9 +103,13 @@ const RunTXs = (props: {
 							`Unexpected ChainId. Expected: ${cfg.chainId}, Got: ${chainId}. ` +
 							`Refusing to run transactions.`)
 					}
-					const txs = await txFunc(kit)
-					if (txs.length === 0) {
+					
+					let txs = await txFunc(kit)
+
+					if (txs?.length === 0) {
 						throw new Error(`No transactions to run.`)
+					}else if(txs===true){
+						txs = []
 					}
 					const parsedTXs: ParsedTransaction[] = []
 					for (const tx of txs) {
