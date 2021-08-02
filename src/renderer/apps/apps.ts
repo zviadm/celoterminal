@@ -24,10 +24,10 @@ export const AppList: AppDefinition[] = [
 	// Optional Apps.
 	Mento,
 	Celovote,
-	MultiSend,
 	MultiSig,
 	SCInspector,
 	SavingsCELO,
+	MultiSend,
 ].concat(remote.app.isPackaged ? [] : [
 	// Test/Dev-only Apps.
 	Crasher,

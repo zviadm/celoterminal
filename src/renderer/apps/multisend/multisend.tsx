@@ -13,7 +13,7 @@ import * as React from 'react'
 import Box from '@material-ui/core/Box'
 import Paper from '@material-ui/core/Paper'
 import Alert from '@material-ui/lab/Alert'
-import ERC20 from './erc20'
+import Erc20Contract from '../../../lib/erc20/erc20-contract'
 
 import AppHeader from '../../components/app-header'
 import { MultiSend } from './def'
@@ -857,5 +857,5 @@ const newERC20 = async (kit: ContractKit, name: string, address?: string) => {
 	if (!address) {
 		throw new Error(`Unknown ERC20: ${name} - ${address}!`)
 	}
-	return new ERC20(kit, address)
+	return new Erc20Contract(kit, address)
 }
