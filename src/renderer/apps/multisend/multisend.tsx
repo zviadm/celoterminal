@@ -17,7 +17,7 @@ import Erc20Contract from '../../../lib/erc20/erc20-contract'
 
 import AppHeader from '../../components/app-header'
 import { MultiSend } from './def'
-import { UiFile } from '../../components/file'
+import { UiFile } from './components/file'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
