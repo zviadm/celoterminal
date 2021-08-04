@@ -1,6 +1,6 @@
 {
   "name": "celoterminal",
-  "version": "1.9.12",
+  "version": "1.9.13",
   "license": "MIT",
   "repository": {
     "url": "https://github.com/zviadm/celoterminal"
@@ -32,10 +32,10 @@
     }
   },
   "dependencies": {
-    "@celo/connect": "^1.2.0",
-    "@celo/contractkit": "^1.2.0",
-    "@celo/wallet-ledger": "^1.2.0",
-    "@celo/wallet-local": "^1.2.0",
+    "@celo/connect": "^1.2.4",
+    "@celo/contractkit": "^1.2.4",
+    "@celo/wallet-ledger": "^1.2.4",
+    "@celo/wallet-local": "^1.2.4",
     "@fontsource/roboto": "^4.1.0",
     "@ledgerhq/electron-updater": "^4.2.2",
     "@ledgerhq/hw-app-eth": "^5.11.0",
@@ -44,9 +44,9 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "@pedrouid/environment": "^1.0.1",
-    "@walletconnect/client": "2.0.0-beta.9",
-    "@walletconnect/types": "2.0.0-beta.9",
-    "@walletconnect/utils": "2.0.0-beta.9",
+    "@walletconnect/client": "2.0.0-beta.16",
+    "@walletconnect/types": "2.0.0-beta.16",
+    "@walletconnect/utils": "2.0.0-beta.16",
     "@types/papaparse": "^5.2.2",
     "axios": "^0.21.1",
     "better-sqlite3": "^7.1.2",
@@ -58,22 +58,23 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-password-strength-bar": "0.3.2",
-    "savingscelo": "^3.2.1",
-    "savingscelo-with-ube": "^1.4.0",
+    "savingscelo": "^3.3.0",
+    "savingscelo-with-ube": "^1.5.0",
     "source-map-support": "^0.5.16",
     "tslib": "^2.2.0",
-    "web3": "^1.3.5"
+    "web3": "1.3.6"
   },
   "resolutions": {
-    "@walletconnect/client": "2.0.0-beta.9",
-    "@walletconnect/types": "2.0.0-beta.9",
-    "@walletconnect/utils": "2.0.0-beta.9"
+    "@walletconnect/client": "2.0.0-beta.16",
+    "@walletconnect/types": "2.0.0-beta.16",
+    "@walletconnect/utils": "2.0.0-beta.16"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
     "@babel/preset-react": "^7.12.10",
-    "@celo/governance": "^1.2.0",
+    "@celo/explorer": "^1.2.4",
+    "@celo/governance": "^1.2.4",
     "@svgr/webpack": "^5.5.0",
     "@types/better-sqlite3": "^5.4.1",
     "@types/jest": "^26.0.20",
@@ -87,10 +88,10 @@
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
     "babel-plugin-transform-imports": "^2.0.0",
-    "celo-devchain": "^3.1.1",
+    "celo-devchain": "^3.3.0",
     "css-loader": "^5.0.1",
     "electron": "^11.4.6",
-    "electron-builder": "^22.9.1",
+    "electron-builder": "~22.10.5",
     "electron-notarize": "^1.0.0",
     "electron-webpack": "^2.8.2",
     "electron-webpack-ts": "^4.0.1",

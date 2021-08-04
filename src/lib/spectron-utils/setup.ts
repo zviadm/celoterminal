@@ -130,7 +130,7 @@ const startDevchain = async () => {
 }
 
 const _kill = (process: ChildProcessWithoutNullStreams) => {
-	if (os.platform() === "darwin") {
+	if (os.platform() === "darwin" || !process.pid) {
 		process.kill()
 	} else {
 		// For some reason on Ubuntu regular kill doesn't work. Thus

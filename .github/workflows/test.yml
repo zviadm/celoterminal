@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: 10
+          node-version: 12
       - run: sudo apt-get install xvfb
       - run: yarn config set network-timeout 600000 -g
       - run: yarn
