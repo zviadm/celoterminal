@@ -371,7 +371,6 @@ const MultiSendApp = (props: {
 			const valid = merkleTree.merkleRoot === distributorMerkleRoot
 			setMerkleValid(valid)
 		} catch {
-			console.log()
 			setMerkleValid(false)
 		}
 	}
@@ -487,7 +486,6 @@ const MultiSendApp = (props: {
 					console.log("Disbursement already done")
 					return { account, success: false, status: "already_claimed" }
 				}
-				console.log(claim)
 				const claimTx = toTransactionObject(
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					// @ts-ignore - unhappy with the abi format, but it is valid
