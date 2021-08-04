@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { CeloContract, ContractKit, StableToken } from '@celo/contractkit'
 import { isValidAddress } from 'ethereumjs-util'
-import { BigNumber, utils } from 'ethers'
+import { BigNumber } from 'bignumber.js'
 
 import { Account } from '../../../lib/accounts/accounts'
 import useOnChainState from '../../state/onchain-state'
@@ -305,7 +305,7 @@ const MultiSendApp = (props: {
 			id: id,
 			disbursement_id: selectedDisbursement?.id,
 			address: to,
-			earnings: utils.parseEther(amount).toHexString(),
+			earnings: k.web3.utils.toWei(amount),
 			reasons: reason || "",
 			status: "INITIAL",
 		} as Transfer
@@ -335,7 +335,7 @@ const MultiSendApp = (props: {
 				id: id,
 				disbursement_id: selectedDisbursement?.id,
 				address: value[0],
-				earnings: utils.parseEther(value[1]).toHexString(),
+				earnings: k.web3.utils.toWei(value[1]),
 				reasons: value[2] || "",
 				status: "INITIAL",
 			} as Transfer
@@ -371,7 +371,6 @@ const MultiSendApp = (props: {
 			const valid = merkleTree.merkleRoot === distributorMerkleRoot
 			setMerkleValid(valid)
 		} catch {
-			console.log()
 			setMerkleValid(false)
 		}
 	}
@@ -545,14 +544,14 @@ const MultiSendApp = (props: {
 		} as Disbursement)
 	}
 
-	const totalToDisburse = utils.formatEther(
-		BigNumber.from(
+	const totalToDisburse = k.web3.utils.fromWei(
+		new BigNumber(
 			transfers
-				?.map((x: Transfer) => BigNumber.from(x.earnings))
+				?.map((x: Transfer) =>new BigNumber(x.earnings))
 				?.reduce(
-					(a: BigNumber, b: BigNumber): BigNumber => a.add(b),
-					BigNumber.from(0)
-				) || BigNumber.from(0)
+					(a: BigNumber, b: BigNumber): BigNumber => a.plus(b),
+					new BigNumber(0)
+				) || new BigNumber(0)
 		).toString()
 	)
 	const canSend =
@@ -646,7 +645,7 @@ const MultiSendApp = (props: {
 											{capitalize(d.status.toLowerCase())}
 										</TableCell>
 										<TableCell className={classes.tableRow}>
-											{utils.formatEther(BigNumber.from(d.amount).toString())}
+											{k.web3.utils.fromWei(new BigNumber(d.amount).toString())}
 										</TableCell>
 										<TableCell className={classes.tableRow}>
 											{d.currency}
@@ -838,7 +837,7 @@ const MultiSendApp = (props: {
 										{t.address}
 									</TableCell>
 									<TableCell className={classes.tableRow}>
-										{utils.formatEther(BigNumber.from(t.earnings).toString())}{" "}
+										{k.web3.utils.fromWei(new BigNumber(t.earnings).toString())}{" "}
 										{erc20}
 									</TableCell>
 									<TableCell className={classes.tableRow}>

@@ -1,7 +1,6 @@
-import { BigNumber, utils } from 'ethers'
 import BalanceTree from './balance-tree'
-
-const { isAddress, getAddress } = utils
+import { BigNumber } from 'bignumber.js'
+import { isValidAddress, toChecksumAddress } from 'ethereumjs-util'
 
 // This is the blob that gets distributed and pinned to IPFS.
 // It is completely sufficient for recreating the entire merkle tree.
@@ -41,12 +40,12 @@ export function parseBalanceMap(balances: OldFormat | NewFormat[]): MerkleDistri
   const dataByAddress = balancesInNewFormat.reduce<{
     [address: string]: { amount: BigNumber; flags?: { [flag: string]: boolean } }
   }>((memo, { address: account, earnings, reasons }) => {
-    if (!isAddress(account)) {
+    if (!isValidAddress(account)) {
       throw new Error(`Found invalid address: ${account}`)
     }
-    const parsed = getAddress(account)
+    const parsed = toChecksumAddress(account)
     if (memo[parsed]) throw new Error(`Duplicate address: ${parsed}`)
-    const parsedNum = BigNumber.from(earnings)
+    const parsedNum = new BigNumber(earnings)
     if (parsedNum.lte(0)) throw new Error(`Invalid amount for account: ${account}`)
 
     const flags = {
@@ -73,7 +72,7 @@ export function parseBalanceMap(balances: OldFormat | NewFormat[]): MerkleDistri
     const { amount, flags } = dataByAddress[address]
     memo[address] = {
       index,
-      amount: amount.toHexString(),
+      amount: '0x' + amount.toString(16),
       proof: tree.getProof(index, address, amount),
       ...(flags ? { flags } : {}),
     }
@@ -81,13 +80,13 @@ export function parseBalanceMap(balances: OldFormat | NewFormat[]): MerkleDistri
   }, {})
 
   const tokenTotal: BigNumber = sortedAddresses.reduce<BigNumber>(
-    (memo, key) => memo.add(dataByAddress[key].amount),
-    BigNumber.from(0)
+    (memo, key) => memo.plus(dataByAddress[key].amount), 
+    new BigNumber(0)
   )
 
   return {
     merkleRoot: tree.getHexRoot(),
-    tokenTotal: tokenTotal.toHexString(),
+    tokenTotal: '0x' + tokenTotal.toString(16),
     contractAddress: "0x0",
     claims,
   }

@@ -1,5 +1,6 @@
 import MerkleTree from './merkle-tree'
-import { BigNumber, utils } from 'ethers'
+import { BigNumber } from 'bignumber.js'
+import { soliditySha3Raw } from 'web3-utils'
 
 export default class BalanceTree {
   private readonly tree: MerkleTree
@@ -29,7 +30,7 @@ export default class BalanceTree {
   // keccak256(abi.encode(index, account, amount))
   public static toNode(index: number | BigNumber, account: string, amount: BigNumber): Buffer {
     return Buffer.from(
-      utils.solidityKeccak256(['uint256', 'address', 'uint256'], [index, account, amount]).substr(2),
+      soliditySha3Raw({type:'uint256', value: index.toString()}, {type:'address', value:account}, {type:'uint256' ,value: amount.toString()}).substr(2),
       'hex'
     )
   }
