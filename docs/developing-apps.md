@@ -59,4 +59,4 @@ If you want to discuss plans for integrating your app in Celo Terminal, reach ou
 `@zviad | WOTrust` on [Celo Discord](https://chat.celo.org), or by email: support@celoterminal.com
 
 Celo Terminal is still in very early stages of development, thus all initial app integrations
-will be on more case-by-case basis until project reaches more maturatiy/stability.
+will be on more case-by-case basis.
