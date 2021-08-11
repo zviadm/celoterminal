@@ -68,7 +68,7 @@ export const addCustomErc20 = (erc20: CustomErc20): RegisteredErc20 => {
 	}
 	const list = customList()
 	const matchIdx = list.findIndex((l) => l.address.toLowerCase() === erc20.address)
-	if (matchIdx >= -1) {
+	if (matchIdx > -1) {
 		list.splice(matchIdx, 1, erc20)
 	} else {
 		list.push(erc20)
