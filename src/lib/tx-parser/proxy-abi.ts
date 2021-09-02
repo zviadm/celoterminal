@@ -1,6 +1,6 @@
 import { AbiItem } from "web3-utils"
 
-import { deployedBytecode as proxyBytecode, abi as proxyAbi } from "../core-contracts/Proxy.json"
+import { deployedBytecode as proxyBytecode, abi as proxyAbi } from "../core-contracts/Proxy-v1.json"
 
 export interface KnownProxy {
 	verifiedName: string,

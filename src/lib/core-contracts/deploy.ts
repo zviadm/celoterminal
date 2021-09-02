@@ -1,4 +1,4 @@
-import { abi as proxyABI, bytecode as proxyBytecode } from './Proxy.json'
+import { abi as proxyABI, bytecode as proxyBytecode } from './Proxy-v1.json'
 import { abi as multiSigABI, bytecode as multiSigBytecode } from './MultiSig.json'
 import { CeloTransactionObject, toTransactionObject } from '@celo/connect'
 import { ContractKit } from '@celo/contractkit'

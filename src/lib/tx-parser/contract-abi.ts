@@ -47,11 +47,12 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 		return cached
 	}
 
-	let code: string | undefined
+	let codeStripped: string | undefined
 	let proxy: KnownProxy | undefined = cached?.proxy
 	if (!cached) {
-		code = await kit.web3.eth.getCode(contractAddress)
-		proxy = KnownProxies.find((p) => p.bytecode === code)
+		const code = await kit.web3.eth.getCode(contractAddress)
+		codeStripped = stripMetadataFromBytecode(code)
+		proxy = KnownProxies.find((p) => stripMetadataFromBytecode(p.bytecode) === codeStripped)
 	}
 	let r
 	if (proxy) {
@@ -66,7 +67,7 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 		}
 		r = {verifiedName, proxy, abi}
 	} else {
-		const builtin = builtinContracts.find((c) => c.bytecode === code)
+		const builtin = builtinContracts.find((c) => stripMetadataFromBytecode(c.bytecode) === codeStripped)
 		let abi
 		let verifiedName
 		if (builtin) {
@@ -133,4 +134,23 @@ export const verifiedContractName = async (
 	}
 
 	return null
+}
+
+export const stripMetadataFromBytecode = (bytecode: string): string => {
+	// Docs:
+	// https://docs.soliditylang.org/en/develop/metadata.html#encoding-of-the-metadata-hash-in-the-bytecode
+	// Metadata format has changed once, but can be detected using last two bytes.
+	switch (bytecode.substring(bytecode.length - 4)) {
+	case '0029':
+		// Format: 0xa1 0x65 'b' 'z' 'z' 'r' '0' 0x58 0x20 <32 bytes of swarm> 0x00 0x29
+		return bytecode.substring(0, bytecode.length - 43 * 2)
+	case '0032':
+		// Format:
+		// 0xa2 0x65 'b' 'z' 'z' 'r' '0' 0x58 0x20 <32 bytes of swarm>
+		// 0x64 's' 'o' 'l' 'c' 0x43 <3 byte version encoding>
+		// 0x00 0x32
+		return bytecode.substring(0, bytecode.length - 52 * 2)
+	default:
+		return bytecode
+	}
 }
