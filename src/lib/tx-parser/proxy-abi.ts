@@ -1,6 +1,6 @@
 import { AbiItem } from "web3-utils"
 
-import { deployedBytecode as proxyBytecode, abi as proxyAbi } from "../core-contracts/Proxy-v1.json"
+import { deployedBytecode as proxyBytecodeV1, abi as proxyAbiV1 } from "../core-contracts/Proxy-v1.json"
 
 export interface KnownProxy {
 	verifiedName: string,
@@ -12,8 +12,8 @@ export interface KnownProxy {
 export const KnownProxies: KnownProxy[] = [
 	{
 		verifiedName: "CoreContract:Proxy",
-		abi: proxyAbi as AbiItem[],
-		bytecode: proxyBytecode,
+		abi: proxyAbiV1 as AbiItem[],
+		bytecode: proxyBytecodeV1,
 		implementationMethod: "_getImplementation",
 	},
 ]
