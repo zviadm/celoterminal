@@ -191,9 +191,13 @@ if (!gotLock) {
 	// Quit application when all windows are closed (except for macOS).
 	app.on('window-all-closed', () => {
 		// on macOS it is common for applications to stay open until the user explicitly quits.
-		if (!hideInsteadOfQuit()) {
-			app.quit()
-		}
+		// if (!hideInsteadOfQuit()) {
+		// 	app.quit()
+		// }
+
+		// NOTE(zviad): Due to walletconnect issues, for now always quit the app, even on MacOSx.
+		// Once WC issues are fixed, we can bring back previous behavior for MacOS.
+		app.quit()
 	})
 
 	app.on('activate', () => {
