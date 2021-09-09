@@ -27,7 +27,10 @@ let mainWindow: BrowserWindow | null
 let willQuitApp = false
 export const setForceQuit = (): void => { willQuitApp = true }
 const hideInsteadOfQuit = () => {
-	return !willQuitApp && process.platform === 'darwin'
+	// NOTE(zviad): Due to walletconnect issues, for now always quit the app, even on MacOSx.
+	// Once WC issues are fixed, we can bring back previous behavior for MacOS.
+	return !willQuitApp && false
+	// return !willQuitApp && process.platform === 'darwin'
 }
 
 function createMainWindow() {
@@ -191,13 +194,9 @@ if (!gotLock) {
 	// Quit application when all windows are closed (except for macOS).
 	app.on('window-all-closed', () => {
 		// on macOS it is common for applications to stay open until the user explicitly quits.
-		// if (!hideInsteadOfQuit()) {
-		// 	app.quit()
-		// }
-
-		// NOTE(zviad): Due to walletconnect issues, for now always quit the app, even on MacOSx.
-		// Once WC issues are fixed, we can bring back previous behavior for MacOS.
-		app.quit()
+		if (!hideInsteadOfQuit()) {
+			app.quit()
+		}
 	})
 
 	app.on('activate', () => {
