@@ -26,11 +26,13 @@ const EstablishSession = (props: {
 		const wc = wcGlobal.wc()
 		let cancelled = false
 		wc.once(CLIENT_EVENTS.session.proposal, async (proposal: SessionTypes.Proposal) => {
+			log.info(`wallet-connect: proposal received (cancelled: ${cancelled})...`, proposal)
 			if (cancelled) {
 				return wc.reject({proposal})
 			}
 			setProposal(proposal)
 		})
+		log.info(`wallet-connect: pairing with ${uri}...`)
 		wc.pair({uri})
 			.catch((e) => {
 				onCancel()
