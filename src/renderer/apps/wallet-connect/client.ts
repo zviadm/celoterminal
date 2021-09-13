@@ -10,6 +10,7 @@ import PrefixedStorage from './storage'
 import { CFG } from '../../../lib/cfg'
 import { Account } from '../../../lib/accounts/accounts'
 import { showWindowAndFocus } from './electron-utils'
+import { sleep } from '../../../lib/utils'
 
 if (module.hot) {
 	module.hot.decline()
@@ -85,14 +86,14 @@ export class WalletConnectGlobal {
 			if (this._wc) {
 				this._wc.off(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
 				this._wc.off(CLIENT_EVENTS.session.request, this.onRequest)
-				for (const session of this._wc.session.values) {
-					await this._wc.disconnect({topic: session.topic, reason: ERROR.USER_DISCONNECTED.format()})
-				}
-				for (const pairing of this._wc.pairing.values) {
-					await this._wc.pairing.delete({topic: pairing.topic, reason: ERROR.USER_DISCONNECTED.format()})
-				}
+				const _wc = this._wc
+				const disconnectSessions = this._wc.session.values.map(
+					(session) => _wc.disconnect({topic: session.topic, reason: ERROR.USER_DISCONNECTED.format()}))
+				const deletePairings = this._wc.pairing.values.map(
+					(pairing) => _wc.pairing.delete({topic: pairing.topic, reason: ERROR.USER_DISCONNECTED.format()}))
+				await Promise.race([Promise.all([...disconnectSessions, ...deletePairings]), sleep(1000)])
 				this._wc.relayer.provider.events.removeAllListeners()
-				await this._wc.relayer.provider.disconnect()
+				await Promise.race([this._wc.relayer.provider.disconnect(), sleep(5000)])
 				this._wc.session.events.removeAllListeners()
 				this._wc = undefined
 				this.requests = []
