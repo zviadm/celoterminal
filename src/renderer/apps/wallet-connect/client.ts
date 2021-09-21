@@ -1,277 +1,83 @@
-import { remote } from 'electron'
-import * as log from 'electron-log'
-import * as pino from 'pino'
-import WalletConnectClient, { CLIENT_EVENTS } from '@walletconnect/client'
-import { ERROR } from '@walletconnect/utils'
-import { SessionTypes } from '@walletconnect/types'
-import { Lock } from '@celo/base/lib/lock'
+import log from 'electron-log'
+import { CeloTx } from '@celo/connect'
+import WalletConnect from '@walletconnect/client'
+import { IJsonRpcErrorMessage } from '@walletconnect/types'
 
-import PrefixedStorage from './storage'
-import { CFG } from '../../../lib/cfg'
-import { Account } from '../../../lib/accounts/accounts'
-import { showWindowAndFocus } from './electron-utils'
-import { sleep } from '../../../lib/utils'
-
-if (module.hot) {
-	module.hot.decline()
+export const celoTerminalMetadata = {
+	name: "Celo Terminal",
+	description: "The one-stop shop for everything Celo",
+	url: "https://celoterminal.com",
+	icons: ["https://celoterminal.com/static/favicon.ico"],
 }
 
-export interface ErrorResponse {
-    code: number;
-    message: string;
-    data?: string;
+export interface BaseRequest {
+	id: number
+	method: string
+}
+export interface EthSendTransaction extends BaseRequest {
+	method: "eth_sendTransaction"
+	params?: CeloTx,
+}
+export type RequestPayload = EthSendTransaction
+
+export const requestQueueGlobal: WCRequest[] = []
+
+export class WCRequest {
+	constructor(
+		private wc: WalletConnect,
+		public readonly request: RequestPayload) {
+	}
+
+	private removeFromGlobal = () => {
+		const idx = requestQueueGlobal.indexOf(this)
+		if (idx >= 0) {
+			requestQueueGlobal.splice(idx, 1)
+		}
+	}
+
+	reject = (error?: IJsonRpcErrorMessage): void => {
+		this.removeFromGlobal()
+		return this.wc.rejectRequest({
+			id: this.request.id,
+			error: error,
+		})
+	}
+
+	approve = (result?: unknown): void => {
+		this.removeFromGlobal()
+		return this.wc.approveRequest({
+			id: this.request.id,
+			result: result,
+		})
+	}
 }
 
-const pairingBySessionKey = "xxx:session-pairings"
-
-export class WalletConnectGlobal {
-	public requests: SessionTypes.RequestParams[] = []
-
-	private _wc: WalletConnectClient | undefined
-	private wcMX = new Lock()
-
-	// Manually maintain a mapping from Session Topic -> Pairing Topic. This is helpful
-	// to clean up pairings after sessions have been disconnected. Otherwise pairings will
-	// stay around until their expiry period which can be quite long. Also defunct pairings
-	// can generate additional random error messages at the startup.
-	private pairingBySession = new Map<string, string>()
-
-	public init = async (): Promise<WalletConnectClient> => {
-		await this.wcMX.acquire()
-		try {
-			const wc = await this._init()
-			return wc
-		} finally {
-			this.wcMX.release()
-		}
-	}
-
-	private _init = async (): Promise<WalletConnectClient> => {
-		if (this._wc) {
-			return this._wc
-		}
-		const storage = new PrefixedStorage()
-		log.info(`wallet-connect: initialized with Storage`, await storage.getKeys())
-		const pairingData = await storage.getItem<[string, string][]>(pairingBySessionKey)
-		this.pairingBySession = new Map<string, string>(pairingData || [])
-		this._wc = await WalletConnectClient.init({
-			relayProvider: "wss://walletconnect.celo.org",
-			// relayProvider: "wss://walletconnect.celo-networks-dev.org",
-			controller: true,
-			storage: storage,
-			logger: remote.app.isPackaged ?
-				pino(
-					{
-						level: "warn",
-						prettyPrint: {
-							colorize: false,
-							translateTime: 'SYS:standard',
-							ignore: 'pid,hostname',
-						},
-					},
-					pino.destination(log.transports.file.getFile().path),
-				) :
-				"debug",
-		})
-		this.cleanupPairings()
-		this._wc.on(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
-		this._wc.on(CLIENT_EVENTS.session.request, this.onRequest)
-		return this._wc
-	}
-
-	public resetStorage = async (afterMX?: () => void): Promise<void> => {
-		await this.wcMX.acquire()
-		try {
-			if (afterMX) { afterMX() }
-			if (this._wc) {
-				this._wc.off(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
-				this._wc.off(CLIENT_EVENTS.session.request, this.onRequest)
-				const _wc = this._wc
-				const disconnectSessions = this._wc.session.values.map(
-					(session) => _wc.disconnect({topic: session.topic, reason: ERROR.USER_DISCONNECTED.format()}))
-				const deletePairings = this._wc.pairing.values.map(
-					(pairing) => _wc.pairing.delete({topic: pairing.topic, reason: ERROR.USER_DISCONNECTED.format()}))
-				await Promise.race([Promise.all([...disconnectSessions, ...deletePairings]), sleep(1000)])
-				this._wc.relayer.provider.events.removeAllListeners()
-				await Promise.race([this._wc.relayer.provider.disconnect(), sleep(5000)])
-				this._wc.session.events.removeAllListeners()
-				this._wc = undefined
-				this.requests = []
-			}
-			const storage = new PrefixedStorage()
-			const storageKeys = await storage.getKeys()
-			log.info(`wallet-connect: clearing storage`, storageKeys)
-			for (const key of storageKeys) {
-				await storage.removeItem(key)
-			}
-			return
-		} finally {
-			this.wcMX.release()
-		}
-	}
-
-	public wc = (): WalletConnectClient => {
-		if (!this._wc) {
-			throw new Error("WalletConnectGlobal not initialized!")
-		}
-		return this._wc
-	}
-
-	public wcMaybe = (): WalletConnectClient | undefined => {
-		return this._wc
-	}
-
-	public cleanupPairings = (): void => {
-		if (!this._wc) {
+export const setupWCHandlers = (wc: WalletConnect): void => {
+	wc.on("disconnect", (error) => {
+		log.info(`wallet-connect: disconnected ${wc.session.peerMeta?.name}`, error)
+	})
+	wc.on("call_request", (error, payload: {id: number, method: string, params: unknown[]}) => {
+		if (error) {
+			log.error(`wallet-connect: call_request error`, error)
 			return
 		}
-		log.info(
-			`wallet-connect: sessions: ` +
-			`settled: ${this._wc.session.length}, ` +
-			`pending: ${this._wc.session.pending.length}, ` +
-			`history: ${this._wc.session.history.size}`)
-		log.info(
-			`wallet-connect: pairings: ` +
-			`settled: ${this._wc.pairing.length}, ` +
-			`pending: ${this._wc.pairing.pending.length}, ` +
-			`history: ${this._wc.session.history.size}`)
-		const sessionsToKeep = new Set(this._wc.session.values.map((v) => v.topic).filter((t) => this.pairingBySession.has(t)))
-		for (const session of this._wc.session.pending.values) {
-			if (sessionsToKeep.has(session.topic)) {
-				continue
-			}
-			log.info(`wallet-connect: deleting pending sessions`, session.topic)
-			this._wc.session.pending.delete(session.topic, ERROR.USER_DISCONNECTED.format())
-		}
-		for (const session of this._wc.session.values) {
-			if (sessionsToKeep.has(session.topic)) {
-				continue
-			}
-			log.info(`wallet-connect: deleting settled sessions`, session.topic)
-			this._wc.disconnect({topic: session.topic, reason: ERROR.USER_DISCONNECTED.format()})
-		}
-
-		this.pairingBySession.forEach((v, k) => {
-			if (!sessionsToKeep.has(k)) {
-				this.pairingBySession.delete(k)
-			}
-		})
-		this.persistPairingBySession()
-		const pairingsToKeep = new Set(this.pairingBySession.values())
-		log.info(`wallet-connect: connected pairings`, Array.from(pairingsToKeep.values()))
-
-		for (const pairing of this._wc.pairing.pending.values) {
-			if (pairingsToKeep.has(pairing.topic)) {
-				continue
-			}
-			log.info(`wallet-connect: deleting disconnected pending pairing`, pairing.topic)
-			this._wc.pairing.pending.delete(pairing.topic, ERROR.USER_DISCONNECTED.format())
-		}
-		for (const pairing of this._wc.pairing.values) {
-			if (pairingsToKeep.has(pairing.topic)) {
-				continue
-			}
-			log.info(`wallet-connect: deleting disconnected settled pairing`, pairing.topic)
-			this._wc.pairing.delete({
-				topic: pairing.topic,
-				reason: ERROR.USER_DISCONNECTED.format(),
-			})
-		}
-	}
-
-	public approve = async (
-		proposal: SessionTypes.Proposal,
-		accounts: Account[]): Promise<SessionTypes.Settled> => {
-		const chainId = `celo:${CFG().chainId}`
-		const response: SessionTypes.Response = {
-      metadata: {
-        name: "Celo Terminal",
-        description: "The one-stop shop for everything Celo",
-        url: "https://celoterminal.com",
-        icons: ["https://celoterminal.com/static/favicon.ico"],
-      },
-      state: {
-        accounts: accounts.map((a) => `${a.address}@${chainId}`),
-      },
-    }
-		const settled = await this.wc().approve({proposal, response})
-		this.pairingBySession.set(
-			settled.topic,
-			proposal.signal.params.topic)
-		await this.persistPairingBySession()
-		return settled
-	}
-
-	private persistPairingBySession = async () => {
-		return this.wc().storage.setItem(pairingBySessionKey, Array.from(this.pairingBySession.entries()))
-	}
-
-	private onRequest = (event: SessionTypes.RequestParams) => {
-		const chainId = `celo:${CFG().chainId}`
-		if (event.chainId !== chainId) {
-			this.reject(event, {
-				code: -32000,
-				message: `Expected ChainId: ${chainId}, received: ${event.chainId}`,
-			})
-			return
-		}
-
-		switch (event.request.method) {
-		case "eth_signTransaction":
-			this.requests.push(event)
-			showWindowAndFocus()
+		log.info(`wallet-connect: call_request`, payload)
+		switch (payload.method) {
+		case "eth_sendTransaction":
+			requestQueueGlobal.push(
+				new WCRequest(wc, {
+					id: payload.id,
+					method: payload.method,
+					params: payload.params[0] as CeloTx,
+				})
+			)
+			log.info(`wallet-connect: send transaction`, requestQueueGlobal)
 			break
 		default:
-			log.info(`wallet-connect: rejected not supported request`, event)
-			this.reject(event, {
-				code: -32000,
-				message: `Celo Terminal does not support: ${event.request.method}`
+			wc.rejectRequest({
+				id: payload.id,
+				error: {message: `${payload.method} not supported!`},
 			})
 		}
-	}
-
-	public respond = <T>(
-		r: SessionTypes.RequestParams,
-		result: T): void => {
-		this.requestRM(r)
-		this.wc().respond({
-			topic: r.topic,
-			response: {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				id: (r.request as any).id,
-				jsonrpc: '2.0',
-				result: result,
-			}
-		})
-	}
-
-	public reject = (
-		r: SessionTypes.RequestParams,
-		error: ErrorResponse): void => {
-		this.requestRM(r)
-		this.wc().respond({
-			topic: r.topic,
-			response: {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				id: (r.request as any).id,
-				jsonrpc: '2.0',
-				error: error,
-			}
-		})
-	}
-
-	private requestRM(r: SessionTypes.RequestParams) {
-		const idx = this.requests.indexOf(r)
-		if (idx >= 0) {
-			this.requests.splice(idx, 1)
-		}
-	}
-
-	public notifyCount = (): number => {
-		if (!this._wc) { this.init() }
-		return this.requests.length
-	}
-
+	})
 }
-
-export const wcGlobal = new WalletConnectGlobal()

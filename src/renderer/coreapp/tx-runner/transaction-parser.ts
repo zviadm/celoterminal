@@ -19,8 +19,8 @@ export interface ParsedTransaction {
 
 export const extractTXDestinationAndData = (tx: Transaction): {destination?: string, data?: string} => {
 	return {
-		destination: tx.tx === "eth_signTransaction" ? tx.params?.to : tx.tx.txo._parent?.options.address,
-		data: tx.tx === "eth_signTransaction" ? tx.params?.data : tx.tx.txo.encodeABI(),
+		destination: tx.tx === "eth_signTransaction" || tx.tx === "eth_sendTransaction" ? tx.params?.to : tx.tx.txo._parent?.options.address,
+		data: tx.tx === "eth_signTransaction" || tx.tx === "eth_sendTransaction" ? tx.params?.data : tx.tx.txo.encodeABI(),
 	}
 }
 

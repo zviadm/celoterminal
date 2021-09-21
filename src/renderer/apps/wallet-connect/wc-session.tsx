@@ -1,7 +1,4 @@
-import { SessionTypes } from '@walletconnect/types'
-import { ERROR } from '@walletconnect/utils'
-
-import { wcGlobal } from './client'
+import { IClientMeta } from '@walletconnect/types'
 
 import * as React from 'react'
 import {
@@ -12,36 +9,26 @@ import HighlightOffIcon from '@material-ui/icons/HighlightOff'
 import Link from '../../components/link'
 
 const WCSession = (props: {
-	session: SessionTypes.Settled,
+	metadata: IClientMeta,
+	onDisconnect: () => void,
 }): JSX.Element => {
-	const peer = props.session.peer
-	const icon = peer.metadata.icons[0]
-	const handleDisconnect = () => {
-		const wc = wcGlobal.wc()
-		if (!wc) {
-			return
-		}
-		wc.disconnect({
-			topic: props.session.topic,
-			reason: ERROR.USER_DISCONNECTED.format(),
-		})
-	}
+	const icon = props.metadata.icons[0]
 	return (
 		<ListItem>
 			{icon &&
 			<ListItemAvatar><Avatar src={icon} /></ListItemAvatar>}
 			<ListItemText
 				primary={
-					<Link href={peer.metadata.url}>
-						{peer.metadata.name}
+					<Link href={props.metadata.url}>
+						{props.metadata.name}
 					</Link>
 				}
-				secondary={peer.metadata.description} />
+				secondary={props.metadata.description} />
 			<ListItemSecondaryAction>
 				<Tooltip title="Disconnect">
 					<IconButton
 						edge="end" aria-label="disconnect"
-						onClick={handleDisconnect}>
+						onClick={props.onDisconnect}>
 						<HighlightOffIcon />
 					</IconButton>
 				</Tooltip>

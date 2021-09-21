@@ -1,15 +1,15 @@
-import { CeloTx, CeloTxReceipt, EncodedTransaction } from '@celo/connect'
-import { SessionTypes } from '@walletconnect/types'
-import { SESSION_EVENTS } from '@walletconnect/client'
+import log from 'electron-log'
+import { CeloTx, CeloTxReceipt, EncodedTransaction, toTransactionObject } from '@celo/connect'
+import WC from '@walletconnect/client'
+import SessionStorage from "@walletconnect/core/dist/esm/storage";
 
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { WalletConnect } from './def'
-import { wcGlobal } from './client'
 
 import * as React from 'react'
 import {
-	Button, LinearProgress, List, TextField,
+	Button, List, TextField,
 	ListItem, ListItemText, ListItemSecondaryAction, Badge
 } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
@@ -24,75 +24,71 @@ import Link from '../../components/link'
 import WCSession from './wc-session'
 import EstablishSession from './establish-session'
 import { runWithInterval } from '../../../lib/interval'
+import { removeSessionId, storedSessionIds } from './storage'
+import { requestQueueGlobal, setupWCHandlers } from './client';
 
 const WalletConnectApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
-	const [initState, setInitState] = React.useState<"initializing" | "initialized" | "error">("initializing")
-	const [initError, setInitError] = React.useState<Error | undefined>()
-	const [sessions, setSessions] = React.useState<SessionTypes.Settled[]>([])
+	const [sessions, setSessions] = React.useState<{wc: WC}[]>([])
+	const [requests, setRequests] = React.useState([...requestQueueGlobal])
 
-	const sessionsSync = React.useCallback(() => {
-		setSessions([...wcGlobal.wc().session.values])
-	}, [])
+	// Initialize WalletConnect sessions from localStorage.
 	React.useEffect(() => {
-		if (initState !== "initializing") {
-			return
-		}
-		let cancelled = false
-		;(async () => {
-			const wc = await wcGlobal.init()
-			if (!cancelled) {
-				wc.session.events.on(SESSION_EVENTS.sync, sessionsSync)
-				setSessions([...wc.session.values])
-				setInitState("initialized")
+		const sessionIds = storedSessionIds()
+		log.info(`wallet-connect: loading stored sessions`, sessionIds)
+		const wcs: {wc: WC}[] = []
+		sessionIds.forEach((sessionId) => {
+			try {
+				const storage = new SessionStorage(sessionId)
+				const session = storage.getSession()
+				if (!session) {
+					removeSessionId(sessionId)
+					return
+				}
+				const wc = new WC({ session, storageId: sessionId })
+				wcs.push({ wc })
+			} catch (e) {
+				removeSessionId(sessionId)
+				log.error(`wallet-connect: removing uninitialized session`, sessionId, e)
 			}
-		})()
-		.catch((e) => {
-			if (!cancelled) {
-				setInitState("error")
-				setInitError(e)
-			}
-			throw e
 		})
-		return () => { cancelled = true }
-	}, [initState, sessionsSync])
-	React.useEffect(() => {
-		return () => {
-			const wc = wcGlobal.wcMaybe()
-			if (!wc) { return }
-			wc.session.events.removeListener(SESSION_EVENTS.sync, sessionsSync)
-		}
-	}, [sessionsSync])
+		setSessions(wcs)
+	}, [])
 
-	const [requests, setRequests] = React.useState([...wcGlobal.requests])
+	// Run periodic checks to discard disconnected sessions and to handle new
+	// WalletConnect requests.
 	React.useEffect(() => {
 		const cancel = runWithInterval(
 			"wallet-connect",
 			async () => {
 				setRequests((reqs) => {
 					const requestsUpdated = (
-						reqs.length !== wcGlobal.requests.length ||
-						!reqs.every((r, idx) => r === wcGlobal.requests[idx])
+						reqs.length !== requestQueueGlobal.length ||
+						!reqs.every((r, idx) => r === requestQueueGlobal[idx])
 					)
-					return requestsUpdated ? [...wcGlobal.requests] : reqs
+					return requestsUpdated ? [...requestQueueGlobal] : reqs
+				})
+				setSessions((sessions) => {
+					const sessionsFiltered = sessions.filter((s) => s.wc.connected)
+					return (sessionsFiltered.length !== sessions.length) ? sessionsFiltered : sessions
 				})
 			},
 			500)
 		return cancel
 	}, [])
+
+
 	const accounts = props.accounts
+	// Discard all requests that are sent for an incorrect/unknown accounts.
 	React.useEffect(() => {
-		for (const request of wcGlobal.requests) {
-			const from = request.request.params?.from?.toLowerCase()
+		for (const request of requestQueueGlobal) {
+			const from = request.request.params?.from?.toString().toLowerCase()
 			const match = accounts.find((a) => a.address.toLowerCase() === from)
 			if (!match) {
-				wcGlobal.reject(request, {
-					code: -32000,
-					message: `Unknown account: ${from}`,
-				})
+				request.reject({message: `Unknown account: ${request.request.params?.from}`})
 			}
 		}
 	}, [requests, accounts])
@@ -104,30 +100,25 @@ const WalletConnectApp = (props: {
 		if (inProgress) {
 			return
 		}
-		const request = wcGlobal.requests.find((r) =>
-			r.request.params?.from?.toLowerCase() === account.address.toLowerCase())
+		const request = requestQueueGlobal.find((r) =>
+			r.request.params?.from?.toString().toLowerCase() === account.address.toLowerCase())
 		if (!request) {
 			return
 		}
 		setInProgress(true)
 		runTXs(
 			async () => {
-				const tx: CeloTx = request.request.params
-				return [{tx: "eth_signTransaction", params: tx}]
+				return [{tx: "eth_sendTransaction", params: request.request.params}]
 			},
-			(e?: Error, receipts?: CeloTxReceipt[], signedTXs?: EncodedTransaction[]) => {
+			(e?: Error, receipts?: CeloTxReceipt[]) => {
 				setInProgress(false)
 				if (e) {
-					wcGlobal.reject(request, {
+					request.reject({
 						code: -32000,
 						message: e.message,
-						data: `${e}`,
 					})
 				} else {
-					if (!signedTXs) {
-						throw new Error(`Unexpected Error!`)
-					}
-					wcGlobal.respond(request, signedTXs[0])
+					request.approve()
 				}
 			}
 		)
@@ -136,42 +127,38 @@ const WalletConnectApp = (props: {
 	const [connectURI, setConnectURI] = React.useState("")
 	const [toApproveURI, setToApproveURI] = React.useState("")
 
-	const refresh = () => {
-		if (initState === "error") {
-			setInitState("initializing")
-		} else if (initState === "initialized") {
-			sessionsSync()
-		}
-	}
-
 	const refreshAfterEstablish = () => {
 		setConnectURI("")
 		setToApproveURI("")
 	}
+	const handleApprove = (wc: WC) => {
+		setSessions((sessions) => ([...sessions, {wc: wc}]))
+		refreshAfterEstablish()
+		setupWCHandlers(wc)
+	}
 
 	const requestsByAccount = new Map<string, number>()
 	requests.forEach((r) => {
-		const from = r.request.params?.from?.toLowerCase() as string || ""
+		const from = r.request.params?.from?.toString().toLowerCase() as string || ""
 		requestsByAccount.set(from, (requestsByAccount.get(from) || 0) + 1)
 	})
 
 	return (
 		<AppContainer>
-			<AppHeader app={WalletConnect} isFetching={initState === "initializing"} refetch={refresh} />
+			<AppHeader app={WalletConnect} />
 			{toApproveURI !== "" &&
 			<EstablishSession
 				uri={toApproveURI}
 				account={props.selectedAccount}
 				onCancel={refreshAfterEstablish}
-				onApprove={refreshAfterEstablish}
+				onApprove={handleApprove}
 			/>}
 			<AppSection>
 				<Alert severity="warning">
-					<AlertTitle>EXPERIMENTAL</AlertTitle>
+					<AlertTitle>EXPERIMENTAL: WalletConnect v1</AlertTitle>
 					WalletConnect support is still under development in Celo network. This is an
 					experimental feature for now. <Link href="https://docs.celoterminal.com/guides/using-walletconnect">Learn More.</Link>
 				</Alert>
-				{initState === "initializing" && <LinearProgress />}
 			</AppSection>
 			{requestsByAccount.size > 0 &&
 			<AppSection>
@@ -201,14 +188,6 @@ const WalletConnectApp = (props: {
 				</List>
 			</AppSection>
 			}
-			{initState === "error" && initError &&
-			<AppSection>
-				<Alert severity="error">
-					<AlertTitle>WalletConnect</AlertTitle>
-					{initError.message}
-				</Alert>
-			</AppSection>}
-			{initState === "initialized" && <>
 			<AppSection>
 				<TextField
 					autoFocus
@@ -234,23 +213,27 @@ const WalletConnectApp = (props: {
 				<List>
 				{sessions
 					.map((s) => {
+					if (!s.wc.session.peerMeta) {
+						return <></>
+					}
 					return <WCSession
-						key={s.topic}
-						session={s}
+						key={s.wc.peerId}
+						metadata={s.wc.session.peerMeta}
+						onDisconnect={() => {
+							s.wc.killSession()
+							const removeWC = s.wc
+							setSessions((sessions) => sessions.filter((s) => s.wc !== removeWC))
+						}}
 					/>
 				})}
 				</List>
 				<Button
 					variant="outlined"
 					color="secondary"
-					onClick={() => {
-						wcGlobal.resetStorage(
-							() => { setInitState("initializing")})
-					}}>
+					onClick={() => { /* empty */ }}>
 					Disconnect all DApps and reset state
 				</Button>
 			</AppSection>
-			</>}
 		</AppContainer>
 	)
 }

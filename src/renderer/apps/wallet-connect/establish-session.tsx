@@ -1,9 +1,9 @@
 import * as log from 'electron-log'
-import { CLIENT_EVENTS } from '@walletconnect/client'
-import { SessionTypes } from '@walletconnect/types'
+import WalletConnect from '@walletconnect/client'
 
 import { Account } from '../../../lib/accounts/accounts'
-import { wcGlobal } from './client'
+import { CFG } from '../../../lib/cfg'
+import { newSessionStorageId } from './storage'
 
 import * as React from 'react'
 import {
@@ -11,60 +11,65 @@ import {
 	Box, Button, Card, CardContent, CardHeader, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Typography
 } from '@material-ui/core'
 import Link from '../../components/link'
+import { celoTerminalMetadata } from './client'
 
 const EstablishSession = (props: {
 	uri: string,
 	account: Account,
 	onCancel: () => void,
-	onApprove: () => void,
+	onApprove: (wc: WalletConnect) => void,
 }): JSX.Element => {
 	const uri = props.uri
-	const [proposal, setProposal] = React.useState<SessionTypes.Proposal | undefined>()
+	const [proposal, setProposal] = React.useState<{
+		peerId: string,
+		peerMeta: {
+			name: string,
+			description: string,
+			icons: string[],
+			url: string,
+		}
+	} | undefined>()
 	const [approving, setApproving] = React.useState(false)
+	const wc = React.useRef<WalletConnect | undefined>()
 	const onCancel = props.onCancel
 	React.useEffect(() => {
-		const wc = wcGlobal.wc()
-		let cancelled = false
-		wc.once(CLIENT_EVENTS.session.proposal, async (proposal: SessionTypes.Proposal) => {
-			log.info(`wallet-connect: proposal received (cancelled: ${cancelled})...`, proposal)
-			if (cancelled) {
-				return wc.reject({proposal})
-			}
-			setProposal(proposal)
-		})
 		log.info(`wallet-connect: pairing with ${uri}...`)
-		wc.pair({uri})
-			.catch((e) => {
-				onCancel()
-				throw e
-			})
+		wc.current = new WalletConnect({
+			uri: uri,
+			clientMeta: celoTerminalMetadata,
+			storageId: newSessionStorageId(),
+		})
+		let cancelled = false
+		wc.current.on("session_request", async (error, proposal) => {
+			log.info(`wallet-connect: proposal received (cancelled: ${cancelled})...`, error, proposal)
+			if ((error || cancelled)) {
+				return wc.current?.killSession({message: "Cancelled by user!"})
+			}
+			setProposal(proposal.params[0])
+		})
 		return () => { cancelled = true }
 	// NOTE(zviadm): This only needs to run once.
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 	const handleCancel = () => {
-		if (proposal) {
-			wcGlobal.wc()
-				.reject({proposal})
-				.catch((e) => { log.warn(`wallet-connect:`, e) })
+		if (wc.current) {
+			wc.current.killSession({message: "Cancelled by user!"})
 		}
 		onCancel()
 	}
 	const handleApprove = () => {
-		if (!proposal) {
+		if (!proposal || !wc.current) {
 			return
 		}
 		setApproving(true)
-		wcGlobal
-			.approve(proposal, [props.account])
-			.then(() => { props.onApprove() })
-			.catch((e) => {
-				setApproving(false)
-				throw e
-			})
+		wc.current.approveSession({
+			chainId: 1, // Number.parseInt(CFG().chainId),
+			accounts: [props.account.address],
+		})
+		props.onApprove(wc.current)
 	}
 
-	const icon = proposal?.proposer.metadata.icons[0]
+	const icon = proposal?.peerMeta.icons[0]
 
 	return (
 		<Dialog open={true}>
@@ -76,14 +81,14 @@ const EstablishSession = (props: {
 					<CardHeader
 						avatar={icon && <Avatar src={icon} />}
 						title={
-							<Link href={proposal.proposer.metadata.url}>
-								{proposal.proposer.metadata.name}
+							<Link href={proposal.peerMeta.url}>
+								{proposal.peerMeta.name}
 							</Link>
 						}
 					/>
 					<CardContent>
 						<Typography variant="body2" color="textSecondary" component="p">
-							{proposal.proposer.metadata.description}
+							{proposal.peerMeta.description}
 						</Typography>
 					</CardContent>
 				</Card>
