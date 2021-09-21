@@ -18,7 +18,11 @@ export interface EthSendTransaction extends BaseRequest {
 	method: "eth_sendTransaction"
 	params?: CeloTx,
 }
-export type RequestPayload = EthSendTransaction
+export interface EthSignTransaction extends BaseRequest {
+	method: "eth_signTransaction"
+	params?: CeloTx,
+}
+export type RequestPayload = EthSendTransaction | EthSignTransaction
 
 export const requestQueueGlobal: WCRequest[] = []
 
@@ -64,6 +68,7 @@ export const setupWCHandlers = (wc: WalletConnect): void => {
 		log.info(`wallet-connect: call_request`, payload)
 		switch (payload.method) {
 		case "eth_sendTransaction":
+		case "eth_signTransaction":
 			requestQueueGlobal.push(
 				new WCRequest(wc, {
 					id: payload.id,

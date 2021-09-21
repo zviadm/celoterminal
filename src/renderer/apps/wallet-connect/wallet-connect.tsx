@@ -1,5 +1,5 @@
 import log from 'electron-log'
-import { CeloTx, CeloTxReceipt, EncodedTransaction, toTransactionObject } from '@celo/connect'
+import { CeloTxReceipt, EncodedTransaction } from '@celo/connect'
 import WC from '@walletconnect/client'
 import SessionStorage from "@walletconnect/core/dist/esm/storage";
 
@@ -108,9 +108,9 @@ const WalletConnectApp = (props: {
 		setInProgress(true)
 		runTXs(
 			async () => {
-				return [{tx: "eth_sendTransaction", params: request.request.params}]
+				return [{tx: request.request.method, params: request.request.params}]
 			},
-			(e?: Error, receipts?: CeloTxReceipt[]) => {
+			(e?: Error, receipts?: CeloTxReceipt[], signedTXs?: EncodedTransaction[]) => {
 				setInProgress(false)
 				if (e) {
 					request.reject({
@@ -118,7 +118,22 @@ const WalletConnectApp = (props: {
 						message: e.message,
 					})
 				} else {
-					request.approve()
+					if (request.request.method === "eth_signTransaction") {
+						if (signedTXs?.length !== 1) {
+							const errMsg = `Unexpected error while performing eth_signTransaction!`
+							request.reject({code: -32000, message: errMsg})
+							throw new Error(errMsg)
+						}
+						request.approve(signedTXs[0])
+					} else {
+						if (receipts?.length !== 1) {
+							const errMsg = `Unexpected error while performing eth_sendTransaction!`
+							request.reject({code: -32000, message: errMsg})
+							throw new Error(errMsg)
+						}
+						// TODO(zviad): What is the appropriate result for performed TXs?
+						request.approve()
+					}
 				}
 			}
 		)
