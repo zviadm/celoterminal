@@ -1,3 +1,4 @@
+import log from 'electron-log'
 import { CFG } from "../../../lib/cfg"
 
 const storagePrefix = `terminal/wallet-connect/storage/${CFG().chainId}/`
@@ -19,4 +20,10 @@ export const newSessionStorageId = (): string => {
 export const removeSessionId = (sessionId: string): void => {
 	const sessionIds = storedSessionIds().filter((id) => id !== sessionId)
 	localStorage.setItem(sessionIdsKey, JSON.stringify(sessionIds))
+}
+
+export const wipeFullStorage = (): void => {
+	const keys = Object.keys(localStorage).filter((k) => k.startsWith(storagePrefix))
+	log.info(`wallet-connect: wiping storage: ${keys}...`)
+	keys.forEach((key) => { localStorage.removeItem(key) })
 }

@@ -24,7 +24,7 @@ import Link from '../../components/link'
 import WCSession from './wc-session'
 import EstablishSession from './establish-session'
 import { runWithInterval } from '../../../lib/interval'
-import { removeSessionId, storedSessionIds } from './storage'
+import { removeSessionId, storedSessionIds, wipeFullStorage } from './storage'
 import { requestQueueGlobal, setupWCHandlers } from './client';
 
 const WalletConnectApp = (props: {
@@ -245,7 +245,14 @@ const WalletConnectApp = (props: {
 				<Button
 					variant="outlined"
 					color="secondary"
-					onClick={() => { /* empty */ }}>
+					onClick={() => {
+						for (const wc of sessions) {
+							wc.wc.killSession()
+						}
+						wipeFullStorage()
+						setSessions([])
+						requestQueueGlobal.splice(0, requestQueueGlobal.length)
+					}}>
 					Disconnect all DApps and reset state
 				</Button>
 			</AppSection>
