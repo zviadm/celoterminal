@@ -1,6 +1,7 @@
 import log from 'electron-log'
 import { CeloTx } from '@celo/connect'
 import WalletConnect from '@walletconnect/client'
+// eslint-disable-next-line import/no-unresolved
 import { IJsonRpcErrorMessage } from '@walletconnect/types'
 
 export const celoTerminalMetadata = {

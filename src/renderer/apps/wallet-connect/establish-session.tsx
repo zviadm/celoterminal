@@ -63,7 +63,7 @@ const EstablishSession = (props: {
 		}
 		setApproving(true)
 		wc.current.approveSession({
-			chainId: 1, // Number.parseInt(CFG().chainId),
+			chainId: Number.parseInt(CFG().chainId),
 			accounts: [props.account.address],
 		})
 		props.onApprove(wc.current)
