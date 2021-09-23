@@ -183,13 +183,13 @@ export class WalletConnectGlobal {
 		proposal: SessionTypes.Proposal,
 		accounts: Account[]): Promise<SessionTypes.Settled> => {
 		const chainId = `celo:${CFG().chainId}`
-		const response: SessionTypes.Response = {
-      metadata: {
-        name: "Celo Terminal",
-        description: "The one-stop shop for everything Celo",
-        url: "https://celoterminal.com",
-        icons: ["https://celoterminal.com/static/favicon.ico"],
-      },
+		const response: SessionTypes.ResponseInput = {
+			metadata: {
+				name: "Celo Terminal",
+				description: "The one-stop shop for everything Celo",
+				url: "https://celoterminal.com",
+				icons: ["https://celoterminal.com/static/favicon.ico"],
+			},
       state: {
         accounts: accounts.map((a) => `${a.address}@${chainId}`),
       },
@@ -203,7 +203,7 @@ export class WalletConnectGlobal {
 	}
 
 	private persistPairingBySession = async () => {
-		return this.wc().storage.setItem(pairingBySessionKey, Array.from(this.pairingBySession.entries()))
+		return this.wc().storage.keyValueStorage.setItem(pairingBySessionKey, Array.from(this.pairingBySession.entries()))
 	}
 
 	private onRequest = (event: SessionTypes.RequestParams) => {
