@@ -27,10 +27,7 @@ let mainWindow: BrowserWindow | null
 let willQuitApp = false
 export const setForceQuit = (): void => { willQuitApp = true }
 const hideInsteadOfQuit = () => {
-	// NOTE(zviad): Due to walletconnect issues, for now always quit the app, even on MacOSx.
-	// Once WC issues are fixed, we can bring back previous behavior for MacOS.
-	return !willQuitApp && false
-	// return !willQuitApp && process.platform === 'darwin'
+	return !willQuitApp && process.platform === 'darwin'
 }
 
 function createMainWindow() {
