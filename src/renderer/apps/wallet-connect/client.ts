@@ -22,19 +22,11 @@ export interface ErrorResponse {
     data?: string;
 }
 
-const pairingBySessionKey = "xxx:session-pairings"
-
 export class WalletConnectGlobal {
-	public requests: SessionTypes.RequestParams[] = []
+	public requests: SessionTypes.RequestEvent[] = []
 
 	private _wc: WalletConnectClient | undefined
 	private wcMX = new Lock()
-
-	// Manually maintain a mapping from Session Topic -> Pairing Topic. This is helpful
-	// to clean up pairings after sessions have been disconnected. Otherwise pairings will
-	// stay around until their expiry period which can be quite long. Also defunct pairings
-	// can generate additional random error messages at the startup.
-	private pairingBySession = new Map<string, string>()
 
 	public init = async (): Promise<WalletConnectClient> => {
 		await this.wcMX.acquire()
@@ -52,10 +44,9 @@ export class WalletConnectGlobal {
 		}
 		const storage = new PrefixedStorage()
 		log.info(`wallet-connect: initialized with Storage`, await storage.getKeys())
-		const pairingData = await storage.getItem<[string, string][]>(pairingBySessionKey)
-		this.pairingBySession = new Map<string, string>(pairingData || [])
 		this._wc = await WalletConnectClient.init({
-			relayProvider: "wss://walletconnect.celo.org",
+			relayProvider: "wss://relay.walletconnect.org",
+			// relayProvider: "wss://walletconnect.celo.org",
 			// relayProvider: "wss://walletconnect.celo-networks-dev.org",
 			controller: true,
 			storage: storage,
@@ -73,8 +64,6 @@ export class WalletConnectGlobal {
 				) :
 				"debug",
 		})
-		this.cleanupPairings()
-		this._wc.on(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
 		this._wc.on(CLIENT_EVENTS.session.request, this.onRequest)
 		return this._wc
 	}
@@ -84,7 +73,6 @@ export class WalletConnectGlobal {
 		try {
 			if (afterMX) { afterMX() }
 			if (this._wc) {
-				this._wc.off(CLIENT_EVENTS.session.deleted, this.cleanupPairings)
 				this._wc.off(CLIENT_EVENTS.session.request, this.onRequest)
 				const _wc = this._wc
 				const disconnectSessions = this._wc.session.values.map(
@@ -121,68 +109,10 @@ export class WalletConnectGlobal {
 		return this._wc
 	}
 
-	public cleanupPairings = (): void => {
-		if (!this._wc) {
-			return
-		}
-		log.info(
-			`wallet-connect: sessions: ` +
-			`settled: ${this._wc.session.length}, ` +
-			`pending: ${this._wc.session.pending.length}, ` +
-			`history: ${this._wc.session.history.size}`)
-		log.info(
-			`wallet-connect: pairings: ` +
-			`settled: ${this._wc.pairing.length}, ` +
-			`pending: ${this._wc.pairing.pending.length}, ` +
-			`history: ${this._wc.session.history.size}`)
-		const sessionsToKeep = new Set(this._wc.session.values.map((v) => v.topic).filter((t) => this.pairingBySession.has(t)))
-		for (const session of this._wc.session.pending.values) {
-			if (sessionsToKeep.has(session.topic)) {
-				continue
-			}
-			log.info(`wallet-connect: deleting pending sessions`, session.topic)
-			this._wc.session.pending.delete(session.topic, ERROR.USER_DISCONNECTED.format())
-		}
-		for (const session of this._wc.session.values) {
-			if (sessionsToKeep.has(session.topic)) {
-				continue
-			}
-			log.info(`wallet-connect: deleting settled sessions`, session.topic)
-			this._wc.disconnect({topic: session.topic, reason: ERROR.USER_DISCONNECTED.format()})
-		}
-
-		this.pairingBySession.forEach((v, k) => {
-			if (!sessionsToKeep.has(k)) {
-				this.pairingBySession.delete(k)
-			}
-		})
-		this.persistPairingBySession()
-		const pairingsToKeep = new Set(this.pairingBySession.values())
-		log.info(`wallet-connect: connected pairings`, Array.from(pairingsToKeep.values()))
-
-		for (const pairing of this._wc.pairing.pending.values) {
-			if (pairingsToKeep.has(pairing.topic)) {
-				continue
-			}
-			log.info(`wallet-connect: deleting disconnected pending pairing`, pairing.topic)
-			this._wc.pairing.pending.delete(pairing.topic, ERROR.USER_DISCONNECTED.format())
-		}
-		for (const pairing of this._wc.pairing.values) {
-			if (pairingsToKeep.has(pairing.topic)) {
-				continue
-			}
-			log.info(`wallet-connect: deleting disconnected settled pairing`, pairing.topic)
-			this._wc.pairing.delete({
-				topic: pairing.topic,
-				reason: ERROR.USER_DISCONNECTED.format(),
-			})
-		}
-	}
-
 	public approve = async (
 		proposal: SessionTypes.Proposal,
 		accounts: Account[]): Promise<SessionTypes.Settled> => {
-		const chainId = `celo:${CFG().chainId}`
+		const chainId = `eip155:${CFG().chainId}`
 		const response: SessionTypes.ResponseInput = {
 			metadata: {
 				name: "Celo Terminal",
@@ -191,24 +121,18 @@ export class WalletConnectGlobal {
 				icons: ["https://celoterminal.com/static/favicon.ico"],
 			},
       state: {
-        accounts: accounts.map((a) => `${a.address}@${chainId}`),
+        accounts: accounts.map((a) => `${chainId}:${a.address}`),
       },
     }
 		const settled = await this.wc().approve({proposal, response})
-		this.pairingBySession.set(
-			settled.topic,
-			proposal.signal.params.topic)
-		await this.persistPairingBySession()
 		return settled
 	}
 
-	private persistPairingBySession = async () => {
-		return this.wc().storage.keyValueStorage.setItem(pairingBySessionKey, Array.from(this.pairingBySession.entries()))
-	}
-
-	private onRequest = (event: SessionTypes.RequestParams) => {
-		const chainId = `celo:${CFG().chainId}`
+	private onRequest = (event: SessionTypes.RequestEvent) => {
+		log.info(`wallet-connect: received request`, event)
+		const chainId = `eip155:${CFG().chainId}`
 		if (event.chainId !== chainId) {
+			log.info(`wallet-connect: rejected request with invalid chainId`)
 			this.reject(event, {
 				code: -32000,
 				message: `Expected ChainId: ${chainId}, received: ${event.chainId}`,
@@ -222,7 +146,7 @@ export class WalletConnectGlobal {
 			showWindowAndFocus()
 			break
 		default:
-			log.info(`wallet-connect: rejected not supported request`, event)
+			log.info(`wallet-connect: rejected not supported request`)
 			this.reject(event, {
 				code: -32000,
 				message: `Celo Terminal does not support: ${event.request.method}`
@@ -231,14 +155,13 @@ export class WalletConnectGlobal {
 	}
 
 	public respond = <T>(
-		r: SessionTypes.RequestParams,
+		r: SessionTypes.RequestEvent,
 		result: T): void => {
 		this.requestRM(r)
 		this.wc().respond({
 			topic: r.topic,
 			response: {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				id: (r.request as any).id,
+				id: r.request.id,
 				jsonrpc: '2.0',
 				result: result,
 			}
@@ -246,21 +169,20 @@ export class WalletConnectGlobal {
 	}
 
 	public reject = (
-		r: SessionTypes.RequestParams,
+		r: SessionTypes.RequestEvent,
 		error: ErrorResponse): void => {
 		this.requestRM(r)
 		this.wc().respond({
 			topic: r.topic,
 			response: {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				id: (r.request as any).id,
+				id: r.request.id,
 				jsonrpc: '2.0',
 				error: error,
 			}
 		})
 	}
 
-	private requestRM(r: SessionTypes.RequestParams) {
+	private requestRM(r: SessionTypes.RequestEvent) {
 		const idx = this.requests.indexOf(r)
 		if (idx >= 0) {
 			this.requests.splice(idx, 1)
