@@ -50,19 +50,17 @@ export class WalletConnectGlobal {
 			// relayProvider: "wss://walletconnect.celo-networks-dev.org",
 			controller: true,
 			storage: storage,
-			logger: remote.app.isPackaged ?
-				pino(
-					{
-						level: "warn",
-						prettyPrint: {
-							colorize: false,
-							translateTime: 'SYS:standard',
-							ignore: 'pid,hostname',
-						},
+			logger: pino(
+				{
+					level: remote.app.isPackaged ? "warn" : "debug",
+					prettyPrint: {
+						colorize: false,
+						translateTime: 'SYS:standard',
+						ignore: 'pid,hostname',
 					},
-					pino.destination(log.transports.file.getFile().path),
-				) :
-				"debug",
+				},
+				pino.destination(log.transports.file.getFile().path),
+			),
 		})
 		this._wc.on(CLIENT_EVENTS.session.request, this.onRequest)
 		return this._wc
