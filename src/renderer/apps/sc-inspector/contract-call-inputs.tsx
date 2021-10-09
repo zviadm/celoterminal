@@ -11,12 +11,18 @@ const ContractCallInputs = (props: {
 	abi: AbiItem,
 	actionLabel: string,
 	disabled?: boolean,
-	onAction: (inputs: string[], value?: BigNumber) => void,
+	onAction: (inputs: (string | string[])[], value?: BigNumber) => void,
 }): JSX.Element => {
 	const [inputs, setInputs] = React.useState<{[key: number]: string | undefined}>({})
 	const [sendAmount, setSendAmount] = React.useState("")
 	const handleAction = () => {
-		const inps = props.abi.inputs?.map((inp, idx) => inputs[idx] || "") || []
+		const inps = props.abi.inputs?.map(
+			(inputABI, idx) => {
+				const isArray = inputABI.type.endsWith("[]")
+				const input = inputs[idx] || ""
+				return !isArray ? input : input.split(",")
+			}
+		) || []
 		props.onAction(
 			inps,
 			sendAmount ? new BigNumber(sendAmount).shiftedBy(coreErc20Decimals) : undefined)

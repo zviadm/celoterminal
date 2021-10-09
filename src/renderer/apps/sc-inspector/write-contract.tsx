@@ -11,9 +11,9 @@ import ContractCallInputs from './contract-call-inputs'
 const WriteContract = (props: {
 	contractAddress: string,
 	abi: AbiItem,
-	onExecute: (contractAddress: string, abi: AbiItem, inputs: string[], value?: BigNumber) => void
+	onExecute: (contractAddress: string, abi: AbiItem, inputs: (string | string[])[], value?: BigNumber) => void
 }): JSX.Element => {
-	const handleExecute = (inputs: string[], value?: BigNumber) => {
+	const handleExecute = (inputs: (string | string[])[], value?: BigNumber) => {
 		props.onExecute(props.contractAddress, props.abi, inputs, value)
 	}
 	return (
