@@ -13,7 +13,7 @@ export const setupAutoUpdater = (): void => {
 		autoUpdater.allowPrerelease = false
 		runWithInterval(
 			"main-update",
-			autoUpdater.checkForUpdates,
+			() => { return autoUpdater.checkForUpdates() },
 			30 * 60 * 1000,
 		) // Check every 30 minutes.
 		autoUpdater.on("error", (e: Error) => {
