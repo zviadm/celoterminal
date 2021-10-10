@@ -17,7 +17,7 @@ const ReadContract = (props: {
 	abi: AbiItem,
 }): JSX.Element => {
 	const [expanded, setExpanded] = React.useState(false)
-	const queryInput = React.useRef<string[]>([])
+	const queryInput = React.useRef<(string | string[])[]>([])
 
 	const contractAddress = props.contractAddress
 	const abi = props.abi
@@ -34,7 +34,7 @@ const ReadContract = (props: {
 		},
 		[contractAddress, abi, queryInput],
 	), {noErrorPropagation: true, lazyFetch: true})
-	const handleQuery = (inputs: string[]) => {
+	const handleQuery = (inputs: (string | string[])[]) => {
 		queryInput.current = inputs
 		refetch()
 	}
