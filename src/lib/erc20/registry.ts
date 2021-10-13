@@ -62,6 +62,14 @@ const _erc20Registry: RegisteredERC20[] = [
 		},
 	},
 	{
+		name: "Release Ube",
+		symbol: "rUBE",
+		decimals: 18,
+		addresses: {
+			mainnet: "0x5Ed248077bD07eE9B530f7C40BE0c1dAE4c131C0",
+		},
+	},
+	{
 		name: "Ubeswap LP Token (CELO+sCELO)",
 		symbol: "ULP-CELO+sCELO",
 		decimals: 18,
