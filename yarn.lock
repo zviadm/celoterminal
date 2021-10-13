@@ -4138,6 +4138,11 @@
     "@typescript-eslint/types" "4.28.5"
     eslint-visitor-keys "^2.0.0"
 
+"@ubeswap/default-token-list@^4.0.10":
+  version "4.0.10"
+  resolved "https://registry.yarnpkg.com/@ubeswap/default-token-list/-/default-token-list-4.0.10.tgz#423ed603ebbb2fbb3c5d611c0c000ced4edb0363"
+  integrity sha512-PQRBkCPyOxQ6DVsghGXqVeTkbNuOpB+D281EWdGksPcbzeupC4I1UiyZGC+4kGfSU5gmKzCJTbk4g2SScgt2YA==
+
 "@walletconnect/client@2.0.0-beta.17.3":
   version "2.0.0-beta.17.3"
   resolved "https://registry.yarnpkg.com/@walletconnect/client/-/client-2.0.0-beta.17.3.tgz#691561ad3d021fc668877603edab89a6e4b8127d"
