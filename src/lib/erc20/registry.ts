@@ -1,4 +1,4 @@
-import ubeswapTokenList from "@ubeswap/default-token-list/ubeswap.token-list.json"
+import * as ubeswapTokenList from "@ubeswap/default-token-list/ubeswap.token-list.json"
 
 import { ConversionFunc } from "./core"
 
