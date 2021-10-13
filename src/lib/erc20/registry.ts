@@ -1,3 +1,5 @@
+import ubeswapTokenList from "@ubeswap/default-token-list/ubeswap.token-list.json"
+
 import { ConversionFunc } from "./core"
 
 import { convertMToken } from "./conversions/moola"
@@ -5,7 +7,7 @@ import { convertSCELO } from "./conversions/savingscelo"
 
 import { SavingsCELOAddressAlfajores, SavingsCELOAddressBaklava } from "savingscelo"
 
-export const erc20Registry: {
+interface RegisteredERC20 {
 	name: string,
 	symbol: string,
 	addresses: {
@@ -15,7 +17,9 @@ export const erc20Registry: {
 	},
 	decimals: number,
 	conversion?: ConversionFunc,
-}[] = [
+}
+
+const _erc20Registry: RegisteredERC20[] = [
 	{
 		name: "Moola CELO AToken",
 		symbol: "mCELO",
@@ -34,6 +38,16 @@ export const erc20Registry: {
 		addresses: {
 			mainnet: "0x64dEFa3544c695db8c535D289d843a189aa26b98",
 			alfajores: "0x71DB38719f9113A36e14F409bAD4F07B58b4730b",
+		},
+	},
+	{
+		name: "Moola cEUR MToken",
+		symbol: "mCEUR",
+		decimals: 18,
+		conversion: convertMToken,
+		addresses: {
+			mainnet: "0xa8d0E6799FF3Fd19c6459bf02689aE09c4d78Ba7",
+			alfajores: "0x32974C7335e649932b5766c5aE15595aFC269160",
 		},
 	},
 	{
@@ -56,30 +70,19 @@ export const erc20Registry: {
 			alfajores: "0x58a3dc80EC8b6aE44AbD2e2b2A30F230b14B45c3",
 		},
 	},
-	{
-		name: "Ubeswap",
-		symbol: "UBE",
-		decimals: 18,
-		addresses: {
-			mainnet: "0x00Be915B9dCf56a3CBE739D9B9c202ca692409EC",
-		},
-	},
-	{
-		name: "Release Ube",
-		symbol: "rUBE",
-		decimals: 18,
-		addresses: {
-			mainnet: "0x5Ed248077bD07eE9B530f7C40BE0c1dAE4c131C0",
-		},
-	},
-	{
-		name: "Moola cEUR MToken",
-		symbol: "mCEUR",
-		decimals: 18,
-		conversion: convertMToken,
-		addresses: {
-			mainnet: "0xa8d0E6799FF3Fd19c6459bf02689aE09c4d78Ba7",
-			alfajores: "0x32974C7335e649932b5766c5aE15595aFC269160",
-		},
-	},
 ]
+
+export const erc20Registry: RegisteredERC20[] = (() => {
+	const ubeswapErc20s = ubeswapTokenList.tokens.filter((t) =>
+		t.chainId === 42220 &&
+		!_erc20Registry.find((r) => r.addresses.mainnet === t.address))
+		.map((t) => ({
+			name: t.name,
+			symbol: t.symbol,
+			decimals: t.decimals,
+			addresses: {
+				mainnet: t.address,
+			}
+		}))
+	return [..._erc20Registry, ...ubeswapErc20s]
+})()
