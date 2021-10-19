@@ -68,7 +68,7 @@ const SCInspectorApp = (props: {
 	), {noErrorPropagation: true})
 
 	const handleExecute = (
-		contractAddress: string, abi: AbiItem, inputs: string[], value?: BigNumber) => {
+		contractAddress: string, abi: AbiItem, inputs: (string | string[])[], value?: BigNumber) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
 				const contract = new kit.web3.eth.Contract([abi], contractAddress)
@@ -119,7 +119,7 @@ export default SCInspectorApp
 const ContractView = (props: {
 	contractAddress: string,
 	contractAbi: ContractABI,
-	onExecute: (contractAddress: string, abi: AbiItem, inputs: string[]) => void
+	onExecute: (contractAddress: string, abi: AbiItem, inputs: (string | string[])[]) => void
 }) => {
 	const [tab, setTab] = React.useState("read")
 	const readFuncs = props.contractAbi.abi.filter(

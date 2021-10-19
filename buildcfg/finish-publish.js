@@ -18,30 +18,30 @@ const runAction = async () => {
 	const commits = execSync(`git log ${range} --pretty=format:%s --no-merges`).toString().trim()
 	console.info(`COMMITS: ${commits}`)
 
-	const octokit = new Octokit({auth: process.env.GITHUB_TOKEN})
-	const releases = await octokit.request('GET /repos/{owner}/{repo}/releases', {
-		owner: 'zviadm',
-		repo: 'celoterminal',
-	})
-	console.info(`Releases:`, releases.data)
-	const release = releases.data.find((r) => r.name === packageJSON.version)
-	if (!release) {
-		throw new Error(`Release not found: ${packageJSON.version}...`)
-	}
-	if (!release.draft) {
-		console.error(`Release: ${packageJSON.version} is no longer a draft! Not updating...`)
-		process.exit(1)
-	}
-	console.info(`Updating release: ${release.id} - ${release.name}...`)
-	await octokit.request('PATCH /repos/{owner}/{repo}/releases/{release_id}', {
-		owner: 'zviadm',
-		repo: 'celoterminal',
-		release_id: release.id,
-		tag_name: "v" + packageJSON.version,
-		body: commits,
-		draft: false,
-		prerelease: true,
-	})
+	// const octokit = new Octokit({auth: process.env.GITHUB_TOKEN})
+	// const releases = await octokit.request('GET /repos/{owner}/{repo}/releases', {
+	// 	owner: 'zviadm',
+	// 	repo: 'celoterminal',
+	// })
+	// console.info(`Releases:`, releases.data)
+	// const release = releases.data.find((r) => r.name === packageJSON.version)
+	// if (!release) {
+	// 	throw new Error(`Release not found: ${packageJSON.version}...`)
+	// }
+	// if (!release.draft) {
+	// 	console.error(`Release: ${packageJSON.version} is no longer a draft! Not updating...`)
+	// 	process.exit(1)
+	// }
+	// console.info(`Updating release: ${release.id} - ${release.name}...`)
+	// await octokit.request('PATCH /repos/{owner}/{repo}/releases/{release_id}', {
+	// 	owner: 'zviadm',
+	// 	repo: 'celoterminal',
+	// 	release_id: release.id,
+	// 	tag_name: "v" + packageJSON.version,
+	// 	body: commits,
+	// 	draft: false,
+	// 	prerelease: true,
+	// })
 };
 
 runAction();

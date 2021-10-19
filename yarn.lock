@@ -4156,6 +4156,11 @@
     pino "^6.7.0"
     pino-pretty "^4.3.0"
 
+"@ubeswap/default-token-list@^4.0.10":
+  version "4.0.10"
+  resolved "https://registry.yarnpkg.com/@ubeswap/default-token-list/-/default-token-list-4.0.10.tgz#423ed603ebbb2fbb3c5d611c0c000ced4edb0363"
+  integrity sha512-PQRBkCPyOxQ6DVsghGXqVeTkbNuOpB+D281EWdGksPcbzeupC4I1UiyZGC+4kGfSU5gmKzCJTbk4g2SScgt2YA==
+
 "@walletconnect/crypto@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@walletconnect/crypto/-/crypto-1.0.1.tgz#d4c1b1cd5dd1be88fe9a82dfc54cadbbb3f9d325"
