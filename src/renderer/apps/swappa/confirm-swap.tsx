@@ -1,6 +1,8 @@
 import BigNumber from 'bignumber.js'
 import { Route } from '@terminal-fi/swappa'
 import { RegisteredErc20 } from '../../../lib/erc20/core'
+import { fmtTradeAmount } from './utils'
+import { erc20FromAddress, fmtAmount } from '../../../lib/utils'
 
 import * as React from 'react'
 import {
@@ -10,8 +12,6 @@ import {
 } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 import AlertTitle from '@material-ui/lab/AlertTitle'
-import { erc20Addr, fmtTradeAmount } from './utils'
-
 
 const useStyles = makeStyles(() => ({
 	cell: {
@@ -21,10 +21,10 @@ const useStyles = makeStyles(() => ({
 }))
 
 const ConfirmSwap = (props: {
-	erc20s: RegisteredErc20[],
 	route: Route,
 	inputAmount: string,
 	slippagePct: string,
+	extraErc20s: RegisteredErc20[],
 	onConfirmSwap: (
 		route: Route,
 		inputAmount: BigNumber,
@@ -32,7 +32,7 @@ const ConfirmSwap = (props: {
 	onCancel: () => void,
 }): JSX.Element => {
 	const classes = useStyles()
-	const path = props.route.path.map((p) => props.erc20s.find((e) => erc20Addr(e) === p))
+	const path = props.route.path.map((p) => erc20FromAddress(p))
 	const inputToken = path[0]
 	const outputToken = path[path.length - 1]
 	const inputAmount = new BigNumber(props.inputAmount).shiftedBy(inputToken?.decimals || 0)
@@ -79,7 +79,7 @@ const ConfirmSwap = (props: {
 							</TableRow>
 							<TableRow>
 								<TableCell className={classes.cell}>Price</TableCell>
-								<TableCell align="right">{estimatedPrice.toFixed(4)}</TableCell>
+								<TableCell align="right">{fmtAmount(estimatedPrice, 0, 4)}</TableCell>
 							</TableRow>
 							<TableRow>
 								<TableCell className={classes.cell}>Max slippage</TableCell>

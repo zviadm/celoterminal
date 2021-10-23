@@ -2,40 +2,47 @@ import * as log from 'electron-log'
 import { ContractKit } from '@celo/contractkit'
 import { Lock } from '@celo/base/lib/lock'
 import BigNumber from 'bignumber.js'
-// import { BlockTransactionString } from 'web3-eth'
+import { BlockTransactionString } from 'web3-eth'
+
+import { Address, mainnetRegistriesAll, SwappaManager, swappaRouterV1Address } from '@terminal-fi/swappa'
+import { SwappaRouterV1, ABI as SwappaRouterV1ABI } from '@terminal-fi/swappa/dist/types/web3-v1-contracts/SwappaRouterV1'
 
 import { Account } from '../../../lib/accounts/accounts'
-import { Address, mainnetRegistriesAll, SwappaManager, swappaRouterV1Address } from '@terminal-fi/swappa'
 import { RegisteredErc20 } from '../../../lib/erc20/core'
-import { CFG, mainnetChainId, registeredErc20s } from '../../../lib/cfg'
-import { erc20Addr } from './utils'
-import { newErc20 } from '../../../lib/erc20/erc20-contract'
+import { CFG, mainnetChainId, registeredErc20s, selectAddress } from '../../../lib/cfg'
+import { erc20StaticAddress, newErc20 } from '../../../lib/erc20/erc20-contract'
 import useOnChainState from '../../state/onchain-state'
+import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
 
 import * as React from 'react'
-// import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
+
+export const routerAddr = selectAddress({
+	mainnet: swappaRouterV1Address,
+})
 
 let _manager: SwappaManager | undefined
 let _tokenWhitelistInitialized: Set<Address> = new Set()
 const _managerMX: Lock = new Lock()
 
-const managerGlobal = async (kit: ContractKit, tokenWhitelist: Address[]) => {
+const managerGlobal = async (kit: ContractKit, tokenWhitelist?: Address[]): Promise<SwappaManager> => {
+	if (!routerAddr) {
+		throw new Error(`Swappa not available on chainId: ${CFG().chainId}}!`)
+	}
 	await _managerMX.acquire()
 	try {
-		const matchLength = tokenWhitelist.length === _tokenWhitelistInitialized.size
-		const match = matchLength && tokenWhitelist.every((t) => _tokenWhitelistInitialized.has(t))
+		const matchLength = !tokenWhitelist || tokenWhitelist.length === _tokenWhitelistInitialized.size
+		const match = matchLength && (!tokenWhitelist || tokenWhitelist.every((t) => _tokenWhitelistInitialized.has(t)))
 		if (!_manager || !match) {
-			const chainId = CFG().chainId
 			const registries =
-				chainId === mainnetChainId ? mainnetRegistriesAll(kit) :
+				CFG().chainId === mainnetChainId ? mainnetRegistriesAll(kit) :
+				[]
 				null
-			if (!registries) {
-				throw new Error(`Swappa not available on chainId: ${chainId}!`)
+			_manager = new SwappaManager(kit, routerAddr, registries)
+			if (tokenWhitelist) {
+				log.info(`swappa: initializing SwappaManager, tokenWhitelist: ${tokenWhitelist.length}...`)
+				await _manager.reinitializePairs(tokenWhitelist)
+				_tokenWhitelistInitialized = new Set(tokenWhitelist)
 			}
-			_manager = new SwappaManager(kit, swappaRouterV1Address, registries)
-			log.info(`swappa: initializing SwappaManager, tokenWhitelist: ${tokenWhitelist.length}...`)
-			await _manager.reinitializePairs(tokenWhitelist)
-			_tokenWhitelistInitialized = new Set(tokenWhitelist)
 		}
 		return _manager
 	} finally {
@@ -87,8 +94,8 @@ export const useSwappaRouterState = (
 		}
 		const inputAmount = new BigNumber(trade.inputAmount).shiftedBy(inputToken.decimals).integerValue()
 		const routes = manager.findBestRoutesForFixedInputAmount(
-			erc20Addr(inputToken),
-			erc20Addr(trade.outputToken),
+			erc20StaticAddress(inputToken),
+			erc20StaticAddress(trade.outputToken),
 			inputAmount)
 		return {
 			route: routes[0],
@@ -97,53 +104,58 @@ export const useSwappaRouterState = (
 
 	return {
 		...refreshPairsState,
-		manager,
 		tradeRoute: tradeRoute,
 	}
 }
 
-// export interface TradeEvent {
-// 	blockNumber: number
-// 	timestamp: Date
-// 	txHash: string
-// 	exchanger: string
-// 	sellAmount: BigNumber
-// 	buyAmount: BigNumber
-// 	soldGold: boolean
-// }
+export interface TradeEvent {
+	blockNumber: number
+	timestamp: Date
+	txHash: string
+	sender: string
+	input: string
+	output: string
+	inputAmount: BigNumber
+	outputAmount: BigNumber
+}
 
-// // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-// export const useExchangeHistoryState = (account: Account, stableToken: StableToken) => {
-// 	const fetchCallback = React.useCallback(
-// 		async (
-// 			kit: ContractKit,
-// 			fromBlock: number,
-// 			toBlock: number,
-// 			latestBlock: BlockTransactionString): Promise<TradeEvent[]> => {
-// 			const exchangeDirect = await kit._web3Contracts.getExchange(stableToken)
-// 			const events = await exchangeDirect.getPastEvents("Exchanged", {
-// 				fromBlock,
-// 				toBlock,
-// 				filter: { exchanger: account.address }
-// 			})
-// 			return events.map((e) => ({
-// 					blockNumber: e.blockNumber,
-// 					// Estimate timestamp from just `latestBlock`, since fetching all blocks
-// 					// would be prohibitevly expensive.
-// 					timestamp: estimateTimestamp(latestBlock, e.blockNumber),
-// 					txHash: e.transactionHash,
-// 					exchanger: e.returnValues.exchanger,
-// 					sellAmount: valueToBigNumber(e.returnValues.sellAmount),
-// 					buyAmount: valueToBigNumber(e.returnValues.buyAmount),
-// 					soldGold: e.returnValues.soldGold,
-// 			}))
-// 		}, [account, stableToken],
-// 	)
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const useSwappaHistoryState = (account: Account) => {
+	const fetchCallback = React.useCallback(
+		async (
+			kit: ContractKit,
+			fromBlock: number,
+			toBlock: number,
+			latestBlock: BlockTransactionString): Promise<TradeEvent[]> => {
+			if (!routerAddr) {
+				throw new Error(`Swappa not available on chainId: ${CFG().chainId}}!`)
+			}
+			const router = new kit.web3.eth.Contract(SwappaRouterV1ABI, routerAddr) as unknown as SwappaRouterV1
 
-// 	return useEventHistoryState(
-// 		fetchCallback, {
-// 			maxHistoryDays: 7,
-// 			maxEvents: 100,
-// 		},
-// 	)
-// }
+			const events = await router.getPastEvents("Swap", {
+				fromBlock,
+				toBlock,
+				filter: { sender: account.address }
+			})
+			return events.map((e) => ({
+					blockNumber: e.blockNumber,
+					// Estimate timestamp from just `latestBlock`, since fetching all blocks
+					// would be prohibitevly expensive.
+					timestamp: estimateTimestamp(latestBlock, e.blockNumber),
+					txHash: e.transactionHash,
+					sender: e.returnValues.sender,
+					input: e.returnValues.input,
+					output: e.returnValues.output,
+					inputAmount: new BigNumber(e.returnValues.inputAmount),
+					outputAmount: new BigNumber(e.returnValues.outputAmount),
+			}))
+		}, [account],
+	)
+
+	return useEventHistoryState(
+		fetchCallback, {
+			maxHistoryDays: 7,
+			maxEvents: 100,
+		},
+	)
+}

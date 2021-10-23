@@ -1,16 +1,17 @@
 import { ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
+import { Route, swapTX } from '@terminal-fi/swappa'
 
 import { Account } from '../../../lib/accounts/accounts'
-import { TXFunc, TXFinishFunc } from '../../components/app-definition'
+import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definition'
 import { Swappa } from './def'
 import useLocalStorageState from '../../state/localstorage-state'
 import { coreErc20_CELO, coreErc20_cUSD, Erc20InfiniteAmount, RegisteredErc20 } from '../../../lib/erc20/core'
 import Erc20Contract from '../../../lib/erc20/erc20-contract'
-import { useSwappaRouterState } from './state'
+import { routerAddr, useSwappaHistoryState, useSwappaRouterState } from './state'
 import { useErc20List } from '../../state/erc20list-state'
 import { fmtTradeAmount } from './utils'
-import { Route } from '@terminal-fi/swappa'
+import { fmtAmount } from '../../../lib/utils'
 
 import * as React from 'react'
 import {
@@ -24,7 +25,7 @@ import NumberInput from '../../components/number-input'
 import AppSection from '../../components/app-section'
 import AppContainer from '../../components/app-container'
 import SelectErc20 from '../../components/select-erc20'
-import { fmtAmount } from '../../../lib/utils'
+import TradeHistory from './trade-history'
 
 const SwappaApp = (props: {
 	accounts: Account[],
@@ -70,9 +71,9 @@ const SwappaApp = (props: {
 		isFetching,
 		refetch,
 		fetched,
-		manager,
 		tradeRoute,
 	} = useSwappaRouterState(account, erc20List.erc20s, inputToken, trade)
+	const swappaHistory = useSwappaHistoryState(account)
 
 	const [confirming, setConfirming] = React.useState<{
 		route: Route,
@@ -85,19 +86,19 @@ const SwappaApp = (props: {
 		inputAmount: BigNumber,
 		minOutputAmount: BigNumber,
 	) => {
-		if (!manager) {
-			throw new Error("Unexpected error, routing not initialized!")
-		}
+		setConfirming(undefined)
 		props.runTXs(
 			async (kit: ContractKit) => {
-				const tx = manager.swap(route, inputAmount, minOutputAmount, account.address)
-				console.info(`tx: ${route.path} ${inputAmount}, ${minOutputAmount}`, )
-				const txs = [{tx: tx}]
+				if (!routerAddr) {
+					throw new Error("Unexpected error!")
+				}
+				const tx = swapTX(kit, routerAddr, route, inputAmount, minOutputAmount, account.address)
+				const txs: Transaction[] = [{tx: tx}]
 
 				const erc20 = new Erc20Contract(kit, route.path[0])
-				const allowed = await erc20.allowance(account.address, manager.routerAddr)
+				const allowed = await erc20.allowance(account.address, routerAddr)
 				if (allowed.lt(inputAmount)) {
-					const txApprove = erc20.approve(manager.routerAddr, Erc20InfiniteAmount.toString(10))
+					const txApprove = erc20.approve(routerAddr, Erc20InfiniteAmount.toString(10))
 					txs.unshift({tx: txApprove})
 				}
 				return txs
@@ -121,7 +122,7 @@ const SwappaApp = (props: {
 			{confirming &&
 			<ConfirmSwap
 				{...confirming}
-				erc20s={erc20List.erc20s}
+				extraErc20s={erc20List.erc20s}
 				onConfirmSwap={handleSwap}
 				onCancel={() => setConfirming(undefined)}
 			/>}
@@ -251,9 +252,10 @@ const SwappaApp = (props: {
 					</Box>
 				</Box>
 			</AppSection>
+			<AppSection>
+				<TradeHistory events={swappaHistory.fetched} extraErc20s={erc20List.erc20s} />
+			</AppSection>
 		</AppContainer>
 	)
 }
 export default SwappaApp
-
-

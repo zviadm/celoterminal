@@ -1,6 +1,6 @@
 import * as ubeswapTokenList from "@ubeswap/default-token-list/ubeswap.token-list.json"
 
-import { ConversionFunc } from "./core"
+import { ConversionFunc, coreErc20s } from "./core"
 
 import { convertMToken } from "./conversions/moola"
 import { convertSCELO } from "./conversions/savingscelo"
@@ -83,7 +83,9 @@ const _erc20Registry: RegisteredERC20[] = [
 export const erc20Registry: RegisteredERC20[] = (() => {
 	const ubeswapErc20s = ubeswapTokenList.tokens.filter((t) =>
 		t.chainId === 42220 &&
-		!_erc20Registry.find((r) => r.addresses.mainnet === t.address))
+		!_erc20Registry.find((r) => r.addresses.mainnet === t.address) &&
+		!coreErc20s.find((r) => r.symbol === t.symbol)
+		)
 		.map((t) => ({
 			name: t.name,
 			symbol: t.symbol,

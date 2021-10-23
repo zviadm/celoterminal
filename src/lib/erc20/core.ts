@@ -3,24 +3,44 @@ import BigNumber from "bignumber.js"
 
 export const coreErc20Decimals = 18
 export const coreErc20_CELO = {
-		name: "Celo Native Asset",
-		symbol: Token.CELO,
-		decimals: coreErc20Decimals,
+	name: "Celo Native Asset",
+	symbol: Token.CELO,
+	decimals: coreErc20Decimals,
+	addresses: {
+		mainnet: "",
+		baklava: "",
+		alfajores: "",
 	}
+}
 export const coreErc20_cUSD = {
-		name: "Celo Dollar",
-		symbol: StableToken.cUSD,
-		decimals: coreErc20Decimals,
+	name: "Celo Dollar",
+	symbol: StableToken.cUSD,
+	decimals: coreErc20Decimals,
+	addresses: {
+		mainnet: "",
+		baklava: "",
+		alfajores: "",
 	}
+}
 export const coreErc20_cEUR = {
-		name: "Celo Euro",
-		symbol: StableToken.cEUR,
-		decimals: coreErc20Decimals,
+	name: "Celo Euro",
+	symbol: StableToken.cEUR,
+	decimals: coreErc20Decimals,
+	addresses: {
+		mainnet: "",
+		baklava: "",
+		alfajores: "",
 	}
+}
 export const coreErc20s: {
 	readonly name: string,
 	readonly symbol: CeloTokenType,
 	readonly decimals: number,
+	readonly addresses: {
+		mainnet: string,
+		baklava: string,
+		alfajores: string,
+	}
 }[] = [
 	coreErc20_CELO,
 	coreErc20_cUSD,

@@ -1,6 +1,8 @@
 // import { CeloTokenType } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
-import { coreErc20Decimals } from './erc20/core'
+import { registeredErc20s } from './cfg'
+import { coreErc20Decimals, RegisteredErc20 } from './erc20/core'
+import { erc20StaticAddress } from './erc20/erc20-contract'
 
 export const sleep = (milliseconds: number): Promise<void> => {
 	return new Promise(resolve => setTimeout(resolve, milliseconds))
@@ -57,4 +59,12 @@ export const fmtAmount = (
 
 export const fmtAddress = (address: string): string => {
 	return `${address.slice(0, 6)}...${address.slice(address.length-4)}`
+}
+
+export const erc20FromAddress = (address: string, extraErc20s?: RegisteredErc20[]): RegisteredErc20 | undefined => {
+	let erc20 = registeredErc20s.find((r) => erc20StaticAddress(r) === address)
+	if (!erc20 && extraErc20s) {
+		erc20 = extraErc20s.find((r) => erc20StaticAddress(r) === address)
+	}
+	return erc20
 }
