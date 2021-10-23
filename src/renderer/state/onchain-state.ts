@@ -49,7 +49,7 @@ const useOnChainState = <T>(
 		.then((a: T) => {
 			if (!c.isCancelled()) {
 				log.info(`useOnChainState[${fetchN}]: fetched`)
-				log.debug(`useOnChainState[${fetchN}]:`, a)
+				// log.debug(`useOnChainState[${fetchN}]:`, a)
 				setFetched(a)
 				setFetchError(undefined)
 			}

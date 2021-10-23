@@ -12,6 +12,13 @@
   resolved "https://registry.yarnpkg.com/7zip/-/7zip-0.0.6.tgz#9cafb171af82329490353b4816f03347aa150a30"
   integrity sha1-nK+xca+CMpSQNTtIFvAzR6oVCjA=
 
+"@aave/protocol-v2@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@aave/protocol-v2/-/protocol-v2-1.0.1.tgz#796c229ef14d9fdc24277bae1cbe3f2df783ff45"
+  integrity sha512-MU3WiigW89DWDpCtvaw4rafih7RbADB45uUM/zqfnOD4g9JNUVfeT6MrjV4/DP/JPA2Iv5ySKSx+a1OfUES0Pg==
+  dependencies:
+    tmp-promise "^3.0.2"
+
 "@babel/code-frame@7.12.11", "@babel/code-frame@^7.5.5":
   version "7.12.11"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.12.11.tgz#f4ad435aa263db935b8f10f2c552d23fb716a63f"
@@ -3574,6 +3581,32 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
+"@terminal-fi/savingscelo@^3.4.0":
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/@terminal-fi/savingscelo/-/savingscelo-3.4.1.tgz#a8c60e6ebd484f27bb94cb70f506df9d953daf03"
+  integrity sha512-+WYoNnkZUFnEFZBr5zQ3+JgLXyT8mNE56rSBftthk0uP2vEO2Iq0KqiBRQd6WcBUgClCvajgT9iBJ1aEuLFAZQ==
+  dependencies:
+    "@celo/connect" "^1.2.4"
+    "@celo/contractkit" "^1.2.4"
+    bignumber.js "^9.0.1"
+    node-fetch "^2.6.1"
+    web3 "^1.3.6"
+    web3-utils "^1.3.0"
+
+"@terminal-fi/swappa@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@terminal-fi/swappa/-/swappa-1.4.0.tgz#7a70b991f6e83abf612b1d4aa61461bfb676af0d"
+  integrity sha512-tYaGknEQvf0OpWrD408Yq944XUmrhJws79uDGeX8Vy/HQuiPV65QuwBXYxxopyQeOp8QrSBU5h/5K/kt3s+dUA==
+  dependencies:
+    "@aave/protocol-v2" "^1.0.1"
+    "@celo/connect" "^1.2.4"
+    "@celo/contractkit" "^1.2.4"
+    "@terminal-fi/savingscelo" "^3.4.0"
+    "@ubeswap/default-token-list" "^4.0.11"
+    bignumber.js "^9.0.1"
+    web3 "^1.3.4"
+    web3-utils "^1.3.0"
+
 "@types/anymatch@*":
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/@types/anymatch/-/anymatch-1.3.1.tgz#336badc1beecb9dacc38bea2cf32adf627a8421a"
@@ -4142,6 +4175,11 @@
   version "4.0.10"
   resolved "https://registry.yarnpkg.com/@ubeswap/default-token-list/-/default-token-list-4.0.10.tgz#423ed603ebbb2fbb3c5d611c0c000ced4edb0363"
   integrity sha512-PQRBkCPyOxQ6DVsghGXqVeTkbNuOpB+D281EWdGksPcbzeupC4I1UiyZGC+4kGfSU5gmKzCJTbk4g2SScgt2YA==
+
+"@ubeswap/default-token-list@^4.0.11":
+  version "4.0.16"
+  resolved "https://registry.yarnpkg.com/@ubeswap/default-token-list/-/default-token-list-4.0.16.tgz#9c4f68ba78dc04e3236307a5a2bb9fb5a2826922"
+  integrity sha512-kmhrTUON0RIrrPTdP7I4oMqi4TjFjyOAnLSC9Kulmx/ZW7VfG515m9S0txjd1YdsbBXpLmBURCiC6rFuYEPhaA==
 
 "@walletconnect/client@2.0.0-beta.17.3":
   version "2.0.0-beta.17.3"
@@ -15187,6 +15225,13 @@ tiny-warning@^1.0.2:
   resolved "https://registry.yarnpkg.com/tiny-warning/-/tiny-warning-1.0.3.tgz#94a30db453df4c643d0fd566060d60a875d84754"
   integrity sha512-lBN9zLN/oAf68o3zNXYrdCt1kP8WsiGW8Oo2ka41b2IM5JL/S1CTyX1rW0mb/zSuJun0ZUrDxx4sqvYS2FWzPA==
 
+tmp-promise@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/tmp-promise/-/tmp-promise-3.0.2.tgz#6e933782abff8b00c3119d63589ca1fb9caaa62a"
+  integrity sha512-OyCLAKU1HzBjL6Ev3gxUeraJNlbNingmi8IrHHEsYH8LTmEuhvYfqvhn2F/je+mjf4N58UmZ96OMEy1JanSCpA==
+  dependencies:
+    tmp "^0.2.0"
+
 tmp@^0.0.33:
   version "0.0.33"
   resolved "https://registry.yarnpkg.com/tmp/-/tmp-0.0.33.tgz#6d34335889768d21b2bcda0aa277ced3b1bfadf9"
@@ -15194,7 +15239,7 @@ tmp@^0.0.33:
   dependencies:
     os-tmpdir "~1.0.2"
 
-tmp@^0.2.1:
+tmp@^0.2.0, tmp@^0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/tmp/-/tmp-0.2.1.tgz#8457fc3037dcf4719c251367a1af6500ee1ccf14"
   integrity sha512-76SUhtfqR2Ijn+xllcI5P1oyannHNHByD80W1q447gU3mp9G9PSpGdWmjUOHRDPiHYacIk66W7ubDTuPF3BEtQ==

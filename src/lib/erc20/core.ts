@@ -2,24 +2,29 @@ import { CeloTokenType, ContractKit, StableToken, Token } from "@celo/contractki
 import BigNumber from "bignumber.js"
 
 export const coreErc20Decimals = 18
+export const coreErc20_CELO = {
+		name: "Celo Native Asset",
+		symbol: Token.CELO,
+		decimals: coreErc20Decimals,
+	}
+export const coreErc20_cUSD = {
+		name: "Celo Dollar",
+		symbol: StableToken.cUSD,
+		decimals: coreErc20Decimals,
+	}
+export const coreErc20_cEUR = {
+		name: "Celo Euro",
+		symbol: StableToken.cEUR,
+		decimals: coreErc20Decimals,
+	}
 export const coreErc20s: {
 	readonly name: string,
 	readonly symbol: CeloTokenType,
 	readonly decimals: number,
 }[] = [
-	{
-		name: "Celo Native Asset",
-		symbol: Token.CELO,
-		decimals: coreErc20Decimals,
-	}, {
-		name: "Celo Dollar",
-		symbol: StableToken.cUSD,
-		decimals: coreErc20Decimals,
-	}, {
-		name: "Celo Euro",
-		symbol: StableToken.cEUR,
-		decimals: coreErc20Decimals,
-	}
+	coreErc20_CELO,
+	coreErc20_cUSD,
+	coreErc20_cEUR,
 ]
 export const coreStableTokens = coreErc20s.filter((e) => e.symbol !== "CELO")
 

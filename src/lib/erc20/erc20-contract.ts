@@ -61,9 +61,13 @@ class Erc20Contract {
 export default Erc20Contract
 
 export const newErc20 = async (kit: ContractKit, erc20: RegisteredErc20): Promise<Erc20Contract> => {
-	let address = erc20.address
-	if (!address) {
-		address = await kit.celoTokens.getAddress(erc20.symbol as CeloTokenType)
-	}
+	const address = await erc20Address(kit, erc20)
 	return new Erc20Contract(kit, address)
+}
+
+export const erc20Address = async (kit: ContractKit, erc20: RegisteredErc20): Promise<string> => {
+	if (erc20.address) {
+		return erc20.address
+	}
+	return kit.celoTokens.getAddress(erc20.symbol as CeloTokenType)
 }
