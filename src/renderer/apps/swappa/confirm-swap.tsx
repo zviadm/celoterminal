@@ -32,16 +32,16 @@ const ConfirmSwap = (props: {
 	onCancel: () => void,
 }): JSX.Element => {
 	const classes = useStyles()
-	const path = props.route.path.map((p) => erc20FromAddress(p))
+	const path = props.route.path.map((p) => erc20FromAddress(p, props.extraErc20s))
 	const inputToken = path[0]
 	const outputToken = path[path.length - 1]
 	const inputAmount = new BigNumber(props.inputAmount).shiftedBy(inputToken?.decimals || 0)
 	const handleConfirm = () => {
 		if (!inputToken) {
-			throw new Error(`unrecognizable input token: ${props.route.path[0]}`)
+			throw new Error(`Unknown input token: ${props.route.path[0]}`)
 		}
 		if (!outputToken) {
-			throw new Error(`unrecognizable input token: ${props.route.path[props.route.path.length - 1]}`)
+			throw new Error(`Unknown input token: ${props.route.path[props.route.path.length - 1]}`)
 		}
 		const slippage = new BigNumber(1).minus(new BigNumber(props.slippagePct).div(100))
 		const minOutputAmount = new BigNumber(props.route.outputAmount)

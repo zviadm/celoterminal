@@ -62,8 +62,8 @@ export const useSwappaRouterState = (
 	const tokenWhitelist = React.useMemo(() => {
 		const addresses = Array.from(
 			new Set([
-				...erc20s.map((e) => e.address),
-				...registeredErc20s.map((r) => r.address),
+				...erc20s.map(erc20StaticAddress),
+				...registeredErc20s.map(erc20StaticAddress),
 				].filter((a) => a) as Address[]).values())
 		return addresses
 	}, [erc20s])

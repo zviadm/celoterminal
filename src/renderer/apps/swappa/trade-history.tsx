@@ -28,7 +28,7 @@ const TradeHistory = (props: {
 					<TableCell>Date</TableCell>
 					<TableCell width="100%">From</TableCell>
 					<TableCell width="100%">To</TableCell>
-					<TableCell>Price</TableCell>
+					<TableCell>Out/In</TableCell>
 					<TableCell>TXHash</TableCell>
 				</TableRow>
 			</TableHead>

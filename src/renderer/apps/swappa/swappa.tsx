@@ -74,6 +74,10 @@ const SwappaApp = (props: {
 		tradeRoute,
 	} = useSwappaRouterState(account, erc20List.erc20s, inputToken, trade)
 	const swappaHistory = useSwappaHistoryState(account)
+	const refetchAll = () => {
+		refetch()
+		swappaHistory.refetch()
+	}
 
 	const [confirming, setConfirming] = React.useState<{
 		route: Route,
@@ -104,7 +108,7 @@ const SwappaApp = (props: {
 				return txs
 			},
 			(e?: Error) => {
-				refetch()
+				refetchAll()
 				if (!e) {
 					setInputAmount("")
 				}
@@ -117,7 +121,7 @@ const SwappaApp = (props: {
 			<AppHeader
 				app={Swappa}
 				isFetching={isFetching}
-				refetch={refetch}
+				refetch={refetchAll}
 				/>
 			{confirming &&
 			<ConfirmSwap
@@ -237,7 +241,9 @@ const SwappaApp = (props: {
 						<Button
 							color="primary"
 							variant="outlined"
-							disabled={!tradeRoute?.route}
+							disabled={
+								!tradeRoute?.route ||
+								fetched?.inputBalance.shiftedBy(-inputToken.decimals).lt(inputAmount)}
 							onClick={() => {
 								if (!tradeRoute?.route) {
 									return

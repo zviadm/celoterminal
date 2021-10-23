@@ -7,7 +7,7 @@ export const coreErc20_CELO = {
 	symbol: Token.CELO,
 	decimals: coreErc20Decimals,
 	addresses: {
-		mainnet: "",
+		mainnet: "0x471EcE3750Da237f93B8E339c536989b8978a438",
 		baklava: "",
 		alfajores: "",
 	}
@@ -17,7 +17,7 @@ export const coreErc20_cUSD = {
 	symbol: StableToken.cUSD,
 	decimals: coreErc20Decimals,
 	addresses: {
-		mainnet: "",
+		mainnet: "0x765DE816845861e75A25fCA122bb6898B8B1282a",
 		baklava: "",
 		alfajores: "",
 	}
@@ -27,7 +27,7 @@ export const coreErc20_cEUR = {
 	symbol: StableToken.cEUR,
 	decimals: coreErc20Decimals,
 	addresses: {
-		mainnet: "",
+		mainnet: "0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73",
 		baklava: "",
 		alfajores: "",
 	}
