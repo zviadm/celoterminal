@@ -1,8 +1,6 @@
 import * as ubeswapTokenList from "@ubeswap/default-token-list/ubeswap.token-list.json"
 
 import { ConversionFunc, coreErc20s } from "./core"
-
-import { convertMToken } from "./conversions/moola"
 import { convertSCELO } from "./conversions/savingscelo"
 
 import { SavingsCELOAddressAlfajores, SavingsCELOAddressBaklava } from "savingscelo"

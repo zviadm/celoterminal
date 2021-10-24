@@ -8,8 +8,8 @@ export const coreErc20_CELO = {
 	decimals: coreErc20Decimals,
 	addresses: {
 		mainnet: "0x471EcE3750Da237f93B8E339c536989b8978a438",
-		baklava: "",
-		alfajores: "",
+		baklava: "0xdDc9bE57f553fe75752D61606B94CBD7e0264eF8",
+		alfajores: "0xF194afDf50B03e69Bd7D057c1Aa9e10c9954E4C9",
 	}
 }
 export const coreErc20_cUSD = {
@@ -18,8 +18,8 @@ export const coreErc20_cUSD = {
 	decimals: coreErc20Decimals,
 	addresses: {
 		mainnet: "0x765DE816845861e75A25fCA122bb6898B8B1282a",
-		baklava: "",
-		alfajores: "",
+		baklava: "0x62492A644A588FD904270BeD06ad52B9abfEA1aE",
+		alfajores: "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1",
 	}
 }
 export const coreErc20_cEUR = {
@@ -28,8 +28,8 @@ export const coreErc20_cEUR = {
 	decimals: coreErc20Decimals,
 	addresses: {
 		mainnet: "0xD8763CBa276a3738E6DE85b4b3bF5FDed6D6cA73",
-		baklava: "",
-		alfajores: "",
+		baklava: "0xf9ecE301247aD2CE21894941830A2470f4E774ca",
+		alfajores: "0x10c892A6EC43a53E45D0B916B4b7D383B1b78C0F",
 	}
 }
 export const coreErc20s: {
