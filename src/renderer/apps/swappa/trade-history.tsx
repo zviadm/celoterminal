@@ -11,6 +11,7 @@ import {
 
 import Link from '../../components/link'
 import SectionTitle from '../../components/section-title'
+import { fmtTradeAmount } from './utils'
 
 const TradeHistory = (props: {
 	events?: TradeEvent[],
@@ -43,10 +44,10 @@ const TradeHistory = (props: {
 							<TableCell>{e.timestamp.toLocaleDateString()}</TableCell>
 							</Tooltip>
 							<TableCell style={{whiteSpace: "nowrap"}}>
-								{fmtAmount(e.inputAmount, input?.decimals || 0)} {input?.symbol}
+								{fmtTradeAmount(e.inputAmount, input?.decimals || 0)} {input?.symbol}
 							</TableCell>
 							<TableCell style={{whiteSpace: "nowrap"}}>
-								{fmtAmount(e.outputAmount, output?.decimals || 0)} {output?.symbol}
+								{fmtTradeAmount(e.outputAmount, output?.decimals || 0)} {output?.symbol}
 							</TableCell>
 							<TableCell style={{whiteSpace: "nowrap"}}>
 								{fmtAmount(e.outputAmount.div(e.inputAmount), 0, 4)}

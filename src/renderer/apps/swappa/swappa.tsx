@@ -11,7 +11,6 @@ import Erc20Contract from '../../../lib/erc20/erc20-contract'
 import { routerAddr, useSwappaHistoryState, useSwappaRouterState } from './state'
 import { useErc20List } from '../../state/erc20list-state'
 import { fmtTradeAmount } from './utils'
-import { fmtAmount } from '../../../lib/utils'
 
 import * as React from 'react'
 import {
@@ -139,7 +138,7 @@ const SwappaApp = (props: {
 						margin="normal"
 						label={
 							`From` +
-							(fetched ? ` (max: ${fmtAmount(fetched.inputBalance, inputToken.decimals)})` : "")}
+							(fetched ? ` (max: ${fmtTradeAmount(fetched.inputBalance, inputToken.decimals)})` : "")}
 						InputLabelProps={{
 							shrink: true,
 						}}
@@ -183,7 +182,7 @@ const SwappaApp = (props: {
 							(trade && !tradeRoute) ? "Initializing..." :
 							(tradeRoute) ?
 								(tradeRoute.route ?
-									fmtTradeAmount(tradeRoute.route.outputAmount, outputToken.decimals, BigNumber.ROUND_DOWN) :
+									fmtTradeAmount(tradeRoute.route.outputAmount, outputToken.decimals) :
 									"Trade route not found!"
 								) :
 								""
