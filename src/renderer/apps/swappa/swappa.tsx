@@ -7,10 +7,11 @@ import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definiti
 import { Swappa } from './def'
 import useLocalStorageState from '../../state/localstorage-state'
 import { coreErc20_CELO, coreErc20_cUSD, Erc20InfiniteAmount, RegisteredErc20 } from '../../../lib/erc20/core'
-import Erc20Contract from '../../../lib/erc20/erc20-contract'
+import Erc20Contract, { erc20StaticAddress } from '../../../lib/erc20/erc20-contract'
 import { routerAddr, useSwappaHistoryState, useSwappaRouterState } from './state'
 import { useErc20List } from '../../state/erc20list-state'
 import { fmtTradeAmount } from './utils'
+import { fmtAmount } from '../../../lib/utils'
 
 import * as React from 'react'
 import {
@@ -78,11 +79,13 @@ const SwappaApp = (props: {
 		refetch()
 		swappaHistory.refetch()
 	}
-	const notEnoughBalance = fetched?.inputBalance.shiftedBy(-inputToken.decimals).lt(inputAmount)
+	const inputAmountN = new BigNumber(inputAmount).shiftedBy(inputToken.decimals)
+	const notEnoughBalance = fetched?.inputBalance.lt(inputAmountN)
+	const estimatedPrice = tradeRoute?.route?.outputAmount.div(tradeRoute.inputAmount)
 
 	const [confirming, setConfirming] = React.useState<{
 		route: Route,
-		inputAmount: string,
+		inputAmount: BigNumber,
 		slippagePct: string,
 	} | undefined>()
 
@@ -181,7 +184,7 @@ const SwappaApp = (props: {
 						value={
 							(trade && !tradeRoute) ? "Initializing..." :
 							(tradeRoute) ?
-								(tradeRoute.route ?
+								((tradeRoute.route && erc20StaticAddress(outputToken) === tradeRoute.route?.outputToken) ?
 									fmtTradeAmount(tradeRoute.route.outputAmount, outputToken.decimals) :
 									"Trade route not found!"
 								) :
@@ -213,6 +216,15 @@ const SwappaApp = (props: {
 				</Box>
 				{tradeRoute?.route &&
 				<SwapRoute route={tradeRoute.route} extraErc20s={erc20List.erc20s} />}
+				{estimatedPrice &&
+				<Box
+					display="flex" flexDirection="row" justifyContent="flex-end"
+					marginTop={1}>
+					<Typography color="textSecondary" variant="caption">
+						1 {inputToken?.symbol} ~ {fmtAmount(estimatedPrice, 0, 4)} {outputToken?.symbol} <br/>
+						1 {outputToken?.symbol} ~ {fmtAmount(new BigNumber(1).div(estimatedPrice), 0, 4)} {inputToken?.symbol}
+					</Typography>
+				</Box>}
 				<Box
 					display="flex"
 					flexDirection="row"
@@ -245,14 +257,14 @@ const SwappaApp = (props: {
 						<Button
 							color="primary"
 							variant="outlined"
-							disabled={!tradeRoute?.route || notEnoughBalance }
+							disabled={!tradeRoute?.route || !fetched?.inputBalance || notEnoughBalance }
 							onClick={() => {
 								if (!tradeRoute?.route) {
 									return
 								}
 								setConfirming({
 									route: tradeRoute.route,
-									inputAmount,
+									inputAmount: tradeRoute.inputAmount,
 									slippagePct,
 								})
 							}}
