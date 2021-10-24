@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from "axios"
 import { AbiItem } from "web3-utils"
 import { Address, ContractKit, RegisteredContracts } from '@celo/contractkit'
 
-import { alfajoresChainId, baklavaChainId, CFG, mainnetChainId, registeredErc20s } from "../cfg"
+import { alfajoresChainId, baklavaChainId, CFG, mainnetChainId, registeredErc20s, selectAddress } from "../cfg"
 import { deployedBytecode as multiSigBytecode, abi as multiSigAbi } from "../core-contracts/MultiSig.json"
 import { KnownProxies, KnownProxy } from "./proxy-abi"
 import { contractNamesRegistry } from "./registry"
@@ -59,11 +59,16 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 		const proxyWeb3Contract = new kit.web3.eth.Contract(proxy.abi, contractAddress)
 		const implAddress = await proxyWeb3Contract.methods[proxy.implementationMethod]().call()
 		const abi = [...proxy.abi]
-		let verifiedName: string | null = proxy.verifiedName
+		let verifiedName = await verifiedContractName(kit, contractAddress)
 		if (implAddress !== "0x0000000000000000000000000000000000000000") {
 			const implAbi = await fetchContractAbi(kit, implAddress)
-			verifiedName = implAbi.verifiedName
 			abi.push(...implAbi.abi)
+			if (verifiedName === undefined && implAbi.verifiedName !== undefined) {
+				verifiedName = implAbi.verifiedName
+			}
+		}
+		if (verifiedName === undefined) {
+			verifiedName = proxy.verifiedName
 		}
 		r = {verifiedName, proxy, abi}
 	} else {
@@ -83,16 +88,16 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 			for (const match of ["full_match", "partial_match"]) {
 				const url = `/contracts/${match}/${chainId}/${contractAddress}/metadata.json`
 				const resp = await cli().get(url, {
-					validateStatus: (status) => status === 200 || status === 404,
+					validateStatus: (status) => (status === 200 || status === 404),
 					responseType: "json",
 				})
 				if (resp.status === 404) {
 					continue
 				}
 				abi = resp.data.output.abi as AbiItem[]
-				verifiedName = await verifiedContractName(kit, contractAddress)
 				break
 			}
+			verifiedName = await verifiedContractName(kit, contractAddress)
 			if (abi === undefined || verifiedName === undefined) {
 				throw new Error(`Contract source code is not verified.`)
 			}
@@ -106,9 +111,8 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 export const verifiedContractName = async (
 	kit: ContractKit,
 	address: Address): Promise<string | null> => {
-	const registry = await kit.registry
 	const registryAddresses = await Promise.all(
-		await Promise.all(RegisteredContracts.map((r) => registry.addressFor(r).catch(() => undefined))))
+		await Promise.all(RegisteredContracts.map((r) => kit.registry.addressFor(r).catch(() => undefined))))
 	const registryEntries: [string, string | undefined][] =
 		RegisteredContracts.map((r, idx) => [r, registryAddresses[idx]])
 	const match = registryEntries.find((i) => i[1]?.toLowerCase() === address.toLowerCase())
@@ -121,18 +125,11 @@ export const verifiedContractName = async (
 		return `${erc20match.name} (${erc20match.symbol})`
 	}
 
-	const addrKey: "mainnet" | "baklava" | "alfajores" | null =
-		CFG().chainId === mainnetChainId ? "mainnet" :
-		CFG().chainId === baklavaChainId ? "baklava" :
-		CFG().chainId === alfajoresChainId ? "alfajores" : null
-	if (addrKey) {
-		const registryMatch = contractNamesRegistry.find(
-			(c) => c.addresses[addrKey]?.toLowerCase() === address.toLowerCase())
-		if (registryMatch) {
-			return registryMatch.name
-		}
+	const registryMatch = contractNamesRegistry.find(
+		(c) => selectAddress(c.addresses)?.toLowerCase() === address.toLowerCase())
+	if (registryMatch) {
+		return registryMatch.name
 	}
-
 	return null
 }
 
