@@ -18,10 +18,10 @@ const SwapRoute = (props: {
 			<Typography style={{fontFamily: "monospace"}}>
 				{
 					pathErc20s.map((p, idx) => {
-						return (<>
+						return (<span key={`path-${idx}`}>
 							<LinkedAddress address={path[idx]} name={p?.symbol} />
 							{(idx < pathErc20s.length - 1) ? "->" : ""}
-						</>)
+						</span>)
 					})
 				}
 			</Typography>
