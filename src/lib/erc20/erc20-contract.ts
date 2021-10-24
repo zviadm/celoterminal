@@ -1,9 +1,10 @@
+import BigNumber from "bignumber.js"
 import { AbiItem, CeloTransactionObject, toTransactionObject } from "@celo/connect"
 import { CeloTokenType, ContractKit } from "@celo/contractkit"
 import { valueToBigNumber } from "@celo/contractkit/lib/wrappers/BaseWrapper"
-import BigNumber from "bignumber.js"
 
-import { RegisteredErc20 } from "./core"
+import { selectAddressOrThrow } from "../cfg"
+import { coreErc20s, RegisteredErc20 } from "./core"
 import erc20abi from "./erc20-abi.json"
 
 class Erc20Contract {
@@ -61,9 +62,24 @@ class Erc20Contract {
 export default Erc20Contract
 
 export const newErc20 = async (kit: ContractKit, erc20: RegisteredErc20): Promise<Erc20Contract> => {
-	let address = erc20.address
-	if (!address) {
-		address = await kit.celoTokens.getAddress(erc20.symbol as CeloTokenType)
-	}
+	const address = await erc20Address(kit, erc20)
 	return new Erc20Contract(kit, address)
+}
+
+export const erc20Address = async (kit: ContractKit, erc20: RegisteredErc20): Promise<string> => {
+	if (erc20.address) {
+		return erc20.address
+	}
+	return kit.celoTokens.getAddress(erc20.symbol as CeloTokenType)
+}
+
+export const erc20StaticAddress = (erc20: RegisteredErc20): string => {
+	if (erc20.address) {
+		return erc20.address
+	}
+	const coreErc20 = coreErc20s.find((c) => c.symbol === erc20.symbol)
+	if (!coreErc20) {
+		throw new Error(`Invalid ERC20: ${erc20.symbol} / ${erc20.address}!`)
+	}
+	return selectAddressOrThrow(coreErc20.addresses)
 }

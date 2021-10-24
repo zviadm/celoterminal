@@ -44,6 +44,7 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "@pedrouid/environment": "^1.0.1",
+    "@terminal-fi/swappa": "^1.4.4",
     "@ubeswap/default-token-list": "^4.0.10",
     "@walletconnect/client": "2.0.0-beta.17.3",
     "@walletconnect/types": "2.0.0-beta.17.3",
