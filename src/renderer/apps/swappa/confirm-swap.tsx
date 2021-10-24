@@ -23,7 +23,7 @@ const useStyles = makeStyles(() => ({
 
 const ConfirmSwap = (props: {
 	route: Route,
-	inputAmount: string,
+	inputAmount: BigNumber,
 	slippagePct: string,
 	extraErc20s: RegisteredErc20[],
 	onConfirmSwap: (
@@ -36,7 +36,6 @@ const ConfirmSwap = (props: {
 	const path = props.route.path.map((p) => erc20FromAddress(p, props.extraErc20s))
 	const inputToken = path[0]
 	const outputToken = path[path.length - 1]
-	const inputAmount = new BigNumber(props.inputAmount).shiftedBy(inputToken?.decimals || 0)
 	const handleConfirm = () => {
 		if (!inputToken) {
 			throw new Error(`Unknown input token: ${props.route.path[0]}`)
@@ -48,9 +47,9 @@ const ConfirmSwap = (props: {
 		const minOutputAmount = new BigNumber(props.route.outputAmount)
 			.multipliedBy(slippage)
 			.integerValue(BigNumber.ROUND_DOWN)
-		props.onConfirmSwap(props.route, inputAmount, minOutputAmount)
+		props.onConfirmSwap(props.route, props.inputAmount, minOutputAmount)
 	}
-	const estimatedPrice = new BigNumber(props.route.outputAmount).div(inputAmount)
+	const estimatedPrice = new BigNumber(props.route.outputAmount).div(props.inputAmount)
 	const marketPrice = estimatedPrice
 	const priceImpact = marketPrice.minus(estimatedPrice).div(marketPrice)
 	const priceImpactTxt =
@@ -69,7 +68,9 @@ const ConfirmSwap = (props: {
 						<TableBody>
 							<TableRow>
 								<TableCell className={classes.cell}>Swap</TableCell>
-								<TableCell width="100%" align="right">{props.inputAmount} {inputToken?.symbol}</TableCell>
+								<TableCell width="100%" align="right">
+									{props.inputAmount.shiftedBy(-inputToken?.decimals).toFixed()} {inputToken?.symbol}
+								</TableCell>
 							</TableRow>
 							<TableRow>
 								<TableCell className={classes.cell}>For</TableCell>
@@ -81,8 +82,8 @@ const ConfirmSwap = (props: {
 							<TableRow>
 								<TableCell className={classes.cell}>Price</TableCell>
 								<TableCell align="right" style={{whiteSpace: "nowrap"}}>
-									1 {inputToken?.symbol} = {fmtAmount(estimatedPrice, 0, 4)} {outputToken?.symbol} <br/>
-									1 {outputToken?.symbol} = {fmtAmount(new BigNumber(1).div(estimatedPrice), 0, 4)} {inputToken?.symbol}
+									1 {inputToken?.symbol} ~ {fmtAmount(estimatedPrice, 0, 4)} {outputToken?.symbol} <br/>
+									1 {outputToken?.symbol} ~ {fmtAmount(new BigNumber(1).div(estimatedPrice), 0, 4)} {inputToken?.symbol}
 								</TableCell>
 							</TableRow>
 							<TableRow>
