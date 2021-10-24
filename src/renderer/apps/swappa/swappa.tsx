@@ -26,6 +26,7 @@ import AppSection from '../../components/app-section'
 import AppContainer from '../../components/app-container'
 import SelectErc20 from '../../components/select-erc20'
 import TradeHistory from './trade-history'
+import SwapRoute from './swap-route'
 
 const SwappaApp = (props: {
 	accounts: Account[],
@@ -78,6 +79,7 @@ const SwappaApp = (props: {
 		refetch()
 		swappaHistory.refetch()
 	}
+	const notEnoughBalance = fetched?.inputBalance.shiftedBy(-inputToken.decimals).lt(inputAmount)
 
 	const [confirming, setConfirming] = React.useState<{
 		route: Route,
@@ -210,6 +212,8 @@ const SwappaApp = (props: {
 						/>
 					</Box>
 				</Box>
+				{tradeRoute?.route &&
+				<SwapRoute route={tradeRoute.route} extraErc20s={erc20List.erc20s} />}
 				<Box
 					display="flex"
 					flexDirection="row"
@@ -237,13 +241,12 @@ const SwappaApp = (props: {
 							</Box>
 						</Box>
 					</Box>
+					<Tooltip title={notEnoughBalance ? "Not enough balance to trade!" : ""}>
 					<Box display="flex" flexDirection="column" width={200}>
 						<Button
 							color="primary"
 							variant="outlined"
-							disabled={
-								!tradeRoute?.route ||
-								fetched?.inputBalance.shiftedBy(-inputToken.decimals).lt(inputAmount)}
+							disabled={!tradeRoute?.route || notEnoughBalance }
 							onClick={() => {
 								if (!tradeRoute?.route) {
 									return
@@ -256,6 +259,7 @@ const SwappaApp = (props: {
 							}}
 							>Trade</Button>
 					</Box>
+					</Tooltip>
 				</Box>
 			</AppSection>
 			<AppSection>

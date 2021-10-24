@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 import AlertTitle from '@material-ui/lab/AlertTitle'
+import SwapRoute from './swap-route'
 
 const useStyles = makeStyles(() => ({
 	cell: {
@@ -79,11 +80,20 @@ const ConfirmSwap = (props: {
 							</TableRow>
 							<TableRow>
 								<TableCell className={classes.cell}>Price</TableCell>
-								<TableCell align="right">{fmtAmount(estimatedPrice, 0, 4)}</TableCell>
+								<TableCell align="right" style={{whiteSpace: "nowrap"}}>
+									1 {inputToken?.symbol} = {fmtAmount(estimatedPrice, 0, 4)} {outputToken?.symbol} <br/>
+									1 {outputToken?.symbol} = {fmtAmount(new BigNumber(1).div(estimatedPrice), 0, 4)} {inputToken?.symbol}
+								</TableCell>
 							</TableRow>
 							<TableRow>
 								<TableCell className={classes.cell}>Max slippage</TableCell>
 								<TableCell align="right">{props.slippagePct}%</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell className={classes.cell}>Route</TableCell>
+								<TableCell align="right">
+									<SwapRoute route={props.route} extraErc20s={props.extraErc20s} />
+								</TableCell>
 							</TableRow>
 						</TableBody>
 					</Table>

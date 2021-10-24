@@ -97,9 +97,8 @@ export const useSwappaRouterState = (
 			erc20StaticAddress(inputToken),
 			erc20StaticAddress(trade.outputToken),
 			inputAmount)
-		return {
-			route: routes[0],
-		}
+		const route = routes.length > 0 ? routes[0] : null
+		return { route }
 	}, [manager, inputToken, trade, refreshN])
 
 	return {
