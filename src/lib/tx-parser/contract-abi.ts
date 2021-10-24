@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from "axios"
 import { AbiItem } from "web3-utils"
-import { Address, ContractKit, RegisteredContracts } from '@celo/contractkit'
+import { Address, CeloContract, ContractKit } from '@celo/contractkit'
 
 import { alfajoresChainId, baklavaChainId, CFG, mainnetChainId, registeredErc20s, selectAddress } from "../cfg"
 import { deployedBytecode as multiSigBytecode, abi as multiSigAbi } from "../core-contracts/MultiSig.json"
@@ -108,16 +108,20 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 	return r
 }
 
+let _coreRegistry = new Map<string, CeloContract>()
+
 export const verifiedContractName = async (
 	kit: ContractKit,
 	address: Address): Promise<string | null> => {
-	const registryAddresses = await Promise.all(
-		await Promise.all(RegisteredContracts.map((r) => kit.registry.addressFor(r).catch(() => undefined))))
-	const registryEntries: [string, string | undefined][] =
-		RegisteredContracts.map((r, idx) => [r, registryAddresses[idx]])
-	const match = registryEntries.find((i) => i[1]?.toLowerCase() === address.toLowerCase())
-	if (match) {
-		return `CoreContract:` + match[0]
+	if (_coreRegistry.size === 0) {
+		const registryMapping = await kit.registry.addressMapping()
+		_coreRegistry = new Map(
+			Array.from(registryMapping.entries()).map(([contract, address]) => [address, contract])
+		)
+	}
+	const coreMatch = _coreRegistry.get(address)
+	if (coreMatch) {
+		return `CoreContract:${coreMatch}`
 	}
 
 	const erc20match = registeredErc20s.find((e) => e.address?.toLowerCase() === address.toLowerCase())
@@ -131,6 +135,19 @@ export const verifiedContractName = async (
 		return registryMatch.name
 	}
 	return null
+}
+
+export const contractNamesByAddress = async (kit: ContractKit, addresses: string[]): Promise<Map<string, string>> => {
+	const addressSet = Array.from(new Set(addresses).values())
+	const verifiedNames = await Promise.all(addressSet.map((a) => verifiedContractName(kit, a)))
+	const mapping = new Map<string, string>()
+	verifiedNames.forEach((name, idx) => {
+		if (!name) {
+			return
+		}
+		mapping.set(addressSet[idx], name)
+	})
+	return mapping
 }
 
 export const stripMetadataFromBytecode = (bytecode: string): string => {
