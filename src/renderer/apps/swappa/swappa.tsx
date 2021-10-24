@@ -257,7 +257,7 @@ const SwappaApp = (props: {
 						<Button
 							color="primary"
 							variant="outlined"
-							disabled={!tradeRoute?.route || notEnoughBalance }
+							disabled={!tradeRoute?.route || !fetched?.inputBalance || notEnoughBalance }
 							onClick={() => {
 								if (!tradeRoute?.route) {
 									return

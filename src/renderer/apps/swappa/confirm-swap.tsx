@@ -69,7 +69,7 @@ const ConfirmSwap = (props: {
 							<TableRow>
 								<TableCell className={classes.cell}>Swap</TableCell>
 								<TableCell width="100%" align="right">
-									{props.inputAmount.shiftedBy(-inputToken?.decimals).toFixed()} {inputToken?.symbol}
+									{props.inputAmount.shiftedBy(-(inputToken?.decimals || 0)).toFixed()} {inputToken?.symbol}
 								</TableCell>
 							</TableRow>
 							<TableRow>
