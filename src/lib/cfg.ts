@@ -55,6 +55,26 @@ export const CFG = (): Config => {
 	return _CFG
 }
 
+export const selectAddress = (addresses: {[chainId: string]: string}): string | null => {
+	let address: string | null = addresses[CFG().chainId]
+	if (!address) {
+		address =
+			CFG().chainId === mainnetChainId ? addresses.mainnet :
+			CFG().chainId === baklavaChainId ? addresses.baklava :
+			CFG().chainId === alfajoresChainId ? addresses.alfajores :
+			null
+	}
+	return address
+}
+
+export const selectAddressOrThrow = (addresses: {[chainId: string]: string}): string => {
+	const address = selectAddress(addresses)
+	if (!address) {
+		throw new Error(`No address found for chainId: ${CFG().chainId}!`)
+	}
+	return address
+}
+
 const networkNames: {[key: string]: string} = {
 	[mainnetChainId]: "Mainnet",
 	[baklavaChainId]: "Baklava",
@@ -84,10 +104,7 @@ const _registeredErc20s = (): RegisteredErc20[] => {
 			symbol: e.symbol,
 			decimals: e.decimals,
 			conversion: e.conversion,
-			address:
-				chainId === mainnetChainId ? e.addresses.mainnet :
-				chainId === baklavaChainId ? e.addresses.baklava :
-				chainId === alfajoresChainId ? e.addresses.alfajores : undefined,
+			address: selectAddress(e.addresses) || undefined,
 		}))
 		.filter((e) => e.address !== undefined)
 		.sort(cmpErc20ASC)

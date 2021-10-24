@@ -1,8 +1,6 @@
 import * as ubeswapTokenList from "@ubeswap/default-token-list/ubeswap.token-list.json"
 
-import { ConversionFunc } from "./core"
-
-import { convertMToken } from "./conversions/moola"
+import { ConversionFunc, coreErc20s } from "./core"
 import { convertSCELO } from "./conversions/savingscelo"
 
 import { SavingsCELOAddressAlfajores, SavingsCELOAddressBaklava } from "savingscelo"
@@ -20,36 +18,6 @@ interface RegisteredERC20 {
 }
 
 const _erc20Registry: RegisteredERC20[] = [
-	{
-		name: "Moola CELO AToken",
-		symbol: "mCELO",
-		decimals: 18,
-		conversion: convertMToken,
-		addresses: {
-			mainnet: "0x7037F7296B2fc7908de7b57a89efaa8319f0C500",
-			alfajores: "0x86f61EB83e10e914fc6F321F5dD3c2dD4860a003",
-		},
-	},
-	{
-		name: "Moola cUSD AToken",
-		symbol: "mCUSD",
-		decimals: 18,
-		conversion: convertMToken,
-		addresses: {
-			mainnet: "0x64dEFa3544c695db8c535D289d843a189aa26b98",
-			alfajores: "0x71DB38719f9113A36e14F409bAD4F07B58b4730b",
-		},
-	},
-	{
-		name: "Moola cEUR MToken",
-		symbol: "mCEUR",
-		decimals: 18,
-		conversion: convertMToken,
-		addresses: {
-			mainnet: "0xa8d0E6799FF3Fd19c6459bf02689aE09c4d78Ba7",
-			alfajores: "0x32974C7335e649932b5766c5aE15595aFC269160",
-		},
-	},
 	{
 		name: "Savings CELO",
 		symbol: "sCELO",
@@ -83,7 +51,9 @@ const _erc20Registry: RegisteredERC20[] = [
 export const erc20Registry: RegisteredERC20[] = (() => {
 	const ubeswapErc20s = ubeswapTokenList.tokens.filter((t) =>
 		t.chainId === 42220 &&
-		!_erc20Registry.find((r) => r.addresses.mainnet === t.address))
+		!_erc20Registry.find((r) => r.addresses.mainnet === t.address) &&
+		!coreErc20s.find((r) => r.symbol === t.symbol)
+		)
 		.map((t) => ({
 			name: t.name,
 			symbol: t.symbol,
