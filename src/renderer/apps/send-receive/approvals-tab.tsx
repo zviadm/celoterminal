@@ -110,7 +110,7 @@ const ApprovalsTab = (props: {
 						{
 							fetched.bySpender.map((s) => {
 								return (
-									<TableRow key={s.spender}>
+									<TableRow key={`spender-${s.spender}`}>
 										<TableCell><LinkedAddress address={s.spender} name={fetched.nameMapping.get(s.spender)} /></TableCell>
 										<TableCell style={{whiteSpace: "nowrap"}} align="right">
 											<ButtonBase
@@ -152,7 +152,7 @@ const ApprovalsTab = (props: {
 						{
 							fetched.byOwner.map((o) => {
 								return (
-									<TableRow key={o.owner}>
+									<TableRow key={`owner-${o.owner}`}>
 										<TableCell><LinkedAddress address={o.owner} name={fetched.nameMapping.get(o.owner)} /></TableCell>
 										<TableCell style={{whiteSpace: "nowrap"}} align="right">
 											{fmtAllowance(props.erc20, o.allowance)} {props.erc20.symbol}
