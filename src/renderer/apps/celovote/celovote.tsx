@@ -41,8 +41,8 @@ async function promiseGQL<T extends {errors?: {message: string}[]}>(p: Promise<A
 		log.debug(`celovote[GQL]:`, resp.data)
 		return resp
 	} catch (e) {
-		if (e?.response) {
-			throw new Error(`${e.message}: ${JSON.stringify((e as AxiosError).response)}`)
+		if ((e as AxiosError)?.response) {
+			throw new Error(`${(e as Error).message}: ${JSON.stringify((e as AxiosError).response)}`)
 		}
 		throw e
 	}
