@@ -37,20 +37,22 @@ const TradeHistory = (props: {
 			{
 				events.map((e) => {
 					const input = erc20FromAddress(e.input, props.extraErc20s)
+					const inputDecimals = input?.decimals || 0
 					const output = erc20FromAddress(e.output, props.extraErc20s)
+					const outputDecimals = output?.decimals || 0
 					return (
 						<TableRow key={e.txHash}>
 							<Tooltip title={e.timestamp.toLocaleString()}>
 							<TableCell>{e.timestamp.toLocaleDateString()}</TableCell>
 							</Tooltip>
 							<TableCell style={{whiteSpace: "nowrap"}}>
-								{fmtTradeAmount(e.inputAmount, input?.decimals || 0)} {input?.symbol}
+								{fmtTradeAmount(e.inputAmount, inputDecimals)} {input?.symbol}
 							</TableCell>
 							<TableCell style={{whiteSpace: "nowrap"}}>
-								{fmtTradeAmount(e.outputAmount, output?.decimals || 0)} {output?.symbol}
+								{fmtTradeAmount(e.outputAmount, outputDecimals)} {output?.symbol}
 							</TableCell>
 							<TableCell style={{whiteSpace: "nowrap"}}>
-								{fmtAmount(e.outputAmount.div(e.inputAmount), 0, 4)}
+								{fmtAmount(e.outputAmount.shiftedBy(-outputDecimals).div(e.inputAmount.shiftedBy(-inputDecimals)), 0, 4)}
 							</TableCell>
 							<TableCell>
 								<Link href={`${explorerURL}/tx/${e.txHash}`} style={{fontFamily: "monospace"}}>

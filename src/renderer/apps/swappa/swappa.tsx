@@ -81,7 +81,8 @@ const SwappaApp = (props: {
 	}
 	const inputAmountN = new BigNumber(inputAmount).shiftedBy(inputToken.decimals)
 	const notEnoughBalance = fetched?.inputBalance.lt(inputAmountN)
-	const estimatedPrice = tradeRoute?.route?.outputAmount.div(tradeRoute.inputAmount)
+	const estimatedPrice = tradeRoute?.route?.outputAmount.shiftedBy(-outputToken.decimals).div(
+			tradeRoute.inputAmount.shiftedBy(-inputToken.decimals))
 
 	const [confirming, setConfirming] = React.useState<{
 		route: Route,
