@@ -62,5 +62,5 @@ export interface RegisteredErc20 {
 	readonly conversion?: ConversionFunc,
 }
 
-export const Erc20InfiniteAmount = new BigNumber("0xff00000000000000000000000000000000000000000000000000000000000000")
-export const Erc20InfiniteThreshold = new BigNumber("0xfe00000000000000000000000000000000000000000000000000000000000000")
+export const Erc20InfiniteAmount = new BigNumber("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+export const Erc20InfiniteThreshold = new BigNumber("0xf000000000000000000000000000000000000000000000000000000000000000")
