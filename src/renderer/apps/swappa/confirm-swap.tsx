@@ -49,7 +49,8 @@ const ConfirmSwap = (props: {
 			.integerValue(BigNumber.ROUND_DOWN)
 		props.onConfirmSwap(props.route, props.inputAmount, minOutputAmount)
 	}
-	const estimatedPrice = new BigNumber(props.route.outputAmount).div(props.inputAmount)
+	const estimatedPrice = new BigNumber(props.route.outputAmount).shiftedBy(-(outputToken?.decimals || 0)).div(
+		props.inputAmount.shiftedBy(-(inputToken?.decimals || 0)))
 	const marketPrice = estimatedPrice
 	const priceImpact = marketPrice.minus(estimatedPrice).div(marketPrice)
 	const priceImpactTxt =
