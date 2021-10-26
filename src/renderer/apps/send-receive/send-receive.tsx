@@ -12,7 +12,7 @@ import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { SendReceive } from './def'
 import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
 import { useErc20List } from '../../state/erc20list-state'
-import { coreErc20Decimals, RegisteredErc20 } from '../../../lib/erc20/core'
+import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
@@ -26,13 +26,11 @@ import AppHeader from '../../components/app-header'
 import TransferHistory from './transfer-history'
 import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
-import AddErc20 from '../../components/add-erc20'
-import RemoveErc20 from '../../components/remove-erc20'
-import SelectErc20 from './select-erc20'
 import TransferTab from './transfer-tab'
 import TransferFromTab from './transfer-from-tab'
 import ApprovalsTab from './approvals-tab'
 import HiddenProgress from './hidden-progress'
+import SelectErc20 from '../../components/select-erc20'
 
 const SendReceiveApp = (props: {
 	accounts: Account[],
@@ -47,9 +45,6 @@ const SendReceiveApp = (props: {
 		setErc20Symbol(erc20.symbol)
 	}
 	const [tab, setTab] = useLocalStorageState("terminal/send-receive/tab", "transfer")
-
-	const [showAddToken, setShowAddToken] = React.useState(false)
-	const [toRemove, setToRemove] = React.useState<RegisteredErc20 | undefined>()
 	const [resetAmounts, setResetAmounts] = React.useState(0)
 
 	const selectedAddress = props.selectedAccount.address
@@ -169,31 +164,16 @@ const SendReceiveApp = (props: {
 				app={SendReceive}
 				isFetching={isFetching || transferHistory.isFetching || approvalData.isFetching}
 				refetch={refetchAll} />
-			{showAddToken &&
-			<AddErc20
-				onCancel={() => { setShowAddToken(false) }}
-				onAdd={(erc20) => {
-					setShowAddToken(false)
-					erc20List.reload()
-					setErc20Symbol(erc20.symbol)
-				}}
-			/>}
-			{toRemove &&
-			<RemoveErc20
-				toRemove={toRemove}
-				onCancel={() => { setToRemove(undefined) }}
-				onRemove={() => {
-					setToRemove(undefined)
-					erc20List.reload()
-				}}
-			/>}
 			<AppSection>
 				<SelectErc20
 					erc20s={erc20List.erc20s}
 					selected={erc20}
 					onSelect={(e) => { setErc20Symbol(e.symbol) }}
-					onRemoveToken={setToRemove}
-					onAddToken={() => { setShowAddToken(true) }}
+					onRemoveToken={() => { erc20List.reload() }}
+					onAddToken={(e) => {
+						erc20List.reload()
+						setErc20Symbol(e.symbol)
+					}}
 				/>
 				<Box marginTop={1}>
 					<Typography>
