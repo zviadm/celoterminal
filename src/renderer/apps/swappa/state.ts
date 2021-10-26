@@ -22,6 +22,9 @@ export const routerAddr = selectAddress({
 
 let _manager: SwappaManager | undefined
 let _tokenWhitelistInitialized: Set<Address> = new Set()
+let _managerRefreshMs = 0
+const managerReinitializeSecs = 60 * 60
+const managerRefreshSecs = 20
 const _managerMX: Lock = new Lock()
 
 const managerGlobal = async (kit: ContractKit, tokenWhitelist?: Address[]): Promise<SwappaManager> => {
@@ -42,7 +45,12 @@ const managerGlobal = async (kit: ContractKit, tokenWhitelist?: Address[]): Prom
 				log.info(`swappa: initializing SwappaManager, tokenWhitelist: ${tokenWhitelist.length}...`)
 				await _manager.reinitializePairs(tokenWhitelist)
 				_tokenWhitelistInitialized = new Set(tokenWhitelist)
+				_managerRefreshMs = Date.now()
 			}
+		}
+		if (_managerRefreshMs + managerReinitializeSecs * 1000.0 < Date.now()) {
+			await _manager.reinitializePairs(Array.from(_tokenWhitelistInitialized))
+			_managerRefreshMs = Date.now()
 		}
 		return _manager
 	} finally {
@@ -85,7 +93,7 @@ export const useSwappaRouterState = (
 		},
 		[account, inputToken, tokenWhitelist],
 	), {
-		autoRefetchSecs: 20,
+		autoRefetchSecs: managerRefreshSecs,
 	})
 
 	const tradeRoute = React.useMemo(() => {
