@@ -7,7 +7,7 @@ Quick Start
 ```
 
 ```
-NOTE: if you are getting `Module XXX was compiled against a different Node.js version XXX` error 
+NOTE: if you are getting `Module XXX was compiled against a different Node.js version XXX` error
 messages, you need to manually run `postinstall` script.
 
 > yarn postinstall
@@ -25,12 +25,12 @@ Celo Terminal uses the following technologies:
 * [Jest](https://jestjs.io/): Testing framework.
 * [Spectron](https://www.electronjs.org/spectron): Electron testing framework.
   * [WebDriverIO](https://webdriver.io/): UI automation testing framework, part of Spectron.
-* [celo-devchain](https://github.com/zviadm/celo-devchain): Locally runnable blockchain with core celo contracts for full integration testing.
+* [celo-devchain](https://github.com/terminal-fi/celo-devchain): Locally runnable blockchain with core celo contracts for full integration testing.
 
 ## Iterative Development
 
-When you start Celo Terminal in the development mode, it is automatically setup with the HMR (hot-module-reloading) so you 
-can make code changes and have it show up in the app automatically within few seconds. 
+When you start Celo Terminal in the development mode, it is automatically setup with the HMR (hot-module-reloading) so you
+can make code changes and have it show up in the app automatically within few seconds.
 
 Iterative development setup should be mostly self-explanatory. Two commands you can use for starting Celo Terminal in dev mode:
 ```
@@ -40,7 +40,7 @@ Iterative development setup should be mostly self-explanatory. Two commands you 
 
 ## End-2-end/Integration/UI Testing
 
-TODO(zviadm): clean this up. 
+TODO(zviadm): clean this up.
 
 Tests are placed in: `.../apps/<app id>/spectron-tests/<test name>.test.ts`
 
@@ -48,8 +48,8 @@ Example tests:
 * [send-receive app tests](../src/renderer/apps/send-receive/spectron-tests/send-receive.test.ts)
 * [locker app tests](../src/renderer/apps/locker/spectron-tests/locker.test.ts)
 
-Each test file is run in a completely clean environment both for the app state and for the celo-devchain state. Because of this, each test 
-file has a significant overhead. You should treat single test file as a one big testing scenario with multiple sub-tests as individual 
+Each test file is run in a completely clean environment both for the app state and for the celo-devchain state. Because of this, each test
+file has a significant overhead. You should treat single test file as a one big testing scenario with multiple sub-tests as individual
 steps that depend on each other. Checkout [locker app tests](../src/renderer/apps/locker/spectron-tests/locker.test.ts) for an example
 
 To run tests:
