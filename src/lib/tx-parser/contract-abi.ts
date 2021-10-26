@@ -97,10 +97,10 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 				abi = resp.data.output.abi as AbiItem[]
 				break
 			}
-			verifiedName = await verifiedContractName(kit, contractAddress)
-			if (abi === undefined || verifiedName === undefined) {
+			if (abi === undefined) {
 				throw new Error(`Contract source code is not verified.`)
 			}
+			verifiedName = await verifiedContractName(kit, contractAddress)
 		}
 		r = {verifiedName, abi}
 	}
