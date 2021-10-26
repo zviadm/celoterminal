@@ -103,7 +103,7 @@ const startDevchain = async () => {
 	let _resolve: () => void
 	const started = new Promise<void>((resolve) => { _resolve = resolve})
 
-	const devchain = spawn(`yarn`, [`@terminal-fi/celo-devchain`, `--port`, `${devchainPort}`])
+	const devchain = spawn(`yarn`, [`celo-devchain`, `--port`, `${devchainPort}`])
 	devchain.on("error", (err) => {
 		testLog(`[err]devchain: ${err}`)
 	})
