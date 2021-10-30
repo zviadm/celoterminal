@@ -10,7 +10,7 @@ import { SwappaRouterV1, ABI as SwappaRouterV1ABI } from '@terminal-fi/swappa/di
 import { Account } from '../../../lib/accounts/accounts'
 import { RegisteredErc20 } from '../../../lib/erc20/core'
 import { CFG, mainnetChainId, registeredErc20s, selectAddress } from '../../../lib/cfg'
-import { erc20StaticAddress, newErc20 } from '../../../lib/erc20/erc20-contract'
+import { erc20StaticAddress } from '../../../lib/erc20/erc20-contract'
 import useOnChainState from '../../state/onchain-state'
 import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
 
@@ -60,7 +60,6 @@ const managerGlobal = async (kit: ContractKit, tokenWhitelist?: Address[]): Prom
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useSwappaRouterState = (
-	account: Account,
 	erc20s: RegisteredErc20[],
 	inputToken: RegisteredErc20,
 	trade?: {
@@ -80,18 +79,12 @@ export const useSwappaRouterState = (
 	const [manager, setManager] = React.useState<SwappaManager | undefined>()
 	const refreshPairsState = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
-			const inputErc20 = await newErc20(kit, inputToken)
-			const inputBalance = await inputErc20.balanceOf(account.address)
-
 			const manager = await managerGlobal(kit, tokenWhitelist)
 			await manager.refreshPairs()
 			setManager(manager)
 			setRefreshN((n) => n + 1)
-			return {
-				inputBalance,
-			}
 		},
-		[account, inputToken, tokenWhitelist],
+		[tokenWhitelist],
 	), {
 		autoRefetchSecs: managerRefreshSecs,
 	})
