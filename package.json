@@ -1,6 +1,6 @@
 {
   "name": "celoterminal",
-  "version": "1.9.22",
+  "version": "1.10.4",
   "license": "MIT",
   "repository": {
     "url": "https://github.com/zviadm/celoterminal"
@@ -47,6 +47,7 @@
     "@walletconnect/client": "2.0.0-beta.19",
     "@walletconnect/types": "2.0.0-beta.19",
     "@walletconnect/utils": "2.0.0-beta.19",
+    "@terminal-fi/swappa": "^1.4.4",
     "@ubeswap/default-token-list": "^4.0.10",
     "axios": "^0.21.1",
     "better-sqlite3": "^7.1.2",
@@ -86,7 +87,7 @@
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
     "babel-plugin-transform-imports": "^2.0.0",
-    "celo-devchain": "^3.3.0",
+    "@terminal-fi/celo-devchain": "^3.4.0",
     "css-loader": "^5.0.1",
     "electron": "^11.4.6",
     "electron-builder": "~22.10.5",

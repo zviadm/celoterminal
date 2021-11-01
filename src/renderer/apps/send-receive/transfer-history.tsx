@@ -44,10 +44,10 @@ const TransferHistory = (props: {
 			<TableBody>
 			{
 				events &&
-				events.map((e) => {
+				events.map((e, idx) => {
 					const addr = e.from === props.address ? e.to : e.from
 					return (
-						<TableRow key={e.txHash}>
+						<TableRow key={`tx-${idx}-${e.txHash}`}>
 							<Tooltip title={e.timestamp.toLocaleString()}>
 							<TableCell>{e.timestamp.toLocaleDateString()}</TableCell>
 							</Tooltip>

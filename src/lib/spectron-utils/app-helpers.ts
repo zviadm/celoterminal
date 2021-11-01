@@ -1,4 +1,4 @@
-import { increaseTime, Provider } from "celo-devchain"
+import { increaseTime, Provider } from "@terminal-fi/celo-devchain"
 
 import { SpectronAccountsDBPassword } from "./constants"
 import { app, devchainKit } from "./setup"

@@ -1,13 +1,13 @@
 import * as React from 'react'
-import Forward from '@material-ui/icons/Forward'
 import { AppDefinition } from "../../components/app-definition"
 import SendReceiveApp from "./send-receive"
+import icon from './send-receive-icon.png'
 
 export const SendReceive: AppDefinition = {
 	id: "send-receive",
 	title: "Send/Receive",
-	icon: <Forward />,
-	iconLarge: <Forward fontSize="large" />,
+	icon: <img src={icon} width="24px" />,
+	iconLarge: <img src={icon} width="35px" />,
 	core: true,
 	renderApp: SendReceiveApp,
 }
