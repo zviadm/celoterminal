@@ -20,7 +20,10 @@ declare const __static: string
 const isSpectronTest = !app.isPackaged && !!process.env.SPECTRON_TEST
 app.allowRendererProcessReuse = true
 log.transports.console.level = app.isPackaged ? false : "debug"
-log.transports.file.level = app.isPackaged ? "info" : false
+log.transports.file.level = app.isPackaged ? "info" : "debug"
+log.transports.file.resolvePath = () => path.join(
+	app.getPath("logs"),
+	app.isPackaged ? 'main.log' : 'celoterminal-dev.main.log');
 
 // Global reference to mainWindow (necessary to prevent window from being garbage collected).
 let mainWindow: BrowserWindow | null

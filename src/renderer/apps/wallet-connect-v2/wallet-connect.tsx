@@ -1,6 +1,6 @@
 import { CeloTx, CeloTxReceipt, EncodedTransaction } from '@celo/connect'
-import { SessionTypes } from '@walletconnect/types'
-import { SESSION_EVENTS } from '@walletconnect/client'
+import { SessionTypes } from 'wcv2/types'
+import { SESSION_EVENTS } from 'wcv2/client'
 
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'

@@ -1,5 +1,5 @@
-import { SessionTypes } from '@walletconnect/types'
-import { ERROR } from '@walletconnect/utils'
+import { SessionTypes } from 'wcv2/types'
+import { ERROR } from 'wcv2/utils'
 
 import { wcGlobal } from './client'
 

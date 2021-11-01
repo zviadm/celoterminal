@@ -1,6 +1,6 @@
 import * as log from 'electron-log'
-import { CLIENT_EVENTS } from '@walletconnect/client'
-import { SessionTypes } from '@walletconnect/types'
+import { CLIENT_EVENTS } from 'wcv2/client'
+import { SessionTypes } from 'wcv2/types'
 
 import { Account } from '../../../lib/accounts/accounts'
 import { wcGlobal } from './client'
