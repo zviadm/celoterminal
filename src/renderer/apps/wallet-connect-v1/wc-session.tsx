@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-unresolved
-import { IClientMeta } from '@walletconnect/types'
+import { IClientMeta } from 'wcv1/types'
 
 import * as React from 'react'
 import {

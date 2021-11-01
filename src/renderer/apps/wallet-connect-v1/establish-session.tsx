@@ -1,5 +1,5 @@
 import * as log from 'electron-log'
-import WalletConnect from '@walletconnect/client'
+import WalletConnect from 'wcv1/client'
 
 import { Account } from '../../../lib/accounts/accounts'
 import { CFG } from '../../../lib/cfg'
