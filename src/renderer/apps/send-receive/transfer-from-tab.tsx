@@ -80,7 +80,7 @@ const TransferFromTab = (props: {
 		</Alert>
 		: <>
 		<Alert severity="warning">
-			Transfers are non-reversible. Transfering funds to an incorrect address
+			Transfers are non-reversible. Transferring funds to an incorrect address
 			can lead to permanent loss of your funds.
 		</Alert>
 		<AddressAutocomplete

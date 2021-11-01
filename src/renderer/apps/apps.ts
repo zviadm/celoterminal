@@ -10,6 +10,8 @@ import { Portfolio } from './portfolio/def'
 import { SavingsCELO } from './savingscelo/def'
 import { SendReceive } from './send-receive/def'
 import { WalletConnect as WalletConnectV1 } from './wallet-connect-v1/def'
+// import { WalletConnect as WalletConnectV2 } from './wallet-connect/def'
+import { Swappa } from './swappa/def'
 import { Crasher } from './test-crasher/def'
 
 export const AppList: AppDefinition[] = [
@@ -19,6 +21,7 @@ export const AppList: AppDefinition[] = [
 	Locker,
 	Governance,
 	WalletConnectV1,
+	// WalletConnectV2,
 
 	// Optional Apps.
 	Mento,
@@ -26,6 +29,7 @@ export const AppList: AppDefinition[] = [
 	MultiSig,
 	SCInspector,
 	SavingsCELO,
+	Swappa,
 ].concat(remote.app.isPackaged ? [] : [
 	// Test/Dev-only Apps.
 	Crasher,

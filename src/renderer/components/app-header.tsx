@@ -7,7 +7,7 @@ import Sync from '@material-ui/icons/Sync'
 import Link from './link'
 
 const AppHeader = (props: {
-	app: {title: string, url?: string},
+	app: {title: string, url?: string, iconLarge?: JSX.Element},
 	isFetching?: boolean,
 	refetch?: () => void,
 }): JSX.Element => {
@@ -22,8 +22,12 @@ const AppHeader = (props: {
 			justifyContent: "space-between",
 			alignItems: "center",
 			}}>
-			{!url ? title :
-			<Link href={url}>{title}</Link>}
+			<Box display="flex" flexDirection="row" alignItems="center">
+				{props.app.iconLarge &&
+				<Box display="flex" marginRight={1}>{props.app.iconLarge}</Box>}
+				{!url ? title :
+				<Link href={url}>{title}</Link>}
+			</Box>
 			{refetch && (
 				props.isFetching ?
 				<CircularProgress size={20} /> :

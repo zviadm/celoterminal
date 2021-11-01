@@ -20,17 +20,17 @@ declare const __static: string
 const isSpectronTest = !app.isPackaged && !!process.env.SPECTRON_TEST
 app.allowRendererProcessReuse = true
 log.transports.console.level = app.isPackaged ? false : "debug"
-log.transports.file.level = app.isPackaged ? "info" : false
+log.transports.file.level = app.isPackaged ? "info" : "debug"
+log.transports.file.resolvePath = () => path.join(
+	app.getPath("logs"),
+	app.isPackaged ? 'main.log' : 'celoterminal-dev.main.log');
 
 // Global reference to mainWindow (necessary to prevent window from being garbage collected).
 let mainWindow: BrowserWindow | null
 let willQuitApp = false
 export const setForceQuit = (): void => { willQuitApp = true }
 const hideInsteadOfQuit = () => {
-	// NOTE(zviad): Due to walletconnect issues, for now always quit the app, even on MacOSx.
-	// Once WC issues are fixed, we can bring back previous behavior for MacOS.
-	return !willQuitApp && false
-	// return !willQuitApp && process.platform === 'darwin'
+	return !willQuitApp && process.platform === 'darwin'
 }
 
 function createMainWindow() {

@@ -18,6 +18,7 @@ import SectionTitle from '../../components/section-title'
 import LinkedAddress from '../../components/linked-address'
 import ApproveSpender from './approve-spender'
 import HiddenProgress from './hidden-progress'
+import { contractNamesByAddress } from '../../../lib/tx-parser/contract-abi'
 
 const ApprovalsTab = (props: {
 	erc20: RegisteredErc20,
@@ -47,9 +48,15 @@ const ApprovalsTab = (props: {
 				owners.map((a, idx) => ({owner: a, allowance: ownerAllowances[idx]})).filter((x) => x.allowance.gt(0))
 			const bySpender =
 				spenders.map((a, idx) => ({spender: a, allowance: spenderAllowances[idx]})).filter((x) => x.allowance.gt(0))
+			const nameMapping = await contractNamesByAddress(
+				kit, [
+					...byOwner.map((o) => o.owner),
+					...bySpender.map((s) => s.spender),
+				])
 			return {
 				byOwner,
 				bySpender,
+				nameMapping,
 			}
 		},
 		[selectedAddress, erc20, accountDataRef]
@@ -103,8 +110,8 @@ const ApprovalsTab = (props: {
 						{
 							fetched.bySpender.map((s) => {
 								return (
-									<TableRow key={s.spender}>
-										<TableCell><LinkedAddress address={s.spender} /></TableCell>
+									<TableRow key={`spender-${s.spender}`}>
+										<TableCell><LinkedAddress address={s.spender} name={fetched.nameMapping.get(s.spender)} /></TableCell>
 										<TableCell style={{whiteSpace: "nowrap"}} align="right">
 											<ButtonBase
 												onClick={() => { setShowApprove({spender: s.spender, allowance: s.allowance}) }}>
@@ -145,8 +152,8 @@ const ApprovalsTab = (props: {
 						{
 							fetched.byOwner.map((o) => {
 								return (
-									<TableRow key={o.owner}>
-										<TableCell><LinkedAddress address={o.owner} /></TableCell>
+									<TableRow key={`owner-${o.owner}`}>
+										<TableCell><LinkedAddress address={o.owner} name={fetched.nameMapping.get(o.owner)} /></TableCell>
 										<TableCell style={{whiteSpace: "nowrap"}} align="right">
 											{fmtAllowance(props.erc20, o.allowance)} {props.erc20.symbol}
 										</TableCell>
