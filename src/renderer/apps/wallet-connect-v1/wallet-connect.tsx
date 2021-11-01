@@ -1,7 +1,7 @@
 import log from 'electron-log'
 import { CeloTxReceipt, EncodedTransaction } from '@celo/connect'
 import WC from 'wcv1/client'
-import SessionStorage from "wcv1/core/dist/esm/storage"
+import SessionStorage from "@walletconnect/core/dist/esm/storage"
 
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'

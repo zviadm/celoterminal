@@ -1,14 +1,17 @@
 import log from 'electron-log'
 import { CeloTx } from '@celo/connect'
 import WalletConnect from 'wcv1/client'
-// eslint-disable-next-line import/no-unresolved
-import { IJsonRpcErrorMessage } from 'wcv1/types'
 
 export const celoTerminalMetadata = {
 	name: "Celo Terminal",
 	description: "The one-stop shop for everything Celo",
 	url: "https://celoterminal.com",
 	icons: ["https://celoterminal.com/static/favicon.ico"],
+}
+
+export interface IJsonRpcErrorMessage {
+	code?: number;
+	message: string;
 }
 
 export interface BaseRequest {

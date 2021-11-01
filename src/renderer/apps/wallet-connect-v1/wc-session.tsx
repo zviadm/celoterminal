@@ -1,6 +1,3 @@
-// eslint-disable-next-line import/no-unresolved
-import { IClientMeta } from 'wcv1/types'
-
 import * as React from 'react'
 import {
 	Avatar, IconButton, ListItem, ListItemAvatar, ListItemSecondaryAction, ListItemText, Tooltip
@@ -8,6 +5,13 @@ import {
 import HighlightOffIcon from '@material-ui/icons/HighlightOff'
 
 import Link from '../../components/link'
+
+export interface IClientMeta {
+	description: string;
+	url: string;
+	icons: string[];
+	name: string;
+}
 
 const WCSession = (props: {
 	metadata: IClientMeta,
