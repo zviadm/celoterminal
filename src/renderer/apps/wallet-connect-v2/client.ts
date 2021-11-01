@@ -1,9 +1,9 @@
 import { remote } from 'electron'
 import * as log from 'electron-log'
 import * as pino from 'pino'
-import WalletConnectClient, { CLIENT_EVENTS } from '@walletconnect/client'
-import { ERROR } from '@walletconnect/utils'
-import { SessionTypes } from '@walletconnect/types'
+import WalletConnectClient, { CLIENT_EVENTS } from 'wcv2/client'
+import { ERROR } from 'wcv2/utils'
+import { SessionTypes } from 'wcv2/types'
 import { Lock } from '@celo/base/lib/lock'
 
 import PrefixedStorage from './storage'
