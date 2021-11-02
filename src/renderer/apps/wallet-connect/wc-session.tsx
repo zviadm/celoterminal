@@ -21,14 +21,14 @@ const WCSession = (props: {
 	const accountAddr = props.metadata.accounts[0]
 	const account = props.accounts.find((a) => a.address === accountAddr)
 	return (
-		<ListItem>
+		<ListItem divider>
 			{icon &&
 			<ListItemAvatar><Avatar src={icon} /></ListItemAvatar>}
 			<ListItemText
 				disableTypography
 				primary={<Link href={props.metadata.url}>{props.metadata.name}</Link>}
 				secondary={
-					<Box display="flex" flexDirection="column">
+					<Box display="flex" flexDirection="column" marginRight={1}>
 						<Typography variant="caption" component="p">{props.metadata.description}</Typography>
 						<Box display="flex" alignSelf="flex-end">
 							<LinkedAddress
