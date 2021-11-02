@@ -27,6 +27,10 @@ import EstablishSessionV1 from './v1/establish-session'
 import { initializeStoredSessions as initializeStoredSessionsV1 } from './v1/client'
 import { wipeFullStorage as wipeFullStorageV1 } from './v1/storage'
 
+if (module.hot) {
+	module.hot.decline()
+}
+
 const WalletConnectApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,

@@ -43,6 +43,7 @@ export class WCV1 implements ISession {
 		) {
 		wc.on("disconnect", (error) => {
 			log.info(`wallet-connect: disconnected ${wc.session.peerMeta?.name}`, error)
+			removeSessionId(this.sessionId)
 		})
 		wc.on("call_request", (error, payload: {id: number, method: string, params: unknown[]}) => {
 			if (error) {
