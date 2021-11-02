@@ -11,7 +11,7 @@ import {
 	Box, Button, Card, CardContent, CardHeader, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Typography
 } from '@material-ui/core'
 import Link from '../../../components/link'
-import { celoTerminalMetadata, WCV1 } from './client'
+import { celoTerminalMetadata, WCV1 } from './wc'
 import { ISession } from '../session'
 
 const EstablishSession = (props: {

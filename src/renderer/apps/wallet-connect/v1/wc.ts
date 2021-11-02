@@ -88,7 +88,17 @@ export class WCV1 implements ISession {
 	}
 
 	metadata = (): SessionMetadata | null => {
-		return this.wc.session.peerMeta
+		const metadata = this.wc.session.peerMeta
+		if (!metadata) {
+			return null
+		}
+		return {
+			name: metadata.name,
+			description: metadata.description,
+			url: metadata.url,
+			icon: metadata.icons[0],
+			accounts: this.wc.session.accounts,
+		}
 	}
 }
 

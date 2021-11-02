@@ -1,9 +1,9 @@
-
 export interface SessionMetadata {
-	description: string;
-	url: string;
-	icons: string[];
-	name: string;
+	name: string
+	description: string
+	url: string
+	icon?: string
+	accounts: string[]
 }
 
 export interface ISession {
