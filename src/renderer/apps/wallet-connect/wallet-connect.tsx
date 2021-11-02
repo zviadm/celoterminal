@@ -68,7 +68,7 @@ const WalletConnectApp = (props: {
 			const from = request.request.params?.from?.toString().toLowerCase()
 			const match = accounts.find((a) => a.address.toLowerCase() === from)
 			if (!match) {
-				request.reject({
+				requestQueueGlobal.reject(request, {
 					code: -32000,
 					message: `Unknown account: ${request.request.params?.from}`,
 				})
@@ -95,7 +95,7 @@ const WalletConnectApp = (props: {
 			(e?: Error, receipts?: CeloTxReceipt[], signedTXs?: EncodedTransaction[]) => {
 				setInProgress(false)
 				if (e) {
-					request.reject({
+					requestQueueGlobal.reject(request, {
 						code: -32000,
 						message: e.message,
 					})
@@ -103,17 +103,17 @@ const WalletConnectApp = (props: {
 					if (request.request.method === "eth_signTransaction") {
 						if (signedTXs?.length !== 1) {
 							const errMsg = `Unexpected error while performing eth_signTransaction!`
-							request.reject({code: -32000, message: errMsg})
+							requestQueueGlobal.reject(request, {code: -32000, message: errMsg})
 							throw new Error(errMsg)
 						}
-						request.approve(signedTXs[0])
+						requestQueueGlobal.approve(request, signedTXs[0])
 					} else {
 						if (receipts?.length !== 1) {
 							const errMsg = `Unexpected error while performing eth_sendTransaction!`
-							request.reject({code: -32000, message: errMsg})
+							requestQueueGlobal.reject(request, {code: -32000, message: errMsg})
 							throw new Error(errMsg)
 						}
-						request.approve(receipts[0].transactionHash)
+						requestQueueGlobal.approve(request, receipts[0].transactionHash)
 					}
 				}
 			}
