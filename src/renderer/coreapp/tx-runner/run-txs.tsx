@@ -154,23 +154,30 @@ const RunTXs = (props: {
 							setStage("sending")
 							setTXSendMS(nowMS())
 						}
-						if (tx.tx === "eth_signTransaction") {
+						if (tx.tx === "eth_signTransaction" || tx.tx === "eth_sendTransaction") {
 							if (!tx.params) {
-								throw new Error(`eth_signTransaction: Params must be provided to sign a transaction.`)
+								throw new Error(`${tx.tx}: Params must be provided to sign a transaction.`)
 							}
 							if (tx.params.chainId?.toString() !== cfg.chainId) {
 								throw new Error(
 									`Unexpected ChainId. Expected: ${cfg.chainId}, Got: ${tx.params.chainId}. ` +
-									`Refusing to sign transactions.`)
+									`Refusing to ${tx.tx}.`)
 							}
-							const signedTX = await w.wallet.signTransaction(tx.params)
+						}
+						if (tx.tx === "eth_signTransaction") {
+							const signedTX = await w.wallet.signTransaction({...tx.params})
 							signedTXs.push(signedTX)
 						} else {
-							const result = await tx.tx.send({
-								...tx.params,
-								// perf improvement, avoid re-estimating gas again.
-								gas: estimatedGas.toNumber(),
-							})
+							let result
+							if (tx.tx === "eth_sendTransaction") {
+								result = await kit.sendTransaction({...tx.params})
+							} else {
+								result = await tx.tx.send({
+									...tx.params,
+									// perf improvement, avoid re-estimating gas again.
+									gas: estimatedGas.toNumber(),
+								})
+							}
 							let txHash
 							try {
 								txHash = await result.getHash()

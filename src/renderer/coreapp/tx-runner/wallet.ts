@@ -107,11 +107,11 @@ const createMultiSigWallet = async (
 		// TODO(zviad): we need to figure out if there is need for additional logic for
 		// GAS estimation. If the original transaction has GAS provided, should we somehow
 		// take that into account for transformed TX?
-		if (tx.tx === "eth_signTransaction") {
+		if (tx.tx === "eth_signTransaction" || tx.tx === "eth_sendTransaction") {
 			const nonce = await kit.connection.nonce(owner.address)
 			const estimatedGas = await estimateGas(kit, {tx: toTransactionObject(kit.connection, txo)})
 			return {
-				tx: "eth_signTransaction",
+				tx: tx.tx,
 				params: {
 					...tx.params,
 					nonce: nonce,

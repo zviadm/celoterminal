@@ -44,6 +44,7 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "@pedrouid/environment": "^1.0.1",
+    "wcv1/client": "npm:@walletconnect/client@^1.6.5",
     "wcv2/client": "npm:@walletconnect/client@2.0.0-beta.19",
     "wcv2/types": "npm:@walletconnect/types@2.0.0-beta.19",
     "wcv2/utils": "npm:@walletconnect/utils@2.0.0-beta.19",
