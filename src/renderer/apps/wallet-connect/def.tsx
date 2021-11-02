@@ -3,8 +3,8 @@ import {ReactComponent as WalletConnectIcon} from "./icon.svg"
 
 import { AppDefinition } from "../../components/app-definition"
 import WalletConnectApp from './wallet-connect'
-import { wcNotifyCount } from './v1/client'
 import { SvgIcon } from '@material-ui/core'
+import { requestQueueGlobal } from './request-queue'
 
 const WCIcon = (props: {fontSize?: "default" | "large"}): JSX.Element => {
 	return <SvgIcon
@@ -22,5 +22,5 @@ export const WalletConnect: AppDefinition = {
 	iconLarge: <WCIcon fontSize="large" />,
 	url: "https://docs.celoterminal.com/guides/using-walletconnect",
 	renderApp: WalletConnectApp,
-	notifyCount: wcNotifyCount,
+	notifyCount: requestQueueGlobal.requestsN,
 }
