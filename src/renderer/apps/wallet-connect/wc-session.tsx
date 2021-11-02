@@ -1,28 +1,48 @@
 import * as React from 'react'
 import {
-	Avatar, IconButton, ListItem, ListItemAvatar, ListItemSecondaryAction, ListItemText, Tooltip
+	Avatar, Box, IconButton, ListItem, ListItemAvatar, ListItemSecondaryAction, ListItemText, Tooltip, Typography
 } from '@material-ui/core'
 import HighlightOffIcon from '@material-ui/icons/HighlightOff'
 
 import Link from '../../components/link'
 import { SessionMetadata } from './session'
+import LinkedAddress from '../../components/linked-address'
+
+import { Account } from '../../../lib/accounts/accounts'
+import { fmtAddress } from '../../../lib/utils'
 
 const WCSession = (props: {
+	accounts: Account[],
 	metadata: SessionMetadata,
 	onDisconnect: () => void,
 }): JSX.Element => {
-	const icon = props.metadata.icons[0]
+	const icon = props.metadata.icon
+	// TODO(zviadm): for now assume only single account support
+	const accountAddr = props.metadata.accounts[0]
+	const account = props.accounts.find((a) => a.address === accountAddr)
 	return (
 		<ListItem>
 			{icon &&
 			<ListItemAvatar><Avatar src={icon} /></ListItemAvatar>}
 			<ListItemText
 				primary={
-					<Link href={props.metadata.url}>
-						{props.metadata.name}
-					</Link>
+					<Box display="flex" flexDirection="row" justifyContent="space-between">
+						<Link href={props.metadata.url}>
+							{props.metadata.name}
+						</Link>
+					</Box>
 				}
-				secondary={props.metadata.description} />
+				secondary={
+					<Box display="flex" flexDirection="column">
+						<Typography variant="caption">{props.metadata.description}</Typography>
+						<Box display="flex" alignSelf="flex-end">
+							<LinkedAddress
+								address={accountAddr}
+								name={account && `${account.name}: ${fmtAddress(accountAddr)}`}
+							/>
+						</Box>
+					</Box>
+				} />
 			<ListItemSecondaryAction>
 				<Tooltip title="Disconnect">
 					<IconButton

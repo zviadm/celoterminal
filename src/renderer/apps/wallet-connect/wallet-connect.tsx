@@ -24,7 +24,7 @@ import { ISession } from './session'
 import { requestQueueGlobal } from './request-queue'
 
 import EstablishSessionV1 from './v1/establish-session'
-import { initializeStoredSessions as initializeStoredSessionsV1 } from './v1/client'
+import { initializeStoredSessions as initializeStoredSessionsV1 } from './v1/wc'
 import { wipeFullStorage as wipeFullStorageV1 } from './v1/storage'
 
 if (module.hot) {
@@ -230,6 +230,7 @@ const WalletConnectApp = (props: {
 					}
 					return <WCSession
 						key={`session-${idx}`}
+						accounts={props.accounts}
 						metadata={metadata}
 						onDisconnect={() => { return handleDisconnect(s) }}
 					/>
