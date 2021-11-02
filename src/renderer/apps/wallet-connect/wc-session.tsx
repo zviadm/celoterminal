@@ -25,16 +25,11 @@ const WCSession = (props: {
 			{icon &&
 			<ListItemAvatar><Avatar src={icon} /></ListItemAvatar>}
 			<ListItemText
-				primary={
-					<Box display="flex" flexDirection="row" justifyContent="space-between">
-						<Link href={props.metadata.url}>
-							{props.metadata.name}
-						</Link>
-					</Box>
-				}
+				disableTypography
+				primary={<Link href={props.metadata.url}>{props.metadata.name}</Link>}
 				secondary={
 					<Box display="flex" flexDirection="column">
-						<Typography variant="caption">{props.metadata.description}</Typography>
+						<Typography variant="caption" component="p">{props.metadata.description}</Typography>
 						<Box display="flex" alignSelf="flex-end">
 							<LinkedAddress
 								address={accountAddr}

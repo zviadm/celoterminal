@@ -10,14 +10,12 @@ import {
 	ListItem, ListItemText, ListItemSecondaryAction, Badge
 } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
-import AlertTitle from '@material-ui/lab/AlertTitle'
 import SendIcon from '@material-ui/icons/Send'
 
 import AppHeader from '../../components/app-header'
 import AppSection from '../../components/app-section'
 import AppContainer from '../../components/app-container'
 import SectionTitle from '../../components/section-title'
-import Link from '../../components/link'
 import WCSession from './wc-session'
 import { runWithInterval } from '../../../lib/interval'
 import { ISession } from './session'
@@ -164,13 +162,6 @@ const WalletConnectApp = (props: {
 				onCancel={refreshAfterEstablish}
 				onApprove={handleApprove}
 			/>}
-			<AppSection>
-				<Alert severity="warning">
-					<AlertTitle>EXPERIMENTAL: WalletConnect v1</AlertTitle>
-					WalletConnect support is still under development in Celo network. This is an
-					experimental feature for now. <Link href="https://docs.celoterminal.com/guides/using-walletconnect">Learn More.</Link>
-				</Alert>
-			</AppSection>
 			{requestsByAccount.size > 0 &&
 			<AppSection>
 				<Alert severity="info" style={{marginTop: 10}}>
@@ -205,7 +196,7 @@ const WalletConnectApp = (props: {
 					label="QRCode (Copy & Paste from the DApp)"
 					InputLabelProps={{shrink: true}}
 					multiline={true}
-					placeholder="ws:..."
+					placeholder="wc:..."
 					size="medium"
 					fullWidth={true}
 					spellCheck={false}
