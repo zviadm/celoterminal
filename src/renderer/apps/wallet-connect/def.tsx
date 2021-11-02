@@ -3,7 +3,7 @@ import {ReactComponent as WalletConnectIcon} from "./icon.svg"
 
 import { AppDefinition } from "../../components/app-definition"
 import WalletConnectApp from './wallet-connect'
-import { wcNotifyCount } from './client'
+import { wcNotifyCount } from './v1/client'
 import { SvgIcon } from '@material-ui/core'
 
 const WCIcon = (props: {fontSize?: "default" | "large"}): JSX.Element => {

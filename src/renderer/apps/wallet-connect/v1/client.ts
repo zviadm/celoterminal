@@ -1,12 +1,11 @@
 import log from 'electron-log'
 import { CeloTx } from '@celo/connect'
 import WalletConnect from 'wcv1/client'
-import { CFG } from '../../../lib/cfg'
-import { showWindowAndFocus } from '../../electron-utils'
+import SessionStorage from "@walletconnect/core/dist/esm/storage"
 
-if (module.hot) {
-	module.hot.decline()
-}
+import { CFG } from '../../../../lib/cfg'
+import { IJsonRpcErrorMessage, RequestPayload, requestQueueGlobal, WCRequest } from '../request-queue'
+import { removeSessionId, storedSessionIds } from './storage'
 
 export const celoTerminalMetadata = {
 	name: "Celo Terminal",
@@ -15,45 +14,13 @@ export const celoTerminalMetadata = {
 	icons: ["https://celoterminal.com/static/favicon.ico"],
 }
 
-export interface IJsonRpcErrorMessage {
-	code?: number;
-	message: string;
-}
-
-export interface BaseRequest {
-	id: number
-	method: string
-}
-export interface EthSendTransaction extends BaseRequest {
-	method: "eth_sendTransaction"
-	params?: CeloTx,
-}
-export interface EthSignTransaction extends BaseRequest {
-	method: "eth_signTransaction"
-	params?: CeloTx,
-}
-export type RequestPayload = EthSendTransaction | EthSignTransaction
-
-export const requestQueueGlobal: WCRequest[] = []
-export const wcNotifyCount = (): number => {
-	return requestQueueGlobal.length
-}
-
-export class WCRequest {
+class WCV1Request implements WCRequest {
 	constructor(
 		private wc: WalletConnect,
 		public readonly request: RequestPayload) {
 	}
 
-	private removeFromGlobal = () => {
-		const idx = requestQueueGlobal.indexOf(this)
-		if (idx >= 0) {
-			requestQueueGlobal.splice(idx, 1)
-		}
-	}
-
 	reject = (error?: IJsonRpcErrorMessage): void => {
-		this.removeFromGlobal()
 		return this.wc.rejectRequest({
 			id: this.request.id,
 			error: error,
@@ -61,7 +28,6 @@ export class WCRequest {
 	}
 
 	approve = (result: unknown): void => {
-		this.removeFromGlobal()
 		return this.wc.approveRequest({
 			id: this.request.id,
 			result: result,
@@ -86,15 +52,13 @@ export const setupWCHandlers = (wc: WalletConnect): void => {
 			if (!params.chainId) {
 				params.chainId = Number.parseInt(CFG().chainId)
 			}
-			requestQueueGlobal.push(
-				new WCRequest(wc, {
+			requestQueueGlobal.pushRequest(
+				new WCV1Request(wc, {
 					id: payload.id,
 					method: payload.method,
 					params: params,
 				})
 			)
-			log.info(`wallet-connect: received transaction`, requestQueueGlobal)
-			showWindowAndFocus()
 			break
 		}
 		default:
@@ -104,4 +68,27 @@ export const setupWCHandlers = (wc: WalletConnect): void => {
 			})
 		}
 	})
+}
+
+export const initializeStoredSessions = (): {wc: WalletConnect}[] => {
+	const sessionIds = storedSessionIds()
+	log.info(`wallet-connect: loading stored sessions`, sessionIds)
+	const wcs: {wc: WalletConnect}[] = []
+	sessionIds.forEach((sessionId) => {
+		try {
+			const storage = new SessionStorage(sessionId)
+			const session = storage.getSession()
+			if (!session) {
+				removeSessionId(sessionId)
+				return
+			}
+			const wc = new WalletConnect({ session, storageId: sessionId })
+			setupWCHandlers(wc)
+			wcs.push({ wc })
+		} catch (e) {
+			removeSessionId(sessionId)
+			log.error(`wallet-connect: removing uninitialized session`, sessionId, e)
+		}
+	})
+	return wcs
 }

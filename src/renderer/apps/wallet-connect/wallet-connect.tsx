@@ -1,7 +1,5 @@
-import log from 'electron-log'
 import { CeloTxReceipt, EncodedTransaction } from '@celo/connect'
-import WC from 'wcv1/client'
-import SessionStorage from "@walletconnect/core/dist/esm/storage"
+import WalletConnectV1 from 'wcv1/client'
 
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
@@ -22,41 +20,25 @@ import AppContainer from '../../components/app-container'
 import SectionTitle from '../../components/section-title'
 import Link from '../../components/link'
 import WCSession from './wc-session'
-import EstablishSession from './establish-session'
 import { runWithInterval } from '../../../lib/interval'
-import { removeSessionId, storedSessionIds, wipeFullStorage } from './storage'
-import { requestQueueGlobal, setupWCHandlers } from './client';
+import { requestQueueGlobal } from './request-queue'
+
+import { initializeStoredSessions } from './v1/client'
+import EstablishSessionV1 from './v1/establish-session'
+import { wipeFullStorage } from './v1/storage'
 
 const WalletConnectApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
-	const [sessions, setSessions] = React.useState<{wc: WC}[]>([])
-	const [requests, setRequests] = React.useState([...requestQueueGlobal])
+	const [sessionsV1, setSessionsV1] = React.useState<{wc: WalletConnectV1}[]>([])
+	const [requests, setRequests] = React.useState(requestQueueGlobal.snapshot())
 
 	// Initialize WalletConnect sessions from localStorage.
 	React.useEffect(() => {
-		const sessionIds = storedSessionIds()
-		log.info(`wallet-connect: loading stored sessions`, sessionIds)
-		const wcs: {wc: WC}[] = []
-		sessionIds.forEach((sessionId) => {
-			try {
-				const storage = new SessionStorage(sessionId)
-				const session = storage.getSession()
-				if (!session) {
-					removeSessionId(sessionId)
-					return
-				}
-				const wc = new WC({ session, storageId: sessionId })
-				setupWCHandlers(wc)
-				wcs.push({ wc })
-			} catch (e) {
-				removeSessionId(sessionId)
-				log.error(`wallet-connect: removing uninitialized session`, sessionId, e)
-			}
-		})
-		setSessions(wcs)
+		const wcs = initializeStoredSessions()
+		setSessionsV1(wcs)
 	}, [])
 
 	// Run periodic checks to discard disconnected sessions and to handle new
@@ -66,13 +48,10 @@ const WalletConnectApp = (props: {
 			"wallet-connect",
 			async () => {
 				setRequests((reqs) => {
-					const requestsUpdated = (
-						reqs.length !== requestQueueGlobal.length ||
-						!reqs.every((r, idx) => r === requestQueueGlobal[idx])
-					)
-					return requestsUpdated ? [...requestQueueGlobal] : reqs
+					const requestsUpdated = !requestQueueGlobal.matchesSnapshot(reqs)
+					return requestsUpdated ? requestQueueGlobal.snapshot() : reqs
 				})
-				setSessions((sessions) => {
+				setSessionsV1((sessions) => {
 					const sessionsFiltered = sessions.filter((s) => s.wc.connected)
 					return (sessionsFiltered.length !== sessions.length) ? sessionsFiltered : sessions
 				})
@@ -85,11 +64,14 @@ const WalletConnectApp = (props: {
 	const accounts = props.accounts
 	// Discard all requests that are sent for an incorrect/unknown accounts.
 	React.useEffect(() => {
-		for (const request of requestQueueGlobal) {
+		for (const request of requestQueueGlobal.snapshot()) {
 			const from = request.request.params?.from?.toString().toLowerCase()
 			const match = accounts.find((a) => a.address.toLowerCase() === from)
 			if (!match) {
-				request.reject({message: `Unknown account: ${request.request.params?.from}`})
+				request.reject({
+					code: -32000,
+					message: `Unknown account: ${request.request.params?.from}`,
+				})
 			}
 		}
 	}, [requests, accounts])
@@ -101,8 +83,7 @@ const WalletConnectApp = (props: {
 		if (inProgress) {
 			return
 		}
-		const request = requestQueueGlobal.find((r) =>
-			r.request.params?.from?.toString().toLowerCase() === account.address.toLowerCase())
+		const request = requestQueueGlobal.requestFor(account.address)
 		if (!request) {
 			return
 		}
@@ -146,10 +127,21 @@ const WalletConnectApp = (props: {
 		setConnectURI("")
 		setToApproveURI("")
 	}
-	const handleApprove = (wc: WC) => {
-		setSessions((sessions) => ([...sessions, {wc: wc}]))
+	const handleApproveV1 = (wc: WalletConnectV1) => {
+		setSessionsV1((sessions) => ([...sessions, {wc: wc}]))
 		refreshAfterEstablish()
-		setupWCHandlers(wc)
+	}
+	const handleDisconnectV1 = (wc: WalletConnectV1) => {
+		wc.killSession()
+		setSessionsV1((sessions) => sessions.filter((s) => s.wc !== wc))
+	}
+	const handleDisconnectAll = () => {
+		for (const wc of sessionsV1) {
+			wc.wc.killSession()
+		}
+		wipeFullStorage()
+		setSessionsV1([])
+		requestQueueGlobal.rejectAll({code: -32000, message: "Disconnected"})
 	}
 
 	const requestsByAccount = new Map<string, number>()
@@ -162,11 +154,11 @@ const WalletConnectApp = (props: {
 		<AppContainer>
 			<AppHeader app={WalletConnect} />
 			{toApproveURI !== "" &&
-			<EstablishSession
+			<EstablishSessionV1
 				uri={toApproveURI}
 				account={props.selectedAccount}
 				onCancel={refreshAfterEstablish}
-				onApprove={handleApprove}
+				onApprove={handleApproveV1}
 			/>}
 			<AppSection>
 				<Alert severity="warning">
@@ -226,7 +218,7 @@ const WalletConnectApp = (props: {
 			<AppSection>
 				<SectionTitle>Connected DApps</SectionTitle>
 				<List>
-				{sessions
+				{sessionsV1
 					.map((s) => {
 					if (!s.wc.session.peerMeta) {
 						return <></>
@@ -234,25 +226,15 @@ const WalletConnectApp = (props: {
 					return <WCSession
 						key={s.wc.peerId}
 						metadata={s.wc.session.peerMeta}
-						onDisconnect={() => {
-							s.wc.killSession()
-							const removeWC = s.wc
-							setSessions((sessions) => sessions.filter((s) => s.wc !== removeWC))
-						}}
+						onDisconnect={() => { return handleDisconnectV1(s.wc) }}
 					/>
 				})}
 				</List>
 				<Button
 					variant="outlined"
 					color="secondary"
-					onClick={() => {
-						for (const wc of sessions) {
-							wc.wc.killSession()
-						}
-						wipeFullStorage()
-						setSessions([])
-						requestQueueGlobal.splice(0, requestQueueGlobal.length)
-					}}>
+					onClick={handleDisconnectAll}
+				>
 					Disconnect all DApps and reset state
 				</Button>
 			</AppSection>

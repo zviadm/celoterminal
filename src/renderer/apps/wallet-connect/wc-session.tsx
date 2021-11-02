@@ -6,7 +6,7 @@ import HighlightOffIcon from '@material-ui/icons/HighlightOff'
 
 import Link from '../../components/link'
 
-export interface IClientMeta {
+export interface SessionMetadata {
 	description: string;
 	url: string;
 	icons: string[];
@@ -14,7 +14,7 @@ export interface IClientMeta {
 }
 
 const WCSession = (props: {
-	metadata: IClientMeta,
+	metadata: SessionMetadata,
 	onDisconnect: () => void,
 }): JSX.Element => {
 	const icon = props.metadata.icons[0]

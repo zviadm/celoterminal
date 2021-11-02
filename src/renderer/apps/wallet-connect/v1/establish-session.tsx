@@ -1,8 +1,8 @@
 import * as log from 'electron-log'
 import WalletConnect from 'wcv1/client'
 
-import { Account } from '../../../lib/accounts/accounts'
-import { CFG } from '../../../lib/cfg'
+import { Account } from '../../../../lib/accounts/accounts'
+import { CFG } from '../../../../lib/cfg'
 import { newSessionStorageId } from './storage'
 
 import * as React from 'react'
@@ -10,8 +10,8 @@ import {
 	Avatar,
 	Box, Button, Card, CardContent, CardHeader, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Typography
 } from '@material-ui/core'
-import Link from '../../components/link'
-import { celoTerminalMetadata } from './client'
+import Link from '../../../components/link'
+import { celoTerminalMetadata, setupWCHandlers } from './client'
 
 const EstablishSession = (props: {
 	uri: string,
@@ -66,6 +66,7 @@ const EstablishSession = (props: {
 			chainId: Number.parseInt(CFG().chainId),
 			accounts: [props.account.address],
 		})
+		setupWCHandlers(wc.current)
 		props.onApprove(wc.current)
 	}
 
