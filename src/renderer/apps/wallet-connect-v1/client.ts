@@ -35,6 +35,9 @@ export interface EthSignTransaction extends BaseRequest {
 export type RequestPayload = EthSendTransaction | EthSignTransaction
 
 export const requestQueueGlobal: WCRequest[] = []
+export const wcNotifyCount = (): number => {
+	return requestQueueGlobal.length
+}
 
 export class WCRequest {
 	constructor(

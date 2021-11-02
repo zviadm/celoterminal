@@ -1,7 +1,7 @@
 import log from 'electron-log'
 import { CFG } from "../../../lib/cfg"
 
-const storagePrefix = `terminal/wallet-connect/storage/${CFG().chainId}/`
+const storagePrefix = `terminal/wallet-connect/v1/storage/${CFG().chainId}/`
 const sessionIdsKey = storagePrefix + `sessions`
 const sessionPrefixKey = storagePrefix + `session/`
 

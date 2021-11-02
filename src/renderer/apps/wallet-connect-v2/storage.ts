@@ -1,7 +1,7 @@
 import * as log from 'electron-log'
 import { CFG } from "../../../lib/cfg"
 
-const storagePrefix = `terminal/wallet-connect/storage/${CFG().chainId}/`
+const storagePrefix = `terminal/wallet-connect/v2/storage/${CFG().chainId}/`
 
 export class PrefixedStorage {
   public getKeys = async (): Promise<string[]> => {
