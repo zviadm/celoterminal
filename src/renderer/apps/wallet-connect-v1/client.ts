@@ -1,6 +1,12 @@
 import log from 'electron-log'
 import { CeloTx } from '@celo/connect'
 import WalletConnect from 'wcv1/client'
+import { CFG } from '../../../lib/cfg'
+import { showWindowAndFocus } from '../../electron-utils'
+
+if (module.hot) {
+	module.hot.decline()
+}
 
 export const celoTerminalMetadata = {
 	name: "Celo Terminal",
@@ -51,7 +57,7 @@ export class WCRequest {
 		})
 	}
 
-	approve = (result?: unknown): void => {
+	approve = (result: unknown): void => {
 		this.removeFromGlobal()
 		return this.wc.approveRequest({
 			id: this.request.id,
@@ -72,16 +78,22 @@ export const setupWCHandlers = (wc: WalletConnect): void => {
 		log.info(`wallet-connect: call_request`, payload)
 		switch (payload.method) {
 		case "eth_sendTransaction":
-		case "eth_signTransaction":
+		case "eth_signTransaction": {
+			const params = payload.params[0] as CeloTx
+			if (!params.chainId) {
+				params.chainId = Number.parseInt(CFG().chainId)
+			}
 			requestQueueGlobal.push(
 				new WCRequest(wc, {
 					id: payload.id,
 					method: payload.method,
-					params: payload.params[0] as CeloTx,
+					params: params,
 				})
 			)
-			log.info(`wallet-connect: send transaction`, requestQueueGlobal)
+			log.info(`wallet-connect: received transaction`, requestQueueGlobal)
+			showWindowAndFocus()
 			break
+		}
 		default:
 			wc.rejectRequest({
 				id: payload.id,

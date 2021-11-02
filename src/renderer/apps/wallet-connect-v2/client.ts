@@ -9,8 +9,8 @@ import { Lock } from '@celo/base/lib/lock'
 import PrefixedStorage from './storage'
 import { CFG } from '../../../lib/cfg'
 import { Account } from '../../../lib/accounts/accounts'
-import { showWindowAndFocus } from './electron-utils'
 import { sleep } from '../../../lib/utils'
+import { showWindowAndFocus } from '../../electron-utils'
 
 if (module.hot) {
 	module.hot.decline()

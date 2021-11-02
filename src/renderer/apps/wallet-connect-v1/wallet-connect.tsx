@@ -49,6 +49,7 @@ const WalletConnectApp = (props: {
 					return
 				}
 				const wc = new WC({ session, storageId: sessionId })
+				setupWCHandlers(wc)
 				wcs.push({ wc })
 			} catch (e) {
 				removeSessionId(sessionId)
@@ -131,8 +132,7 @@ const WalletConnectApp = (props: {
 							request.reject({code: -32000, message: errMsg})
 							throw new Error(errMsg)
 						}
-						// TODO(zviad): What is the appropriate result for performed TXs?
-						request.approve()
+						request.approve(receipts[0].transactionHash)
 					}
 				}
 			}
