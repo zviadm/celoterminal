@@ -1,5 +1,4 @@
 import { CeloTxReceipt, EncodedTransaction } from '@celo/connect'
-import WalletConnectV1 from 'wcv1/client'
 
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFinishFunc, TXFunc } from '../../components/app-definition'
@@ -21,6 +20,7 @@ import SectionTitle from '../../components/section-title'
 import Link from '../../components/link'
 import WCSession from './wc-session'
 import { runWithInterval } from '../../../lib/interval'
+import { ISession } from './session'
 import { requestQueueGlobal } from './request-queue'
 
 import { initializeStoredSessions } from './v1/client'
@@ -32,13 +32,13 @@ const WalletConnectApp = (props: {
 	selectedAccount: Account,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
-	const [sessionsV1, setSessionsV1] = React.useState<{wc: WalletConnectV1}[]>([])
+	const [sessions, setSessions] = React.useState<ISession[]>([])
 	const [requests, setRequests] = React.useState(requestQueueGlobal.snapshot())
 
 	// Initialize WalletConnect sessions from localStorage.
 	React.useEffect(() => {
-		const wcs = initializeStoredSessions()
-		setSessionsV1(wcs)
+		const wcsV1 = initializeStoredSessions()
+		setSessions(wcsV1)
 	}, [])
 
 	// Run periodic checks to discard disconnected sessions and to handle new
@@ -51,8 +51,8 @@ const WalletConnectApp = (props: {
 					const requestsUpdated = !requestQueueGlobal.matchesSnapshot(reqs)
 					return requestsUpdated ? requestQueueGlobal.snapshot() : reqs
 				})
-				setSessionsV1((sessions) => {
-					const sessionsFiltered = sessions.filter((s) => s.wc.connected)
+				setSessions((sessions) => {
+					const sessionsFiltered = sessions.filter((s) => s.isConnected())
 					return (sessionsFiltered.length !== sessions.length) ? sessionsFiltered : sessions
 				})
 			},
@@ -127,20 +127,20 @@ const WalletConnectApp = (props: {
 		setConnectURI("")
 		setToApproveURI("")
 	}
-	const handleApproveV1 = (wc: WalletConnectV1) => {
-		setSessionsV1((sessions) => ([...sessions, {wc: wc}]))
+	const handleApprove = (s: ISession) => {
+		setSessions((sessions) => ([...sessions, s]))
 		refreshAfterEstablish()
 	}
-	const handleDisconnectV1 = (wc: WalletConnectV1) => {
-		wc.killSession()
-		setSessionsV1((sessions) => sessions.filter((s) => s.wc !== wc))
+	const handleDisconnect = (s: ISession) => {
+		s.disconnect()
+		setSessions((sessions) => sessions.filter((ss) => ss !== s))
 	}
 	const handleDisconnectAll = () => {
-		for (const wc of sessionsV1) {
-			wc.wc.killSession()
+		for (const s of sessions) {
+			s.disconnect()
 		}
 		wipeFullStorage()
-		setSessionsV1([])
+		setSessions([])
 		requestQueueGlobal.rejectAll({code: -32000, message: "Disconnected"})
 	}
 
@@ -158,7 +158,7 @@ const WalletConnectApp = (props: {
 				uri={toApproveURI}
 				account={props.selectedAccount}
 				onCancel={refreshAfterEstablish}
-				onApprove={handleApproveV1}
+				onApprove={handleApprove}
 			/>}
 			<AppSection>
 				<Alert severity="warning">
@@ -218,15 +218,16 @@ const WalletConnectApp = (props: {
 			<AppSection>
 				<SectionTitle>Connected DApps</SectionTitle>
 				<List>
-				{sessionsV1
-					.map((s) => {
-					if (!s.wc.session.peerMeta) {
+				{sessions
+					.map((s, idx) => {
+					const metadata = s.metadata()
+					if (!metadata) {
 						return <></>
 					}
 					return <WCSession
-						key={s.wc.peerId}
-						metadata={s.wc.session.peerMeta}
-						onDisconnect={() => { return handleDisconnectV1(s.wc) }}
+						key={`session-${idx}`}
+						metadata={metadata}
+						onDisconnect={() => { return handleDisconnect(s) }}
 					/>
 				})}
 				</List>

@@ -9,7 +9,7 @@ import { MultiSig } from './multisig/def'
 import { Portfolio } from './portfolio/def'
 import { SavingsCELO } from './savingscelo/def'
 import { SendReceive } from './send-receive/def'
-import { WalletConnect } from './wallet-connect-v1/def'
+import { WalletConnect } from './wallet-connect/def'
 import { Swappa } from './swappa/def'
 import { Crasher } from './test-crasher/def'
 

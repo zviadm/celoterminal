@@ -5,13 +5,7 @@ import {
 import HighlightOffIcon from '@material-ui/icons/HighlightOff'
 
 import Link from '../../components/link'
-
-export interface SessionMetadata {
-	description: string;
-	url: string;
-	icons: string[];
-	name: string;
-}
+import { SessionMetadata } from './session'
 
 const WCSession = (props: {
 	metadata: SessionMetadata,

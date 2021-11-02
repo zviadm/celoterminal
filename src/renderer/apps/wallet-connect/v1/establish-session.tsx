@@ -11,13 +11,14 @@ import {
 	Box, Button, Card, CardContent, CardHeader, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Typography
 } from '@material-ui/core'
 import Link from '../../../components/link'
-import { celoTerminalMetadata, setupWCHandlers } from './client'
+import { celoTerminalMetadata, WCV1 } from './client'
+import { ISession } from '../session'
 
 const EstablishSession = (props: {
 	uri: string,
 	account: Account,
 	onCancel: () => void,
-	onApprove: (wc: WalletConnect) => void,
+	onApprove: (wc: ISession) => void,
 }): JSX.Element => {
 	const uri = props.uri
 	const [proposal, setProposal] = React.useState<{
@@ -30,20 +31,21 @@ const EstablishSession = (props: {
 		}
 	} | undefined>()
 	const [approving, setApproving] = React.useState(false)
-	const wc = React.useRef<WalletConnect | undefined>()
+	const wc = React.useRef<WCV1 | undefined>()
 	const onCancel = props.onCancel
 	React.useEffect(() => {
 		log.info(`wallet-connect: pairing with ${uri}...`)
-		wc.current = new WalletConnect({
+		const sessionId = newSessionStorageId()
+		wc.current = new WCV1(sessionId, new WalletConnect({
 			uri: uri,
 			clientMeta: celoTerminalMetadata,
-			storageId: newSessionStorageId(),
-		})
+			storageId: sessionId,
+		}))
 		let cancelled = false
-		wc.current.on("session_request", async (error, proposal) => {
+		wc.current.wc.on("session_request", async (error, proposal) => {
 			log.info(`wallet-connect: proposal received (cancelled: ${cancelled})...`, error, proposal)
 			if ((error || cancelled)) {
-				return wc.current?.killSession({message: "Cancelled by user!"})
+				return wc.current?.disconnect()
 			}
 			setProposal(proposal.params[0])
 		})
@@ -53,7 +55,7 @@ const EstablishSession = (props: {
 	}, [])
 	const handleCancel = () => {
 		if (wc.current) {
-			wc.current.killSession({message: "Cancelled by user!"})
+			wc.current.disconnect()
 		}
 		onCancel()
 	}
@@ -62,11 +64,10 @@ const EstablishSession = (props: {
 			return
 		}
 		setApproving(true)
-		wc.current.approveSession({
+		wc.current.wc.approveSession({
 			chainId: Number.parseInt(CFG().chainId),
 			accounts: [props.account.address],
 		})
-		setupWCHandlers(wc.current)
 		props.onApprove(wc.current)
 	}
 
