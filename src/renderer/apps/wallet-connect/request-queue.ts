@@ -5,11 +5,6 @@ if (module.hot) {
 	module.hot.decline()
 }
 
-export interface IJsonRpcErrorMessage {
-	code?: number
-	message: string
-}
-
 export interface BaseRequest {
 	id: number
 	method: string
@@ -23,6 +18,11 @@ export interface EthSignTransaction extends BaseRequest {
 	params?: CeloTx,
 }
 export type RequestPayload = EthSendTransaction | EthSignTransaction
+
+export interface IJsonRpcErrorMessage {
+	code?: number
+	message: string
+}
 
 export interface WCRequest {
 	request: RequestPayload

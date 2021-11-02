@@ -14,6 +14,10 @@ const WCIcon = (props: {fontSize?: "default" | "large"}): JSX.Element => {
 		/>
 }
 
+const notifyCount = (): number => {
+	return requestQueueGlobal.requestsN()
+}
+
 export const WalletConnect: AppDefinition = {
 	id: "wallet-connect",
 	core: true,
@@ -22,5 +26,5 @@ export const WalletConnect: AppDefinition = {
 	iconLarge: <WCIcon fontSize="large" />,
 	url: "https://docs.celoterminal.com/guides/using-walletconnect",
 	renderApp: WalletConnectApp,
-	notifyCount: requestQueueGlobal.requestsN,
+	notifyCount,
 }
