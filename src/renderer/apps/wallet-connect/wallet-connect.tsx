@@ -23,9 +23,9 @@ import { runWithInterval } from '../../../lib/interval'
 import { ISession } from './session'
 import { requestQueueGlobal } from './request-queue'
 
-import { initializeStoredSessions } from './v1/client'
 import EstablishSessionV1 from './v1/establish-session'
-import { wipeFullStorage } from './v1/storage'
+import { initializeStoredSessions as initializeStoredSessionsV1 } from './v1/client'
+import { wipeFullStorage as wipeFullStorageV1 } from './v1/storage'
 
 const WalletConnectApp = (props: {
 	accounts: Account[],
@@ -37,7 +37,7 @@ const WalletConnectApp = (props: {
 
 	// Initialize WalletConnect sessions from localStorage.
 	React.useEffect(() => {
-		const wcsV1 = initializeStoredSessions()
+		const wcsV1 = initializeStoredSessionsV1()
 		setSessions(wcsV1)
 	}, [])
 
@@ -139,7 +139,7 @@ const WalletConnectApp = (props: {
 		for (const s of sessions) {
 			s.disconnect()
 		}
-		wipeFullStorage()
+		wipeFullStorageV1()
 		setSessions([])
 		requestQueueGlobal.rejectAll({code: -32000, message: "Disconnected"})
 	}
