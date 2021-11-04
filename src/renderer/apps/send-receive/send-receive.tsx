@@ -7,7 +7,7 @@ import { valueToBigNumber } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 import { Account } from '../../../lib/accounts/accounts'
 import useOnChainState from '../../state/onchain-state'
 import useLocalStorageState from '../../state/localstorage-state'
-import { fmtAmount } from '../../../lib/utils'
+import { CancelPromise, fmtAmount } from '../../../lib/utils'
 import { newErc20 } from '../../../lib/erc20/erc20-contract'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { SendReceive } from './def'
@@ -69,15 +69,21 @@ const SendReceiveApp = (props: {
 		[selectedAddress, erc20]
 	))
 	const approvalData = useOnChainState(React.useCallback(
-		async (kit: ContractKit) => {
+		async (kit: ContractKit, c: CancelPromise) => {
 			const contract = await newErc20(kit, erc20)
 			const spenders = new Set<string>()
 			const owners = new Set<string>()
-			const batchSize = 100000
+
 			const blockN = await kit.web3.eth.getBlockNumber()
-			for (let fromBlock = 0; fromBlock < blockN; fromBlock += batchSize) {
-				const toBlock = Math.min(fromBlock + batchSize, blockN)
-				log.debug(`send-receive: fetching approval data ${fromBlock}..${toBlock}...`)
+			let incompleteBlockN: number | undefined
+			const t0 = Date.now()
+			const maxBatchSize = 30 * 17280
+			let batchSize = 1000
+			let prevDeltaMs
+			for (let toBlock = blockN; toBlock > 0; toBlock -= batchSize) {
+				const startMs = Date.now()
+				const fromBlock = Math.max(toBlock - batchSize, 0)
+				log.debug(`send-receive: fetching approval data ${fromBlock}..${toBlock} (elapsed: ${Date.now()-t0}ms)...`)
 				const [
 					spenderEvents,
 					ownerEvents,
@@ -89,10 +95,22 @@ const SendReceiveApp = (props: {
 				])
 				spenderEvents.forEach((e) => spenders.add(e.returnValues.spender))
 				ownerEvents.forEach((e) => owners.add(e.returnValues.owner))
+				if (c.isCancelled()) {
+					log.debug(`send-receive: cancelled fetching approval data`)
+					break
+				}
+				if (Date.now() - t0 > 60 * 1000) {
+					log.warn(`send-receive: timed out trying to get all spender/owner data...`)
+					incompleteBlockN = fromBlock
+					break
+				}
+				prevDeltaMs = Date.now() - startMs
+				batchSize = prevDeltaMs < 5 * 1000 ? Math.min(batchSize * 2, maxBatchSize) : batchSize
 			}
 			return {
 				spenders: Array.from(spenders).sort(),
 				owners: Array.from(owners).sort(),
+				incompleteBlockN,
 			}
 		},
 		[selectedAddress, erc20],
