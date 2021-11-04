@@ -111,8 +111,7 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 				break
 			}
 			if (abi === undefined) {
-				// Check if it is verified on explorer/blockscout.
-				// TODO(zviad): remove this once core contracts are directly verified on sourcify.
+				// Fallback to checking if contract is verified on explorer/blockscout.
 				const resp = await explorerCli().get<{
 						message: string,
 						result: AbiItem[],
