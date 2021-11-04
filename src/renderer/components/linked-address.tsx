@@ -9,7 +9,7 @@ const LinkedAddress = (props: {address: string, name?: string}): JSX.Element => 
 	const url = `${explorerRootURL()}/address/${props.address}`
 	return (
 		<Link href={url}>
-			<Typography style={{fontFamily: "monospace"}}>{props.name || fmtAddress(props.address)}</Typography>
+			<Typography style={{fontFamily: "monospace"}} component="span">{props.name || fmtAddress(props.address)}</Typography>
 		</Link>
 	)
 }

@@ -1,13 +1,13 @@
 import * as React from 'react'
-import ThumbsUpDown from '@material-ui/icons/ThumbsUpDown'
 import { AppDefinition } from "../../components/app-definition"
 import GovernanceApp from "./governance"
+import icon from './governance-icon.png'
 
 export const Governance: AppDefinition = {
 	id: "governance",
 	title: "Governance",
-	icon: <ThumbsUpDown />,
-	iconLarge: <ThumbsUpDown fontSize="large" />,
+	icon: <img src={icon} width="24px" />,
+	iconLarge: <img src={icon} width="35px" />,
 	core: true,
 	url: "https://docs.celo.org/celo-codebase/protocol/governance",
 	renderApp: GovernanceApp,

@@ -1,3 +1,4 @@
+import { swappaRouterV1Address } from "@terminal-fi/swappa";
 import { SavingsCELOWithUbeV1AddressAlfajores, SavingsCELOWithUbeV1AddressMainnet } from "savingscelo-with-ube";
 
 // List of manually verified contracts that are confirmed to indeed belong to a
@@ -24,6 +25,13 @@ export const contractNamesRegistry: {
 		addresses: {
 			mainnet: "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121",
 			alfajores: "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121",
+		},
+	},
+	{
+		// source: https://github.com/terminal-fi/swappa/tree/main/tools/deployed
+		name: "Swappa:RouterV1",
+		addresses: {
+			mainnet: swappaRouterV1Address,
 		},
 	},
 ]

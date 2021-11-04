@@ -1,4 +1,4 @@
-import { RegisteredErc20 } from '../../../lib/erc20/core'
+import { RegisteredErc20 } from '../../lib/erc20/core'
 
 import * as React from 'react'
 import {
@@ -8,22 +8,45 @@ import {
 import Close from '@material-ui/icons/Close'
 import Search from '@material-ui/icons/Search'
 
+import RemoveErc20 from './remove-erc20'
+import AddErc20 from './add-erc20'
+
 const SelectErc20 = (props: {
 	erc20s: RegisteredErc20[],
-	selected: RegisteredErc20,
+	selected?: RegisteredErc20,
 	onSelect: (erc20: RegisteredErc20) => void,
+	onAddToken: (erc20: RegisteredErc20) => void,
 	onRemoveToken: (erc20: RegisteredErc20) => void,
-	onAddToken: () => void,
+	displayFullName?: boolean,
 }): JSX.Element => {
-	return (
+	const [showAddToken, setShowAddToken] = React.useState(false)
+	const [toRemove, setToRemove] = React.useState<RegisteredErc20 | undefined>()
+
+	return (<>
+		{showAddToken &&
+		<AddErc20
+			onCancel={() => { setShowAddToken(false) }}
+			onAdd={(erc20) => {
+				setShowAddToken(false)
+				props.onAddToken(erc20)
+			}}
+			/>}
+		{toRemove &&
+		<RemoveErc20
+			toRemove={toRemove}
+			onCancel={() => { setToRemove(undefined) }}
+			onRemove={() => {
+				setToRemove(undefined)
+				props.onRemoveToken(toRemove)
+			}}
+			/>}
 		<Select
 			id="erc20-select"
 			autoFocus
-			label="Token"
-			value={props.selected.symbol}
+			value={props.selected?.symbol || ""}
 			onChange={(event) => {
 				if (event.target.value === "add-token") {
-					props.onAddToken()
+					setShowAddToken(true)
 				} else {
 					const selected = props.erc20s.find((e) => e.symbol === event.target.value)
 					if (selected) {
@@ -40,7 +63,7 @@ const SelectErc20 = (props: {
 							value={erc20.symbol}>
 							<ListItemText
 								primary={erc20.symbol}
-								secondary={erc20.name}
+								secondary={props.displayFullName ? erc20.name : undefined}
 							/>
 							{erc20.address !== "" &&
 							<ListItemSecondaryAction>
@@ -48,7 +71,7 @@ const SelectErc20 = (props: {
 									id={`remove-token-${erc20.symbol}`}
 									size="small"
 									onClick={(event) => {
-										props.onRemoveToken(erc20)
+										setToRemove(erc20)
 										event.stopPropagation()
 									}}>
 									<Close />
@@ -67,6 +90,6 @@ const SelectErc20 = (props: {
 				</Box>
 			</MenuItem>
 		</Select>
-	)
+	</>)
 }
 export default SelectErc20

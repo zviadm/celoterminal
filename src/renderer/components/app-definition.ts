@@ -4,7 +4,7 @@ import { CeloTransactionObject, CeloTx, CeloTxReceipt, EncodedTransaction } from
 import { Account } from '../../lib/accounts/accounts'
 
 export interface Transaction {
-	tx: CeloTransactionObject<unknown> | "eth_signTransaction"
+	tx: CeloTransactionObject<unknown> | "eth_signTransaction" | "eth_sendTransaction"
 	params?: CeloTx,
 
 	// This flag is useful for contract/indirect account types. This

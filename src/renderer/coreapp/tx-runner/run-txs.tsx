@@ -154,39 +154,46 @@ const RunTXs = (props: {
 							setStage("sending")
 							setTXSendMS(nowMS())
 						}
-						if (tx.tx === "eth_signTransaction") {
+						if (tx.tx === "eth_signTransaction" || tx.tx === "eth_sendTransaction") {
 							if (!tx.params) {
-								throw new Error(`eth_signTransaction: Params must be provided to sign a transaction.`)
+								throw new Error(`${tx.tx}: Params must be provided to sign a transaction.`)
 							}
 							if (tx.params.chainId?.toString() !== cfg.chainId) {
 								throw new Error(
 									`Unexpected ChainId. Expected: ${cfg.chainId}, Got: ${tx.params.chainId}. ` +
-									`Refusing to sign transactions.`)
+									`Refusing to ${tx.tx}.`)
 							}
-							const signedTX = await w.wallet.signTransaction(tx.params)
+						}
+						if (tx.tx === "eth_signTransaction") {
+							const signedTX = await w.wallet.signTransaction({...tx.params})
 							signedTXs.push(signedTX)
 						} else {
-							const result = await tx.tx.send({
-								...tx.params,
-								// perf improvement, avoid re-estimating gas again.
-								gas: estimatedGas.toNumber(),
-							})
+							let result
+							if (tx.tx === "eth_sendTransaction") {
+								result = await kit.sendTransaction({...tx.params})
+							} else {
+								result = await tx.tx.send({
+									...tx.params,
+									// perf improvement, avoid re-estimating gas again.
+									gas: estimatedGas.toNumber(),
+								})
+							}
 							let txHash
 							try {
 								txHash = await result.getHash()
 							} catch (e) {
-								if (e?.message?.includes("already known") ||
-									e?.message?.includes("nonce too low")) {
+								if ((e as Error)?.message?.includes("already known") ||
+									(e as Error)?.message?.includes("nonce too low")) {
 									throw new Error(
 										`Transaction was aborted due to a potential conflict with another concurrent transaction. ${e}.`)
 								}
-								if (e?.message?.includes("Invalid JSON RPC response")) {
+								if ((e as Error)?.message?.includes("Invalid JSON RPC response")) {
 									throw new Error(
 										`Timed out while trying to send the transaction. ` +
 										`Transaction might have been sent and might get processed anyways. ` +
 										`Wait a bit before retrying to avoid performing your transaction twice.`)
 								}
-								if (e?.message?.includes("Ledger device:")) {
+								if ((e as Error)?.message?.includes("Ledger device:")) {
 									throw e
 								}
 								throw new Error(
@@ -219,7 +226,7 @@ const RunTXs = (props: {
 					}
 				}
 			} catch (e) {
-				onFinishErr = transformError(e)
+				onFinishErr = transformError(e as Error)
 			} finally {
 				onFinish(onFinishErr, onFinishReceipts, onFinishSignedTXs)
 			}

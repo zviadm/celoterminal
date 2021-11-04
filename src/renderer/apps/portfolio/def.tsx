@@ -1,13 +1,13 @@
 import * as React from 'react'
 import { AppDefinition } from "../../components/app-definition"
 import PortfolioApp from "./portfolio"
-import TrendingUp from '@material-ui/icons/TrendingUp'
+import icon from './portfolio-icon.png'
 
 export const Portfolio: AppDefinition = {
 	id: "portfolio",
 	title: "Portfolio",
-	icon: <TrendingUp />,
-	iconLarge: <TrendingUp fontSize="large" />,
+	icon: <img src={icon} width="24px" />,
+	iconLarge: <img src={icon} width="35px" />,
 	core: true,
 	renderApp: PortfolioApp,
 }

@@ -23,7 +23,7 @@ export const parseTXs = async (kit: ContractKit, txs: MultiSigTX[]): Promise<Par
 				return [d, {c: r, verifiedName: r.verifiedName}]
 			} catch (e) {
 				const verifiedName = await verifiedContractName(kit, d)
-				return [d, {verifiedName, err: e}]
+				return [d, {verifiedName, err: e as Error}]
 			}
 		})
 	)
