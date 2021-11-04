@@ -1,3 +1,4 @@
+import * as log from "electron-log"
 import { ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
 import { BlockTransactionString } from 'web3-eth'
@@ -70,13 +71,25 @@ const SendReceiveApp = (props: {
 	const approvalData = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
 			const contract = await newErc20(kit, erc20)
-			// TODO(zviad): This might need to be batched up, if there are too many events.
-			const spenderEvents = await contract.web3contract.getPastEvents(
-				"Approval", {fromBlock: 0, filter: {owner: selectedAddress}})
-			const spenders: Set<string> = new Set(spenderEvents.map((e) => e.returnValues.spender))
-			const ownerEvents = await contract.web3contract.getPastEvents(
-				"Approval", {fromBlock: 0, filter: {spender: selectedAddress}})
-			const owners: Set<string> = new Set(ownerEvents.map((e) => e.returnValues.owner))
+			const spenders = new Set<string>()
+			const owners = new Set<string>()
+			const batchSize = 100000
+			const blockN = await kit.web3.eth.getBlockNumber()
+			for (let fromBlock = 0; fromBlock < blockN; fromBlock += batchSize) {
+				const toBlock = Math.min(fromBlock + batchSize, blockN)
+				log.debug(`send-receive: fetching approval data ${fromBlock}..${toBlock}...`)
+				const [
+					spenderEvents,
+					ownerEvents,
+				] = await Promise.all([
+					contract.web3contract.getPastEvents(
+						"Approval", {fromBlock, toBlock, filter: {owner: selectedAddress}}),
+					contract.web3contract.getPastEvents(
+						"Approval", {fromBlock, toBlock, filter: {spender: selectedAddress}}),
+				])
+				spenderEvents.forEach((e) => spenders.add(e.returnValues.spender))
+				ownerEvents.forEach((e) => owners.add(e.returnValues.owner))
+			}
 			return {
 				spenders: Array.from(spenders).sort(),
 				owners: Array.from(owners).sort(),
