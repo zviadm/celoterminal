@@ -2,7 +2,10 @@ import axios, { AxiosInstance } from "axios"
 import { AbiItem } from "web3-utils"
 import { Address, CeloContract, ContractKit } from '@celo/contractkit'
 
-import { alfajoresChainId, baklavaChainId, CFG, mainnetChainId, registeredErc20s, selectAddress } from "../cfg"
+import {
+	alfajoresChainId, baklavaChainId, CFG, mainnetChainId,
+	registeredErc20s, explorerRootURL, selectAddress
+} from "../cfg"
 import { deployedBytecode as multiSigBytecode, abi as multiSigAbi } from "../core-contracts/MultiSig.json"
 import { KnownProxies, KnownProxy } from "./proxy-abi"
 import { contractNamesRegistry } from "./registry"
@@ -28,6 +31,14 @@ const cli = () => {
 		_client = axios.create({baseURL: sourcifyRoot, timeout: 3000})
 	}
 	return _client
+}
+
+let _explorerClient: AxiosInstance
+const explorerCli = () => {
+	if (!_explorerClient) {
+		_explorerClient = axios.create({baseURL: `${explorerRootURL()}`, timeout: 3000})
+	}
+	return _explorerClient
 }
 
 export interface ContractABI {
@@ -98,6 +109,16 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 				}
 				abi = resp.data.output.abi as AbiItem[]
 				break
+			}
+			if (abi === undefined) {
+				// Fallback to checking if contract is verified on explorer/blockscout.
+				const resp = await explorerCli().get<{
+						message: string,
+						result: AbiItem[],
+					}>(`/api?module=contract&action=getabi&address=${contractAddress}`)
+				if (resp.data.message === "ok") {
+					abi = resp.data.result
+				}
 			}
 			if (abi === undefined) {
 				throw new Error(`Contract source code is not verified.`)
