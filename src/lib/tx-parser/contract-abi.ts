@@ -6,6 +6,7 @@ import { alfajoresChainId, baklavaChainId, CFG, mainnetChainId, registeredErc20s
 import { deployedBytecode as multiSigBytecode, abi as multiSigAbi } from "../core-contracts/MultiSig.json"
 import { KnownProxies, KnownProxy } from "./proxy-abi"
 import { contractNamesRegistry } from "./registry"
+import { toChecksumAddress } from "ethereumjs-util"
 
 const builtinContracts: {
 	name: string,
@@ -42,6 +43,7 @@ export interface ContractABI {
 const contractCache = new Map<string, ContractABI>()
 
 export const fetchContractAbi = async (kit: ContractKit, contractAddress: string): Promise<ContractABI> => {
+	contractAddress = toChecksumAddress(contractAddress)
 	const cached = contractCache.get(contractAddress)
 	if (cached !== undefined && !cached.proxy) {
 		return cached
@@ -113,6 +115,7 @@ let _coreRegistry = new Map<string, CeloContract>()
 export const verifiedContractName = async (
 	kit: ContractKit,
 	address: Address): Promise<string | null> => {
+	address = toChecksumAddress(address)
 	if (_coreRegistry.size === 0) {
 		const registryMapping = await kit.registry.addressMapping()
 		_coreRegistry = new Map(
@@ -124,13 +127,12 @@ export const verifiedContractName = async (
 		return `CoreContract:${coreMatch}`
 	}
 
-	const erc20match = registeredErc20s.find((e) => e.address?.toLowerCase() === address.toLowerCase())
+	const erc20match = registeredErc20s.find((e) => e.address === address)
 	if (erc20match) {
 		return `${erc20match.name} (${erc20match.symbol})`
 	}
 
-	const registryMatch = contractNamesRegistry.find(
-		(c) => selectAddress(c.addresses)?.toLowerCase() === address.toLowerCase())
+	const registryMatch = contractNamesRegistry.find((c) => selectAddress(c.addresses) === address)
 	if (registryMatch) {
 		return registryMatch.name
 	}
