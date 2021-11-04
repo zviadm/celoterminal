@@ -8,7 +8,7 @@ import { newErc20 } from '../../../lib/erc20/erc20-contract'
 import useOnChainState from '../../state/onchain-state'
 
 import * as React from 'react'
-import { Button } from '@material-ui/core'
+import { Box, Button } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 
 import AddressAutocomplete from '../../components/address-autocomplete'
@@ -20,6 +20,7 @@ const TransferFromTab = (props: {
 	account: Account,
 	accountData: {
 		owners: string[],
+		incompleteBlockN?: number,
 	},
 	addressBook: Account[], // TODO(zviad): This type should be different.
 	resetAmounts: number,
@@ -73,56 +74,68 @@ const TransferFromTab = (props: {
 		const amount = new BigNumber(toSend).shiftedBy(props.erc20.decimals)
 		props.onSend(owner, toAddress, amount)
 	}
-	return accountData.owners.length === 0 ?
-		<Alert severity="error">
-			No authorized accounts found that can be used as a source to transfer
-			funds from.
-		</Alert>
-		: <>
-		<Alert severity="warning">
-			Transfers are non-reversible. Transferring funds to an incorrect address
-			can lead to permanent loss of your funds.
-		</Alert>
-		<AddressAutocomplete
-			id="from-address-input"
-			noFreeSolo={true}
-			textFieldProps={{
-				label: "From address",
-				margin: "normal",
-				InputLabelProps: {shrink: true},
-			}}
-			addresses={ownerAddrs}
-			onChange={setOwner}
-		/>
-		<HiddenProgress hidden={!isFetching} />
-		<AddressAutocomplete
-			id="to-address-input"
-			textFieldProps={{
-				label: "Destination address",
-				margin: "normal",
-				InputLabelProps: {shrink: true},
-			}}
-			addresses={props.addressBook}
-			address={toAddress}
-			onChange={setToAddress}
-		/>
-		<NumberInput
-			margin="normal"
-			id="amount-input"
-			label={
-				!maxToSend ? `Amount` :
-				`Amount (max: ${fmtAmount(maxToSend, props.erc20.decimals)})`
-			}
-			InputLabelProps={{shrink: true}}
-			value={toSend}
-			onChangeValue={setToSend}
-			maxValue={maxToSend?.shiftedBy(-props.erc20.decimals)}
-		/>
-		<Button
-			id="send"
-			variant="outlined" color="primary"
-			disabled={!canSend}
-			onClick={handleSend}>Send</Button>
-		</>
+	return <>
+		{props.accountData.incompleteBlockN &&
+		<Box display="flex" flexDirection="column" marginBottom={2}>
+			<Alert severity="warning">
+				Approval/spender data was only fetched from block number {props.accountData.incompleteBlockN}.
+				Accounts authorized earlier than that might not be listed. You can try clicking the refresh button
+				to try fetching approval data again.
+			</Alert>
+		</Box>}
+		{
+			accountData.owners.length === 0 ?
+			<Alert severity="error">
+				No authorized accounts found that can be used as a source to transfer
+				funds from.
+			</Alert>
+			: <>
+			<Alert severity="warning">
+				Transfers are non-reversible. Transferring funds to an incorrect address
+				can lead to permanent loss of your funds.
+			</Alert>
+			<AddressAutocomplete
+				id="from-address-input"
+				noFreeSolo={true}
+				textFieldProps={{
+					label: "From address",
+					margin: "normal",
+					InputLabelProps: {shrink: true},
+				}}
+				addresses={ownerAddrs}
+				onChange={setOwner}
+			/>
+			<HiddenProgress hidden={!isFetching} />
+			<AddressAutocomplete
+				id="to-address-input"
+				textFieldProps={{
+					label: "Destination address",
+					margin: "normal",
+					InputLabelProps: {shrink: true},
+				}}
+				addresses={props.addressBook}
+				address={toAddress}
+				onChange={setToAddress}
+			/>
+			<NumberInput
+				margin="normal"
+				id="amount-input"
+				label={
+					!maxToSend ? `Amount` :
+					`Amount (max: ${fmtAmount(maxToSend, props.erc20.decimals)})`
+				}
+				InputLabelProps={{shrink: true}}
+				value={toSend}
+				onChangeValue={setToSend}
+				maxValue={maxToSend?.shiftedBy(-props.erc20.decimals)}
+			/>
+			<Button
+				id="send"
+				variant="outlined" color="primary"
+				disabled={!canSend}
+				onClick={handleSend}>Send</Button>
+			</>
+	}
+	</>
 }
 export default TransferFromTab

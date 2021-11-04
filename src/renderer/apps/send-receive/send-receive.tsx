@@ -1,3 +1,4 @@
+import * as log from "electron-log"
 import { ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
 import { BlockTransactionString } from 'web3-eth'
@@ -6,7 +7,7 @@ import { valueToBigNumber } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 import { Account } from '../../../lib/accounts/accounts'
 import useOnChainState from '../../state/onchain-state'
 import useLocalStorageState from '../../state/localstorage-state'
-import { fmtAmount } from '../../../lib/utils'
+import { CancelPromise, fmtAmount } from '../../../lib/utils'
 import { newErc20 } from '../../../lib/erc20/erc20-contract'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { SendReceive } from './def'
@@ -68,18 +69,48 @@ const SendReceiveApp = (props: {
 		[selectedAddress, erc20]
 	))
 	const approvalData = useOnChainState(React.useCallback(
-		async (kit: ContractKit) => {
+		async (kit: ContractKit, c: CancelPromise) => {
 			const contract = await newErc20(kit, erc20)
-			// TODO(zviad): This might need to be batched up, if there are too many events.
-			const spenderEvents = await contract.web3contract.getPastEvents(
-				"Approval", {fromBlock: 0, filter: {owner: selectedAddress}})
-			const spenders: Set<string> = new Set(spenderEvents.map((e) => e.returnValues.spender))
-			const ownerEvents = await contract.web3contract.getPastEvents(
-				"Approval", {fromBlock: 0, filter: {spender: selectedAddress}})
-			const owners: Set<string> = new Set(ownerEvents.map((e) => e.returnValues.owner))
+			const spenders = new Set<string>()
+			const owners = new Set<string>()
+
+			const blockN = await kit.web3.eth.getBlockNumber()
+			let incompleteBlockN: number | undefined
+			const t0 = Date.now()
+			const maxBatchSize = 30 * 17280
+			let batchSize = 1000
+			let prevDeltaMs
+			for (let toBlock = blockN; toBlock > 0; toBlock -= batchSize) {
+				const startMs = Date.now()
+				const fromBlock = Math.max(toBlock - batchSize, 0)
+				log.debug(`send-receive: fetching approval data ${fromBlock}..${toBlock} (elapsed: ${Date.now()-t0}ms)...`)
+				const [
+					spenderEvents,
+					ownerEvents,
+				] = await Promise.all([
+					contract.web3contract.getPastEvents(
+						"Approval", {fromBlock, toBlock, filter: {owner: selectedAddress}}),
+					contract.web3contract.getPastEvents(
+						"Approval", {fromBlock, toBlock, filter: {spender: selectedAddress}}),
+				])
+				spenderEvents.forEach((e) => spenders.add(e.returnValues.spender))
+				ownerEvents.forEach((e) => owners.add(e.returnValues.owner))
+				if (c.isCancelled()) {
+					log.debug(`send-receive: cancelled fetching approval data`)
+					break
+				}
+				if (Date.now() - t0 > 60 * 1000) {
+					log.warn(`send-receive: timed out trying to get all spender/owner data...`)
+					incompleteBlockN = fromBlock
+					break
+				}
+				prevDeltaMs = Date.now() - startMs
+				batchSize = prevDeltaMs < 5 * 1000 ? Math.min(batchSize * 2, maxBatchSize) : batchSize
+			}
 			return {
 				spenders: Array.from(spenders).sort(),
 				owners: Array.from(owners).sort(),
+				incompleteBlockN,
 			}
 		},
 		[selectedAddress, erc20],

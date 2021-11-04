@@ -5,6 +5,7 @@ import { BlockTransactionString } from 'web3-eth'
 
 import useOnChainState from './onchain-state'
 import BigNumber from 'bignumber.js'
+import { CancelPromise } from '../../lib/utils'
 
 export type FetchEventsCallback<T> = (
 	kit: ContractKit,
@@ -46,7 +47,7 @@ export default function useEventHistoryState <T>(
 	const maxEvents = opts.maxEvents
 	const maxHistoryBlocks = opts.maxHistoryDays * 24 * 60 * 12
 	return useOnChainState(React.useCallback(
-		async (kit: ContractKit) => {
+		async (kit: ContractKit, c: CancelPromise) => {
 			const latestBlock = await kit.web3.eth.getBlock("latest")
 			const toBlock = latestBlock.number
 			let fromBlock
@@ -67,6 +68,7 @@ export default function useEventHistoryState <T>(
 					(fromBlock, toBlock) => {
 						return fetchCallback(kit, fromBlock, toBlock, latestBlock)
 					},
+					c,
 				)
 			}
 			events.push(...cachedEvents)
@@ -90,6 +92,7 @@ async function progressiveFetch<T>(
 	toBlock: number,
 	minItems: number,
 	fetch: (fromBlock: number, toBlock: number) => Promise<T[]>,
+	c?: CancelPromise,
 	): Promise<T[]> {
 	const all: T[] = []
 	let fetchSize = minFetchSize
@@ -99,7 +102,7 @@ async function progressiveFetch<T>(
 		const events = await fetch(_from, _to)
 		all.push(...events.reverse())
 		log.info(`[progressive-fetch]: from: ${fromBlock} to: ${toBlock}, items: ${all.length}, _from: ${_from}`)
-		if (all.length >= minItems || _from === fromBlock) {
+		if (all.length >= minItems || _from === fromBlock || c?.isCancelled()) {
 			break
 		}
 		_to = _from - 1

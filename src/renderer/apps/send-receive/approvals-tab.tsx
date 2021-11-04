@@ -12,6 +12,7 @@ import {
 	Button, TableHead, Table,
 	TableRow, TableCell, Box, TableBody, Typography, ButtonBase
 } from '@material-ui/core'
+import Alert from '@material-ui/lab/Alert'
 import Add from '@material-ui/icons/Add'
 
 import SectionTitle from '../../components/section-title'
@@ -26,6 +27,7 @@ const ApprovalsTab = (props: {
 	accountData: {
 		owners: string[],
 		spenders: string[],
+		incompleteBlockN?: number,
 	},
 	addressBook: Account[], // TODO(zviad): This type should be different.
 	onApprove: (spender: string, amount: BigNumber) => void
@@ -81,6 +83,14 @@ const ApprovalsTab = (props: {
 	}
 
 	return <>
+		{props.accountData.incompleteBlockN &&
+		<Box display="flex" flexDirection="column" marginBottom={2}>
+			<Alert severity="warning">
+				Approval/spender data was only fetched from block number {props.accountData.incompleteBlockN}.
+				Accounts authorized earlier than that might not be listed. You can try clicking the refresh button
+				to try fetching approval data again.
+			</Alert>
+		</Box>}
 		{showApprove !== undefined &&
 		<ApproveSpender
 			erc20={props.erc20}
