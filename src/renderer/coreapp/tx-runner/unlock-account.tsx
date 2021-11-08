@@ -1,4 +1,5 @@
 import { Account } from '../../../lib/accounts/accounts'
+import { UserError } from '../../../lib/error'
 
 import * as React from 'react'
 
@@ -12,7 +13,7 @@ const UnlockAccount = (props: {
 	account: Account,
 	unlocking: boolean,
 	onUnlock: (p: string) => void,
-	onCancel: () => void,
+	onCancel: (e?: Error) => void,
 }): JSX.Element => {
 	const [password, setPassword] = React.useState("")
 	const handleUnlock = () => {
@@ -28,11 +29,11 @@ const UnlockAccount = (props: {
 			accountType !== "local" &&
 			accountType !== "ledger"
 			) {
-			onCancel()
+			onCancel(new UserError(`Account type: "${accountType}" can not sign transactions!`))
 		}
 	}, [accountType, onCancel])
 	return (
-		<Dialog open={true} onClose={props.onCancel}>
+		<Dialog open={true} onClose={() => { onCancel() }}>
 			<DialogTitle>Unlock account</DialogTitle>
 			<DialogContent style={{width: 500}}>
 				<Box display="flex" flexDirection="column">
@@ -70,7 +71,7 @@ const UnlockAccount = (props: {
 			<DialogActions>
 				<Button
 					disabled={props.unlocking}
-					onClick={props.onCancel}>Cancel</Button>
+					onClick={() => { onCancel() }}>Cancel</Button>
 				<Button
 					id="unlock-password"
 					disabled={props.unlocking}

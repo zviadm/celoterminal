@@ -63,8 +63,8 @@ function TXRunner(props: {
 		return () => { cancelled = true }
 	}, [wallet, selectedAccount, accounts, executingAccount, pw, setPW])
 
-	const handleCancel = () => {
-		props.onFinish(new TXCancelled())
+	const handleCancel = (e?: Error) => {
+		props.onFinish(e || new TXCancelled())
 	}
 	const handleUnlock = (p: string) => {
 		if (executingAccount.type === "local") {

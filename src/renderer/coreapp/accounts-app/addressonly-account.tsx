@@ -41,6 +41,7 @@ const AddAddressOnlyAccount = (props: {
 					Name is used to identify your account in the app. You can change it at any time later on.
 				</Alert>
 				<TextField
+						id="name-input"
 						autoFocus
 						margin="dense"
 						label={`Name`}
@@ -50,6 +51,7 @@ const AddAddressOnlyAccount = (props: {
 						onChange={(e) => { setName(e.target.value) }}
 					/>
 				<TextField
+						id="address-input"
 						margin="dense"
 						label={`Address`}
 						value={address}
