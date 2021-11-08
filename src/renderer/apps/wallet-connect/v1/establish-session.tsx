@@ -4,6 +4,9 @@ import WalletConnect from 'wcv1/client'
 import { Account } from '../../../../lib/accounts/accounts'
 import { CFG } from '../../../../lib/cfg'
 import { newSessionStorageId } from './storage'
+import { ISession } from '../session'
+import { UserError } from '../../../../lib/error'
+import { celoTerminalMetadata, WCV1 } from './wc'
 
 import * as React from 'react'
 import {
@@ -11,8 +14,6 @@ import {
 	Box, Button, Card, CardContent, CardHeader, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Typography
 } from '@material-ui/core'
 import Link from '../../../components/link'
-import { celoTerminalMetadata, WCV1 } from './wc'
-import { ISession } from '../session'
 
 const EstablishSession = (props: {
 	uri: string,
@@ -35,20 +36,29 @@ const EstablishSession = (props: {
 	const onCancel = props.onCancel
 	React.useEffect(() => {
 		log.info(`wallet-connect: pairing with ${uri}...`)
-		const sessionId = newSessionStorageId()
-		wc.current = new WCV1(sessionId, new WalletConnect({
-			uri: uri,
-			clientMeta: celoTerminalMetadata,
-			storageId: sessionId,
-		}))
 		let cancelled = false
-		wc.current.wc.on("session_request", async (error, proposal) => {
-			log.info(`wallet-connect: proposal received (cancelled: ${cancelled})...`, error, proposal)
-			if ((error || cancelled)) {
-				return wc.current?.disconnect()
-			}
-			setProposal(proposal.params[0])
-		})
+		const sessionId = newSessionStorageId()
+		try {
+			const _wc = new WCV1(sessionId, new WalletConnect({
+				uri: uri,
+				clientMeta: celoTerminalMetadata,
+				storageId: sessionId,
+			}))
+			_wc.wc.on("session_request", async (error, proposal) => {
+				_wc.wc.off("session_request")
+				log.info(`wallet-connect: proposal received (cancelled: ${cancelled})...`, error, proposal)
+				if ((error || cancelled)) {
+					return _wc.disconnect()
+				}
+				setProposal(proposal.params[0])
+			})
+			wc.current = _wc
+		} catch (e) {
+			onCancel()
+			setTimeout(() => {
+				throw new UserError(`Invalid WalletConnect v1 QRCode: ${e}`)
+			})
+		}
 		return () => { cancelled = true }
 	// NOTE(zviadm): This only needs to run once.
 	// eslint-disable-next-line react-hooks/exhaustive-deps
