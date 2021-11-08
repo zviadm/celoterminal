@@ -14,8 +14,10 @@ test('create read-only account', async (done) => {
 	await addROAccount.click()
 
 	const nameInput = await app.client.$("#name-input")
+	await nameInput.click()
 	await nameInput.keys("test-read-only")
 	const addressInput = await app.client.$("#address-input")
+	await addressInput.click()
 	await addressInput.keys(SpectronAccounts[3])
 
 	const confirmCreate = await app.client.$("button=Add")
