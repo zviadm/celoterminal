@@ -42,15 +42,16 @@ export const confirmTXs = async(opts?: {
 // Checks and throws if ErrorSnack is activated.
 export const checkErrorSnack = async (expectErrMsg?: string): Promise<void> => {
 	const errorSnack = await app.client.$("#error-snack")
-	const errorExists = await errorSnack.isExisting()
 	if (!expectErrMsg) {
+		const errorExists = await errorSnack.isExisting()
 		if (errorExists) {
 			const text = await errorSnack.getText()
 			throw new Error(`Error Snack active: '${text}'`)
 		}
 	} else {
+		await errorSnack.waitForExist({timeout: 2000})
 		const text = await errorSnack.getText()
-		if (!errorExists || !text.includes(expectErrMsg)) {
+		if (!text.includes(expectErrMsg)) {
 			throw new Error(`Error Snack: '${expectErrMsg}' not found in '${text}'!`)
 		}
 	}
