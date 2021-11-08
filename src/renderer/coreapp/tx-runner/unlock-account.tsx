@@ -29,7 +29,7 @@ const UnlockAccount = (props: {
 			accountType !== "local" &&
 			accountType !== "ledger"
 			) {
-			onCancel(new UserError(`Account type: "${accountType}" can not sign transactions!`))
+			onCancel(new UserError(`Account type '${accountType}' can not sign transactions.`))
 		}
 	}, [accountType, onCancel])
 	return (
