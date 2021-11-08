@@ -22,8 +22,6 @@ import { ISession } from './session'
 import { requestQueueGlobal } from './request-queue'
 
 import EstablishSessionV1 from './v1/establish-session'
-import { initializeStoredSessions as initializeStoredSessionsV1 } from './v1/wc'
-import { wipeFullStorage as wipeFullStorageV1 } from './v1/storage'
 
 if (module.hot) {
 	module.hot.decline()
@@ -34,13 +32,19 @@ const WalletConnectApp = (props: {
 	selectedAccount: Account,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
-	const [sessions, setSessions] = React.useState<ISession[]>([])
-	const [requests, setRequests] = React.useState(requestQueueGlobal.snapshot())
+	const [sessions, _setSessions] = React.useState(requestQueueGlobal().sessionsSnapshot([]))
+	const [requests, _setRequests] = React.useState(requestQueueGlobal().requestsSnapshot([]))
 
 	// Initialize WalletConnect sessions from localStorage.
-	React.useEffect(() => {
-		const wcsV1 = initializeStoredSessionsV1()
-		setSessions(wcsV1)
+	const refreshSessions = React.useCallback(() => {
+		_setSessions((sessions) => {
+			return requestQueueGlobal().sessionsSnapshot(sessions)
+		})
+	}, [])
+	const refreshRequests = React.useCallback(() => {
+		_setRequests((requests) => {
+			return requestQueueGlobal().requestsSnapshot(requests)
+		})
 	}, [])
 
 	// Run periodic checks to discard disconnected sessions and to handle new
@@ -49,28 +53,21 @@ const WalletConnectApp = (props: {
 		const cancel = runWithInterval(
 			"wallet-connect",
 			async () => {
-				setRequests((reqs) => {
-					const requestsUpdated = !requestQueueGlobal.matchesSnapshot(reqs)
-					return requestsUpdated ? requestQueueGlobal.snapshot() : reqs
-				})
-				setSessions((sessions) => {
-					const sessionsFiltered = sessions.filter((s) => s.isConnected())
-					return (sessionsFiltered.length !== sessions.length) ? sessionsFiltered : sessions
-				})
+				refreshRequests()
+				refreshSessions()
 			},
 			500)
 		return cancel
-	}, [])
-
+	}, [refreshRequests, refreshSessions])
 
 	const accounts = props.accounts
 	// Discard all requests that are sent for an incorrect/unknown accounts.
 	React.useEffect(() => {
-		for (const request of requestQueueGlobal.snapshot()) {
+		for (const request of requests) {
 			const from = request.request.params?.from?.toString().toLowerCase()
 			const match = accounts.find((a) => a.address.toLowerCase() === from)
 			if (!match) {
-				requestQueueGlobal.reject(request, {
+				requestQueueGlobal().reject(request, {
 					code: -32000,
 					message: `Unknown account: ${request.request.params?.from}`,
 				})
@@ -85,7 +82,7 @@ const WalletConnectApp = (props: {
 		if (inProgress) {
 			return
 		}
-		const request = requestQueueGlobal.requestFor(account.address)
+		const request = requestQueueGlobal().requestFor(account.address)
 		if (!request) {
 			return
 		}
@@ -97,7 +94,7 @@ const WalletConnectApp = (props: {
 			(e?: Error, receipts?: CeloTxReceipt[], signedTXs?: EncodedTransaction[]) => {
 				setInProgress(false)
 				if (e) {
-					requestQueueGlobal.reject(request, {
+					requestQueueGlobal().reject(request, {
 						code: -32000,
 						message: e.message,
 					})
@@ -105,17 +102,17 @@ const WalletConnectApp = (props: {
 					if (request.request.method === "eth_signTransaction") {
 						if (signedTXs?.length !== 1) {
 							const errMsg = `Unexpected error while performing eth_signTransaction!`
-							requestQueueGlobal.reject(request, {code: -32000, message: errMsg})
+							requestQueueGlobal().reject(request, {code: -32000, message: errMsg})
 							throw new Error(errMsg)
 						}
-						requestQueueGlobal.approve(request, signedTXs[0])
+						requestQueueGlobal().approve(request, signedTXs[0])
 					} else {
 						if (receipts?.length !== 1) {
 							const errMsg = `Unexpected error while performing eth_sendTransaction!`
-							requestQueueGlobal.reject(request, {code: -32000, message: errMsg})
+							requestQueueGlobal().reject(request, {code: -32000, message: errMsg})
 							throw new Error(errMsg)
 						}
-						requestQueueGlobal.approve(request, receipts[0].transactionHash)
+						requestQueueGlobal().approve(request, receipts[0].transactionHash)
 					}
 				}
 			}
@@ -128,22 +125,19 @@ const WalletConnectApp = (props: {
 	const refreshAfterEstablish = () => {
 		setConnectURI("")
 		setToApproveURI("")
+		refreshSessions()
 	}
 	const handleApprove = (s: ISession) => {
-		setSessions((sessions) => ([...sessions, s]))
+		requestQueueGlobal().addSession(s)
 		refreshAfterEstablish()
 	}
 	const handleDisconnect = (s: ISession) => {
 		s.disconnect()
-		setSessions((sessions) => sessions.filter((ss) => ss !== s))
+		refreshSessions()
 	}
 	const handleDisconnectAll = () => {
-		for (const s of sessions) {
-			s.disconnect()
-		}
-		wipeFullStorageV1()
-		setSessions([])
-		requestQueueGlobal.rejectAll({code: -32000, message: "Disconnected"})
+		requestQueueGlobal().resetAndRejectAll()
+		refreshSessions()
 	}
 
 	const requestsByAccount = new Map<string, number>()

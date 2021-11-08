@@ -43,7 +43,7 @@ export class WCV1 implements ISession {
 		) {
 		wc.on("disconnect", (error) => {
 			log.info(`wallet-connect: disconnected ${wc.session.peerMeta?.name}`, error)
-			removeSessionId(this.sessionId)
+			this.disconnect()
 		})
 		wc.on("call_request", (error, payload: {id: number, method: string, params: unknown[]}) => {
 			if (error) {
@@ -58,7 +58,7 @@ export class WCV1 implements ISession {
 				if (!params.chainId) {
 					params.chainId = Number.parseInt(CFG().chainId)
 				}
-				requestQueueGlobal.pushRequest(
+				requestQueueGlobal().pushRequest(
 					new WCV1Request(wc, {
 						id: payload.id,
 						method: payload.method,
@@ -85,6 +85,7 @@ export class WCV1 implements ISession {
 		this.wc.off("disconnect")
 		this.wc.off("call_request")
 		removeSessionId(this.sessionId)
+		requestQueueGlobal().rmSession(this)
 	}
 
 	metadata = (): SessionMetadata | null => {

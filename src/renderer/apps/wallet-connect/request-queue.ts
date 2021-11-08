@@ -1,5 +1,9 @@
 import { CeloTx } from "@celo/connect"
 import { showWindowAndFocus } from "../../electron-utils"
+import { ISession } from "./session"
+
+import { wipeFullStorage as wipeFullStorageV1 } from './v1/storage'
+import { initializeStoredSessions as initializeStoredSessionsV1 } from './v1/wc'
 
 if (module.hot) {
 	module.hot.decline()
@@ -31,18 +35,46 @@ export interface WCRequest {
 }
 
 class RequestQueue {
+	private sessions: ISession[] = []
 	private requests: WCRequest[] = []
 
-	public snapshot = () => {
-		return [...this.requests]
+	constructor (sessions: ISession[]) {
+		this.sessions = [...sessions]
 	}
 
-	public matchesSnapshot(s: WCRequest[]) {
+	public sessionsSnapshot = (s: ISession[]) => {
 		const matches = (
-			s.length === this.requests.length &&
-			s.every((r, idx) => r === this.requests[idx])
+			s.length === this.sessions.length &&
+			s.every((s, idx) => s === this.sessions[idx])
 		)
-		return matches
+		return matches ? s : [...this.sessions]
+	}
+
+	public removeDisconnectedSessions = () => {
+		this.sessions.forEach((s) => {
+			if (!s.isConnected()) {
+				s.disconnect()
+			}
+		})
+	}
+
+	public addSession = (s: ISession) => {
+		this.sessions.push(s)
+	}
+
+	public rmSession = (s: ISession) => {
+		const idx = this.sessions.indexOf(s)
+		if (idx >= 0) {
+			this.sessions.splice(idx, 1)
+		}
+	}
+
+	public requestsSnapshot = (r: WCRequest[]) => {
+		const matches = (
+			r.length === this.requests.length &&
+			r.every((r, idx) => r === this.requests[idx])
+		)
+		return matches ? r : [...this.requests]
 	}
 
 	public pushRequest(req: WCRequest) {
@@ -72,15 +104,34 @@ class RequestQueue {
 		req.reject(error)
 	}
 
-	public rejectAll(error: IJsonRpcErrorMessage) {
-		for (const r of this.requests) {
-			this.reject(r, error)
-		}
-	}
-
 	public requestsN() {
 		return this.requests.length
 	}
+
+	public resetAndRejectAll() {
+		for (const s of this.sessions) {
+			s.disconnect()
+		}
+		wipeFullStorageV1()
+		for (const r of this.requests) {
+			this.reject(r, {code: -32000, message: "Disconnected"})
+		}
+	}
 }
 
-export const requestQueueGlobal = new RequestQueue()
+let _requestQueueGlobal: RequestQueue | undefined
+export const requestQueueGlobal = (): RequestQueue => {
+	if (!_requestQueueGlobal) {
+		const sessions = [
+			...initializeStoredSessionsV1(),
+		]
+		_requestQueueGlobal = new RequestQueue(sessions)
+	}
+	return _requestQueueGlobal
+}
+
+export const requestQueueNotifyN = (): number => {
+	const r = requestQueueGlobal()
+	r.removeDisconnectedSessions()
+	return r.requestsN()
+}
