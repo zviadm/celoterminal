@@ -4,7 +4,7 @@ import { Lock } from '@celo/base/lib/lock'
 import BigNumber from 'bignumber.js'
 import { BlockTransactionString } from 'web3-eth'
 
-import { Address, mainnetRegistriesAll, SwappaManager, swappaRouterV1Address } from '@terminal-fi/swappa'
+import { Address, mainnetRegistriesWhitelist, SwappaManager, swappaRouterV1Address } from '@terminal-fi/swappa'
 import { SwappaRouterV1, ABI as SwappaRouterV1ABI } from '@terminal-fi/swappa/dist/types/web3-v1-contracts/SwappaRouterV1'
 
 import { Account } from '../../../lib/accounts/accounts'
@@ -37,7 +37,7 @@ const managerGlobal = async (kit: ContractKit, tokenWhitelist?: Address[]): Prom
 		const match = matchLength && (!tokenWhitelist || tokenWhitelist.every((t) => _tokenWhitelistInitialized.has(t)))
 		if (!_manager || !match) {
 			const registries =
-				CFG().chainId === mainnetChainId ? mainnetRegistriesAll(kit) :
+				CFG().chainId === mainnetChainId ? mainnetRegistriesWhitelist(kit) :
 				[]
 				null
 			_manager = new SwappaManager(kit, routerAddr, registries)
