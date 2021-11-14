@@ -1,5 +1,6 @@
 import { ContractKit } from '@celo/contractkit'
 import { toTransactionObject } from '@celo/connect'
+import { concurrentMap } from '@celo/utils/lib/async'
 
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
@@ -37,20 +38,32 @@ const MultiSigApp = (props: {
 				return {}
 			}
 			const multiSig = await kit.contracts.getMultiSig(account.address)
-			const transactionsP = multiSig.getTransactions()
-			const owners = multiSig.getOwners()
-			const requiredSignatures = multiSig.getRequired()
-			const internalRequiredSignatures = multiSig.getInternalRequired()
+			const transactionsN = await multiSig.totalTransactionCount()
+			const [
+				_transactions,
+				owners,
+				requiredSignatures,
+				internalRequiredSignatures,
+			] = await Promise.all([
+				concurrentMap(
+					10,
+					Array.from(Array(transactionsN).keys()),
+					(idx) => { return multiSig.getTransaction(idx) }
+				),
+				multiSig.getOwners(),
+				multiSig.getRequired(),
+				multiSig.getInternalRequired(),
+			])
 
-			const transactions = (await transactionsP).map((t, idx) => ({...t, idx: idx}))
+			const transactions = _transactions.map((t, idx) => ({...t, idx: idx}))
 			const pendingTXsRaw = transactions.filter((t) => !t.executed)
 			const pendingTXs = await parseTXs(kit, pendingTXsRaw)
 			return {
 				transactions,
 				pendingTXs,
-				owners: await owners,
-				requiredSignatures: await requiredSignatures,
-				internalRequiredSignatures: await internalRequiredSignatures,
+				owners,
+				requiredSignatures,
+				internalRequiredSignatures,
 			}
 		},
 		[account]
