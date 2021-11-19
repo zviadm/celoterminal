@@ -118,7 +118,10 @@ const PortfolioApp = (props: {
 					<TableBody>
 						{fetched && balances &&
 						erc20s.map((erc20) => {
-							const balance = balances.get(erc20.address || erc20.symbol) || 0
+							const balance = balances.get(erc20.address || erc20.symbol) || new BigNumber(0)
+							if (balance.eq(0)) {
+								return <></>
+							}
 							const price = fetched.conversionRates.get(erc20.address || erc20.symbol)
 							const value = price && price.multipliedBy(balance).shiftedBy(-erc20.decimals)
 							const isCELO = erc20.symbol === "CELO" && !erc20.address
