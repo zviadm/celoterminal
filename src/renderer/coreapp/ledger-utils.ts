@@ -2,6 +2,7 @@ import { UserError } from "../../lib/error"
 
 export const transformError = (e: Error): Error => {
 	if (e.message.includes("NoDevice") ||
+		e.message.includes("cannot open device") ||
 		e.message.includes("Ledger device: UNKNOWN") ||
 		e.message.includes("Ledger device: INS_NOT_SUPPORTED")) {
 		return new UserError(
