@@ -19,31 +19,12 @@ interface RegisteredERC20 {
 
 const _erc20Registry: RegisteredERC20[] = [
 	{
-		name: "Savings CELO",
-		symbol: "sCELO",
-		decimals: 18,
+		name: "Fancy Hat",
+		symbol: "FAN",
+		decimals: 8,
 		conversion: convertSCELO,
 		addresses: {
-			mainnet: "0x2879BFD5e7c4EF331384E908aaA3Bd3014b703fA",
-			baklava: SavingsCELOAddressBaklava,
-			alfajores: SavingsCELOAddressAlfajores,
-		},
-	},
-	{
-		name: "Release Ube",
-		symbol: "rUBE",
-		decimals: 18,
-		addresses: {
-			mainnet: "0x5Ed248077bD07eE9B530f7C40BE0c1dAE4c131C0",
-		},
-	},
-	{
-		name: "Ubeswap LP Token (CELO+sCELO)",
-		symbol: "ULP-CELO+sCELO",
-		decimals: 18,
-		addresses: {
-			mainnet: "0xa813Bb1DF70128d629F1A41830578fA616dAEeEc",
-			alfajores: "0x58a3dc80EC8b6aE44AbD2e2b2A30F230b14B45c3",
+			mainnet: "0x236Af241E436E9caC0c7610831ac5ce2b9333AA3",
 		},
 	},
 ]
