@@ -43,12 +43,12 @@ const SelectErc20 = (props: {
 		<Select
 			id="erc20-select"
 			autoFocus
-			value={props.selected?.symbol || ""}
+			value={props.selected?.address || props.selected?.symbol || ""}
 			onChange={(event) => {
 				if (event.target.value === "add-token") {
 					setShowAddToken(true)
 				} else {
-					const selected = props.erc20s.find((e) => e.symbol === event.target.value)
+					const selected = props.erc20s.find((e) => e.address === event.target.value || e.symbol === event.target.value)
 					if (selected) {
 						props.onSelect(selected)
 					}
@@ -60,7 +60,7 @@ const SelectErc20 = (props: {
 						<MenuItem
 							key={erc20.address || erc20.symbol}
 							id={`erc20-${erc20.symbol}-item`}
-							value={erc20.symbol}>
+							value={erc20.address || erc20.symbol}>
 							<ListItemText
 								primary={erc20.symbol}
 								secondary={props.displayFullName ? erc20.name : undefined}

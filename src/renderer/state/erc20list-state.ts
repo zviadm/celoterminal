@@ -67,6 +67,15 @@ export const addCustomErc20 = (erc20: CustomErc20): RegisteredErc20 => {
 		return addRegisteredErc20(registeredErc20.symbol)
 	}
 	const list = customList()
+	const symbolConflict =
+		registeredErc20s.find((r) => r.symbol === erc20.symbol) ||
+		list.find((r) => r.symbol === erc20.symbol && r.address !== erc20.address)
+	if (symbolConflict) {
+		erc20 = {
+			...erc20,
+			symbol: `${erc20.symbol}-${erc20.address.substr(0, 6)}`,
+		}
+	}
 	const matchIdx = list.findIndex((l) => l.address.toLowerCase() === erc20.address)
 	if (matchIdx > -1) {
 		list.splice(matchIdx, 1, erc20)
