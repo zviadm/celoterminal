@@ -32,8 +32,8 @@
     }
   },
   "dependencies": {
-    "@celo/connect": "^1.2.4",
-    "@celo/contractkit": "^1.2.4",
+    "@celo/connect": "^1.5.0",
+    "@celo/contractkit": "^1.5.0",
     "@celo/wallet-ledger": "^1.2.4",
     "@celo/wallet-local": "^1.2.4",
     "@fontsource/roboto": "^4.1.0",
@@ -70,7 +70,9 @@
     "wcv2/types": "npm:@walletconnect/types@2.0.0-beta.19",
     "wcv2/utils": "npm:@walletconnect/utils@2.0.0-beta.19",
     "wcv2/**/@walletconnect/types": "npm:@walletconnect/types@2.0.0-beta.19",
-    "wcv2/**/@walletconnect/utils": "npm:@walletconnect/utils@2.0.0-beta.19"
+    "wcv2/**/@walletconnect/utils": "npm:@walletconnect/utils@2.0.0-beta.19",
+    "@celo/connect": "^1.5.0",
+    "@celo/contractkit": "^1.5.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
