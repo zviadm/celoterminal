@@ -80,10 +80,10 @@ const SendReceiveApp = (props: {
 			const maxBatchSize = 30 * 17280
 			let batchSize = 1000
 			let prevDeltaMs
-			for (let toBlock = blockN; toBlock > 0; toBlock -= batchSize) {
+			for (let toBlock = blockN; toBlock > 0; ) {
 				const startMs = Date.now()
 				const fromBlock = Math.max(toBlock - batchSize, 0)
-				log.debug(`send-receive: fetching approval data ${fromBlock}..${toBlock} (elapsed: ${Date.now()-t0}ms)...`)
+				log.info(`send-receive: fetching approval data ${fromBlock}..${toBlock} (elapsed: ${Date.now()-t0}ms)...`)
 				const [
 					spenderEvents,
 					ownerEvents,
@@ -96,7 +96,7 @@ const SendReceiveApp = (props: {
 				spenderEvents.forEach((e) => spenders.add(e.returnValues.spender))
 				ownerEvents.forEach((e) => owners.add(e.returnValues.owner))
 				if (c.isCancelled()) {
-					log.debug(`send-receive: cancelled fetching approval data`)
+					log.info(`send-receive: cancelled fetching approval data`)
 					break
 				}
 				if (Date.now() - t0 > 60 * 1000) {
@@ -105,6 +105,7 @@ const SendReceiveApp = (props: {
 					break
 				}
 				prevDeltaMs = Date.now() - startMs
+				toBlock -= batchSize
 				batchSize = prevDeltaMs < 5 * 1000 ? Math.min(batchSize * 2, maxBatchSize) : batchSize
 			}
 			return {
