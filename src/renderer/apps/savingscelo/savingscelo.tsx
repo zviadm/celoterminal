@@ -258,15 +258,7 @@ const SavingsCELOApp = (props: {
 						/>
 					</TabList>
 					<TabPanel value="deposit">
-						<Deposit
-							balance_CELO={fetched.balance_CELO}
-							ubeReserve_CELO={fetched.ubeReserves.reserve_CELO}
-							ubeReserve_sCELO={fetched.ubeReserves.reserve_sCELO}
-							savingsTotal_CELO={fetched.savingsTotals.celoTotal}
-							savingsTotal_sCELO={fetched.savingsTotals.savingsTotal}
-							ubeswapPoolURL={fetched.ubeswapPoolURL}
-							onDeposit={handleDeposit}
-						/>
+						<Deposit />
 					</TabPanel>
 					<TabPanel value="withdraw">
 						<Withdraw
