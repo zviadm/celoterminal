@@ -19,8 +19,8 @@ interface RegisteredERC20 {
 
 const _erc20Registry: RegisteredERC20[] = [
 	{
-		name: "Savings CELO",
-		symbol: "sCELO",
+		name: "Savings CELO (Deprecated)",
+		symbol: "sCELOxDEPRECATED",
 		decimals: 18,
 		conversion: convertSCELO,
 		addresses: {
@@ -38,8 +38,8 @@ const _erc20Registry: RegisteredERC20[] = [
 		},
 	},
 	{
-		name: "Ubeswap LP Token (CELO+sCELO)",
-		symbol: "ULP-CELO+sCELO",
+		name: "Ubeswap LP Token (CELO+sCELOxDEPRECATED)",
+		symbol: "ULP-CELO+sCELOxDEPRECATED",
 		decimals: 18,
 		addresses: {
 			mainnet: "0xa813Bb1DF70128d629F1A41830578fA616dAEeEc",

@@ -80,16 +80,6 @@ const SavingsCELOApp = (props: {
 			if (cb) { cb(e) }
 		}
 	}
-	const handleDeposit = (toDeposit_CELO: BigNumber, cb: (e?: Error) => void) => {
-		props.runTXs(
-			async (kit: ContractKit) => {
-				const sKit = await newSavingsCELOWithUbeKit(kit, savingsWithUbeAddress)
-				const tx = sKit.deposit()
-				return [{tx: tx, params: {value: toDeposit_CELO.toString(10)}}]
-			},
-			onFinishTXs(cb),
-		)
-	}
 	const handleWithdrawStart = (toWithdraw_CELO: BigNumber, cb: (e?: Error) => void) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
@@ -258,15 +248,7 @@ const SavingsCELOApp = (props: {
 						/>
 					</TabList>
 					<TabPanel value="deposit">
-						<Deposit
-							balance_CELO={fetched.balance_CELO}
-							ubeReserve_CELO={fetched.ubeReserves.reserve_CELO}
-							ubeReserve_sCELO={fetched.ubeReserves.reserve_sCELO}
-							savingsTotal_CELO={fetched.savingsTotals.celoTotal}
-							savingsTotal_sCELO={fetched.savingsTotals.savingsTotal}
-							ubeswapPoolURL={fetched.ubeswapPoolURL}
-							onDeposit={handleDeposit}
-						/>
+						<Deposit />
 					</TabPanel>
 					<TabPanel value="withdraw">
 						<Withdraw
