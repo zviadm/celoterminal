@@ -6,7 +6,9 @@ import { ConversionFunc, RegisteredErc20 } from "../core"
 export const convertSCELO: ConversionFunc = async (
 	kit: ContractKit, erc20: RegisteredErc20, amount: BigNumber) => {
 	switch (erc20.symbol) {
-	case "sCELO": {
+	case "sCELO":
+	case "sCELOxDEPRECATED":
+	{
 		const savingsKit = new SavingsKit(kit, erc20.address || "")
 		const celoAmt = await savingsKit.savingsToCELO(amount)
 		return {coreErc20: Token.CELO, amount: celoAmt}

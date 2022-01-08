@@ -30,7 +30,7 @@ export const useSavingsOnChainState = (
 			const sCELOasCELO = savingsToCELO(
 				balance_sCELO, savingsTotals.savingsTotal, savingsTotals.celoTotal)
 			if (balance_sCELO.gt(0)) {
-				addRegisteredErc20("sCELO")
+				addRegisteredErc20("sCELOxDEPRECATED")
 			}
 			const liquidityTotal_ULP = new BigNumber(await sKit.pair.methods.totalSupply().call())
 			const liquidityAmount = await _liquidityAmount
@@ -52,7 +52,7 @@ export const useSavingsOnChainState = (
 			const farmingBalance_ULP_CELO_ratio = farmingLiquidity_CELO.div(farmingBalance_ULPasCELO)
 
 			if (liquidityAmount.liquidity.gt(0) || farmingBalance_ULP.gt(0)) {
-				addRegisteredErc20("ULP-CELO+sCELO")
+				addRegisteredErc20("ULP-CELO+sCELOxDEPRECATED")
 			}
 			// TODO(zviad): is there alfajores link?
 			const ubeswapPoolURL = `https://info.ubeswap.org/pair/${sKit.pair.options.address}`
