@@ -80,16 +80,6 @@ const SavingsCELOApp = (props: {
 			if (cb) { cb(e) }
 		}
 	}
-	const handleDeposit = (toDeposit_CELO: BigNumber, cb: (e?: Error) => void) => {
-		props.runTXs(
-			async (kit: ContractKit) => {
-				const sKit = await newSavingsCELOWithUbeKit(kit, savingsWithUbeAddress)
-				const tx = sKit.deposit()
-				return [{tx: tx, params: {value: toDeposit_CELO.toString(10)}}]
-			},
-			onFinishTXs(cb),
-		)
-	}
 	const handleWithdrawStart = (toWithdraw_CELO: BigNumber, cb: (e?: Error) => void) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
