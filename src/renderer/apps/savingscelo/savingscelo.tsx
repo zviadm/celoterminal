@@ -51,7 +51,7 @@ const savingsWithUbeAddresses: {[key: string]: string} = {
 const savingsWithUbeAddress: string = savingsWithUbeAddresses[CFG().chainId]
 const sCELOUbeFarmAddress: string | undefined =
 	CFG().chainId === mainnetChainId ? "0xd4C9675b0AE1397fC5b2D3356736A02d86347f2d" : undefined
-const sCELO = registeredErc20s.find((e) => e.symbol === "sCELO")
+const sCELO = registeredErc20s.find((e) => e.symbol === "sCELOxDEPRECATED")
 
 const SavingsCELOApp = (props: {
 	accounts: Account[],
