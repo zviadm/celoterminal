@@ -6,26 +6,18 @@ import { stableTokens } from './config'
 import useLocalStorageState from '../../state/localstorage-state'
 import NumberInput from '../../components/number-input'
 import { fmtAmount } from '../../../lib/utils'
+import BigNumber from 'bignumber.js'
 
-const Deposit = (): JSX.Element => {
-	const [stableToken, setStableToken] = useLocalStorageState<StableToken>("terminal/mento/stable-token", StableToken.cUSD)
-	const stableNames = stableTokens.map((t) => t.symbol)
-		const handleChangeStable = (t: StableToken) => {
-		setStableToken(t)
-		}
+const Deposit = (
+	props: {
+		onApprove: (spender: string, amount: BigNumber) => void
+	}
+): JSX.Element => {
+
 	const [depositAmount, setDepositAmount] = React.useState("")
 	
 	return (
 		<Box display="flex" flexDirection="column">
-			<Select
-				value={stableToken}
-				onChange={(event) => { handleChangeStable(event.target.value as StableToken) }}>
-				{
-					stableNames.map((token) => (
-						<MenuItem value={token} key={token}>{token}</MenuItem>
-					))
-				}
-			</Select>
 			<NumberInput
 				id="sell-amount-input"
 				margin="normal"
@@ -47,4 +39,5 @@ const Deposit = (): JSX.Element => {
 		</Box>
 	)
 }
+
 export default Deposit

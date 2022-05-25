@@ -32,6 +32,16 @@ export const coreErc20_cEUR = {
 		alfajores: "0x10c892A6EC43a53E45D0B916B4b7D383B1b78C0F",
 	}
 }
+export const coreErc20_cREAL = {
+	name: "Celo Brazilian Real",
+	symbol: StableToken.cREAL,
+	decimals: coreErc20Decimals,
+	addresses: {
+		mainnet: "0xe8537a3d056DA446677B9E9d6c5dB704EaAb4787",
+		baklava: "0x0000000000000000000000000000000000000000",
+		alfajores: "0xE4D517785D091D3c54818832dB6094bcc2744545",
+	}
+}
 export const coreErc20s: {
 	readonly name: string,
 	readonly symbol: CeloTokenType,
@@ -45,6 +55,7 @@ export const coreErc20s: {
 	coreErc20_CELO,
 	coreErc20_cUSD,
 	coreErc20_cEUR,
+	coreErc20_cREAL,
 ]
 export const coreStableTokens = coreErc20s.filter((e) => e.symbol !== "CELO")
 
