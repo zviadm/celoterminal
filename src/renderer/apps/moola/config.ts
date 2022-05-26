@@ -12,4 +12,4 @@ export const moolaTokens: {
 		baklava: string,
 		alfajores: string,
 	}
-}[] = [...stableTokens]
+}[] = [...coreErc20s]

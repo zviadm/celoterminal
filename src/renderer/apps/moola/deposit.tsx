@@ -2,15 +2,16 @@ import * as React from 'react'
 import { Box, Select, Button, MenuItem } from '@material-ui/core'
 import { ContractKit, StableToken } from '@celo/contractkit'
 import Alert from '@material-ui/lab/Alert'
-import { stableTokens } from './config'
+import { stableTokens, moolaTokens } from './config'
 import useLocalStorageState from '../../state/localstorage-state'
 import NumberInput from '../../components/number-input'
 import { fmtAmount } from '../../../lib/utils'
 import BigNumber from 'bignumber.js'
+import { coreErc20Decimals, Erc20InfiniteAmount } from '../../../lib/erc20/core'
 
 const Deposit = (
 	props: {
-		onApprove: (spender: string, amount: BigNumber) => void
+		onApprove: (amount: BigNumber) => void
 	}
 ): JSX.Element => {
 
@@ -31,7 +32,7 @@ const Deposit = (
 					style={{ textTransform: "none", width: 150, marginTop: 30}}
 					variant="contained"
 					color="primary"
-					onClick={() => { console.log('Start deposit')}}
+					onClick={() => props.onApprove(new BigNumber(depositAmount).shiftedBy(coreErc20Decimals))} // TODO-- apporve lending pool
 					>
 					Deposit
 				</Button>

@@ -1,86 +1,54 @@
 import { ContractKit, StableToken } from '@celo/contractkit'
-import { valueToBigNumber } from '@celo/contractkit/lib/wrappers/BaseWrapper'
-import BigNumber from 'bignumber.js'
+// import { valueToBigNumber } from '@celo/contractkit/lib/wrappers/BaseWrapper'
+// import BigNumber from 'bignumber.js'
 import { BlockTransactionString } from 'web3-eth'
+import { coreErc20s, coreErc20Decimals, RegisteredErc20 } from '../../../lib/erc20/core'
 
 import useOnChainState from '../../state/onchain-state'
 import { Account } from '../../../lib/accounts/accounts'
 
 import * as React from 'react'
 import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
-
+import { AbiItem } from '@celo/connect'
+import { abi as LendingPoolABI } from '@aave/protocol-v2/artifacts/contracts/protocol/lendingpool/LendingPool.sol/LendingPool.json';
+import { abi as LendingPoolAddressesProviderABI } from '@aave/protocol-v2/artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const useExchangeOnChainState = (account: Account, stableToken: StableToken) => {
+export const useUserOnChainState = (account: Account, token: string) => {
+	// return useOnChainState(React.useCallback(
+	// 	async (kit: ContractKit) => {
+	// 		const LendingPoolAddressesProvider = new kit.web3.eth.Contract(LendingPoolAddressesProviderABI as AbiItem[], '')
+	// 		const LendingPoolAddress = await LendingPoolAddressesProvider.methods.getLendingPool().call();
+	// 		const LendingPool = new kit.web3.eth.Contract(LendingPoolABI as AbiItem[], LendingPoolAddress);
+	// 		// TODO-- fetch user account status 
+	// 		return {
+	// 			LendingPool,
+	// 			LendingPoolAddress,
+	// 		}
+	// 	},
+	// 	[account, token]
+	// ), {
+	// 	// Faster constant refetch to continue updating the exchange rate.
+	// 	autoRefetchSecs: 20,
+	// })
+
+
 	return useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
-			const exchange = await kit.contracts.getExchange(stableToken)
+
 			const goldToken = await kit.contracts.getGoldToken()
-			const stableTokenC = await kit.contracts.getStableToken(stableToken)
-
-			const celoBalance = goldToken.balanceOf(account.address)
-			const stableBalance = stableTokenC.balanceOf(account.address)
-
-			const spread = exchange.spread()
-			const buckets = exchange.getBuyAndSellBuckets(true)
-
-			const [stableBucket, celoBucket] = await buckets
+			const LendingPoolAddressesProvider = new kit.web3.eth.Contract(LendingPoolAddressesProviderABI as AbiItem[], '0xb3072f5F0d5e8B9036aEC29F37baB70E86EA0018')
+			const lendingPoolAddress = await LendingPoolAddressesProvider.methods.getLendingPool().call();
+			const LendingPool = new kit.web3.eth.Contract(LendingPoolABI as AbiItem[], lendingPoolAddress)
 			return {
-				celoBalance: await celoBalance,
-				stableBalance: await stableBalance,
-				spread: await spread,
-				celoBucket,
-				stableBucket,
+				goldToken,
+				LendingPoolAddressesProvider,
+				lendingPoolAddress,
+				LendingPool
 			}
 		},
-		[account, stableToken]
+		[account, token]
 	), {
 		// Faster constant refetch to continue updating the exchange rate.
 		autoRefetchSecs: 20,
 	})
 }
-
-// export interface TradeEvent {
-// 	blockNumber: number
-// 	timestamp: Date
-// 	txHash: string
-// 	exchanger: string
-// 	sellAmount: BigNumber
-// 	buyAmount: BigNumber
-// 	soldGold: boolean
-// }
-
-// // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-// export const useExchangeHistoryState = (account: Account, stableToken: StableToken) => {
-// 	const fetchCallback = React.useCallback(
-// 		async (
-// 			kit: ContractKit,
-// 			fromBlock: number,
-// 			toBlock: number,
-// 			latestBlock: BlockTransactionString): Promise<TradeEvent[]> => {
-// 			const exchangeDirect = await kit._web3Contracts.getExchange(stableToken)
-// 			const events = await exchangeDirect.getPastEvents("Exchanged", {
-// 				fromBlock,
-// 				toBlock,
-// 				filter: { exchanger: account.address }
-// 			})
-// 			return events.map((e) => ({
-// 					blockNumber: e.blockNumber,
-// 					// Estimate timestamp from just `latestBlock`, since fetching all blocks
-// 					// would be prohibitevly expensive.
-// 					timestamp: estimateTimestamp(latestBlock, e.blockNumber),
-// 					txHash: e.transactionHash,
-// 					exchanger: e.returnValues.exchanger,
-// 					sellAmount: valueToBigNumber(e.returnValues.sellAmount),
-// 					buyAmount: valueToBigNumber(e.returnValues.buyAmount),
-// 					soldGold: e.returnValues.soldGold,
-// 			}))
-// 		}, [account, stableToken],
-// 	)
-
-// 	return useEventHistoryState(
-// 		fetchCallback, {
-// 			maxHistoryDays: 7,
-// 			maxEvents: 100,
-// 		},
-// 	)
-// }

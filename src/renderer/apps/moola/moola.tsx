@@ -5,7 +5,7 @@ import Erc20Contract, { newErc20 } from '../../../lib/erc20/erc20-contract'
 import * as React from "react";
 import { Box, Tab, Typography, Button, Tooltip, Select, MenuItem } from "@material-ui/core";
 import HelpOutline from "@material-ui/icons/HelpOutline";
-import { stableTokens } from './config'
+import { stableTokens, moolaTokens } from './config'
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definition'
 
@@ -24,7 +24,7 @@ import TabList from '@material-ui/lab/TabList'
 import TabPanel from '@material-ui/lab/TabPanel'
 import { coreErc20s, coreErc20Decimals, RegisteredErc20 } from '../../../lib/erc20/core'
 import { useErc20List } from '../../state/erc20list-state'
-// import { useExchangeHistoryState, useExchangeOnChainState } from './state'
+import { useUserOnChainState } from './state'
 
 const MoolaApp = (props: {
 	accounts: Account[],
@@ -33,37 +33,34 @@ const MoolaApp = (props: {
 }): JSX.Element => {
 	const [tab, setTab] = useLocalStorageState("terminal/moola/tab", "deposit")
 	const account = props.selectedAccount
-	// const {
-	// 	isFetching,
-	// 	fetched,
-	// 	refetch,
-	// 	} = useExchangeOnChainState(account, stableToken)
-	
-	// const refetchAll = () => {
-	// 	refetch()
-	// 	exchangeHistory.refetch()
-	// }
+
+
 	const runTXs = (f: TXFunc) => {
 		props.runTXs(f, (e?: Error) => {
-			// refetchAll()
+			refetch()
 			if (!e) {
 				console.log("add reset actions here //TODO--")
 			}
 		})
 	}
-	const erc20List = useErc20List()
-	const [selectedToken, setSelectedToken] = useLocalStorageState("terminal/moola/erc20", erc20List.erc20s[0])
-	console.log('selectedToken :>> ', selectedToken);
-	const tokenNames = stableTokens.map((t) => t.symbol)
-	const handleSelectToken = (t: RegisteredErc20) => {
-		setSelectedToken(t)
-	}
 	
+	const erc20List = useErc20List()
+	const [selectedToken, setSelectedToken] = useLocalStorageState("terminal/moola/erc20", erc20List.erc20s[0].symbol)
 
+	const tokenNames = moolaTokens.map((t) => t.symbol)
+
+	const {
+			isFetching,
+			fetched,
+			refetch,
+	} = useUserOnChainState(account, selectedToken) 
+	
 	const handleApprove = (spender: string, amount: BigNumber) => {
+		const token = erc20List.erc20s.find(e => e.symbol === selectedToken)
+
 		runTXs(
 			async (kit: ContractKit) => {
-				const contract = await newErc20(kit, selectedToken)
+				const contract = await newErc20(kit, token!)
 				const tx = contract.approve(spender, amount)
 				return [{tx: tx}]
 			}
@@ -72,7 +69,11 @@ const MoolaApp = (props: {
 
 	return (
 		<AppContainer>
-			<AppHeader app={Moola} />
+			<AppHeader
+				app={Moola}
+				isFetching={isFetching}
+				refetch={refetch}
+			/>
 			<AppSection>
 				<Box
 					marginTop={1}
@@ -80,7 +81,7 @@ const MoolaApp = (props: {
 					<Select
 						style={{ width: "100%"}}
 						value={selectedToken}
-						onChange={(event) => { handleSelectToken(event.target.value as RegisteredErc20) }}>
+						onChange={(event) => { setSelectedToken(event.target.value) }}>
 						{
 							tokenNames.map((token) => (
 								<MenuItem value={token} key={token}>{token}</MenuItem>
@@ -104,7 +105,7 @@ const MoolaApp = (props: {
 						/>
 					</TabList>
 					<TabPanel value="deposit">
-						<Deposit onApprove={handleApprove} />
+						<Deposit onApprove={(amount: BigNumber) => handleApprove(fetched?.lendingPoolAddress, amount)} />
 					</TabPanel>
 					<TabPanel value="withdraw">
 						<Withdraw />
