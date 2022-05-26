@@ -8,10 +8,11 @@ import HelpOutline from "@material-ui/icons/HelpOutline";
 import { stableTokens, moolaTokens } from './config'
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definition'
-
+import { AbiItem, toTransactionObject } from '@celo/connect'
 import AppHeader from "../../components/app-header";
 import AppSection from "../../components/app-section";
 import AppContainer from "../../components/app-container";
+import { selectAddressOrThrow } from '../../../lib/cfg';
 
 import Deposit from './deposit';
 import Withdraw from './withdraw';
@@ -26,6 +27,9 @@ import { coreErc20s, coreErc20Decimals, RegisteredErc20 } from '../../../lib/erc
 import { useErc20List } from '../../state/erc20list-state'
 import { useUserOnChainState } from './state'
 
+import { abi as LendingPoolABI } from '@aave/protocol-v2/artifacts/contracts/protocol/lendingpool/LendingPool.sol/LendingPool.json';
+import { abi as LendingPoolAddressesProviderABI } from '@aave/protocol-v2/artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json';
+
 const MoolaApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
@@ -34,16 +38,6 @@ const MoolaApp = (props: {
 	const [tab, setTab] = useLocalStorageState("terminal/moola/tab", "deposit")
 	const account = props.selectedAccount
 
-
-	const runTXs = (f: TXFunc) => {
-		props.runTXs(f, (e?: Error) => {
-			refetch()
-			if (!e) {
-				console.log("add reset actions here //TODO--")
-			}
-		})
-	}
-	
 	const erc20List = useErc20List()
 	const [selectedToken, setSelectedToken] = useLocalStorageState("terminal/moola/erc20", erc20List.erc20s[0].symbol)
 
@@ -54,15 +48,45 @@ const MoolaApp = (props: {
 			fetched,
 			refetch,
 	} = useUserOnChainState(account, selectedToken) 
-	
-	const handleApprove = (spender: string, amount: BigNumber) => {
-		const token = erc20List.erc20s.find(e => e.symbol === selectedToken)
 
-		runTXs(
+	const handleDeposit = (amount: BigNumber) => {
+		props.runTXs(
 			async (kit: ContractKit) => {
-				const contract = await newErc20(kit, token!)
-				const tx = contract.approve(spender, amount)
-				return [{tx: tx}]
+				if (!fetched) return [];
+
+				// approve
+				const token = erc20List.erc20s.find(e => e.symbol === selectedToken)
+				const tokenContract = await newErc20(kit, token!)
+				console.log('approve :>> ', fetched.lendingPoolAddress, amount);
+				const txApprove = tokenContract.approve(fetched.lendingPoolAddress, amount)
+
+				// deposit
+				const tokenAddress = selectAddressOrThrow(token.addresses);
+				const LendingPool = new kit.web3.eth.Contract(LendingPoolABI as AbiItem[], fetched.lendingPoolAddress)
+				const txDeposit =	toTransactionObject(
+					kit.connection,
+					LendingPool.methods.deposit(tokenAddress, amount, account.address, 0)
+				)
+
+				return [{ tx: txApprove}, { tx: txDeposit}]
+			},
+		() => { refetch() })
+	}
+
+	const handleWithdraw = (amount: BigNumber) => {
+		props.runTXs(
+			async (kit: ContractKit) => {
+				if (!fetched) return [];
+
+				const token = erc20List.erc20s.find(e => e.symbol === selectedToken)
+				const tokenAddress = selectAddressOrThrow(token.addresses);
+				const LendingPool = new kit.web3.eth.Contract(LendingPoolABI as AbiItem[], fetched.lendingPoolAddress)
+				const tx =	toTransactionObject(
+					kit.connection,
+					LendingPool.methods.withdraw(tokenAddress, amount, account.address)
+				)
+
+				return [{ tx }];
 			}
 		)
 	}
@@ -105,10 +129,12 @@ const MoolaApp = (props: {
 						/>
 					</TabList>
 					<TabPanel value="deposit">
-						<Deposit onApprove={(amount: BigNumber) => handleApprove(fetched?.lendingPoolAddress, amount)} />
+						<Deposit
+							onDeposit={(amount: BigNumber) => handleDeposit(amount)}
+						/>
 					</TabPanel>
 					<TabPanel value="withdraw">
-						<Withdraw />
+						<Withdraw onWithdraw={(amount: BigNumber) => handleWithdraw(amount) }/>
 					</TabPanel>
 					<TabPanel value="borrow">
 						<Borrow />

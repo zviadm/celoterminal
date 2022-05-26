@@ -11,12 +11,12 @@ import { coreErc20Decimals, Erc20InfiniteAmount } from '../../../lib/erc20/core'
 
 const Deposit = (
 	props: {
-		onApprove: (amount: BigNumber) => void
+		onDeposit: (amount: BigNumber) => void
 	}
 ): JSX.Element => {
 
 	const [depositAmount, setDepositAmount] = React.useState("")
-	
+
 	return (
 		<Box display="flex" flexDirection="column">
 			<NumberInput
@@ -32,7 +32,7 @@ const Deposit = (
 					style={{ textTransform: "none", width: 150, marginTop: 30}}
 					variant="contained"
 					color="primary"
-					onClick={() => props.onApprove(new BigNumber(depositAmount).shiftedBy(coreErc20Decimals))} // TODO-- apporve lending pool
+					onClick={() => props.onDeposit(new BigNumber(depositAmount).shiftedBy(coreErc20Decimals))} // TODO-- apporve lending pool
 					>
 					Deposit
 				</Button>
