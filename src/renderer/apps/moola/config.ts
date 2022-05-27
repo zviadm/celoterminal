@@ -3,6 +3,14 @@ import { CeloTokenType, ContractKit, StableToken, Token } from "@celo/contractki
 
 export const stableTokens = coreErc20s.filter((e) => e.symbol !== "CELO")
 
+export const availableRateMode: {
+	readonly stable: number,
+	readonly variable: number,
+} = {
+	'stable': 1,
+	'variable': 2
+}
+
 export const moolaTokens: {
 	readonly name: string,
 	readonly symbol: CeloTokenType,

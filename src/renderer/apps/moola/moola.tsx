@@ -57,7 +57,6 @@ const MoolaApp = (props: {
 				// approve
 				const token = erc20List.erc20s.find(e => e.symbol === selectedToken)
 				const tokenContract = await newErc20(kit, token!)
-				console.log('approve :>> ', fetched.lendingPoolAddress, amount);
 				const txApprove = tokenContract.approve(fetched.lendingPoolAddress, amount)
 
 				// deposit
@@ -87,6 +86,47 @@ const MoolaApp = (props: {
 				)
 
 				return [{ tx }];
+			}
+		)
+	}
+
+	const handleBorrow = (rateMode: number, amount: BigNumber) => {
+		props.runTXs(
+			async (kit: ContractKit) => {
+				if (!fetched) return [];
+
+				const token = erc20List.erc20s.find(e => e.symbol === selectedToken)
+				const tokenAddress = selectAddressOrThrow(token.addresses);
+				const LendingPool = new kit.web3.eth.Contract(LendingPoolABI as AbiItem[], fetched.lendingPoolAddress)
+				const tx =	toTransactionObject(
+					kit.connection,
+					LendingPool.methods.borrow(tokenAddress, amount, rateMode, 0, account.address)
+				)
+
+				return [{ tx }];
+			}
+		)
+	}
+
+	const handleRepay = (rateMode: number, amount: BigNumber) => {
+		props.runTXs(
+			async (kit: ContractKit) => {
+				if (!fetched) return [];
+
+				// approve
+				const token = erc20List.erc20s.find(e => e.symbol === selectedToken)
+				const tokenContract = await newErc20(kit, token!)
+				const txApprove = tokenContract.approve(fetched.lendingPoolAddress, amount)
+			
+				// repay
+				const tokenAddress = selectAddressOrThrow(token.addresses);
+				const LendingPool = new kit.web3.eth.Contract(LendingPoolABI as AbiItem[], fetched.lendingPoolAddress)
+				const txRepay =	toTransactionObject(
+					kit.connection,
+					LendingPool.methods.repay(tokenAddress, amount, rateMode, account.address)
+				)
+
+				return [{tx: txApprove}, { tx: txRepay }];
 			}
 		)
 	}
@@ -130,17 +170,17 @@ const MoolaApp = (props: {
 					</TabList>
 					<TabPanel value="deposit">
 						<Deposit
-							onDeposit={(amount: BigNumber) => handleDeposit(amount)}
+							onDeposit={handleDeposit}
 						/>
 					</TabPanel>
 					<TabPanel value="withdraw">
-						<Withdraw onWithdraw={(amount: BigNumber) => handleWithdraw(amount) }/>
+						<Withdraw onWithdraw={handleWithdraw}/>
 					</TabPanel>
 					<TabPanel value="borrow">
-						<Borrow />
+						<Borrow onBorrow={handleBorrow} />
 					</TabPanel>
 					<TabPanel value="repay">
-						<Repay />
+						<Repay onRepay={handleRepay} />
 				</TabPanel>
 				</AppSection>
 				</TabContext>
