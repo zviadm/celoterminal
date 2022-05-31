@@ -40,14 +40,15 @@ const MoolaApp = (props: {
 
 	const erc20List = useErc20List()
 	const [selectedToken, setSelectedToken] = useLocalStorageState("terminal/moola/erc20", erc20List.erc20s[0].symbol)
+	const tokenInfo = erc20List.erc20s.find(e => e.symbol === selectedToken)
 
 	const tokenNames = moolaTokens.map((t) => t.symbol)
-
+	const tokenAddress = selectAddressOrThrow(tokenInfo.addresses);
 	const {
 			isFetching,
 			fetched,
 			refetch,
-	} = useUserOnChainState(account, selectedToken) 
+	} = useUserOnChainState(account, tokenAddress) 
 
 	const handleDeposit = (amount: BigNumber) => {
 		props.runTXs(
@@ -55,12 +56,12 @@ const MoolaApp = (props: {
 				if (!fetched) return [];
 
 				// approve
-				const token = erc20List.erc20s.find(e => e.symbol === selectedToken)
-				const tokenContract = await newErc20(kit, token!)
+				
+				const tokenContract = await newErc20(kit, tokenInfo!)
 				const txApprove = tokenContract.approve(fetched.lendingPoolAddress, amount)
 
 				// deposit
-				const tokenAddress = selectAddressOrThrow(token.addresses);
+				
 				const LendingPool = new kit.web3.eth.Contract(LendingPoolABI as AbiItem[], fetched.lendingPoolAddress)
 				const txDeposit =	toTransactionObject(
 					kit.connection,
@@ -78,7 +79,7 @@ const MoolaApp = (props: {
 				if (!fetched) return [];
 
 				const token = erc20List.erc20s.find(e => e.symbol === selectedToken)
-				const tokenAddress = selectAddressOrThrow(token.addresses);
+				const tokenAddress = selectAddressOrThrow(tokenInfo.addresses);
 				const LendingPool = new kit.web3.eth.Contract(LendingPoolABI as AbiItem[], fetched.lendingPoolAddress)
 				const tx =	toTransactionObject(
 					kit.connection,
@@ -130,6 +131,8 @@ const MoolaApp = (props: {
 			}
 		)
 	}
+
+	console.log('fetched :>> ', fetched);
 
 	return (
 		<AppContainer>
