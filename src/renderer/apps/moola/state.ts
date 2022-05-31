@@ -14,6 +14,7 @@ import { abi as LendingPoolAddressesProviderABI } from '@aave/protocol-v2/artifa
 import { abi as LendingPoolABI } from '@aave/protocol-v2/artifacts/contracts/protocol/lendingpool/LendingPool.sol/LendingPool.json';
 import { abi as LendingPoolDataProviderABI } from '@aave/protocol-v2/artifacts/contracts/misc/AaveProtocolDataProvider.sol/AaveProtocolDataProvider.json';
 import { useErc20List } from '../../state/erc20list-state'
+import { ether, ray } from './config';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useUserOnChainState = (account: Account, tokenAddress: string) => {
@@ -37,36 +38,45 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 			}
 		},
 		[account, tokenAddress]
-	), {
-		// Faster constant refetch to continue updating the exchange rate.
-		autoRefetchSecs: 20,
-	})
+	), {})
 }
 
 function formattedUserAccountData(data) { // TODO-- add type
 	return {
-		 TotalCollateral: data.totalCollateralETH,
-      TotalDebt: data.totalDebtETH,
-      AvailableBorrow: data.availableBorrowsETH,
-      LiquidationThreshold: `${new BigNumber(data.currentLiquidationThreshold).div(new BigNumber(100))}%`,
-      LoanToValue: `${new BigNumber(data.ltv).div(new BigNumber(100))}%`,
-      HealthFactor: data.healthFactor.length > 30 ? 'SAFE' : data.healthFactor,
+      TotalCollateral: print(data.totalCollateralETH),
+      TotalDebt: print(data.totalDebtETH),
+      AvailableBorrow: print(data.availableBorrowsETH),
+      LiquidationThreshold: `${BN(data.currentLiquidationThreshold).div(BN(100))}%`,
+      LoanToValue: `${BN(data.ltv).div(BN(100))}%`,
+      HealthFactor: data.healthFactor.length > 30 ? 'SAFE' : print(data.healthFactor),
 	}
 }
 
 function formattedUserReserveData(userData, reserveData) { // TODO-- add type
 	return {
-      deposited:userData.currentATokenBalance,
-      borrowedStable:userData.principalStableDebt,
-      debtStable:userData.currentStableDebt,
-      borrowRateStable: userData.stableBorrowRate,
-      borrowedVariable:userData.scaledVariableDebt,
-      debtVariable:userData.currentVariableDebt,
-      variableRate: reserveData.variableBorrowRate,
-			liquidityRate: userData.liquidityRate,
-			LastUpdateStable: new Date(
-        new BigNumber(userData.stableRateLastUpdated).multipliedBy(1000).toNumber()
-      ).toLocaleString(),
-      isCollateral: userData.usageAsCollateralEnabled,
+      Deposited: print(userData.currentATokenBalance),
+      BorrowedStable: print(userData.principalStableDebt),
+      DebtStable: print(userData.currentStableDebt),
+      BorrowRateStable: printRayRate(userData.stableBorrowRate),
+      BorrowedVariable: print(userData.scaledVariableDebt),
+      DebtVariable: print(userData.currentVariableDebt),
+      VariableRate: printRayRate(reserveData.variableBorrowRate),
+      LiquidityRate: printRayRate(userData.liquidityRate),
+      // LastUpdateStable: new Date(
+      //   BN(userData.stableRateLastUpdated).multipliedBy(1000).toNumber()
+      // ).toLocaleString(),
+      IsCollateral: userData.usageAsCollateralEnabled ? 'YES' : 'NO',
     };
+}
+
+function BN(num: number) {
+  return new BigNumber(num);
+}
+
+function print(num: number) {
+  return BN(num).dividedBy(ether).toFixed();
+}
+
+function printRayRate(num: number) {
+  return BN(num).dividedBy(ray).multipliedBy(BN(100)).toFixed(2) + '%';
 }

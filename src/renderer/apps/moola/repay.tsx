@@ -8,7 +8,8 @@ import { availableRateMode } from './config';
 
 const Repay = (
 		props: {
-		onRepay: (rateMode: number, amount: BigNumber) => void
+		onRepay: (rateMode: number, amount: BigNumber) => void,
+		tokenBalance: BigNumber,
 	}
 ): JSX.Element => {
 	const [rateMode, setRateMode] = React.useState(1)
@@ -33,6 +34,7 @@ const Repay = (
 				value={repayAmount}
 				placeholder="0.0"
 				onChangeValue={setRepayAmount}
+				maxValue={props.tokenBalance}
 			/>
 			<div style={{ textAlign: "right"}}>
 				<Button

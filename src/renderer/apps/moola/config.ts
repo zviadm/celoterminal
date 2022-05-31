@@ -21,3 +21,6 @@ export const moolaTokens: {
 		alfajores: string,
 	}
 }[] = [...coreErc20s]
+
+export const ether = '1000000000000000000';
+export const ray = '1000000000000000000000000000';

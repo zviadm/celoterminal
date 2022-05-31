@@ -11,7 +11,8 @@ import { coreErc20Decimals, Erc20InfiniteAmount } from '../../../lib/erc20/core'
 
 const Deposit = (
 	props: {
-		onDeposit: (amount: BigNumber) => void
+		onDeposit: (amount: BigNumber) => void,
+		tokenBalance: BigNumber,
 	}
 ): JSX.Element => {
 
@@ -26,6 +27,7 @@ const Deposit = (
 				value={depositAmount}
 				placeholder="0.0"
 				onChangeValue={setDepositAmount}
+				maxValue={props.tokenBalance}
 			/>
 			<div style={{ textAlign: "right"}}>
 				<Button
