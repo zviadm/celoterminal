@@ -4,6 +4,7 @@ import Alert from '@material-ui/lab/Alert'
 import NumberInput from '../../components/number-input'
 import BigNumber from 'bignumber.js'
 import { coreErc20Decimals, Erc20InfiniteAmount } from '../../../lib/erc20/core'
+import { toBigNumberWei } from './moola-helper'
 
 const Withdraw = (
 	props: {
@@ -27,7 +28,7 @@ const Withdraw = (
 					style={{ textTransform: "none", width: 150, marginTop: 30}}
 					variant="contained"
 					color="primary"
-					onClick={() => props.onWithdraw(new BigNumber(withdrawAmount).shiftedBy(coreErc20Decimals))} // TODO-- apporve lending pool
+					onClick={() => props.onWithdraw(toBigNumberWei(withdrawAmount))} // TODO-- apporve lending pool
 					>
 					Withdraw
 				</Button>

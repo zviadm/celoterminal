@@ -32,7 +32,7 @@ const AccountStatus = (
 				<TableBody>
 					{Object.keys(props.userReserveData || {}).map((key) => (<TableRow>
 							<TableCell>{key}</TableCell>
-							<TableCell>{props.userReserveData[key]}</TableCell>
+							<TableCell>{props.userReserveData[key as keyof typeof props.userReserveData]}</TableCell>
 						</TableRow>)
 					)}
 				</TableBody>

@@ -8,6 +8,7 @@ import NumberInput from '../../components/number-input'
 import { fmtAmount } from '../../../lib/utils'
 import BigNumber from 'bignumber.js'
 import { coreErc20Decimals, Erc20InfiniteAmount } from '../../../lib/erc20/core'
+import { toBigNumberWei } from './moola-helper'
 
 const Deposit = (
 	props: {
@@ -34,7 +35,7 @@ const Deposit = (
 					style={{ textTransform: "none", width: 150, marginTop: 30}}
 					variant="contained"
 					color="primary"
-					onClick={() => props.onDeposit(new BigNumber(depositAmount).shiftedBy(coreErc20Decimals))} // TODO-- apporve lending pool
+					onClick={() => props.onDeposit(toBigNumberWei(depositAmount))} // TODO-- apporve lending pool
 					>
 					Deposit
 				</Button>
