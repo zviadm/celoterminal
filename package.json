@@ -32,7 +32,6 @@
     }
   },
   "dependencies": {
-    "@aave/protocol-v2": "^1.0.1",
     "@celo/connect": "^1.5.0",
     "@celo/contractkit": "^1.5.0",
     "@celo/wallet-ledger": "^1.2.4",

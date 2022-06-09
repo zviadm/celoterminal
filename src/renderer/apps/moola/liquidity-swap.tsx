@@ -14,28 +14,16 @@ import { newErc20, erc20StaticAddress } from '../../../lib/erc20/erc20-contract'
 
 const LiquiditySwap = (
 		props: {
-		onLiquiditySwap: (assetFromSymbol: string, assetToSymbol: string, amount: BigNumber) => void,
+		onLiquiditySwap: (assetToSymbol: string, amount: BigNumber) => void,
 		tokenMenuItems: JSX.Element[],
 	}
 ) => {
 	
 	const [amount, setAmount] = React.useState("")
-	const [fromToken, setFromToken] = React.useState(moolaTokens[0].symbol)
 	const [toToken, setToToken] = React.useState(moolaTokens[1].symbol)
 
 	return (
 		<Box display="flex" flexDirection="column">
-			<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-				<Box style={{ width: '45%' }}>
-					<InputLabel>Asset From</InputLabel>
-					<Select
-						style={{ width: '100%'}}	
-						value={fromToken}
-						onChange={(event) => { setFromToken(event.target.value as CeloTokenType) }}>
-						{props.tokenMenuItems}
-						</Select>
-				</Box>
-				<Box style={{ width: '45%' }}>
 					<InputLabel>Asset To</InputLabel>
 					<Select
 						style={{ width: '100%'}}	
@@ -43,8 +31,6 @@ const LiquiditySwap = (
 						onChange={(event) => { setToToken(event.target.value as CeloTokenType) }}>
 						{props.tokenMenuItems}
 						</Select>
-					</Box>
-			</div>
 			<NumberInput
 				id="liquidity-swap-amount"
 				margin="normal"
@@ -58,7 +44,7 @@ const LiquiditySwap = (
 					style={{ textTransform: "none", width: 150, marginTop: 30}}
 					variant="contained"
 					color="primary"
-					onClick={() => props.onLiquiditySwap(fromToken, toToken, toBigNumberWei(amount))}
+					onClick={() => props.onLiquiditySwap(toToken, toBigNumberWei(amount))}
 					>
 					Swap
 				</Button>

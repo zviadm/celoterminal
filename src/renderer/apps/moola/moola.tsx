@@ -1,17 +1,16 @@
 import { Moola } from "./def";
 import BigNumber from 'bignumber.js'
-import { ContractKit } from '@celo/contractkit'
+import { CeloTokenType, ContractKit } from '@celo/contractkit'
 import * as React from "react";
 import { Box, Tab, Typography, Button, Tooltip, Select, MenuItem } from "@material-ui/core";
-import { moolaTokens, TokenMenuItem } from './config'
+import { moolaTokens } from './config'
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definition'
 import { newErc20, erc20StaticAddress } from '../../../lib/erc20/erc20-contract'
-import { AbiItem, toTransactionObject } from '@celo/connect'
+import { AbiItem, toTransactionObject, CeloTransactionObject } from '@celo/connect'
 import AppHeader from "../../components/app-header";
 import AppSection from "../../components/app-section";
 import AppContainer from "../../components/app-container";
-import { selectAddressOrThrow } from '../../../lib/cfg';
 import SectionTitle from '../../components/section-title'
 
 import Deposit from './deposit';
@@ -30,14 +29,16 @@ import { useErc20List } from '../../state/erc20list-state'
 import { useUserOnChainState } from './state'
 import useOnChainState from '../../state/onchain-state'
 
-import { abi as LendingPoolABI } from '@aave/protocol-v2/artifacts/contracts/protocol/lendingpool/LendingPool.sol/LendingPool.json';
-import { abi as LendingPoolDataProviderABI } from '@aave/protocol-v2/artifacts/contracts/misc/AaveProtocolDataProvider.sol/AaveProtocolDataProvider.json';
-import { abi as repayDelegationABI} from './abi/RepayDelegation.json';
+import { abi as LendingPoolABI } from './abi/LendingPool.json';
+import { abi as LendingPoolDataProviderABI } from './abi/DataProvider.json';
 import { abi as AutoRepayABI} from './abi/AutoRepay.json';
 import { abi as MTokenABI} from './abi/Mtoken.json';
+import { abi as DebtTokenABI} from './abi/DebtToken.json';
 import { abi as PriceOracleABI } from './abi/PriceOracle.json';
+import { abi as UbeswapABI } from './abi/Ubeswap.json';
+import { abi as RepayAdapterABI } from './abi/RepayAdapter.json';
 
-import { BN, getTokenToSwapPrice, ALLOWANCE_THRESHOLD, MAX_UINT_256, buildLiquiditySwapParams, ZERO_ADDRESS } from './moola-helper';
+import { BN, getTokenToSwapPrice, ALLOWANCE_THRESHOLD, MAX_UINT_256, buildLiquiditySwapParams, buildSwapAndRepayParams, ZERO_HASH, userAccountData, userReserveData } from './moola-helper';
 
 const MoolaApp = (props: {
 	accounts: Account[],
@@ -174,15 +175,19 @@ const MoolaApp = (props: {
 		)
 	}
 
-	const handleRepayFor = (delegatorAddress: string,  rateMode: number, amount: BigNumber) => {
+	const handleRepayFor = (repayForAddress: string,  rateMode: number, amount: BigNumber) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
 				if (isFetching) return [];
 
-				const repayDelegatorHelperContract = new kit.web3.eth.Contract(repayDelegationABI as AbiItem[], userOnchainState.fetched!.repayDelegationHelperAddress);
-				// repayDelegatorHelperContract.
+								
+				const tokenContract = await newErc20(kit, tokenInfo!)
+				const txApprove = tokenContract.approve(userOnchainState.fetched!.lendingPoolAddress, amount)
 
-				return []
+				const LendingPool = new kit.web3.eth.Contract(LendingPoolABI as AbiItem[], userOnchainState.fetched!.lendingPoolAddress)
+				const txRepay = toTransactionObject(kit.connection, LendingPool.methods.repay(tokenAddress, amount, rateMode, repayForAddress))
+
+				return [{tx: txApprove}, { tx: txRepay }]
 			},
 			() => {userOnchainState.refetch()}
 		)
@@ -192,8 +197,15 @@ const MoolaApp = (props: {
 		props.runTXs(
 			async (kit: ContractKit) => {
 				if (isFetching) return [];
-				// TODO-- approve debt token
-				return []
+				
+				const LendingPoolDataProvider = new kit.web3.eth.Contract(LendingPoolDataProviderABI as AbiItem[], userOnchainState.fetched!.lendingPoolDataProviderAddress)
+				const reserveTokens = await LendingPoolDataProvider.methods.getReserveTokensAddresses(tokenAddress).call();
+				const key = rateMode === 1 ? 'stableDebtTokenAddress' : 'variableDebtTokenAddress';
+				const debtTokenContract = new kit.web3.eth.Contract(DebtTokenABI as AbiItem[], reserveTokens[key])
+
+				const tx = toTransactionObject(kit.connection, debtTokenContract.methods.approveDelegation(borrowerAddress, amount));
+
+				return [{ tx }]
 			},
 			() => {userOnchainState.refetch()}
 		)
@@ -217,19 +229,112 @@ const MoolaApp = (props: {
 	}
 
 	const handleRepayFromCollateral = (collateralAssetSymbol: string, debtAssetSymbol: string, rateMode: number, amount: BigNumber, useFlashLoan: boolean) => {
-		console.log('hello', collateralAssetSymbol, debtAssetSymbol, rateMode, useFlashLoan, amount)
-	 }
-
-	const handleLiquiditySwap = (assetFromSymbol: string, assetToSymbol: string, amount: BigNumber) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
 				if (isFetching) return [];
 
-				if (assetFromSymbol === assetToSymbol) {
-					return[];  // TODO-- show error
+				const txs = []
+				const collateralAssetInfo = erc20List.erc20s.find(e => e.symbol === collateralAssetSymbol)
+				const debtAssetInfo = erc20List.erc20s.find(e => e.symbol === debtAssetSymbol)
+				const collateralAssetAddress = erc20StaticAddress(collateralAssetInfo!)
+				const debtAssetAddress = erc20StaticAddress(debtAssetInfo!)
+				const useATokenAsFrom = collateralAssetSymbol != 'CELO';
+				const useATokenAsTo = debtAssetSymbol != 'CELO';
+
+				const LendingPoolDataProvider = new kit.web3.eth.Contract(LendingPoolDataProviderABI as AbiItem[], userOnchainState.fetched!.lendingPoolDataProviderAddress)
+				const reserveCollateralToken = await LendingPoolDataProvider.methods
+					.getReserveTokensAddresses(collateralAssetAddress)
+					.call();
+				const mToken = new kit.web3.eth.Contract(MTokenABI as AbiItem[], reserveCollateralToken.aTokenAddress);
+
+				const reserveDebtToken = await LendingPoolDataProvider.methods
+					.getReserveTokensAddresses(debtAssetAddress)
+					.call();
+				
+				const Ubeswap = new kit.web3.eth.Contract(UbeswapABI as AbiItem[], userOnchainState.fetched!.ubeswapAddress)
+				let maxCollateralAmount:string = BN('0').toFixed(0);
+				if (collateralAssetSymbol !== debtAssetSymbol) {
+					const amountOut = useFlashLoan
+						? amount.plus(amount.multipliedBy(9).dividedBy(10000))
+						: amount;
+						
+					const amounts = await Ubeswap.methods
+						.getAmountsIn(amountOut, [
+							useATokenAsFrom ? reserveCollateralToken.aTokenAddress : collateralAssetAddress,
+							useATokenAsTo ? reserveDebtToken.aTokenAddress : debtAssetAddress,
+						])
+						.call();
+					maxCollateralAmount = BN(amounts[0])
+						.plus(BN(amounts[0]).multipliedBy(1).dividedBy(1000))
+						.toFixed(0); // 0.1% slippage
 				}
 
+				const { repayAdapterAddress, lendingPoolAddress } : { repayAdapterAddress: string, lendingPoolAddress: string } = userOnchainState.fetched!
+				if (
+					BN(await mToken.methods.allowance(account.address, repayAdapterAddress).call()).lt(
+						BN(maxCollateralAmount)
+					)
+				) {
+					// Approve UniswapAdapter
+					const txApproveAdapter = toTransactionObject(kit.connection, mToken.methods.approve(repayAdapterAddress, maxCollateralAmount))
+					txs.push({ tx: txApproveAdapter })
+				}
+
+				let txRepay: CeloTransactionObject<unknown>;
+				
+				if (useFlashLoan) {
+					const callParams = buildSwapAndRepayParams(
+						collateralAssetAddress,
+						maxCollateralAmount,
+						rateMode,
+						0,
+						0,
+						0,
+						ZERO_HASH,
+						ZERO_HASH,
+						false,
+						useATokenAsFrom,
+						useATokenAsTo
+					);
+					const LendingPool = new kit.web3.eth.Contract(LendingPoolABI as AbiItem[], lendingPoolAddress)
+					txRepay = toTransactionObject(kit.connection, LendingPool.methods.flashLoan(
+						repayAdapterAddress,
+						[debtAssetAddress],
+						[amount],
+						[0],
+						account.address,
+						callParams,
+						0
+					));
+				} else {
+					const RepayAdapter = new kit.web3.eth.Contract(RepayAdapterABI as AbiItem[], repayAdapterAddress);
+					txRepay = toTransactionObject(kit.connection, RepayAdapter.methods.swapAndRepay(
+						collateralAssetAddress,
+						debtAssetAddress,
+						maxCollateralAmount,
+						amount,
+						rateMode,
+						{ amount: 0, deadline: 0, v: 0, r: ZERO_HASH, s: ZERO_HASH },
+						false,
+						useATokenAsFrom,
+						useATokenAsTo
+					));
+				}
+
+				txs.push({ tx: txRepay });
+
+				return txs;
+			}
+		)
+	}
+
+	const handleLiquiditySwap = (assetToSymbol: string, amount: BigNumber) => {
+		props.runTXs(
+			async (kit: ContractKit) => {
+				if (isFetching) return [];
+
 				const txs = []
+				const assetFromSymbol = selectedToken;
 				const assetFromInfo = erc20List.erc20s.find(e => e.symbol === assetFromSymbol)
 				const assetToInfo = erc20List.erc20s.find(e => e.symbol === assetToSymbol)
 				const assetFromAddress = erc20StaticAddress(assetFromInfo!)
@@ -256,7 +361,7 @@ const MoolaApp = (props: {
 					txs.push({ tx: approveTx})
 				}
 
-				const liquiditySwapParams = buildLiquiditySwapParams([assetToAddress], [tokenSwapPrice], [false], [0], [0], [0], [ZERO_ADDRESS], [ZERO_ADDRESS], [false], [useAtokenAsFrom], [useAtokenAsTo])
+				const liquiditySwapParams = buildLiquiditySwapParams([assetToAddress], [tokenSwapPrice], [false], [0], [0], [0], [ZERO_HASH], [ZERO_HASH], [false], [useAtokenAsFrom], [useAtokenAsTo])
 				
 				// TODO-- test on mainnet
 				const LendingPool = new kit.web3.eth.Contract(LendingPoolABI as AbiItem[], userOnchainState.fetched!.lendingPoolAddress);
@@ -280,7 +385,10 @@ const MoolaApp = (props: {
 	const tokenBalance = accountState.fetched?.balance.shiftedBy(-tokenInfo!.decimals) || new BigNumber('0')
 	const tokenMenuItems: JSX.Element[] = tokenNames.map((token) => (
 								<MenuItem value={token} key={token}>{token}</MenuItem>
-							))
+	))
+	const tokenMenuItemsExcludingSelected: JSX.Element[] = tokenNames.filter(token => token !== selectedToken).map((token) => (
+								<MenuItem value={token} key={token}>{token}</MenuItem>
+	))
 	const actionComponents = {
 		'Deposit': <Deposit
 			onDeposit={handleDeposit}
@@ -299,7 +407,7 @@ const MoolaApp = (props: {
 			<CreditDelegationDelegator onDelegate={handleDelegate} />,
 					'Auto Repay': <AutoRepay onSetAutoRepay={handleSetAutoRepay}/>,
 		'Repay from Collateral': <RepayFromCollateral onRepayFromCollateral={handleRepayFromCollateral} tokenMenuItems={tokenMenuItems} />,
-		'Liquidity Swap': <LiquiditySwap onLiquiditySwap={handleLiquiditySwap} tokenMenuItems={tokenMenuItems}/>,
+		'Liquidity Swap': <LiquiditySwap onLiquiditySwap={handleLiquiditySwap} tokenMenuItems={tokenMenuItemsExcludingSelected}/>,
 	}
 
 
@@ -320,7 +428,7 @@ const MoolaApp = (props: {
 					<Select
 						style={{ width: '100%'}}	
 						value={selectedToken}
-						onChange={(event) => { setSelectedToken(event.target.value) }}>
+						onChange={(event) => { setSelectedToken(event.target.value as CeloTokenType) }}>
 						{tokenMenuItems}
 						</Select>
 					</Box>
@@ -329,7 +437,7 @@ const MoolaApp = (props: {
 					<Select
 						style={{ width: '100%'}}	
 						value={selectedAction}
-						onChange={(event) => { setSelectedAction(event.target.value) }}>
+						onChange={(event) => { setSelectedAction(event.target.value as CeloTokenType) }}>
 						{
 							actions.map((action) => (
 								<MenuItem value={action} key={action}>{action}</MenuItem>
@@ -341,14 +449,14 @@ const MoolaApp = (props: {
 			</AppSection>
 
 			<AppSection>
-				{actionComponents[selectedAction]}
+				{actionComponents[selectedAction as keyof typeof actionComponents]}
 			</AppSection>
 			
 			<AppSection>
 				<AccountStatus
 					tokenName={selectedToken}
 					isFetching={isFetching}
-					userReserveData={userOnchainState.fetched?.userReserveData}
+					userReserveData={userOnchainState.fetched?.userReserveData!}
 				/>
 			</AppSection>
 		</AppContainer>

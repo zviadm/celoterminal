@@ -8,11 +8,13 @@ import { coreErc20Decimals, Erc20InfiniteAmount } from '../../../lib/erc20/core'
 import { availableRateMode } from './config';
 import SectionTitle from '../../components/section-title'
 
+import {userReserveData} from './moola-helper'
+
 const AccountStatus = (
 	props: {
 		tokenName: string,
 		isFetching: boolean,
-		userReserveData: object,
+		userReserveData: userReserveData,
 	}
 ): JSX.Element => {
 

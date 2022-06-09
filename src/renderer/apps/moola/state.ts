@@ -7,7 +7,7 @@ import { Account } from '../../../lib/accounts/accounts'
 import { abi as LendingPoolAddressesProviderABI } from '@aave/protocol-v2/artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json';
 import { abi as LendingPoolABI } from '@aave/protocol-v2/artifacts/contracts/protocol/lendingpool/LendingPool.sol/LendingPool.json';
 import { abi as LendingPoolDataProviderABI } from '@aave/protocol-v2/artifacts/contracts/misc/AaveProtocolDataProvider.sol/AaveProtocolDataProvider.json';
-import { BN, print, printRayRate } from './moola-helper';
+import { BN, print, printRayRate, onChainUserReserveData, onChainUserData, onChainReserveData, userAccountData, userReserveData } from './moola-helper';
 
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -26,19 +26,23 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 			const userReserveDataRaw = await LendingPoolDataProvider.methods.getUserReserveData(tokenAddress, account.address).call()
 			const reserveData = await LendingPoolDataProvider.methods.getReserveData(tokenAddress).call();
 
-			const repayDelegationHelperAddress = '0xeEe3D107c387B04A8e07B7732f0ED0f6ED990882' // Alfajores
+
 			const autoRepayAddress = '0x19F8322CaC86623432e9142a349504DE6754f12A' // alfajores
 			const liquiditySwapAdapterAddress = '0xe469484419AD6730BeD187c22a47ca38B054B09f' // alfajores
+			const ubeswapAddress = '0xe3d8bd6aed4f159bc8000a9cd47cffdb95f96121' // alfajores
+			const repayAdapterAddress = '0x55a48631e4ED42D2b12FBA0edc7ad8F66c28375C'
+
 
 
 			return {
 				goldToken,
 				lendingPoolAddress,
-				repayDelegationHelperAddress,
 				autoRepayAddress,
 				lendingPoolDataProviderAddress,
 				priceOracleAddress,
 				liquiditySwapAdapterAddress,
+				ubeswapAddress,
+				repayAdapterAddress,
 				userAccountData: formattedUserAccountData(userAccountDataRaw),
 				userReserveData: formattedUserReserveData(userReserveDataRaw, reserveData)
 			}
@@ -47,31 +51,27 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 	), {})
 }
 
-function formattedUserAccountData(data) { // TODO-- add type
+function formattedUserAccountData(data: onChainUserReserveData) : userAccountData {
 	return {
-      TotalCollateral: print(data.totalCollateralETH),
-      TotalDebt: print(data.totalDebtETH),
-      AvailableBorrow: print(data.availableBorrowsETH),
-      LiquidationThreshold: `${BN(data.currentLiquidationThreshold).div(BN(100))}%`,
-      LoanToValue: `${BN(data.ltv).div(BN(100))}%`,
-      HealthFactor: data.healthFactor.length > 30 ? 'SAFE' : print(data.healthFactor),
+      'Total Collateral': print(data.totalCollateralETH),
+      'Total Debt': print(data.totalDebtETH),
+      'Available Borrow': print(data.availableBorrowsETH),
+      'Liquidation Threshold': `${BN(data.currentLiquidationThreshold).div(BN(100))}%`,
+      'Loan To Value': `${BN(data.ltv).div(BN(100))}%`,
+      'Health Factor': data.healthFactor.length > 30 ? 'SAFE' : print(data.healthFactor),
 	}
 }
 
-function formattedUserReserveData(userData, reserveData) { // TODO-- add type
+function formattedUserReserveData(userData: onChainUserData, reserveData: onChainReserveData) : userReserveData {
 	return {
-      Deposited: print(userData.currentATokenBalance),
-      BorrowedStable: print(userData.principalStableDebt),
-      DebtStable: print(userData.currentStableDebt),
-      BorrowRateStable: printRayRate(userData.stableBorrowRate),
-      BorrowedVariable: print(userData.scaledVariableDebt),
-      DebtVariable: print(userData.currentVariableDebt),
-      VariableRate: printRayRate(reserveData.variableBorrowRate),
-      LiquidityRate: printRayRate(userData.liquidityRate),
-      // LastUpdateStable: new Date(
-      //   BN(userData.stableRateLastUpdated).multipliedBy(1000).toNumber()
-      // ).toLocaleString(),
-      IsCollateral: userData.usageAsCollateralEnabled ? 'YES' : 'NO',
-    };
+		'Deposited': print(userData.currentATokenBalance),
+		'Stable Borrow Rate': printRayRate(userData.stableBorrowRate),
+		'Variable Borrow Rate': printRayRate(reserveData.variableBorrowRate),
+		'Principal Stable Debt': print(userData.principalStableDebt),
+		'Current Stable Debt': print(userData.currentStableDebt),
+		'Scaled Variable Debt': print(userData.scaledVariableDebt),
+		'Current Varable Debt': print(userData.currentVariableDebt),
+		'Liquidity Rate': printRayRate(userData.liquidityRate),
+		'Is Collateral': userData.usageAsCollateralEnabled ? 'YES' : 'NO',
+	};
 }
-
