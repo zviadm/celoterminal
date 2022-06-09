@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Box, LinearProgress, Table, TableBody, TableHead, TableRow, TableCell  } from '@material-ui/core'
+import { Box, LinearProgress, Table, TableBody, TableRow, TableCell  } from '@material-ui/core'
 import SectionTitle from '../../components/section-title'
 import { userReserveData } from './moola-helper'
 
@@ -14,8 +14,6 @@ const UserReserveStatuas = (
 		<Box display="flex" flexDirection="column">
 			<SectionTitle>{props.tokenName} User Reserve Status</SectionTitle>
 			{props.isFetching ? <LinearProgress /> : <Table size="small">
-				<TableHead>
-				</TableHead>
 				<TableBody>
 					{Object.keys(props.userReserveData || {}).map((key) => (<TableRow>
 							<TableCell>{key}</TableCell>

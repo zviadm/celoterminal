@@ -6,32 +6,43 @@ import { Account } from '../../../lib/accounts/accounts'
 import { abi as LendingPoolAddressesProviderABI } from './abi/AddressesProvider.json';
 import { abi as LendingPoolABI } from './abi/LendingPool.json';
 import { abi as LendingPoolDataProviderABI } from './abi/DataProvider.json';
-import { BN, print, printRayRate, onChainUserReserveData, onChainUserData, onChainReserveData, userAccountData, userReserveData, reserveData } from './moola-helper';
+import { BN, print, printRayRate, onChainUserReserveData, onChainUserData, onChainReserveData, userAccountData, userReserveData, reserveData, lendingPoolDataProviderAddresses, lendingPoolAddressesProviderAddresses, autoRepayAddresses, liquiditySwapAdapterAddresses, ubeswapAddresses, repayAdapterAddresses } from './moola-helper';
+import { selectAddressOrThrow } from '../../../lib/cfg';
 
-
+// interface userOnChainState {
+// 					goldToken: string,
+// 				lendingPoolAddress: string,
+// 				autoRepayAddress: string,
+// 				lendingPoolDataProviderAddress: string,
+// 				priceOracleAddress: string,
+// 				liquiditySwapAdapterAddress: string,
+// 				ubeswapAddress: string,
+// 				repayAdapterAddress: string,
+// 				userAccountData: userAccountData
+// 				userReserveData: userReserveData
+// 				reserveData: reserveData
+// }
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const useUserOnChainState = (account: Account, tokenAddress: string) => {
+export const useUserOnChainState = (account: Account, tokenAddress: string)  => {
 	return useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
 
 			const goldToken = await kit.contracts.getGoldToken()
-			const LendingPoolAddressesProvider = new kit.web3.eth.Contract(LendingPoolAddressesProviderABI as AbiItem[], '0xb3072f5F0d5e8B9036aEC29F37baB70E86EA0018')
+			const lendingPoolAddressesProviderAddress = selectAddressOrThrow(lendingPoolAddressesProviderAddresses)
+			const LendingPoolAddressesProvider = new kit.web3.eth.Contract(LendingPoolAddressesProviderABI as AbiItem[], lendingPoolAddressesProviderAddress)
 			const lendingPoolAddress = await LendingPoolAddressesProvider.methods.getLendingPool().call();
 			const priceOracleAddress = await LendingPoolAddressesProvider.methods.getPriceOracle().call();
 			const LendingPool = new kit.web3.eth.Contract(LendingPoolABI as AbiItem[], lendingPoolAddress)
 			const userAccountDataRaw = await LendingPool.methods.getUserAccountData(account.address).call();
-			const lendingPoolDataProviderAddress = '0x31ccB9dC068058672D96E92BAf96B1607855822E';
+			const lendingPoolDataProviderAddress = selectAddressOrThrow(lendingPoolDataProviderAddresses)
 			const LendingPoolDataProvider = new kit.web3.eth.Contract(LendingPoolDataProviderABI as AbiItem[], lendingPoolDataProviderAddress)
 			const userReserveDataRaw = await LendingPoolDataProvider.methods.getUserReserveData(tokenAddress, account.address).call()
 			const reserveData = await LendingPoolDataProvider.methods.getReserveData(tokenAddress).call();
 
-
-			const autoRepayAddress = '0x19F8322CaC86623432e9142a349504DE6754f12A' // alfajores
-			const liquiditySwapAdapterAddress = '0xe469484419AD6730BeD187c22a47ca38B054B09f' // alfajores
-			const ubeswapAddress = '0xe3d8bd6aed4f159bc8000a9cd47cffdb95f96121' // alfajores
-			const repayAdapterAddress = '0x55a48631e4ED42D2b12FBA0edc7ad8F66c28375C'
-
-
+			const autoRepayAddress = selectAddressOrThrow(autoRepayAddresses)
+			const liquiditySwapAdapterAddress = selectAddressOrThrow(liquiditySwapAdapterAddresses)
+			const ubeswapAddress = selectAddressOrThrow(ubeswapAddresses)
+			const repayAdapterAddress = selectAddressOrThrow(repayAdapterAddresses)
 
 			return {
 				goldToken,

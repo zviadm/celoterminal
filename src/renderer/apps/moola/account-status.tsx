@@ -1,9 +1,8 @@
 import * as React from 'react'
-import { Box, LinearProgress, Table, TableBody, TableHead, TableRow, TableCell  } from '@material-ui/core'
+import { Box, LinearProgress, Table, TableBody, TableRow, TableCell  } from '@material-ui/core'
 import SectionTitle from '../../components/section-title'
 import { userAccountData } from './moola-helper'
 
-// TODO-----
 const AccountStatus = (
 	props: {
 		isFetching: boolean,
@@ -14,8 +13,6 @@ const AccountStatus = (
 		<Box display="flex" flexDirection="column">
 			<SectionTitle>Account Status</SectionTitle>
 			{props.isFetching ? <LinearProgress /> : <Table size="small">
-				<TableHead>
-				</TableHead>
 				<TableBody>
 					{Object.keys(props.userAccountData || {}).map((key) => (<TableRow>
 							<TableCell>{key}</TableCell>

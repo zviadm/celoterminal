@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Box, LinearProgress, Table, TableBody, TableHead, TableRow, TableCell  } from '@material-ui/core'
+import { Box, LinearProgress, Table, TableBody, TableRow, TableCell  } from '@material-ui/core'
 import SectionTitle from '../../components/section-title'
 import { reserveData } from './moola-helper'
 
