@@ -1,13 +1,14 @@
-import { Moola } from "./def";
-import BigNumber from 'bignumber.js'
-import { CeloTokenType, ContractKit } from '@celo/contractkit'
 import * as React from "react";
-import { Box, Tab, Typography, Button, Tooltip, Select, MenuItem } from "@material-ui/core";
-import { moolaTokens } from './config'
+import BigNumber from 'bignumber.js'
+import { Box, Select, MenuItem } from "@material-ui/core";
+import { CeloTokenType, ContractKit } from '@celo/contractkit'
+import { AbiItem, toTransactionObject, CeloTransactionObject } from '@celo/connect'
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definition'
 import { newErc20, erc20StaticAddress } from '../../../lib/erc20/erc20-contract'
-import { AbiItem, toTransactionObject, CeloTransactionObject } from '@celo/connect'
+import { Moola } from "./def";
+import { moolaTokens } from './config'
+
 import AppHeader from "../../components/app-header";
 import AppSection from "../../components/app-section";
 import AppContainer from "../../components/app-container";
@@ -17,7 +18,7 @@ import Deposit from './deposit';
 import Withdraw from './withdraw';
 import Borrow from './borrow';
 import Repay from './repay';
-import AccountStatus from './account-status';
+import ReserveStatus from './reserve-status';
 import CreditDelegationDelegator from './credit-delegation-delegator';
 import CreditDelegationBorrower from './credit-delegation-borrower';
 import AutoRepay from './auto-repay';
@@ -56,7 +57,6 @@ const MoolaApp = (props: {
 			'Repay from Collateral',
 			'Liquidity Swap',
 		];
-	// TODO-- add 'Repay from Collateral', 'Auto Repay', 'Liquidity Swap'
 
 	const erc20List = useErc20List()
 	const [selectedToken, setSelectedToken] = useLocalStorageState("terminal/moola/erc20", moolaTokens[0].symbol)
@@ -85,12 +85,10 @@ const MoolaApp = (props: {
 				if (isFetching) return [];
 
 				// approve
-				
 				const tokenContract = await newErc20(kit, tokenInfo!)
 				const txApprove = tokenContract.approve(userOnchainState.fetched!.lendingPoolAddress, amount)
 
 				// deposit
-				
 				const LendingPool = new kit.web3.eth.Contract(LendingPoolABI as AbiItem[], userOnchainState!.fetched!.lendingPoolAddress)
 				const txDeposit =	toTransactionObject(
 					kit.connection,
@@ -453,7 +451,7 @@ const MoolaApp = (props: {
 			</AppSection>
 			
 			<AppSection>
-				<AccountStatus
+				<ReserveStatus
 					tokenName={selectedToken}
 					isFetching={isFetching}
 					userReserveData={userOnchainState.fetched?.userReserveData!}
@@ -463,5 +461,3 @@ const MoolaApp = (props: {
 	);
 };
 export default MoolaApp;
-
-// TODO-- make sure all events are happening in lending pool before adding recent activities

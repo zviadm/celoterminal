@@ -1,14 +1,7 @@
 import * as React from 'react'
 import { Box, Select, Button, MenuItem, TextField, InputLabel } from '@material-ui/core'
-import { ContractKit, StableToken } from '@celo/contractkit'
-import Alert from '@material-ui/lab/Alert'
-import { stableTokens, moolaTokens } from './config'
-import useLocalStorageState from '../../state/localstorage-state'
 import NumberInput from '../../components/number-input'
-import { fmtAmount } from '../../../lib/utils'
 import BigNumber from 'bignumber.js'
-import { coreErc20Decimals, Erc20InfiniteAmount } from '../../../lib/erc20/core'
-import SectionTitle from '../../components/section-title'
 import { availableRateMode } from './config';
 import { toBigNumberWei } from './moola-helper'
 

@@ -1,7 +1,6 @@
 import * as React from 'react'
-const BigNumber = require('bignumber.js');
 import { AbiItem } from '@celo/connect'
-import { ContractKit, StableToken } from '@celo/contractkit'
+import { ContractKit } from '@celo/contractkit'
 import useOnChainState from '../../state/onchain-state'
 import { Account } from '../../../lib/accounts/accounts'
 import { abi as LendingPoolAddressesProviderABI } from './abi/AddressesProvider.json';

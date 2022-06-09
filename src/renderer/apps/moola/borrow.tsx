@@ -1,9 +1,7 @@
 import * as React from 'react'
 import { Box, Button, Select, MenuItem, InputLabel  } from '@material-ui/core'
-import Alert from '@material-ui/lab/Alert'
 import NumberInput from '../../components/number-input'
 import BigNumber from 'bignumber.js'
-import { coreErc20Decimals, Erc20InfiniteAmount } from '../../../lib/erc20/core'
 import { availableRateMode } from './config';
 import { toBigNumberWei } from './moola-helper'
 

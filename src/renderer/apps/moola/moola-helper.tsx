@@ -1,7 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { coreErc20Decimals, Erc20InfiniteAmount, RegisteredErc20 } from '../../../lib/erc20/core'
-import { useErc20List } from '../../state/erc20list-state'
-import { newErc20, erc20StaticAddress } from '../../../lib/erc20/erc20-contract'
+import { coreErc20Decimals } from '../../../lib/erc20/core'
 const ethers = require('ethers');
 
 export const toBigNumberWei = (num: string) => new BigNumber(num).shiftedBy(coreErc20Decimals)

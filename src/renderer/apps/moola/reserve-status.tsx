@@ -1,14 +1,13 @@
 import * as React from 'react'
 import { Box, LinearProgress, Table, TableBody, TableHead, TableRow, TableCell  } from '@material-ui/core'
 import SectionTitle from '../../components/section-title'
-import { userAccountData } from './moola-helper'
+import { userReserveData } from './moola-helper'
 
-// TODO-----
-const AccountStatus = (
+const ReserveStatus = (
 	props: {
 		tokenName: string,
 		isFetching: boolean,
-		userAccountData: userAccountData,
+		userReserveData: userReserveData,
 	}
 ): JSX.Element => {
 	return (
@@ -22,9 +21,9 @@ const AccountStatus = (
 					</TableRow>
 				</TableHead>
 				<TableBody>
-					{Object.keys(props.userAccountData || {}).map((key) => (<TableRow>
+					{Object.keys(props.userReserveData || {}).map((key) => (<TableRow>
 							<TableCell>{key}</TableCell>
-							<TableCell>{props.userAccountData[key as keyof typeof props.userAccountData]}</TableCell>
+							<TableCell>{props.userReserveData[key as keyof typeof props.userReserveData]}</TableCell>
 						</TableRow>)
 					)}
 				</TableBody>
@@ -32,4 +31,4 @@ const AccountStatus = (
 		</Box>
 	)
 }
-export default AccountStatus
+export default ReserveStatus
