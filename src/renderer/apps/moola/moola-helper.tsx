@@ -172,3 +172,13 @@ export interface userReserveData {
 	'Liquidity Rate': string,
 	'Is Collateral': string,
 }
+
+export interface reserveData {
+    'Available Liquidity': string,       
+  'Total Stable Borrows': string,       
+ 'Total Variable Borrows': string,        
+    'Liquidity Rate': string,          
+     'Variable Borrow Rate': string,            
+      'Stable Borrow Rate': string,                
+  'Average Stable Rate': string,               
+}

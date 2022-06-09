@@ -18,7 +18,8 @@ import Deposit from './deposit';
 import Withdraw from './withdraw';
 import Borrow from './borrow';
 import Repay from './repay';
-import ReserveStatus from './reserve-status';
+import UserReserveStatuas from './user-reserve-status';
+import AccountStatus from './account-status';
 import CreditDelegationDelegator from './credit-delegation-delegator';
 import CreditDelegationBorrower from './credit-delegation-borrower';
 import AutoRepay from './auto-repay';
@@ -40,6 +41,7 @@ import { abi as UbeswapABI } from './abi/Ubeswap.json';
 import { abi as RepayAdapterABI } from './abi/RepayAdapter.json';
 
 import { BN, getTokenToSwapPrice, ALLOWANCE_THRESHOLD, MAX_UINT_256, buildLiquiditySwapParams, buildSwapAndRepayParams, ZERO_HASH, userAccountData, userReserveData } from './moola-helper';
+import ReserveStatus from "./reserve-status";
 
 const MoolaApp = (props: {
 	accounts: Account[],
@@ -416,6 +418,14 @@ const MoolaApp = (props: {
 				isFetching={isFetching}
 				refetch={refetchAll}
 			/>
+
+			<AppSection>
+				<AccountStatus
+					isFetching={isFetching}
+					userAccountData={userOnchainState.fetched?.userAccountData!}
+				/>
+			</AppSection>
+
 			<AppSection >
 				<Box
 					style={{ display: 'flex', justifyContent: 'space-between'}}
@@ -452,6 +462,13 @@ const MoolaApp = (props: {
 			
 			<AppSection>
 				<ReserveStatus
+					tokenName={selectedToken}
+					isFetching={isFetching}
+					reserveData={userOnchainState.fetched?.reserveData!}
+				/>
+			</AppSection>
+			<AppSection>
+				<UserReserveStatuas
 					tokenName={selectedToken}
 					isFetching={isFetching}
 					userReserveData={userOnchainState.fetched?.userReserveData!}

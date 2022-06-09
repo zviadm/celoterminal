@@ -6,7 +6,7 @@ import { Account } from '../../../lib/accounts/accounts'
 import { abi as LendingPoolAddressesProviderABI } from './abi/AddressesProvider.json';
 import { abi as LendingPoolABI } from './abi/LendingPool.json';
 import { abi as LendingPoolDataProviderABI } from './abi/DataProvider.json';
-import { BN, print, printRayRate, onChainUserReserveData, onChainUserData, onChainReserveData, userAccountData, userReserveData } from './moola-helper';
+import { BN, print, printRayRate, onChainUserReserveData, onChainUserData, onChainReserveData, userAccountData, userReserveData, reserveData } from './moola-helper';
 
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -43,14 +43,15 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 				ubeswapAddress,
 				repayAdapterAddress,
 				userAccountData: formattedUserAccountData(userAccountDataRaw),
-				userReserveData: formattedUserReserveData(userReserveDataRaw, reserveData)
+				userReserveData: formattedUserReserveData(userReserveDataRaw, reserveData),
+				reserveData: formattedReserveData(reserveData),
 			}
 		},
 		[account, tokenAddress]
 	), {})
 }
 
-function formattedUserAccountData(data: onChainUserReserveData) : userAccountData {
+function formattedUserAccountData(data: onChainUserReserveData): userAccountData {
 	return {
       'Total Collateral': print(data.totalCollateralETH),
       'Total Debt': print(data.totalDebtETH),
@@ -58,6 +59,18 @@ function formattedUserAccountData(data: onChainUserReserveData) : userAccountDat
       'Liquidation Threshold': `${BN(data.currentLiquidationThreshold).div(BN(100))}%`,
       'Loan To Value': `${BN(data.ltv).div(BN(100))}%`,
       'Health Factor': data.healthFactor.length > 30 ? 'SAFE' : print(data.healthFactor),
+	}
+}
+
+function formattedReserveData(data: onChainReserveData): reserveData {
+	return {
+    'Available Liquidity': print(data.availableLiquidity),       
+  'Total Stable Borrows': print(data.totalStableDebt),    
+ 'Total Variable Borrows': print(data.totalVariableDebt),        
+    'Liquidity Rate': printRayRate(data.liquidityRate),          
+     'Variable Borrow Rate': printRayRate(data.variableBorrowRate),            
+      'Stable Borrow Rate': printRayRate(data.stableBorrowRate),                
+  'Average Stable Rate': printRayRate(data.averageStableBorrowRate),    
 	}
 }
 

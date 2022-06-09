@@ -6,20 +6,15 @@ import { userAccountData } from './moola-helper'
 // TODO-----
 const AccountStatus = (
 	props: {
-		tokenName: string,
 		isFetching: boolean,
 		userAccountData: userAccountData,
 	}
 ): JSX.Element => {
 	return (
 		<Box display="flex" flexDirection="column">
-			<SectionTitle>{props.tokenName} Account Status</SectionTitle>
+			<SectionTitle>Account Status</SectionTitle>
 			{props.isFetching ? <LinearProgress /> : <Table size="small">
 				<TableHead>
-					<TableRow>
-						<TableCell>Field</TableCell>
-						<TableCell>Value</TableCell>
-					</TableRow>
 				</TableHead>
 				<TableBody>
 					{Object.keys(props.userAccountData || {}).map((key) => (<TableRow>
