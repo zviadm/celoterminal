@@ -4,9 +4,9 @@ import { AbiItem } from '@celo/connect'
 import { ContractKit, StableToken } from '@celo/contractkit'
 import useOnChainState from '../../state/onchain-state'
 import { Account } from '../../../lib/accounts/accounts'
-import { abi as LendingPoolAddressesProviderABI } from '@aave/protocol-v2/artifacts/contracts/interfaces/ILendingPoolAddressesProvider.sol/ILendingPoolAddressesProvider.json';
-import { abi as LendingPoolABI } from '@aave/protocol-v2/artifacts/contracts/protocol/lendingpool/LendingPool.sol/LendingPool.json';
-import { abi as LendingPoolDataProviderABI } from '@aave/protocol-v2/artifacts/contracts/misc/AaveProtocolDataProvider.sol/AaveProtocolDataProvider.json';
+import { abi as LendingPoolAddressesProviderABI } from './abi/AddressesProvider.json';
+import { abi as LendingPoolABI } from './abi/LendingPool.json';
+import { abi as LendingPoolDataProviderABI } from './abi/DataProvider.json';
 import { BN, print, printRayRate, onChainUserReserveData, onChainUserData, onChainReserveData, userAccountData, userReserveData } from './moola-helper';
 
 
