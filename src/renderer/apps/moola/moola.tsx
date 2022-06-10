@@ -8,6 +8,7 @@ import { TXFunc, TXFinishFunc, Transaction } from '../../components/app-definiti
 import { newErc20, erc20StaticAddress } from '../../../lib/erc20/erc20-contract'
 import { Moola } from "./def";
 import { moolaTokens } from './config'
+import { CFG } from '../../../lib/cfg'
 
 import AppHeader from "../../components/app-header";
 import AppSection from "../../components/app-section";
@@ -41,14 +42,13 @@ import { abi as PriceOracleABI } from './abi/PriceOracle.json';
 import { abi as UbeswapABI } from './abi/Ubeswap.json';
 import { abi as RepayAdapterABI } from './abi/RepayAdapter.json';
 
-import { BN, getTokenToSwapPrice, ALLOWANCE_THRESHOLD, MAX_UINT_256, buildLiquiditySwapParams, buildSwapAndRepayParams, ZERO_HASH, userAccountData, userReserveData, lendingPoolDataProviderAddresses } from './moola-helper';
+import { BN, getTokenToSwapPrice, ALLOWANCE_THRESHOLD, MAX_UINT_256, buildLiquiditySwapParams, buildSwapAndRepayParams, ZERO_HASH, MOOLA_AVAILABLE_CHAIN_IDS } from './moola-helper';
 
 const MoolaApp = (props: {
 	accounts: Account[],
 	selectedAccount: Account,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
-	const [tab, setTab] = useLocalStorageState("terminal/moola/tab", "deposit")
 	const account = props.selectedAccount
 	const actions =
 		[
@@ -80,6 +80,10 @@ const MoolaApp = (props: {
 	const userOnchainState = useUserOnChainState(account, tokenAddress) 
 	
 	const isFetching = accountState.isFetching || userOnchainState.isFetching;
+
+	if (!MOOLA_AVAILABLE_CHAIN_IDS.includes(CFG().chainId.toString())) {
+		throw new Error(`Moola not available on chainId: ${CFG().chainId}!`);
+	}
 
 	let lendingPoolAddress: string;
 	let lendingPoolDataProviderAddress: string;
@@ -332,7 +336,7 @@ const MoolaApp = (props: {
 				txs.push({ tx: txRepay });
 
 				return txs;
-			}
+			},() => {userOnchainState.refetch()}
 		)
 	}
 
@@ -362,7 +366,6 @@ const MoolaApp = (props: {
 				const [tokenFromPrice, tokenToPrice] = await PriceOracle.methods.getAssetsPrices([assetFromAddress, assetToAddress]).call();
 
 				const tokenSwapPrice = getTokenToSwapPrice(amount, tokenFromPrice, tokenToPrice)
-				
 				const currentAllowance = await mToken.methods.allowance(account.address, liquiditySwapAdapterAddress).call()
 		
 				if (BN(currentAllowance).isLessThan(ALLOWANCE_THRESHOLD)) {
@@ -373,9 +376,8 @@ const MoolaApp = (props: {
 					txs.push({ tx: approveTx})
 				}
 
-				const liquiditySwapParams = buildLiquiditySwapParams([assetToAddress], [tokenSwapPrice], [false], [0], [0], [0], [ZERO_HASH], [ZERO_HASH], [false], [useAtokenAsFrom], [useAtokenAsTo])
+				const liquiditySwapParams = buildLiquiditySwapParams([assetToAddress], [tokenSwapPrice], [0], [0], [0], [0], [ZERO_HASH], [ZERO_HASH], [false], [useAtokenAsFrom], [useAtokenAsTo])
 				
-				// TODO-- test on mainnet
 				const LendingPool = new kit.web3.eth.Contract(LendingPoolABI as AbiItem[], lendingPoolAddress);
 				const liquiditySwapTx = toTransactionObject(
 					kit.connection,
@@ -384,7 +386,7 @@ const MoolaApp = (props: {
 				txs.push({tx: liquiditySwapTx})
 
 				return txs
-			}
+			},() => {userOnchainState.refetch()}
 
 		)
 	}
@@ -401,27 +403,34 @@ const MoolaApp = (props: {
 	const tokenMenuItemsExcludingSelected: JSX.Element[] = tokenNames.filter(token => token !== selectedToken).map((token) => (
 								<MenuItem value={token} key={token}>{token}</MenuItem>
 	))
+	const moolaTokensExcludingSelected = moolaTokens.filter(mt => mt.symbol !== selectedToken)
 	const actionComponents = {
 		'Deposit': <Deposit
 			onDeposit={handleDeposit}
 			tokenBalance={tokenBalance}
 		/>,
 		'Withdraw': 
-			<Withdraw onWithdraw={handleWithdraw}/>,
+			<Withdraw
+				onWithdraw={handleWithdraw}
+				totalDeposited={userOnchainState.fetched?.userReserveData.Deposited!}
+			/>,
 		'Borrow':
-				
-					<Borrow onBorrow={handleBorrow} />,
+			<Borrow onBorrow={handleBorrow} />,
 		'Repay':
-			<Repay onRepay={handleRepay} tokenBalance={tokenBalance} />,
+			<Repay
+				onRepay={handleRepay}
+				tokenBalance={tokenBalance}
+				stableDebt={userOnchainState.fetched?.userReserveData!["Current Stable Debt"]!}
+				variableDebt={userOnchainState.fetched?.userReserveData!["Current Variable Debt"]!} />,
 		'Credit Delegation as Borrower':
 			<CreditDelegationBorrower onBorrowFrom={handleBorrowFrom} onRepayFor={handleRepayFor} />,
 		'Credit Delegation as Delegator':
 			<CreditDelegationDelegator onDelegate={handleDelegate} />,
 					'Auto Repay': <AutoRepay onSetAutoRepay={handleSetAutoRepay}/>,
-		'Repay from Collateral': <RepayFromCollateral onRepayFromCollateral={handleRepayFromCollateral} tokenMenuItems={tokenMenuItems} />,
-		'Liquidity Swap': <LiquiditySwap onLiquiditySwap={handleLiquiditySwap} tokenMenuItems={tokenMenuItemsExcludingSelected}/>,
+		'Repay from Collateral': <RepayFromCollateral tokenName={selectedToken}  onRepayFromCollateral={handleRepayFromCollateral} tokenMenuItems={tokenMenuItems} />,
+		'Liquidity Swap': <LiquiditySwap tokenName={selectedToken} onLiquiditySwap={handleLiquiditySwap} tokenMenuItems={tokenMenuItemsExcludingSelected} toTokens={moolaTokensExcludingSelected} />,
 	}
-	
+
 	return (
 		<AppContainer>
 			<AppHeader

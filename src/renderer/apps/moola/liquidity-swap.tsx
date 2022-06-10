@@ -1,30 +1,46 @@
 import * as React from 'react'
-import { Box, Select, Button , InputLabel} from '@material-ui/core'
+import { Box, Select, Button , InputLabel, MenuItem, Tooltip } from '@material-ui/core'
 import { CeloTokenType } from '@celo/contractkit'
-import { moolaTokens } from './config'
 import NumberInput from '../../components/number-input'
 import BigNumber from 'bignumber.js'
-import { toBigNumberWei } from './moola-helper'
+import {  moolaToken } from './moola-helper'
 
 const LiquiditySwap = (
-		props: {
+	{ tokenName, onLiquiditySwap, tokenMenuItems, toTokens }: {
+		tokenName: string,
 		onLiquiditySwap: (assetToSymbol: string, amount: BigNumber) => void,
 		tokenMenuItems: JSX.Element[],
+		toTokens: moolaToken[]
 	}
 ) => {
 	
 	const [amount, setAmount] = React.useState("")
-	const [toToken, setToToken] = React.useState(moolaTokens[1].symbol)
+	const [toToken, setToToken] = React.useState(toTokens[0].symbol)
 
 	return (
 		<Box display="flex" flexDirection="column">
+			<div style={{ display: 'flex', justifyContent: 'space-between' }}> 
+				<Box style={{ width: '45%'}}	>
+				<InputLabel>Asset From</InputLabel>
+				<Tooltip title="Please select from token in the above section">
+				<Select
+					disabled
+					style={{ width: '100%'}}	
+						value={tokenName}>
+					<MenuItem value={tokenName}>{tokenName}</MenuItem>
+					</Select>
+					</Tooltip>
+				</Box>
+				<Box style={{ width: '45%'}}	>
 					<InputLabel>Asset To</InputLabel>
 					<Select
 						style={{ width: '100%'}}	
 						value={toToken}
 						onChange={(event) => { setToToken(event.target.value as CeloTokenType) }}>
-						{props.tokenMenuItems}
-						</Select>
+						{tokenMenuItems}
+					</Select>
+					</Box>
+			</div>
 			<NumberInput
 				id="liquidity-swap-amount"
 				margin="normal"
@@ -35,10 +51,11 @@ const LiquiditySwap = (
 			/>
 			<div style={{ textAlign: "right"}}>
 				<Button
+					disabled={}
 					style={{ textTransform: "none", width: 150, marginTop: 30}}
 					variant="contained"
 					color="primary"
-					onClick={() => props.onLiquiditySwap(toToken, toBigNumberWei(amount))}
+					onClick={() => onLiquiditySwap(toToken, toBigNumberWei(amount))}
 					>
 					Swap
 				</Button>

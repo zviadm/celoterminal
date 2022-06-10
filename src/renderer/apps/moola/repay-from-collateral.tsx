@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Box, Select, Button, MenuItem, InputLabel } from '@material-ui/core'
+import { Box, Select, Button, MenuItem, InputLabel, Tooltip } from '@material-ui/core'
 import { CeloTokenType } from '@celo/contractkit'
 import { moolaTokens } from './config'
 import NumberInput from '../../components/number-input'
@@ -9,7 +9,8 @@ import { availableRateMode } from './config';
 
 
 const RepayFromCollateral = (
-	props: {
+	{ tokenName, onRepayFromCollateral, tokenMenuItems }: {
+		tokenName: string,
 		onRepayFromCollateral: (collateralAssetSymbol: string, debtAssetSymbol: string, rateMode: number, amount: BigNumber, useFlashLoan: boolean) => void,
 		tokenMenuItems: JSX.Element[],
 	}
@@ -17,12 +18,11 @@ const RepayFromCollateral = (
 	const [amount, setAmount] = React.useState("")
 	const [rateMode, setRateMode] = React.useState(1)
 	const [collateralAsset, setCollateralAsset] = React.useState(moolaTokens[0].symbol)
-	const [debtAsset, setDebtAsset] = React.useState(moolaTokens[1].symbol)
 	const [useFlashLoan, toggleUseFlashLoan] = React.useState('NO');
 
 	const hanldeSubmit = () => {
 		const useFlashLoanBool = useFlashLoan === 'YES';
-		props.onRepayFromCollateral(collateralAsset, debtAsset, rateMode, toBigNumberWei(amount), useFlashLoanBool)
+		onRepayFromCollateral(collateralAsset, tokenName, rateMode, toBigNumberWei(amount), useFlashLoanBool)
 	}
 
 	return (
@@ -34,18 +34,20 @@ const RepayFromCollateral = (
 						style={{ width: '100%'}}	
 						value={collateralAsset}
 						onChange={(event) => { setCollateralAsset(event.target.value as CeloTokenType) }}>
-						{props.tokenMenuItems}
+						{tokenMenuItems}
 						</Select>
 					</Box>
 				<Box style={{ width: '45%' }}>
 					<InputLabel>Debt Asset</InputLabel>
+					<Tooltip title="Please change debt asset in the above section">
 					<Select
+						disabled
 						style={{ width: '100%'}}	
-						value={debtAsset}
-						label="hello"
-						onChange={(event) => { setDebtAsset(event.target.value as CeloTokenType) }}>
-						{props.tokenMenuItems}
-						</Select>
+						value={tokenName}
+					>
+						<MenuItem value={tokenName}>{tokenName}</MenuItem>
+					</Select>
+					</Tooltip>
 				</Box>
 
 			</div>
@@ -79,6 +81,7 @@ const RepayFromCollateral = (
 			
 				<div style={{ textAlign: "right"}}>
 				<Button
+					disabled={amount === ''}
 					style={{ textTransform: "none", width: 150, marginTop: 30}}
 					variant="contained"
 					color="primary"

@@ -3,16 +3,23 @@ import { Box, Button, Select, MenuItem, InputLabel  } from '@material-ui/core'
 import NumberInput from '../../components/number-input'
 import BigNumber from 'bignumber.js'
 import { availableRateMode } from './config';
-import { toBigNumberWei } from './moola-helper'
+import { toBigNumberWei, BN } from './moola-helper'
 
 const Repay = (
-		props: {
+	{  onRepay, tokenBalance, stableDebt, variableDebt }: {
 		onRepay: (rateMode: number, amount: BigNumber) => void,
 		tokenBalance: BigNumber,
+		stableDebt: string,
+		variableDebt: string
 	}
 ): JSX.Element => {
 	const [rateMode, setRateMode] = React.useState(1)
 	const [repayAmount, setRepayAmount] = React.useState("")
+
+	const totalDebt =  rateMode === 1 ? new BigNumber(stableDebt) : new BigNumber(stableDebt);
+	const maxRepayAmount = BN(tokenBalance).isLessThan(totalDebt) ? tokenBalance : totalDebt;
+	console.log('totalDebt :>> ', totalDebt);
+	console.log('totalDebt :>> ', stableDebt, variableDebt);
 
 	return (
 		<Box display="flex" flexDirection="column">
@@ -34,14 +41,15 @@ const Repay = (
 				value={repayAmount}
 				placeholder="0.0"
 				onChangeValue={setRepayAmount}
-				maxValue={props.tokenBalance}
+				maxValue={maxRepayAmount } 
 			/>
 			<div style={{ textAlign: "right"}}>
 				<Button
+					disabled={repayAmount === ''}
 					style={{ textTransform: "none", width: 150, marginTop: 30}}
 					variant="contained"
 					color="primary"
-					onClick={() => props.onRepay(rateMode, toBigNumberWei(repayAmount))}
+					onClick={() => onRepay(rateMode, toBigNumberWei(repayAmount))}
 					>
 					Repay
 				</Button>

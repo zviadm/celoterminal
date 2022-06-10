@@ -36,6 +36,7 @@ const Borrow = (
 			/>
 			<div style={{ textAlign: "right"}}>
 				<Button
+					disabled={borrowAmount === ''}
 					style={{ textTransform: "none", width: 150, marginTop: 30}}
 					variant="contained"
 					color="primary"

@@ -41,6 +41,7 @@ const AutoRepay = (
 			</div>
 			<div style={{ textAlign: "right"}}>
 				<Button
+					disabled={minHealthFactor === '' || maxHealthFactor === ''}
 					style={{ textTransform: "none", width: 150, marginTop: 30}}
 					variant="contained"
 					color="primary"

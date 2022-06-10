@@ -3,7 +3,7 @@ import { Box, LinearProgress, Table, TableBody, TableRow, TableCell  } from '@ma
 import SectionTitle from '../../components/section-title'
 import { userReserveData } from './moola-helper'
 
-const UserReserveStatuas = (
+const UserReserveStatus = (
 	props: {
 		tokenName: string,
 		isFetching: boolean,
@@ -15,7 +15,7 @@ const UserReserveStatuas = (
 			<SectionTitle>{props.tokenName} User Reserve Status</SectionTitle>
 			{props.isFetching ? <LinearProgress /> : <Table size="small">
 				<TableBody>
-					{Object.keys(props.userReserveData || {}).map((key) => (<TableRow>
+					{Object.keys(props.userReserveData || {}).map((key) => (<TableRow key={key}>
 							<TableCell>{key}</TableCell>
 							<TableCell>{props.userReserveData[key as keyof typeof props.userReserveData]}</TableCell>
 						</TableRow>)
@@ -25,4 +25,4 @@ const UserReserveStatuas = (
 		</Box>
 	)
 }
-export default UserReserveStatuas
+export default UserReserveStatus

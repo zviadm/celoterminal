@@ -93,7 +93,7 @@ function formattedUserReserveData(userData: onChainUserData, reserveData: onChai
 		'Principal Stable Debt': print(userData.principalStableDebt),
 		'Current Stable Debt': print(userData.currentStableDebt),
 		'Scaled Variable Debt': print(userData.scaledVariableDebt),
-		'Current Varable Debt': print(userData.currentVariableDebt),
+		'Current Variable Debt': print(userData.currentVariableDebt),
 		'Liquidity Rate': printRayRate(userData.liquidityRate),
 		'Is Collateral': userData.usageAsCollateralEnabled ? 'YES' : 'NO',
 	};

@@ -5,7 +5,8 @@ import BigNumber from 'bignumber.js'
 import { toBigNumberWei } from './moola-helper'
 
 const Withdraw = (
-	props: {
+	{totalDeposited, onWithdraw }: {
+		totalDeposited: string,
 		onWithdraw: (amount: BigNumber) => void
 	}
 ): JSX.Element => {
@@ -20,13 +21,15 @@ const Withdraw = (
 				value={withdrawAmount}
 				placeholder="0.0"
 				onChangeValue={setwithDrawAmount}
+				maxValue={new BigNumber(totalDeposited)}
 			/>
 			<div style={{ textAlign: "right"}}>
 				<Button
+					disabled={withdrawAmount === ''}
 					style={{ textTransform: "none", width: 150, marginTop: 30}}
 					variant="contained"
 					color="primary"
-					onClick={() => props.onWithdraw(toBigNumberWei(withdrawAmount))} // TODO-- apporve lending pool
+					onClick={() => onWithdraw(toBigNumberWei(withdrawAmount))} // TODO-- apporve lending pool
 					>
 					Withdraw
 				</Button>

@@ -59,6 +59,7 @@ const CreditDelegationBorrowerSection = (
 			/>
 			<div style={{ textAlign: "right" }}>
 				<Button
+					disabled={amount === ''}
 					style={{ textTransform: "none", width: 150, marginTop: 30 }}
 					variant="contained"
 					color="primary"

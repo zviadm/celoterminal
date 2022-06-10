@@ -1,13 +1,16 @@
 import BigNumber from 'bignumber.js'
 import { coreErc20Decimals } from '../../../lib/erc20/core'
 const ethers = require('ethers');
+import { mainnetChainId, alfajoresChainId } from '../../../lib/cfg';
+import { CeloTokenType } from "@celo/contractkit"
 
 export const toBigNumberWei = (num: string) => new BigNumber(num).shiftedBy(coreErc20Decimals)
+export const MOOLA_AVAILABLE_CHAIN_IDS = [mainnetChainId, alfajoresChainId]
 
 export const buildLiquiditySwapParams = (
   assetToSwapToList: string[],
   minAmountsToReceive:  string[],
-  swapAllBalances: boolean[],
+  swapAllBalances: number[],
   permitAmounts: number[],
   deadlines: number[],
   v: number[],
@@ -91,19 +94,19 @@ export const buildSwapAndRepayParams = (
   )
 }
 
-export const ether = '1000000000000000000';
-export const ray = '1000000000000000000000000000';
+export const ETHER = '1000000000000000000';
+export const RAY = '1000000000000000000000000000';
 
 export const BN = (num: number | BigNumber | string) => {
   return new BigNumber(num);
 }
 
 export const print = (num: number | string) => {
-  return BN(num).dividedBy(ether).toFixed();
+  return BN(num).dividedBy(ETHER).toFixed();
 }
 
 export const printRayRate = (num: number | string) => {
-  return BN(num).dividedBy(ray).multipliedBy(BN(100)).toFixed(2) + '%';
+  return BN(num).dividedBy(RAY).multipliedBy(BN(100)).toFixed(2) + '%';
 }
 
 export const getTokenToSwapPrice = (amount: BigNumber, tokenFromPrice: BigNumber, tokenToPrice: BigNumber) => {
@@ -168,7 +171,7 @@ export interface userReserveData {
 	'Principal Stable Debt': string,
 	'Current Stable Debt': string,
 	'Scaled Variable Debt': string,
-	'Current Varable Debt': string,
+	'Current Variable Debt': string,
 	'Liquidity Rate': string,
 	'Is Collateral': string,
 }
@@ -181,6 +184,17 @@ export interface reserveData {
      'Variable Borrow Rate': string,            
       'Stable Borrow Rate': string,                
   'Average Stable Rate': string,               
+}
+
+export interface moolaToken {
+	readonly name: string,
+	readonly symbol: CeloTokenType,
+	readonly decimals: number,
+	readonly addresses: {
+		mainnet: string,
+		baklava: string,
+		alfajores: string,
+	}
 }
 
 export const lendingPoolDataProviderAddresses = {

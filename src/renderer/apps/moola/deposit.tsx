@@ -13,6 +13,8 @@ const Deposit = (
 
 	const [depositAmount, setDepositAmount] = React.useState("")
 
+	const buttonDisalbed = depositAmount === '';
+
 	return (
 		<Box display="flex" flexDirection="column">
 			<NumberInput
@@ -26,6 +28,7 @@ const Deposit = (
 			/>
 			<div style={{ textAlign: "right"}}>
 				<Button
+					disabled={buttonDisalbed}
 					style={{ textTransform: "none", width: 150, marginTop: 30}}
 					variant="contained"
 					color="primary"
