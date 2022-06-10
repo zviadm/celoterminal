@@ -9,6 +9,6 @@ export const Moola: AppDefinition = {
 	icon: <img src={icon} width="24px" />,
 	iconLarge: <img src={icon} width="35px" />,
 	url: "https://docs.celo.org/celo-codebase/protocol/stability",
-	description: `Moola APP update later#TODO--`,
+	description: `A non-custodial liquidity protocol that is democratizing access to yield and credit`,
 	renderApp: MoolaApp,
 };

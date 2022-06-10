@@ -1,16 +1,24 @@
-import { coreErc20s, coreErc20Decimals } from '../../../lib/erc20/core'
-import { CeloTokenType, ContractKit, StableToken, Token } from "@celo/contractkit"
-import {moolaToken} from './moola-helper'
+import { coreErc20s, coreErc20Decimals } from "../../../lib/erc20/core";
+import { moolaToken } from "./moola-helper";
 
-export const stableTokens = coreErc20s.filter((e) => e.symbol !== "CELO")
+export const stableTokens = coreErc20s.filter((e) => e.symbol !== "CELO");
 
 export const availableRateMode: {
-	readonly stable: number,
-	readonly variable: number,
+	readonly stable: number;
+	readonly variable: number;
 } = {
-	'stable': 1,
-	'variable': 2
-}
+	stable: 1,
+	variable: 2,
+};
 
+const MOO: moolaToken = {
+	name: "Moola",
+	symbol: "MOO",
+	decimals: coreErc20Decimals,
+	addresses: {
+		mainnet: "0x17700282592D6917F6A73D0bF8AcCf4D578c131e",
+		alfajores: "0x17700282592D6917F6A73D0bF8AcCf4D578c131e",
+	},
+};
 
-export const moolaTokens: moolaToken[] = [...coreErc20s]
+export const moolaTokens: moolaToken[] = [...coreErc20s, MOO];
