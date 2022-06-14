@@ -8,9 +8,9 @@ import {
 	Tooltip,
 } from "@material-ui/core";
 import { CeloTokenType } from "@celo/contractkit";
-import NumberInput from "../../components/number-input";
 import BigNumber from "bignumber.js";
-import { toBigNumberWei, moolaToken } from "./moola-helper";
+import NumberInput from "../../components/number-input";
+import { moolaToken, toBigNumberWei } from "./moola-helper";
 
 const LiquiditySwap = ({
 	onLiquiditySwap,
@@ -22,7 +22,7 @@ const LiquiditySwap = ({
 	toTokens: moolaToken[];
 	tokenMenuItems: JSX.Element[];
 	tokenName: string;
-}) => {
+}): JSX.Element => {
 	const [amount, setAmount] = React.useState("");
 	const [toToken, setToToken] = React.useState(toTokens[0].symbol);
 

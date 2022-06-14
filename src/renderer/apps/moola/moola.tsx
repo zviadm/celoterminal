@@ -11,7 +11,7 @@ import { Account } from "../../../lib/accounts/accounts";
 import { TXFunc, TXFinishFunc } from "../../components/app-definition";
 import { newErc20 } from "../../../lib/erc20/erc20-contract";
 import { Moola } from "./def";
-import { moolaTokens } from "./config";
+import { moolaTokens, MOO } from "./config";
 import { CFG, selectAddressOrThrow } from "../../../lib/cfg";
 
 import AppHeader from "../../components/app-header";
@@ -86,13 +86,10 @@ const MoolaApp = (props: {
 		"terminal/moola/actions",
 		actions[0]
 	);
-	const tokenInfo: moolaToken | undefined = moolaTokens.find(
-		(e) => e.symbol === selectedToken
-	);
-	if (!tokenInfo) {
-		throw new Error("Selected token is invalid.");
-	}
-	const tokenAddress = selectAddressOrThrow(tokenInfo.addresses);
+	const tokenInfo: moolaToken =
+		moolaTokens.find((e) => e.symbol === selectedToken) || MOO;
+
+	const tokenAddress = tokenInfo?.address || ZERO_HASH;
 	const accountState = useOnChainState(
 		React.useCallback(
 			async (kit: ContractKit) => {
@@ -389,6 +386,9 @@ const MoolaApp = (props: {
 					collateralAssetInfo.addresses
 				);
 				const debtAssetAddress = selectAddressOrThrow(debtAssetInfo.addresses);
+				if (!collateralAssetAddress || debtAssetAddress) {
+					throw new Error("Collateral asset or debt asset address is invalid");
+				}
 				const useATokenAsFrom = collateralAssetSymbol != "CELO";
 				const useATokenAsTo = debtAssetSymbol != "CELO";
 
@@ -535,8 +535,14 @@ const MoolaApp = (props: {
 				const assetToInfo = moolaTokens.find(
 					(token) => token.symbol === assetToSymbol
 				);
-				const assetFromAddress = selectAddressOrThrow(assetFromInfo!.addresses);
-				const assetToAddress = selectAddressOrThrow(assetToInfo!.addresses);
+				if (!assetFromInfo || !assetToInfo) {
+					throw new Error("Selected tokens are invalid");
+				}
+				const assetFromAddress = selectAddressOrThrow(assetFromInfo.addresses);
+				const assetToAddress = selectAddressOrThrow(assetToInfo.addresses);
+				if (!assetFromAddress || !assetToAddress) {
+					throw new Error("Asset address is invalid");
+				}
 				const useAtokenAsFrom = assetFromSymbol != "CELO";
 				const useAtokenAsTo = assetToSymbol != "CELO";
 

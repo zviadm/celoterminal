@@ -1,10 +1,9 @@
 import BigNumber from "bignumber.js";
-import { GoldTokenWrapper } from "@celo/contractkit/src/GoldTokenWrapper";
 import { coreErc20Decimals } from "../../../lib/erc20/core";
 import ethers from "ethers";
 import { mainnetChainId, alfajoresChainId } from "../../../lib/cfg";
 
-export const toBigNumberWei = (num: string) =>
+export const toBigNumberWei = (num: string): BigNumber =>
 	new BigNumber(num).shiftedBy(coreErc20Decimals);
 export const MOOLA_AVAILABLE_CHAIN_IDS = [mainnetChainId, alfajoresChainId];
 
@@ -51,7 +50,7 @@ export const buildLiquiditySwapParams = (
 	useEthPath: boolean[],
 	useATokenAsFrom: boolean[],
 	useATokenAsTo: boolean[]
-) => {
+): string => {
 	return ethers.utils.defaultAbiCoder.encode(
 		[
 			"address[]",
@@ -94,7 +93,7 @@ export const buildSwapAndRepayParams = (
 	useEthPath: boolean,
 	useATokenAsFrom: boolean,
 	useATokenAsTo: boolean
-) => {
+): string => {
 	return ethers.utils.defaultAbiCoder.encode(
 		[
 			"address",
@@ -144,7 +143,7 @@ export const getTokenToSwapPrice = (
 	amount: BigNumber,
 	tokenFromPrice: BigNumber,
 	tokenToPrice: BigNumber
-) => {
+): string => {
 	return BN(amount)
 		.multipliedBy(BN(tokenFromPrice))
 		.dividedBy(BN(tokenToPrice))

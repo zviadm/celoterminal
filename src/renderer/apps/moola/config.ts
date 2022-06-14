@@ -1,8 +1,6 @@
 import { coreErc20s, coreErc20Decimals } from "../../../lib/erc20/core";
 import { moolaToken } from "./moola-helper";
 
-export const stableTokens = coreErc20s.filter((e) => e.symbol !== "CELO");
-
 export const availableRateMode: {
 	readonly stable: number;
 	readonly variable: number;
@@ -11,7 +9,7 @@ export const availableRateMode: {
 	variable: 2,
 };
 
-const MOO: moolaToken = {
+export const MOO: moolaToken = {
 	name: "Moola",
 	symbol: "MOO",
 	decimals: coreErc20Decimals,
