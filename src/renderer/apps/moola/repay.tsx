@@ -20,7 +20,7 @@ const Repay = ({
 	const [repayAmount, setRepayAmount] = React.useState("");
 
 	const totalDebt =
-		rateMode === 1 ? new BigNumber(stableDebt) : new BigNumber(stableDebt);
+		rateMode === 1 ? new BigNumber(stableDebt) : new BigNumber(variableDebt);
 	const maxRepayAmount = BN(tokenBalance).isLessThan(totalDebt)
 		? tokenBalance
 		: totalDebt;
@@ -48,7 +48,7 @@ const Repay = ({
 			</Select>
 			<InputLabel style={{ marginTop: 18 }}>Amount to repay</InputLabel>
 			<NumberInput
-				id="sell-amount-input"
+				id="repay-amount-input"
 				margin="dense"
 				maxValue={maxRepayAmount}
 				onChangeValue={setRepayAmount}

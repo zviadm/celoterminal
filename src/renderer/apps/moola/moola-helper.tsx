@@ -1,11 +1,43 @@
 import BigNumber from "bignumber.js";
+import { GoldTokenWrapper } from "@celo/contractkit/src/GoldTokenWrapper";
 import { coreErc20Decimals } from "../../../lib/erc20/core";
-const ethers = require("ethers");
+import ethers from "ethers";
 import { mainnetChainId, alfajoresChainId } from "../../../lib/cfg";
 
 export const toBigNumberWei = (num: string) =>
 	new BigNumber(num).shiftedBy(coreErc20Decimals);
 export const MOOLA_AVAILABLE_CHAIN_IDS = [mainnetChainId, alfajoresChainId];
+
+export const defaultUserAccountData: userAccountData = {
+	"Total Collateral": "0",
+	"Total Debt": "0",
+	"Available Borrow": "0",
+	"Liquidation Threshold": "0",
+	"Loan To Value": "0",
+	"Health Factor": "0",
+};
+
+export const defaultUserReserveData: userReserveData = {
+	Deposited: "0",
+	"Stable Borrow Rate": "0",
+	"Variable Borrow Rate": "0",
+	"Principal Stable Debt": "0",
+	"Current Stable Debt": "0",
+	"Scaled Variable Debt": "0",
+	"Current Variable Debt": "0",
+	"Liquidity Rate": "0",
+	"Is Collateral": "N.A",
+};
+
+export const defaultReserveData: reserveData = {
+	"Available Liquidity": "0",
+	"Total Stable Borrows": "0",
+	"Total Variable Borrows": "0",
+	"Liquidity Rate": "0",
+	"Variable Borrow Rate": "0",
+	"Stable Borrow Rate": "0",
+	"Average Stable Rate": "0",
+};
 
 export const buildLiquiditySwapParams = (
 	assetToSwapToList: string[],

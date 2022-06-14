@@ -34,7 +34,7 @@ const Borrow = (props: {
 			</Select>
 			<InputLabel style={{ marginTop: 18 }}>Amount to borrow</InputLabel>
 			<NumberInput
-				id="sell-amount-input"
+				id="borrow-amount-input"
 				margin="dense"
 				onChangeValue={setwitBorrowAmount}
 				placeholder="0.0"

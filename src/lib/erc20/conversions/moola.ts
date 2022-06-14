@@ -11,8 +11,6 @@ export const convertMToken: ConversionFunc = async (
 		return {coreErc20: StableToken.cUSD, amount: amount}
 	case "mCEUR":
 		return {coreErc20: StableToken.cEUR, amount: amount}
-	case "mCREAL":
-		return {coreErc20: StableToken.cREAL, amount: amount}
 	default:
 		throw new Error(`Unexpected token: ${erc20.symbol}`)
 	}

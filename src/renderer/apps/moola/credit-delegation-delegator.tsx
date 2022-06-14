@@ -64,7 +64,7 @@ const CreditDelegationDeleagtor = (props: {
 			</Select>
 			<InputLabel style={{ marginTop: 18 }}>Amount</InputLabel>
 			<NumberInput
-				id="sell-amount-input"
+				id="delegation-amount-input"
 				margin="dense"
 				onChangeValue={setDelegateAmount}
 				placeholder="0.0"

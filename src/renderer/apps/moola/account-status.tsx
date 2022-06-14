@@ -26,7 +26,7 @@ const AccountStatus = ({
 				<Table size="small">
 					<TableBody>
 						{Object.keys(userAccountData || {}).map((key) => (
-							<TableRow>
+							<TableRow key={key}>
 								<TableCell>{key}</TableCell>
 								<TableCell>
 									{userAccountData[key as keyof typeof userAccountData]}

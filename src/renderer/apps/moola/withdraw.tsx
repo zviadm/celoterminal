@@ -16,7 +16,7 @@ const Withdraw = ({
 	return (
 		<Box display="flex" flexDirection="column">
 			<NumberInput
-				id="sell-amount-input"
+				id="withdraw-amount-input"
 				label="Amount"
 				margin="normal"
 				maxValue={new BigNumber(totalDeposited)}
@@ -28,7 +28,7 @@ const Withdraw = ({
 				<Button
 					color="primary"
 					disabled={withdrawAmount === ""}
-					onClick={() => onWithdraw(toBigNumberWei(withdrawAmount))} // TODO-- apporve lending pool
+					onClick={() => onWithdraw(toBigNumberWei(withdrawAmount))}
 					style={{ textTransform: "none", width: 150, marginTop: 30 }}
 					variant="contained"
 				>

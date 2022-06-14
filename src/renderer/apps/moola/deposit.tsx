@@ -18,7 +18,7 @@ const Deposit = ({
 	return (
 		<Box display="flex" flexDirection="column">
 			<NumberInput
-				id="sell-amount-input"
+				id="deposit-amount-input"
 				label="Amount"
 				margin="normal"
 				maxValue={tokenBalance}
@@ -30,7 +30,8 @@ const Deposit = ({
 				<Button
 					color="primary"
 					disabled={buttonDisalbed}
-					onClick={() => onDeposit(toBigNumberWei(depositAmount))} // TODO-- apporve lending pool
+					onClick={() => onDeposit(toBigNumberWei(depositAmount))}
+					id="confirm-deposit"
 					style={{ textTransform: "none", width: 150, marginTop: 30 }}
 					variant="contained"
 				>

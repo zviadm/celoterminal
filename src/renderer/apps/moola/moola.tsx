@@ -54,6 +54,10 @@ import {
 	buildSwapAndRepayParams,
 	ZERO_HASH,
 	MOOLA_AVAILABLE_CHAIN_IDS,
+	defaultUserAccountData,
+	defaultReserveData,
+	defaultUserReserveData,
+	moolaToken,
 } from "./moola-helper";
 
 const MoolaApp = (props: {
@@ -82,12 +86,17 @@ const MoolaApp = (props: {
 		"terminal/moola/actions",
 		actions[0]
 	);
-	const tokenInfo = moolaTokens.find((e) => e.symbol === selectedToken);
-	const tokenAddress = selectAddressOrThrow(tokenInfo!.addresses);
+	const tokenInfo: moolaToken | undefined = moolaTokens.find(
+		(e) => e.symbol === selectedToken
+	);
+	if (!tokenInfo) {
+		throw new Error("Selected token is invalid.");
+	}
+	const tokenAddress = selectAddressOrThrow(tokenInfo.addresses);
 	const accountState = useOnChainState(
 		React.useCallback(
 			async (kit: ContractKit) => {
-				const selectedErc20 = await newErc20(kit, tokenInfo!);
+				const selectedErc20 = await newErc20(kit, tokenInfo);
 				const balance = await selectedErc20.balanceOf(account.address);
 				return {
 					balance,
@@ -103,7 +112,7 @@ const MoolaApp = (props: {
 	const isFetching = accountState.isFetching || userOnchainState.isFetching;
 
 	if (!MOOLA_AVAILABLE_CHAIN_IDS.includes(CFG().chainId.toString())) {
-		throw new Error(`Moola not available on chainId: ${CFG().chainId}!`);
+		throw new Error(`Moola is not available on chainId: ${CFG().chainId}!`);
 	}
 
 	let lendingPoolAddress: string;
@@ -116,10 +125,10 @@ const MoolaApp = (props: {
 	const handleDeposit = (amount: BigNumber) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
-				if (isFetching) return [];
+				if (isFetching || !userOnchainState.fetched) return [];
 
 				// approve
-				const tokenContract = await newErc20(kit, tokenInfo!);
+				const tokenContract = await newErc20(kit, tokenInfo);
 				const txApprove = tokenContract.approve(lendingPoolAddress, amount);
 
 				// deposit
@@ -143,7 +152,7 @@ const MoolaApp = (props: {
 	const handleWithdraw = (amount: BigNumber) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
-				if (isFetching) return [];
+				if (isFetching || !userOnchainState.fetched) return [];
 
 				const LendingPool = new kit.web3.eth.Contract(
 					LendingPoolABI as AbiItem[],
@@ -165,7 +174,7 @@ const MoolaApp = (props: {
 	const handleBorrow = (rateMode: number, amount: BigNumber) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
-				if (isFetching) return [];
+				if (isFetching || !userOnchainState.fetched) return [];
 
 				const LendingPool = new kit.web3.eth.Contract(
 					LendingPoolABI as AbiItem[],
@@ -193,10 +202,10 @@ const MoolaApp = (props: {
 	const handleRepay = (rateMode: number, amount: BigNumber) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
-				if (isFetching) return [];
+				if (isFetching || !userOnchainState.fetched) return [];
 
 				// approve
-				const tokenContract = await newErc20(kit, tokenInfo!);
+				const tokenContract = await newErc20(kit, tokenInfo);
 				const txApprove = tokenContract.approve(lendingPoolAddress, amount);
 
 				// repay
@@ -229,7 +238,7 @@ const MoolaApp = (props: {
 	) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
-				if (isFetching) return [];
+				if (isFetching || !userOnchainState.fetched) return [];
 
 				const LendingPool = new kit.web3.eth.Contract(
 					LendingPoolABI as AbiItem[],
@@ -261,9 +270,9 @@ const MoolaApp = (props: {
 	) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
-				if (isFetching) return [];
+				if (isFetching || !userOnchainState.fetched) return [];
 
-				const tokenContract = await newErc20(kit, tokenInfo!);
+				const tokenContract = await newErc20(kit, tokenInfo);
 				const txApprove = tokenContract.approve(lendingPoolAddress, amount);
 
 				const LendingPool = new kit.web3.eth.Contract(
@@ -295,7 +304,7 @@ const MoolaApp = (props: {
 	) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
-				if (isFetching) return [];
+				if (isFetching || !userOnchainState.fetched) return [];
 
 				const LendingPoolDataProvider = new kit.web3.eth.Contract(
 					LendingPoolDataProviderABI as AbiItem[],
@@ -332,11 +341,11 @@ const MoolaApp = (props: {
 	) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
-				if (isFetching) return [];
+				if (isFetching || !userOnchainState.fetched) return [];
 
 				const AutoRepay = new kit.web3.eth.Contract(
 					AutoRepayABI as AbiItem[],
-					userOnchainState.fetched!.autoRepayAddress
+					userOnchainState.fetched.autoRepayAddress
 				);
 				const tx = toTransactionObject(
 					kit.connection,
@@ -363,19 +372,23 @@ const MoolaApp = (props: {
 	) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
-				if (isFetching) return [];
+				if (isFetching || !userOnchainState.fetched) return [];
 
 				const txs = [];
-				const collateralAssetInfo = moolaTokens.find(
+				const collateralAssetInfo: moolaToken | undefined = moolaTokens.find(
 					(token) => token.symbol === collateralAssetSymbol
 				);
-				const debtAssetInfo = moolaTokens.find(
+
+				const debtAssetInfo: moolaToken | undefined = moolaTokens.find(
 					(token) => token.symbol === debtAssetSymbol
 				);
+				if (!collateralAssetInfo || !debtAssetInfo) {
+					throw new Error("Cannot find selected collateral asset");
+				}
 				const collateralAssetAddress = selectAddressOrThrow(
-					collateralAssetInfo!.addresses
+					collateralAssetInfo.addresses
 				);
-				const debtAssetAddress = selectAddressOrThrow(debtAssetInfo!.addresses);
+				const debtAssetAddress = selectAddressOrThrow(debtAssetInfo.addresses);
 				const useATokenAsFrom = collateralAssetSymbol != "CELO";
 				const useATokenAsTo = debtAssetSymbol != "CELO";
 
@@ -397,7 +410,7 @@ const MoolaApp = (props: {
 
 				const Ubeswap = new kit.web3.eth.Contract(
 					UbeswapABI as AbiItem[],
-					userOnchainState.fetched!.ubeswapAddress
+					userOnchainState.fetched.ubeswapAddress
 				);
 				let maxCollateralAmount: string = BN("0").toFixed(0);
 				if (collateralAssetSymbol !== debtAssetSymbol) {
@@ -422,7 +435,7 @@ const MoolaApp = (props: {
 					repayAdapterAddress,
 					lendingPoolAddress,
 				}: { repayAdapterAddress: string; lendingPoolAddress: string } =
-					userOnchainState.fetched!;
+					userOnchainState.fetched;
 				if (
 					BN(
 						await mToken.methods
@@ -504,7 +517,7 @@ const MoolaApp = (props: {
 	const handleLiquiditySwap = (assetToSymbol: string, amount: BigNumber) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
-				if (isFetching) return [];
+				if (isFetching || !userOnchainState.fetched) return [];
 
 				const {
 					priceOracleAddress,
@@ -512,7 +525,7 @@ const MoolaApp = (props: {
 				}: {
 					priceOracleAddress: string;
 					liquiditySwapAdapterAddress: string;
-				} = userOnchainState.fetched!;
+				} = userOnchainState.fetched;
 
 				const txs = [];
 				const assetFromSymbol = selectedToken;
@@ -610,7 +623,7 @@ const MoolaApp = (props: {
 	};
 
 	const tokenBalance =
-		accountState.fetched?.balance.shiftedBy(-tokenInfo!.decimals) ||
+		accountState.fetched?.balance.shiftedBy(-tokenInfo.decimals) ||
 		new BigNumber("0");
 	const tokenMenuItems: JSX.Element[] = tokenNames.map((token) => (
 		<MenuItem key={token} value={token}>
@@ -632,7 +645,9 @@ const MoolaApp = (props: {
 		Withdraw: (
 			<Withdraw
 				onWithdraw={handleWithdraw}
-				totalDeposited={userOnchainState.fetched?.userReserveData.Deposited!}
+				totalDeposited={
+					userOnchainState.fetched?.userReserveData.Deposited || "0"
+				}
 			/>
 		),
 		Borrow: <Borrow onBorrow={handleBorrow} />,
@@ -640,11 +655,13 @@ const MoolaApp = (props: {
 			<Repay
 				onRepay={handleRepay}
 				stableDebt={
-					userOnchainState.fetched?.userReserveData!["Current Stable Debt"]!
+					userOnchainState.fetched?.userReserveData["Current Stable Debt"] ||
+					"0"
 				}
 				tokenBalance={tokenBalance}
 				variableDebt={
-					userOnchainState.fetched?.userReserveData!["Current Variable Debt"]!
+					userOnchainState.fetched?.userReserveData["Current Variable Debt"] ||
+					"0"
 				}
 			/>
 		),
@@ -682,7 +699,9 @@ const MoolaApp = (props: {
 			<AppSection>
 				<AccountStatus
 					isFetching={isFetching}
-					userAccountData={userOnchainState.fetched?.userAccountData!}
+					userAccountData={
+						userOnchainState.fetched?.userAccountData || defaultUserAccountData
+					}
 				/>
 			</AppSection>
 
@@ -729,7 +748,9 @@ const MoolaApp = (props: {
 			<AppSection>
 				<ReserveStatus
 					isFetching={isFetching}
-					reserveData={userOnchainState.fetched?.reserveData!}
+					reserveData={
+						userOnchainState.fetched?.reserveData || defaultReserveData
+					}
 					tokenName={selectedToken}
 				/>
 			</AppSection>
@@ -737,7 +758,9 @@ const MoolaApp = (props: {
 				<UserReserveStatus
 					isFetching={isFetching}
 					tokenName={selectedToken}
-					userReserveData={userOnchainState.fetched?.userReserveData!}
+					userReserveData={
+						userOnchainState.fetched?.userReserveData || defaultUserReserveData
+					}
 				/>
 			</AppSection>
 		</AppContainer>

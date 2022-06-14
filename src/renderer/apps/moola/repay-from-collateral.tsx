@@ -8,11 +8,10 @@ import {
 	Tooltip,
 } from "@material-ui/core";
 import { CeloTokenType } from "@celo/contractkit";
-import { moolaTokens } from "./config";
+import { availableRateMode, moolaTokens } from "./config";
 import NumberInput from "../../components/number-input";
 import BigNumber from "bignumber.js";
 import { toBigNumberWei } from "./moola-helper";
-import { availableRateMode } from "./config";
 
 const RepayFromCollateral = ({
 	tokenName,
