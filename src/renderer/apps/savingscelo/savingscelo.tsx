@@ -51,7 +51,7 @@ const savingsWithUbeAddresses: {[key: string]: string} = {
 const savingsWithUbeAddress: string = savingsWithUbeAddresses[CFG().chainId]
 const sCELOUbeFarmAddress: string | undefined =
 	CFG().chainId === mainnetChainId ? "0xd4C9675b0AE1397fC5b2D3356736A02d86347f2d" : undefined
-const sCELO = registeredErc20s.find((e) => e.symbol === "sCELO")
+const sCELO = registeredErc20s.find((e) => e.symbol === "sCELOxDEPRECATED")
 
 const SavingsCELOApp = (props: {
 	accounts: Account[],
@@ -79,16 +79,6 @@ const SavingsCELOApp = (props: {
 			refetchAll()
 			if (cb) { cb(e) }
 		}
-	}
-	const handleDeposit = (toDeposit_CELO: BigNumber, cb: (e?: Error) => void) => {
-		props.runTXs(
-			async (kit: ContractKit) => {
-				const sKit = await newSavingsCELOWithUbeKit(kit, savingsWithUbeAddress)
-				const tx = sKit.deposit()
-				return [{tx: tx, params: {value: toDeposit_CELO.toString(10)}}]
-			},
-			onFinishTXs(cb),
-		)
 	}
 	const handleWithdrawStart = (toWithdraw_CELO: BigNumber, cb: (e?: Error) => void) => {
 		props.runTXs(
@@ -258,15 +248,7 @@ const SavingsCELOApp = (props: {
 						/>
 					</TabList>
 					<TabPanel value="deposit">
-						<Deposit
-							balance_CELO={fetched.balance_CELO}
-							ubeReserve_CELO={fetched.ubeReserves.reserve_CELO}
-							ubeReserve_sCELO={fetched.ubeReserves.reserve_sCELO}
-							savingsTotal_CELO={fetched.savingsTotals.celoTotal}
-							savingsTotal_sCELO={fetched.savingsTotals.savingsTotal}
-							ubeswapPoolURL={fetched.ubeswapPoolURL}
-							onDeposit={handleDeposit}
-						/>
+						<Deposit />
 					</TabPanel>
 					<TabPanel value="withdraw">
 						<Withdraw
