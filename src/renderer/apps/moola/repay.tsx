@@ -21,9 +21,9 @@ const Repay = ({
 
 	const totalDebt =
 		rateMode === 1 ? new BigNumber(stableDebt) : new BigNumber(variableDebt);
-	const maxRepayAmount = BN(tokenBalance).isLessThan(totalDebt)
-		? tokenBalance
-		: totalDebt;
+	const maxRepayAmount = BN(totalDebt).isEqualTo(BN("0"))
+		? BN("0")
+		: BN(tokenBalance);
 
 	return (
 		<Box display="flex" flexDirection="column">

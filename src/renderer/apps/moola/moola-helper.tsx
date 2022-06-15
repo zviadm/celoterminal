@@ -230,6 +230,7 @@ export interface moolaToken {
 		baklava?: string;
 		alfajores: string;
 	};
+	address?: string;
 }
 
 export const lendingPoolDataProviderAddresses = {

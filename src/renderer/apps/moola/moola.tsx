@@ -89,7 +89,9 @@ const MoolaApp = (props: {
 	const tokenInfo: moolaToken =
 		moolaTokens.find((e) => e.symbol === selectedToken) || MOO;
 
-	const tokenAddress = tokenInfo?.address || ZERO_HASH;
+	const tokenAddress = selectAddressOrThrow(tokenInfo.addresses);
+	tokenInfo.address = tokenAddress;
+
 	const accountState = useOnChainState(
 		React.useCallback(
 			async (kit: ContractKit) => {
@@ -241,6 +243,7 @@ const MoolaApp = (props: {
 					LendingPoolABI as AbiItem[],
 					lendingPoolAddress
 				);
+
 				const tx = toTransactionObject(
 					kit.connection,
 					LendingPool.methods.borrow(
