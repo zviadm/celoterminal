@@ -389,7 +389,7 @@ const MoolaApp = (props: {
 					collateralAssetInfo.addresses
 				);
 				const debtAssetAddress = selectAddressOrThrow(debtAssetInfo.addresses);
-				if (!collateralAssetAddress || debtAssetAddress) {
+				if (!collateralAssetAddress || !debtAssetAddress) {
 					throw new Error("Collateral asset or debt asset address is invalid");
 				}
 				const useATokenAsFrom = collateralAssetSymbol != "CELO";

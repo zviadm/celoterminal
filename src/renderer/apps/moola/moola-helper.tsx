@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { coreErc20Decimals } from "../../../lib/erc20/core";
-import ethers from "ethers";
+import { ethers } from "ethers";
 import { mainnetChainId, alfajoresChainId } from "../../../lib/cfg";
 
 export const toBigNumberWei = (num: string): BigNumber =>
