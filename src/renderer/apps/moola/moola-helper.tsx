@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { coreErc20Decimals } from "../../../lib/erc20/core";
-import { ethers } from "ethers";
+import Web3 from "web3";
 import { mainnetChainId, alfajoresChainId } from "../../../lib/cfg";
 
 export const toBigNumberWei = (num: string): BigNumber =>
@@ -39,6 +39,7 @@ export const defaultReserveData: reserveData = {
 };
 
 export const buildLiquiditySwapParams = (
+	web3: Web3,
 	assetToSwapToList: string[],
 	minAmountsToReceive: string[],
 	swapAllBalances: number[],
@@ -51,7 +52,7 @@ export const buildLiquiditySwapParams = (
 	useATokenAsFrom: boolean[],
 	useATokenAsTo: boolean[]
 ): string => {
-	return ethers.utils.defaultAbiCoder.encode(
+	return web3.eth.abi.encodeParameters(
 		[
 			"address[]",
 			"uint256[]",
@@ -82,6 +83,7 @@ export const buildLiquiditySwapParams = (
 };
 
 export const buildSwapAndRepayParams = (
+	web3: Web3,
 	collateralAsset: string,
 	collateralAmount: string,
 	rateMode: number,
@@ -94,7 +96,7 @@ export const buildSwapAndRepayParams = (
 	useATokenAsFrom: boolean,
 	useATokenAsTo: boolean
 ): string => {
-	return ethers.utils.defaultAbiCoder.encode(
+	return web3.eth.abi.encodeParameters(
 		[
 			"address",
 			"uint256",
@@ -127,15 +129,15 @@ export const buildSwapAndRepayParams = (
 export const ETHER = "1000000000000000000";
 export const RAY = "1000000000000000000000000000";
 
-export const BN = (num: number | BigNumber | string) => {
+export const BN = (num: number | BigNumber | string): BigNumber => {
 	return new BigNumber(num);
 };
 
-export const print = (num: number | string) => {
+export const print = (num: number | string): string => {
 	return BN(num).dividedBy(ETHER).toFixed();
 };
 
-export const printRayRate = (num: number | string) => {
+export const printRayRate = (num: number | string): string => {
 	return BN(num).dividedBy(RAY).multipliedBy(BN(100)).toFixed(2) + "%";
 };
 

@@ -458,6 +458,7 @@ const MoolaApp = (props: {
 
 				if (useFlashLoan) {
 					const callParams = buildSwapAndRepayParams(
+						kit.web3,
 						collateralAssetAddress,
 						maxCollateralAmount,
 						rateMode,
@@ -587,6 +588,7 @@ const MoolaApp = (props: {
 				}
 
 				const liquiditySwapParams = buildLiquiditySwapParams(
+					kit.web3,
 					[assetToAddress],
 					[tokenSwapPrice],
 					[0],

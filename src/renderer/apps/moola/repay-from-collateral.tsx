@@ -27,7 +27,7 @@ const RepayFromCollateral = ({
 		useFlashLoan: boolean
 	) => void;
 	tokenMenuItems: JSX.Element[];
-}) => {
+}): JSX.Element => {
 	const [amount, setAmount] = React.useState("");
 	const [rateMode, setRateMode] = React.useState(availableRateMode.stable);
 	const [collateralAsset, setCollateralAsset] = React.useState(
