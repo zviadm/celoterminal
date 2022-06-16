@@ -11,6 +11,7 @@ import { SavingsCELO } from './savingscelo/def'
 import { SendReceive } from './send-receive/def'
 import { WalletConnect } from './wallet-connect/def'
 import { Swappa } from './swappa/def'
+import { Moola } from './moola/def'
 import { Crasher } from './test-crasher/def'
 
 export const AppList: AppDefinition[] = [
@@ -28,6 +29,7 @@ export const AppList: AppDefinition[] = [
 	SCInspector,
 	SavingsCELO,
 	Swappa,
+	Moola,
 ].concat(remote.app.isPackaged ? [] : [
 	// Test/Dev-only Apps.
 	Crasher,
