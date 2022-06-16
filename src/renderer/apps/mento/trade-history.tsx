@@ -18,7 +18,6 @@ const TradeHistory = (props: {
 }): JSX.Element => {
 
 	const events = props.events
-	const explorerURL = explorerRootURL()
 	return (<>
 		<SectionTitle>Recent Trades</SectionTitle>
 		{!events ? <LinearProgress /> :
@@ -54,7 +53,7 @@ const TradeHistory = (props: {
 								}
 							</TableCell>
 							<TableCell>
-								<Link href={`${explorerURL}/tx/${e.txHash}`} style={{fontFamily: "monospace"}}>
+								<Link href={`${explorerRootURL()}/tx/${e.txHash}`} style={{fontFamily: "monospace"}}>
 									{fmtAddress(e.txHash)}
 								</Link>
 							</TableCell>

@@ -250,7 +250,6 @@ const RunTXs = (props: {
 			200)
 		return cancel
 	}, [stage, txSendMS]);
-	const explorerURL = explorerRootURL()
 	return (
 		<Dialog
 			id="tx-runner-modal"
@@ -280,7 +279,7 @@ const RunTXs = (props: {
 											primary={<Typography className={classes.address}>
 											Contract: {
 												preparedTXs[idx].contractAddress ?
-													<Link href={`${explorerURL}/address/${preparedTXs[idx].contractAddress}/contracts`}>
+													<Link href={`${explorerRootURL()}/address/${preparedTXs[idx].contractAddress}`}>
 														{preparedTXs[idx].contractName}
 													</Link> :
 													preparedTXs[idx].contractName

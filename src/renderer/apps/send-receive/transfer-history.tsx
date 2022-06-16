@@ -28,7 +28,6 @@ const TransferHistory = (props: {
 
 	const events = props.events
 	const erc20 = props.erc20
-	const explorerURL = explorerRootURL()
 	return (<>
 		<SectionTitle>Recent Transfers</SectionTitle>
 		{!events ? <LinearProgress /> :
@@ -53,7 +52,7 @@ const TransferHistory = (props: {
 							</Tooltip>
 							<TableCell style={{fontFamily: "monospace"}}>
 								{e.from === props.address ? `\u00a0\u00a0To\u00a0` : `From\u00a0`}
-								<Link href={`${explorerURL}/address/${addr}`} style={{fontFamily: "monospace"}}>
+								<Link href={`${explorerRootURL()}/address/${addr}`} style={{fontFamily: "monospace"}}>
 									{fmtAddress(addr)}
 								</Link>
 							</TableCell>
@@ -65,7 +64,7 @@ const TransferHistory = (props: {
 								{fmtAmount(e.amount, erc20.decimals)} {erc20.symbol}
 							</TableCell>
 							<TableCell>
-								<Link href={`${explorerURL}/tx/${e.txHash}`} style={{fontFamily: "monospace"}}>
+								<Link href={`${explorerRootURL()}/tx/${e.txHash}`} style={{fontFamily: "monospace"}}>
 									{fmtAddress(e.txHash)}
 								</Link>
 							</TableCell>

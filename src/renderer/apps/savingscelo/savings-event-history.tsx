@@ -20,7 +20,6 @@ const SavingsEventHistory = (props: {
 	savingsTotal_sCELO: BigNumber,
 }): JSX.Element => {
 	const events = props.events
-	const explorerURL = explorerRootURL()
 	return (<>
 		<SectionTitle>Recent Events</SectionTitle>
 		{!events ? <LinearProgress /> :
@@ -67,7 +66,7 @@ const SavingsEventHistory = (props: {
 								</Typography>
 							</TableCell>
 							<TableCell>
-								<Link href={`${explorerURL}/tx/${e.txHash}`} style={{fontFamily: "monospace"}}>
+								<Link href={`${explorerRootURL()}/tx/${e.txHash}`} style={{fontFamily: "monospace"}}>
 									{fmtAddress(e.txHash)}
 								</Link>
 							</TableCell>
