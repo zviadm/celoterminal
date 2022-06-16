@@ -115,11 +115,9 @@ export const registeredErc20s = _registeredErc20s()
 export const explorerRootURL = (): string => {
 	switch (CFG().chainId) {
 	case mainnetChainId:
-		return "https://explorer.celo.org"
-	case baklavaChainId:
-		return "https://baklava-blockscout.celo-testnet.org"
+		return "https://celoscan.xyz"
 	case alfajoresChainId:
-		return "https://alfajores-blockscout.celo-testnet.org"
+		return "https://alfajores.celoscan.xyz"
 	default:
 		// just a fake URL.
 		return `https://explorer.network.${CFG().chainId}`

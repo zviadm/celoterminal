@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from "axios"
 import { AbiItem } from "web3-utils"
 import { Address, CeloContract, ContractKit } from '@celo/contractkit'
+import * as log from "electron-log"
 
 import {
 	alfajoresChainId, baklavaChainId, CFG, mainnetChainId,
@@ -111,13 +112,17 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 				break
 			}
 			if (abi === undefined) {
-				// Fallback to checking if contract is verified on explorer/blockscout.
+				// Fallback to checking if contract is verified on celoscan.xyz.
+				// NOTE: celoscan.xyz API key is hardcoded here but this is a non issue since this API key
+				// is only used for rate limiting.
 				const resp = await explorerCli().get<{
 						message: string,
-						result: AbiItem[],
-					}>(`/api?module=contract&action=getabi&address=${contractAddress}`)
-				if (resp.data.message === "ok") {
-					abi = resp.data.result
+						result: string,
+					}>(`https://api.celoscan.xyz/api?module=contract&action=getabi&address=${contractAddress}&apikey=G3VEE5GFKX7WEBGBAPKQCUS4DFJB1HMQR6`)
+				if (resp.data.message.toLowerCase() === "ok") {
+					abi = JSON.parse(resp.data.result) as AbiItem[]
+				} else {
+					log.warn(`celoscan: ${contractAddress} not found ${resp.data.message}`)
 				}
 			}
 			if (abi === undefined) {
