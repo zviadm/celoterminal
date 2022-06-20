@@ -72,7 +72,8 @@
     "wcv2/**/@walletconnect/types": "npm:@walletconnect/types@2.0.0-beta.19",
     "wcv2/**/@walletconnect/utils": "npm:@walletconnect/utils@2.0.0-beta.19",
     "@celo/connect": "^1.5.0",
-    "@celo/contractkit": "^1.5.0"
+    "@celo/contractkit": "^1.5.0",
+	"ts-node": "^10.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
