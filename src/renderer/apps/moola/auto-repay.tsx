@@ -17,7 +17,7 @@ const AutoRepay = (props: {
 		<Box display="flex" flexDirection="column">
 			<div style={{ display: "flex", justifyContent: "space-between" }}>
 				<Box style={{ width: "45%" }}>
-					<InputLabel>Min health factor</InputLabel>
+					<InputLabel>If health factor reaches</InputLabel>
 					<NumberInput
 						id="min-health-factor"
 						margin="normal"
@@ -27,7 +27,7 @@ const AutoRepay = (props: {
 					/>
 				</Box>
 				<Box style={{ width: "45%" }}>
-					<InputLabel>Max health factor</InputLabel>
+					<InputLabel>Then repay to health factor</InputLabel>
 					<NumberInput
 						id="max-health-factor"
 						margin="normal"

@@ -32,7 +32,7 @@ const CreditDelegationBorrowerSection = ({
 		<>
 			<SectionTitle>{sectionTitle}</SectionTitle>
 			<InputLabel style={{ marginTop: 18 }}>
-				Delegator Address to borrow from
+				{`Delegator Address to ${sectionTitle.toLowerCase()}`}
 			</InputLabel>
 			<TextField
 				InputLabelProps={{ shrink: true }}
