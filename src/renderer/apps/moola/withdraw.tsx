@@ -8,10 +8,10 @@ const Withdraw = ({
 	onWithdraw,
 	totalDeposited,
 }: {
-	onWithdraw: (amount: BigNumber) => void;
+	onWithdraw: (amount: BigNumber, withdrawAll: boolean) => void;
 	totalDeposited: string;
 }): JSX.Element => {
-	const [withdrawAmount, setwithDrawAmount] = React.useState("");
+	const [withdrawAmount, setWithdrawAmount] = React.useState("");
 
 	return (
 		<Box display="flex" flexDirection="column">
@@ -20,7 +20,7 @@ const Withdraw = ({
 				label="Amount"
 				margin="normal"
 				maxValue={new BigNumber(totalDeposited)}
-				onChangeValue={setwithDrawAmount}
+				onChangeValue={setWithdrawAmount}
 				placeholder="0.0"
 				value={withdrawAmount}
 			/>
@@ -28,7 +28,12 @@ const Withdraw = ({
 				<Button
 					color="primary"
 					disabled={withdrawAmount === ""}
-					onClick={() => onWithdraw(toBigNumberWei(withdrawAmount))}
+					onClick={() =>
+						onWithdraw(
+							toBigNumberWei(withdrawAmount),
+							withdrawAmount === totalDeposited
+						)
+					}
 					style={{ textTransform: "none", width: 150, marginTop: 30 }}
 					variant="contained"
 				>

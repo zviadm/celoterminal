@@ -148,7 +148,7 @@ const MoolaApp = (props: {
 		);
 	};
 
-	const handleWithdraw = (amount: BigNumber) => {
+	const handleWithdraw = (amount: BigNumber, withdrawAll: boolean) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
 				if (isFetching || !userOnchainState.fetched) return [];
@@ -157,9 +157,18 @@ const MoolaApp = (props: {
 					LendingPoolABI as AbiItem[],
 					lendingPoolAddress
 				);
+
+				let withdrawAmount: BigNumber | string = amount;
+				if (withdrawAll) {
+					withdrawAmount = MAX_UINT_256;
+				}
 				const tx = toTransactionObject(
 					kit.connection,
-					LendingPool.methods.withdraw(tokenAddress, amount, account.address)
+					LendingPool.methods.withdraw(
+						tokenAddress,
+						withdrawAmount,
+						account.address
+					)
 				);
 
 				return [{ tx }];
@@ -198,14 +207,29 @@ const MoolaApp = (props: {
 		);
 	};
 
-	const handleRepay = (rateMode: number, amount: BigNumber) => {
+	const handleRepay = (
+		rateMode: number,
+		amount: BigNumber,
+		repayAll: boolean
+	) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
 				if (isFetching || !userOnchainState.fetched) return [];
 
+				let approveAmount: BigNumber = amount;
+				let repayAmount: BigNumber | string = amount;
+
+				if (repayAll) {
+					approveAmount = BN(amount).multipliedBy("1.001");
+					repayAmount = MAX_UINT_256;
+				}
+
 				// approve
 				const tokenContract = await newErc20(kit, tokenInfo);
-				const txApprove = tokenContract.approve(lendingPoolAddress, amount);
+				const txApprove = tokenContract.approve(
+					lendingPoolAddress,
+					approveAmount
+				);
 
 				// repay
 				const LendingPool = new kit.web3.eth.Contract(
@@ -216,7 +240,7 @@ const MoolaApp = (props: {
 					kit.connection,
 					LendingPool.methods.repay(
 						tokenAddress,
-						amount,
+						repayAmount,
 						rateMode,
 						account.address
 					)

@@ -11,13 +11,14 @@ const Repay = ({
 	tokenBalance,
 	variableDebt,
 }: {
-	onRepay: (rateMode: number, amount: BigNumber) => void;
+	onRepay: (rateMode: number, amount: BigNumber, repayAll: boolean) => void;
 	stableDebt: string;
 	tokenBalance: BigNumber;
 	variableDebt: string;
 }): JSX.Element => {
 	const [rateMode, setRateMode] = React.useState(availableRateMode.stable);
 	const [repayAmount, setRepayAmount] = React.useState("");
+	const [repayAll, setRepayAll] = React.useState(false);
 
 	const totalDebt =
 		rateMode === 1 ? new BigNumber(stableDebt) : new BigNumber(variableDebt);
@@ -59,7 +60,13 @@ const Repay = ({
 				<Button
 					color="primary"
 					disabled={repayAmount === ""}
-					onClick={() => onRepay(rateMode, toBigNumberWei(repayAmount))}
+					onClick={() =>
+						onRepay(
+							rateMode,
+							toBigNumberWei(repayAmount),
+							BN(repayAmount).isEqualTo(maxRepayAmount)
+						)
+					}
 					style={{ textTransform: "none", width: 150, marginTop: 30 }}
 					variant="contained"
 				>
