@@ -52,12 +52,6 @@ const RepayFromCollateral = ({
 		);
 	};
 
-	const totalDebt =
-		rateMode === 1 ? new BigNumber(stableDebt) : new BigNumber(variableDebt);
-	const maxRepayAmount = BN(totalDebt).isEqualTo(BN("0"))
-		? BN("0")
-		: BN(tokenBalance);
-
 	return (
 		<Box>
 			<div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -108,7 +102,6 @@ const RepayFromCollateral = ({
 				onChangeValue={setAmount}
 				placeholder="0.0"
 				value={amount}
-				maxValue={maxRepayAmount}
 			/>
 			<InputLabel style={{ marginTop: 18 }}>Use flashloan</InputLabel>
 			<Select

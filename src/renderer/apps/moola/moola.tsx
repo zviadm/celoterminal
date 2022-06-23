@@ -148,7 +148,7 @@ const MoolaApp = (props: {
 		);
 	};
 
-	const handleWithdraw = (amount: BigNumber, withdrawAll: boolean) => {
+	const handleWithdraw = (amount: BigNumber) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
 				if (isFetching || !userOnchainState.fetched) return [];
@@ -158,17 +158,9 @@ const MoolaApp = (props: {
 					lendingPoolAddress
 				);
 
-				let withdrawAmount: BigNumber | string = amount;
-				if (withdrawAll) {
-					withdrawAmount = MAX_UINT_256;
-				}
 				const tx = toTransactionObject(
 					kit.connection,
-					LendingPool.methods.withdraw(
-						tokenAddress,
-						withdrawAmount,
-						account.address
-					)
+					LendingPool.methods.withdraw(tokenAddress, amount, account.address)
 				);
 
 				return [{ tx }];
@@ -207,21 +199,15 @@ const MoolaApp = (props: {
 		);
 	};
 
-	const handleRepay = (
-		rateMode: number,
-		amount: BigNumber,
-		repayAll: boolean
-	) => {
+	const handleRepay = (rateMode: number, amount: BigNumber) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
 				if (isFetching || !userOnchainState.fetched) return [];
 
 				let approveAmount: BigNumber = amount;
-				let repayAmount: BigNumber | string = amount;
 
-				if (repayAll) {
+				if (BN(amount).isEqualTo(BN(MAX_UINT_256))) {
 					approveAmount = BN(amount).multipliedBy("1.001");
-					repayAmount = MAX_UINT_256;
 				}
 
 				// approve
@@ -236,11 +222,12 @@ const MoolaApp = (props: {
 					LendingPoolABI as AbiItem[],
 					lendingPoolAddress
 				);
+
 				const txRepay = toTransactionObject(
 					kit.connection,
 					LendingPool.methods.repay(
 						tokenAddress,
-						repayAmount,
+						amount,
 						rateMode,
 						account.address
 					)
