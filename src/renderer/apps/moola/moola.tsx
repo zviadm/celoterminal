@@ -723,6 +723,15 @@ const MoolaApp = (props: {
 				onRepayFromCollateral={handleRepayFromCollateral}
 				tokenMenuItems={tokenMenuItems}
 				tokenName={selectedToken}
+				stableDebt={
+					userOnchainState.fetched?.userReserveData["Current Stable Debt"] ||
+					"0"
+				}
+				tokenBalance={tokenBalance}
+				variableDebt={
+					userOnchainState.fetched?.userReserveData["Current Variable Debt"] ||
+					"0"
+				}
 			/>
 		),
 		"Liquidity Swap": (

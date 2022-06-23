@@ -18,7 +18,6 @@ const Repay = ({
 }): JSX.Element => {
 	const [rateMode, setRateMode] = React.useState(availableRateMode.stable);
 	const [repayAmount, setRepayAmount] = React.useState("");
-	const [repayAll, setRepayAll] = React.useState(false);
 
 	const totalDebt =
 		rateMode === 1 ? new BigNumber(stableDebt) : new BigNumber(variableDebt);
