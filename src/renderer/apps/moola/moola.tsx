@@ -675,6 +675,10 @@ const MoolaApp = (props: {
 	const moolaTokensExcludingSelected = moolaTokens.filter(
 		(mt) => mt.symbol !== selectedToken
 	);
+
+	const accountsExcludingSelected = props.accounts.filter(
+		(acc) => acc.address !== account.address
+	);
 	const actionComponents = {
 		Deposit: <Deposit onDeposit={handleDeposit} tokenBalance={tokenBalance} />,
 		Withdraw: (
@@ -704,10 +708,14 @@ const MoolaApp = (props: {
 			<CreditDelegationBorrower
 				onBorrowFrom={handleBorrowFrom}
 				onRepayFor={handleRepayFor}
+				addressBook={accountsExcludingSelected}
 			/>
 		),
 		"Credit Delegation as Delegator": (
-			<CreditDelegationDelegator onDelegate={handleDelegate} />
+			<CreditDelegationDelegator
+				onDelegate={handleDelegate}
+				addressBook={accountsExcludingSelected}
+			/>
 		),
 		"Auto Repay": <AutoRepay onSetAutoRepay={handleSetAutoRepay} />,
 		"Repay from Collateral": (

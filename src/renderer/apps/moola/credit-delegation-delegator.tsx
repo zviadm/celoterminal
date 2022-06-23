@@ -1,15 +1,10 @@
 import * as React from "react";
-import {
-	Box,
-	Select,
-	Button,
-	MenuItem,
-	TextField,
-	InputLabel,
-} from "@material-ui/core";
+import { Box, Select, Button, MenuItem, InputLabel } from "@material-ui/core";
 import NumberInput from "../../components/number-input";
+import AddressAutocomplete from "../../components/address-autocomplete";
 import BigNumber from "bignumber.js";
 import { availableRateMode } from "./config";
+import { Account } from "../../../lib/accounts/accounts";
 import { toBigNumberWei } from "./moola-helper";
 
 const CreditDelegationDeleagtor = (props: {
@@ -18,6 +13,7 @@ const CreditDelegationDeleagtor = (props: {
 		rateMode: number,
 		amount: BigNumber
 	) => void;
+	addressBook: Account[];
 }): JSX.Element => {
 	const [borrowerAddress, setBorrowerAddress] = React.useState("");
 	const [rateMode, setRateMode] = React.useState(availableRateMode.stable);
@@ -26,22 +22,16 @@ const CreditDelegationDeleagtor = (props: {
 	return (
 		<Box display="flex" flexDirection="column">
 			<InputLabel>Borrower address to delegate to</InputLabel>
-			<TextField
-				InputLabelProps={{ shrink: true }}
-				autoFocus
-				fullWidth={true}
-				id="delegation-borrower-address"
-				inputProps={{
-					spellCheck: false,
-					style: { fontFamily: "monospace" },
+			<AddressAutocomplete
+				id="to-address-input"
+				textFieldProps={{
+					// label: "Borrower address to delegate to",
+					margin: "normal",
+					InputLabelProps: { shrink: true },
 				}}
-				onChange={(event) => {
-					setBorrowerAddress(event.target.value);
-				}}
-				placeholder="0x..."
-				size="medium"
-				spellCheck={false}
-				value={borrowerAddress}
+				addresses={props.addressBook}
+				address={borrowerAddress}
+				onChange={setBorrowerAddress}
 			/>
 			<InputLabel style={{ marginTop: 18 }}>Rate type</InputLabel>
 			<Select
