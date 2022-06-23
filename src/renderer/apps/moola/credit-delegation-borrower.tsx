@@ -41,7 +41,6 @@ const CreditDelegationBorrowerSection = ({
 			<AddressAutocomplete
 				id="to-address-input"
 				textFieldProps={{
-					// label: `Delegator Address to ${sectionTitle.toLowerCase()}`,
 					margin: "dense",
 					InputLabelProps: { shrink: true },
 				}}

@@ -11,15 +11,12 @@ import { CeloTokenType } from "@celo/contractkit";
 import { availableRateMode, moolaTokens } from "./config";
 import NumberInput from "../../components/number-input";
 import BigNumber from "bignumber.js";
-import { toBigNumberWei, BN } from "./moola-helper";
+import { toBigNumberWei } from "./moola-helper";
 
 const RepayFromCollateral = ({
 	tokenName,
 	onRepayFromCollateral,
 	tokenMenuItems,
-	stableDebt,
-	variableDebt,
-	tokenBalance,
 }: {
 	tokenName: string;
 	onRepayFromCollateral: (
@@ -30,9 +27,6 @@ const RepayFromCollateral = ({
 		useFlashLoan: boolean
 	) => void;
 	tokenMenuItems: JSX.Element[];
-	stableDebt: string;
-	variableDebt: string;
-	tokenBalance: BigNumber;
 }): JSX.Element => {
 	const [amount, setAmount] = React.useState("");
 	const [rateMode, setRateMode] = React.useState(availableRateMode.stable);
