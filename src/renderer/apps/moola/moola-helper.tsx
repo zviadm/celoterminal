@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
 import { coreErc20Decimals } from "../../../lib/erc20/core";
-import Web3 from "web3";
 import { mainnetChainId, alfajoresChainId } from "../../../lib/cfg";
+import { moolaTokens } from "./config";
 
 export const toBigNumberWei = (num: string): BigNumber =>
 	new BigNumber(num).shiftedBy(coreErc20Decimals);
@@ -38,92 +38,179 @@ export const defaultReserveData: reserveData = {
 	"Average Stable Rate": "0",
 };
 
-export const buildLiquiditySwapParams = (
-	web3: Web3,
-	assetToSwapToList: string[],
-	minAmountsToReceive: string[],
-	swapAllBalances: number[],
-	permitAmounts: number[],
-	deadlines: number[],
-	v: number[],
-	r: string[],
-	s: string[],
-	useEthPath: boolean[],
-	useATokenAsFrom: boolean[],
-	useATokenAsTo: boolean[]
-): string => {
-	return web3.eth.abi.encodeParameters(
-		[
-			"address[]",
-			"uint256[]",
-			"bool[]",
-			"uint256[]",
-			"uint256[]",
-			"uint8[]",
-			"bytes32[]",
-			"bytes32[]",
-			"bool[]",
-			"bool[]",
-			"bool[]",
-		],
-		[
-			assetToSwapToList,
-			minAmountsToReceive,
-			swapAllBalances,
-			permitAmounts,
-			deadlines,
-			v,
-			r,
-			s,
-			useEthPath,
-			useATokenAsFrom,
-			useATokenAsTo,
-		]
-	);
+const getMoolaTokenCeloAddresses = () => {
+	const coreErc20Addresses: moolaTokenCeloAddressesMap = {};
+	moolaTokens.forEach((token) => {
+		coreErc20Addresses[token.symbol] = token.addresses.mainnet;
+	});
+
+	return coreErc20Addresses;
 };
 
-export const buildSwapAndRepayParams = (
-	web3: Web3,
-	collateralAsset: string,
-	collateralAmount: string,
-	rateMode: number,
-	permitAmount: number,
-	deadline: number,
-	v: number,
-	r: string,
-	s: string,
-	useEthPath: boolean,
-	useATokenAsFrom: boolean,
-	useATokenAsTo: boolean
-): string => {
-	return web3.eth.abi.encodeParameters(
-		[
-			"address",
-			"uint256",
-			"uint256",
-			"uint256",
-			"uint256",
-			"uint8",
-			"bytes32",
-			"bytes32",
-			"bool",
-			"bool",
-			"bool",
-		],
-		[
-			collateralAsset,
-			collateralAmount,
-			rateMode,
-			permitAmount,
-			deadline,
-			v,
-			r,
-			s,
-			useEthPath,
-			useATokenAsFrom,
-			useATokenAsTo,
-		]
-	);
+export const getMoolaSwapPath = (
+	tokenFrom: string,
+	tokenTo: string
+): moolaTokenSwapPath => {
+	const mcusdAddress = "0x918146359264c492bd6934071c6bd31c854edbc3";
+	const mceurAddress = "0xe273ad7ee11dcfaa87383ad5977ee1504ac07568";
+	const mceloAddress = "0x7d00cd74ff385c955ea3d79e47bf06bd7386387d";
+	const moolaTokenAddresses = getMoolaTokenCeloAddresses();
+	const {
+		CELO: celoAddress,
+		CUSD: cusdAddress,
+		MOO: mooAddress,
+		CREAL: crealAddress,
+		CEUR: ceurAddress,
+	} = moolaTokenAddresses;
+
+	const celo_cusd = [celoAddress, mcusdAddress]; // celo-mcusd
+	const celo_ceur = [celoAddress, mceurAddress]; // celo-mceur
+	const celo_creal = [celoAddress, cusdAddress, crealAddress]; // celo-cusd, cusd-creal pair
+	const celo_moo = [mceloAddress, mooAddress]; // mcelo-moo
+
+	const cusd_ceur = [mcusdAddress, mceurAddress]; // mcusd-mceur
+	const cusd_creal = [cusdAddress, crealAddress]; // cusd-creal
+	const cusd_moo = [cusdAddress, celoAddress, mooAddress]; // cusd-celo, celo-moo pair
+
+	const ceur_creal = [ceurAddress, celoAddress, cusdAddress, crealAddress]; // ceur-celo, celo-cusd, cusd-creal - only 3k usd in pools
+	const ceur_moo = [mceurAddress, celoAddress, mooAddress]; // mceur-celo, celo-moo
+
+	const creal_moo = [crealAddress, cusdAddress, celoAddress, mooAddress]; // creal-cusd, cusd-celo, celo-moo
+
+	const pathKey = `${tokenFrom}_${tokenTo}`.toLowerCase();
+	switch (pathKey) {
+		case `${celoAddress}_${cusdAddress}`.toLowerCase():
+			return {
+				path: celo_cusd,
+				useATokenAsFrom: false,
+				useATokenAsTo: true,
+			};
+		case `${celoAddress}_${ceurAddress}`.toLowerCase():
+			return {
+				path: celo_ceur,
+				useATokenAsFrom: false,
+				useATokenAsTo: true,
+			};
+		case `${celoAddress}_${crealAddress}`.toLowerCase():
+			return {
+				path: celo_creal,
+				useATokenAsFrom: false,
+				useATokenAsTo: false,
+			};
+		case `${celoAddress}_${mooAddress}`.toLowerCase():
+			return {
+				path: celo_moo,
+				useATokenAsFrom: true,
+				useATokenAsTo: false,
+			};
+		case `${cusdAddress}_${ceurAddress}`.toLowerCase():
+			return {
+				path: cusd_ceur,
+				useATokenAsFrom: true,
+				useATokenAsTo: true,
+			};
+		case `${cusdAddress}_${crealAddress}`.toLowerCase():
+			return {
+				path: cusd_creal,
+				useATokenAsFrom: false,
+				useATokenAsTo: false,
+			};
+		case `${cusdAddress}_${mooAddress}`.toLowerCase():
+			return {
+				path: cusd_moo,
+				useATokenAsFrom: false,
+				useATokenAsTo: false,
+			};
+		case `${ceurAddress}_${crealAddress}`.toLowerCase():
+			return {
+				path: ceur_creal,
+				useATokenAsFrom: false,
+				useATokenAsTo: false,
+			};
+		case `${ceurAddress}_${mooAddress}`.toLowerCase():
+			return {
+				path: ceur_moo,
+				useATokenAsFrom: true,
+				useATokenAsTo: false,
+			};
+		case `${crealAddress}_${mooAddress}`.toLowerCase():
+			return {
+				path: creal_moo,
+				useATokenAsFrom: false,
+				useATokenAsTo: true,
+			};
+		case `${cusdAddress}_${celoAddress}`.toLowerCase():
+			return {
+				path: [...celo_cusd].reverse(),
+				useATokenAsFrom: true,
+				useATokenAsTo: false,
+			};
+		case `${ceurAddress}_${celoAddress}`.toLowerCase():
+			return {
+				path: [...celo_ceur].reverse(),
+				useATokenAsFrom: true,
+				useATokenAsTo: false,
+			};
+		case `${crealAddress}_${celoAddress}`.toLowerCase():
+			return {
+				path: [...celo_creal].reverse(),
+				useATokenAsFrom: false,
+				useATokenAsTo: false,
+			};
+		case `${mooAddress}_${celoAddress}`.toLowerCase():
+			return {
+				path: [...celo_moo].reverse(),
+				useATokenAsFrom: true,
+				useATokenAsTo: false,
+			};
+		case `${ceurAddress}_${cusdAddress}`.toLowerCase():
+			return {
+				path: [...cusd_ceur].reverse(),
+				useATokenAsFrom: true,
+				useATokenAsTo: true,
+			};
+		case `${crealAddress}_${cusdAddress}`.toLowerCase():
+			return {
+				path: [...cusd_creal].reverse(),
+				useATokenAsFrom: false,
+				useATokenAsTo: false,
+			};
+		case `${mooAddress}_${cusdAddress}`.toLowerCase():
+			return {
+				path: [...cusd_moo].reverse(),
+				useATokenAsFrom: false,
+				useATokenAsTo: false,
+			};
+		case `${crealAddress}_${ceurAddress}`.toLowerCase():
+			return {
+				path: [...ceur_creal].reverse(),
+				useATokenAsFrom: false,
+				useATokenAsTo: false,
+			};
+		case `${mooAddress}_${ceurAddress}`.toLowerCase():
+			return {
+				path: [...ceur_moo].reverse(),
+				useATokenAsFrom: false,
+				useATokenAsTo: true,
+			};
+		case `${mooAddress}_${crealAddress}`.toLowerCase():
+			return {
+				path: [...creal_moo].reverse(),
+				useATokenAsFrom: true,
+				useATokenAsTo: false,
+			};
+		default:
+			return {
+				path: [
+					moolaTokenAddresses[
+						(tokenFrom.toUpperCase(),
+						moolaTokenAddresses[tokenTo.toUpperCase()])
+					],
+				],
+				useATokenAsFrom: false,
+				useATokenAsTo: false,
+			};
+	}
 };
 
 export const ETHER = "1000000000000000000";
@@ -158,6 +245,15 @@ export const MAX_UINT_256 =
 export const ZERO_HASH =
 	"0x0000000000000000000000000000000000000000000000000000000000000000";
 
+export interface moolaTokenCeloAddressesMap {
+	[tokenSymbol: string]: string;
+}
+
+export interface moolaTokenSwapPath {
+	path: string[];
+	useATokenAsFrom: boolean;
+	useATokenAsTo: boolean;
+}
 export interface onChainUserReserveData {
 	totalCollateralETH: string;
 	totalDebtETH: string;
@@ -250,8 +346,8 @@ export const autoRepayAddresses = {
 };
 
 export const liquiditySwapAdapterAddresses = {
-	mainnet: "0x574f683a3983AF2C386cc073E93efAE7fE2B9eb3",
-	alfajores: "0xe469484419AD6730BeD187c22a47ca38B054B09f",
+	mainnet: "0x1C92B2eAea7c53Ac08A7B77151c2F0734b8e35b1",
+	alfajores: "0xa7174954cD0B7D2Fd3237D24bD874e74c53E5796",
 };
 
 export const ubeswapAddresses = {
@@ -260,6 +356,6 @@ export const ubeswapAddresses = {
 };
 
 export const repayAdapterAddresses = {
-	mainnet: "0x18A7119360d078c5B55d8a8288bFcc43EbfeF57c",
-	alfajores: "0x55a48631e4ED42D2b12FBA0edc7ad8F66c28375C",
+	mainnet: "0xC96c78E46169cB854Dc793437A105F46F2435455",
+	alfajores: "0x71b570D5f0Ec771A396F947E7E2870042dB9bA57",
 };
