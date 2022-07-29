@@ -355,7 +355,7 @@ export const ubeswapAddresses = {
 	alfajores: "0xe3d8bd6aed4f159bc8000a9cd47cffdb95f96121",
 };
 
-export const repayAdapterAddresses = {
+export const repayFromCollateralAdapterAddresses = {
 	mainnet: "0xC96c78E46169cB854Dc793437A105F46F2435455",
 	alfajores: "0x71b570D5f0Ec771A396F947E7E2870042dB9bA57",
 };

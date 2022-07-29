@@ -25,7 +25,6 @@ const CreditDelegationDeleagtor = (props: {
 			<AddressAutocomplete
 				id="to-address-input"
 				textFieldProps={{
-					// label: "Borrower address to delegate to",
 					margin: "normal",
 					InputLabelProps: { shrink: true },
 				}}

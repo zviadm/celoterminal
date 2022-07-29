@@ -37,14 +37,14 @@ import { useUserOnChainState } from "./state";
 import useOnChainState from "../../state/onchain-state";
 
 import { abi as LendingPoolABI } from "./abi/LendingPool.json";
-import { abi as LiquiditySwapABI } from "./abi/LiquiditySwapSinglePairAdapter.json";
+import { abi as LiquiditySwapABI } from "./abi/LiquiditySwapAdapter.json";
 import { abi as LendingPoolDataProviderABI } from "./abi/DataProvider.json";
 import { abi as AutoRepayABI } from "./abi/AutoRepay.json";
 import { abi as MTokenABI } from "./abi/Mtoken.json";
 import { abi as DebtTokenABI } from "./abi/DebtToken.json";
 import { abi as PriceOracleABI } from "./abi/PriceOracle.json";
 import { abi as UbeswapABI } from "./abi/Ubeswap.json";
-import { abi as RepayAdapterABI } from "./abi/RepayAdapter.json";
+import { abi as RepayFromCollateralAdapterABI } from "./abi/RepayFromCollateralAdapter.json";
 
 import {
 	BN,
@@ -446,27 +446,32 @@ const MoolaApp = (props: {
 				}
 
 				const {
-					repayAdapterAddress,
-				}: { repayAdapterAddress: string; lendingPoolAddress: string } =
-					userOnchainState.fetched;
+					repayFromCollateralAdapterAddress,
+				}: {
+					repayFromCollateralAdapterAddress: string;
+					lendingPoolAddress: string;
+				} = userOnchainState.fetched;
 				if (
 					BN(
 						await mToken.methods
-							.allowance(account.address, repayAdapterAddress)
+							.allowance(account.address, repayFromCollateralAdapterAddress)
 							.call()
 					).lt(BN(maxCollateralAmount))
 				) {
 					// Approve UniswapAdapter
 					const txApproveAdapter = toTransactionObject(
 						kit.connection,
-						mToken.methods.approve(repayAdapterAddress, maxCollateralAmount)
+						mToken.methods.approve(
+							repayFromCollateralAdapterAddress,
+							maxCollateralAmount
+						)
 					);
 					txs.push({ tx: txApproveAdapter });
 				}
 
-				const RepayAdapter = new kit.web3.eth.Contract(
-					RepayAdapterABI as AbiItem[],
-					repayAdapterAddress
+				const RepayFromCollateralAdapter = new kit.web3.eth.Contract(
+					RepayFromCollateralAdapterABI as AbiItem[],
+					repayFromCollateralAdapterAddress
 				);
 				const swapPath = getMoolaSwapPath(
 					collateralAssetSymbol,
@@ -474,7 +479,7 @@ const MoolaApp = (props: {
 				);
 				const txRepay: CeloTransactionObject<unknown> = toTransactionObject(
 					kit.connection,
-					RepayAdapter.methods.repayFromCollateral(
+					RepayFromCollateralAdapter.methods.repayFromCollateral(
 						{
 							user: account.address,
 							collateralAsset: collateralAssetAddress,
@@ -570,14 +575,14 @@ const MoolaApp = (props: {
 					txs.push({ tx: approveTx });
 				}
 
-				const LiquiditySwapSinglePairAdapter = new kit.web3.eth.Contract(
+				const LiquiditySwapAdapter = new kit.web3.eth.Contract(
 					LiquiditySwapABI as AbiItem[],
 					liquiditySwapAdapterAddress
 				);
 				const swapPath = getMoolaSwapPath(assetFromSymbol, assetToSymbol);
 				const liquiditySwapTx = toTransactionObject(
 					kit.connection,
-					LiquiditySwapSinglePairAdapter.methods.liquiditySwap(
+					LiquiditySwapAdapter.methods.liquiditySwap(
 						{
 							user: account.address,
 							assetFrom: assetFromAddress,

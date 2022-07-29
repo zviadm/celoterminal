@@ -19,7 +19,7 @@ import {
 	onChainUserReserveData,
 	print,
 	printRayRate,
-	repayAdapterAddresses,
+	repayFromCollateralAdapterAddresses,
 	reserveData,
 	ubeswapAddresses,
 	userAccountData,
@@ -73,7 +73,9 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 					liquiditySwapAdapterAddresses
 				);
 				const ubeswapAddress = selectAddressOrThrow(ubeswapAddresses);
-				const repayAdapterAddress = selectAddressOrThrow(repayAdapterAddresses);
+				const repayFromCollateralAdapterAddress = selectAddressOrThrow(
+					repayFromCollateralAdapterAddresses
+				);
 
 				return {
 					autoRepayAddress,
@@ -82,7 +84,7 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 					lendingPoolDataProviderAddress,
 					liquiditySwapAdapterAddress,
 					priceOracleAddress,
-					repayAdapterAddress,
+					repayFromCollateralAdapterAddress,
 					reserveData: formattedReserveData(reserveDataRaw),
 					ubeswapAddress,
 					userAccountData: formattedUserAccountData(userAccountDataRaw),
