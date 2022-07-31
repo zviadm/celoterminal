@@ -236,6 +236,8 @@ export const getTokenToSwapPrice = (
 	return BN(amount)
 		.multipliedBy(BN(tokenFromPrice))
 		.dividedBy(BN(tokenToPrice))
+		.multipliedBy(995)
+		.dividedBy(1000) // 0.5% slippage
 		.toFixed(0);
 };
 
