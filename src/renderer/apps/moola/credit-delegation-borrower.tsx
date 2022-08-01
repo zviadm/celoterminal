@@ -1,12 +1,5 @@
 import * as React from "react";
-import {
-	Box,
-	Select,
-	Button,
-	MenuItem,
-	TextField,
-	InputLabel,
-} from "@material-ui/core";
+import { Box, Select, Button, MenuItem, InputLabel } from "@material-ui/core";
 import NumberInput from "../../components/number-input";
 import BigNumber from "bignumber.js";
 import SectionTitle from "../../components/section-title";
