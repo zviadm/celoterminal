@@ -1,7 +1,11 @@
 import BigNumber from "bignumber.js";
+import Web3 from "web3";
 import { coreErc20Decimals } from "../../../lib/erc20/core";
 import { mainnetChainId, alfajoresChainId } from "../../../lib/cfg";
 import { moolaTokens } from "./config";
+import { abi as LendingPoolDataProviderABI } from "./abi/DataProvider.json";
+import { abi as UbeswapABI } from "./abi/Ubeswap.json";
+import { AbiItem } from "@celo/connect";
 
 export const toBigNumberWei = (num: string): BigNumber =>
 	new BigNumber(num).shiftedBy(coreErc20Decimals);
@@ -241,6 +245,118 @@ export const getTokenToSwapPrice = (
 		.toFixed(0);
 };
 
+export const buildLeverageBorrowParams = (
+	web3: Web3,
+	useATokenAsFrom: boolean,
+	useATokenAsTo: boolean,
+	useEthPath: boolean,
+	toAsset: string,
+	minAmountOut: string
+): string => {
+	return web3.eth.abi.encodeParameters(
+		[
+			"tuple(bool useATokenAsFrom, bool useATokenAsTo, bool useEthPath, address toAsset, uint256 minAmountOut)[]",
+		],
+		[[{ useATokenAsFrom, useATokenAsTo, useEthPath, toAsset, minAmountOut }]]
+	);
+};
+
+export const getUseMTokenFromTo = async (
+	web3: Web3,
+	tokenFrom: string,
+	tokenTo: string,
+	amount: BigNumber,
+	lendingPoolDataProviderAddress: string,
+	ubeswapAddress: string
+): Promise<{
+	tokenFrom: string;
+	tokenTo: string;
+	amountOut: BigNumber;
+	useMTokenAsFrom: boolean;
+	useMTokenAsTo: boolean;
+}> => {
+	const getMTokenAddress = async (token: string) => {
+		const LendingPoolDataProvider = new web3.eth.Contract(
+			LendingPoolDataProviderABI as AbiItem[],
+			lendingPoolDataProviderAddress
+		);
+		return (
+			await LendingPoolDataProvider.methods
+				.getReserveTokensAddresses(token)
+				.call()
+		).aTokenAddress;
+	};
+
+	const Ubeswap = new web3.eth.Contract(
+		UbeswapABI as AbiItem[],
+		ubeswapAddress
+	);
+
+	const mFrom = await getMTokenAddress(tokenFrom);
+	const mTo = await getMTokenAddress(tokenTo);
+	// const result = await Promise.reduce(
+	// 	[
+	// 		[tokenFrom, tokenTo],
+	// 		[tokenFrom, mTo],
+	// 		[mFrom, mTo],
+	// 		[mFrom, tokenTo],
+	// 	],
+	// 	async (
+	// 		res: { tokenFrom: string; tokenTo: string; amountOut: BigNumber },
+	// 		[tFrom, tTo]: [string, string]
+	// 	) => {
+	// 		let amountOut = BN(0);
+	// 		try {
+	// 			amountOut = BN(
+	// 				(await Ubeswap.methods.getAmountsOut(amount, [tFrom, tTo]).call())[1]
+	// 			);
+	// 		} catch (err) {
+	// 			return res;
+	// 		}
+	// 		if (amountOut.gt(res.amountOut)) {
+	// 			res.tokenFrom = tFrom;
+	// 			res.tokenTo = tTo;
+	// 			res.amountOut = amountOut;
+	// 		}
+	// 		return res;
+	// 	},
+	// 	{ tokenFrom: "", tokenTo: "", amountOut: BN(0) }
+	// );
+	const tokenCombs = [
+		[tokenFrom, tokenTo],
+		[tokenFrom, mTo],
+		[mFrom, mTo],
+		[mFrom, tokenTo],
+	];
+	const results = await Promise.all(
+		tokenCombs.map(
+			(comb) =>
+				Ubeswap.methods.getAmountsOut(amount, [comb[0], comb[1]]).call()[1]
+		)
+	);
+	console.log("results :>> ", results);
+
+	const result = {
+		tokenFrom: "",
+		tokenTo: "",
+		amountOut: BN(0),
+		useMTokenAsFrom: false,
+		useMTokenAsTo: false,
+	};
+	results.forEach((res, index) => {
+		if (BN(res).gt(result.amountOut)) {
+			result.tokenFrom = tokenCombs[index][0];
+			result.tokenTo = tokenCombs[index][1];
+			result.amountOut = BN(res);
+		}
+	});
+
+	result.useMTokenAsFrom = mFrom === result.tokenFrom;
+	result.useMTokenAsTo = mTo === result.tokenTo;
+
+	return result;
+};
+
 export const ALLOWANCE_THRESHOLD = BN("1e+30");
 export const MAX_UINT_256 =
 	"0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
@@ -360,4 +476,9 @@ export const ubeswapAddresses = {
 export const repayFromCollateralAdapterAddresses = {
 	mainnet: "0xC96c78E46169cB854Dc793437A105F46F2435455",
 	alfajores: "0x71b570D5f0Ec771A396F947E7E2870042dB9bA57",
+};
+
+export const leverageBorrowAdapterAddresses = {
+	mainnet: "0x3dC0FCd3Aa6ca66a434086180e2604B9A9CFE781",
+	alfajores: "0x2fc031C35bcc4625d5246D256934cE85ef86447D",
 };
