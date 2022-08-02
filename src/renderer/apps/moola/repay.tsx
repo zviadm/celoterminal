@@ -3,7 +3,7 @@ import { Box, Button, Select, MenuItem, InputLabel } from "@material-ui/core";
 import NumberInput from "../../components/number-input";
 import BigNumber from "bignumber.js";
 import { availableRateMode } from "./config";
-import { toBigNumberWei, BN } from "./moola-helper";
+import { toBigNumberWei, BN, MAX_UINT_256 } from "./moola-helper";
 
 const Repay = ({
 	onRepay,
@@ -21,9 +21,12 @@ const Repay = ({
 
 	const totalDebt =
 		rateMode === 1 ? new BigNumber(stableDebt) : new BigNumber(variableDebt);
-	const maxRepayAmount = BN(totalDebt).isEqualTo(BN("0"))
-		? BN("0")
-		: BN(tokenBalance);
+	const maxRepayAmount = BN(tokenBalance).isLessThan(BN(totalDebt))
+		? BN(tokenBalance)
+		: BN(totalDebt);
+	const repayAmountForTx = BN(repayAmount).isEqualTo(BN(totalDebt))
+		? BN(MAX_UINT_256)
+		: toBigNumberWei(repayAmount);
 
 	return (
 		<Box display="flex" flexDirection="column">
@@ -59,7 +62,7 @@ const Repay = ({
 				<Button
 					color="primary"
 					disabled={repayAmount === ""}
-					onClick={() => onRepay(rateMode, toBigNumberWei(repayAmount))}
+					onClick={() => onRepay(rateMode, repayAmountForTx)}
 					style={{ textTransform: "none", width: 150, marginTop: 30 }}
 					variant="contained"
 				>

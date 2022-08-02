@@ -27,31 +27,6 @@
 				{
 					"indexed": true,
 					"internalType": "address",
-					"name": "user",
-					"type": "address"
-				},
-				{
-					"indexed": false,
-					"internalType": "uint256",
-					"name": "min",
-					"type": "uint256"
-				},
-				{
-					"indexed": false,
-					"internalType": "uint256",
-					"name": "max",
-					"type": "uint256"
-				}
-			],
-			"name": "HealthFactorSet",
-			"type": "event"
-		},
-		{
-			"anonymous": false,
-			"inputs": [
-				{
-					"indexed": true,
-					"internalType": "address",
 					"name": "previousOwner",
 					"type": "address"
 				},
@@ -111,33 +86,7 @@
 		},
 		{
 			"inputs": [],
-			"name": "FEE",
-			"outputs": [
-				{
-					"internalType": "uint256",
-					"name": "",
-					"type": "uint256"
-				}
-			],
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"inputs": [],
 			"name": "FLASHLOAN_PREMIUM_TOTAL",
-			"outputs": [
-				{
-					"internalType": "uint256",
-					"name": "",
-					"type": "uint256"
-				}
-			],
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"inputs": [],
-			"name": "HUNDRED_PERCENT",
 			"outputs": [
 				{
 					"internalType": "uint256",
@@ -163,6 +112,19 @@
 		},
 		{
 			"inputs": [],
+			"name": "MAX_SLIPPAGE",
+			"outputs": [
+				{
+					"internalType": "uint256",
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"stateMutability": "pure",
+			"type": "function"
+		},
+		{
+			"inputs": [],
 			"name": "MAX_SLIPPAGE_PERCENT",
 			"outputs": [
 				{
@@ -182,19 +144,6 @@
 					"internalType": "contract IPriceOracleGetter",
 					"name": "",
 					"type": "address"
-				}
-			],
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"inputs": [],
-			"name": "SLIPPAGE",
-			"outputs": [
-				{
-					"internalType": "uint256",
-					"name": "",
-					"type": "uint256"
 				}
 			],
 			"stateMutability": "view",
@@ -377,19 +326,6 @@
 			"type": "function"
 		},
 		{
-			"inputs": [],
-			"name": "getWitelistedAddresses",
-			"outputs": [
-				{
-					"internalType": "address[]",
-					"name": "",
-					"type": "address[]"
-				}
-			],
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
 			"inputs": [
 				{
 					"components": [
@@ -400,12 +336,12 @@
 						},
 						{
 							"internalType": "address",
-							"name": "collateralAsset",
+							"name": "assetFrom",
 							"type": "address"
 						},
 						{
 							"internalType": "address",
-							"name": "debtAsset",
+							"name": "assetTo",
 							"type": "address"
 						},
 						{
@@ -415,18 +351,18 @@
 						},
 						{
 							"internalType": "uint256",
-							"name": "collateralAmount",
+							"name": "amountToSwap",
 							"type": "uint256"
 						},
 						{
 							"internalType": "uint256",
-							"name": "debtRepayAmount",
+							"name": "minAmountToReceive",
 							"type": "uint256"
 						},
 						{
-							"internalType": "uint256",
-							"name": "rateMode",
-							"type": "uint256"
+							"internalType": "bool",
+							"name": "swapAllBalance",
+							"type": "bool"
 						},
 						{
 							"internalType": "bool",
@@ -437,15 +373,10 @@
 							"internalType": "bool",
 							"name": "useATokenAsTo",
 							"type": "bool"
-						},
-						{
-							"internalType": "bool",
-							"name": "useFlashloan",
-							"type": "bool"
 						}
 					],
-					"internalType": "struct AutoRepay.RepayParams",
-					"name": "repayParams",
+					"internalType": "struct UniswapLiquiditySwapAdapterSinglePair.SwapParams",
+					"name": "swapParams",
 					"type": "tuple"
 				},
 				{
@@ -481,28 +412,9 @@
 					"type": "tuple"
 				}
 			],
-			"name": "increaseHealthFactor",
+			"name": "liquiditySwap",
 			"outputs": [],
 			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "address",
-					"name": "userAddress",
-					"type": "address"
-				}
-			],
-			"name": "isWhitelisted",
-			"outputs": [
-				{
-					"internalType": "bool",
-					"name": "",
-					"type": "bool"
-				}
-			],
-			"stateMutability": "view",
 			"type": "function"
 		},
 		{
@@ -516,25 +428,6 @@
 				}
 			],
 			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "address",
-					"name": "userAddress",
-					"type": "address"
-				}
-			],
-			"name": "removeFromWhitelist",
-			"outputs": [
-				{
-					"internalType": "bool",
-					"name": "",
-					"type": "bool"
-				}
-			],
-			"stateMutability": "nonpayable",
 			"type": "function"
 		},
 		{
@@ -560,24 +453,6 @@
 		{
 			"inputs": [
 				{
-					"internalType": "uint256",
-					"name": "minHealthFactor",
-					"type": "uint256"
-				},
-				{
-					"internalType": "uint256",
-					"name": "maxHealthFactor",
-					"type": "uint256"
-				}
-			],
-			"name": "setMinMaxHealthFactor",
-			"outputs": [],
-			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
 					"internalType": "address",
 					"name": "newOwner",
 					"type": "address"
@@ -585,49 +460,6 @@
 			],
 			"name": "transferOwnership",
 			"outputs": [],
-			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "address",
-					"name": "",
-					"type": "address"
-				}
-			],
-			"name": "userInfos",
-			"outputs": [
-				{
-					"internalType": "uint256",
-					"name": "minHealthFactor",
-					"type": "uint256"
-				},
-				{
-					"internalType": "uint256",
-					"name": "maxHealthFactor",
-					"type": "uint256"
-				}
-			],
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "address",
-					"name": "userAddress",
-					"type": "address"
-				}
-			],
-			"name": "whitelistAddress",
-			"outputs": [
-				{
-					"internalType": "bool",
-					"name": "",
-					"type": "bool"
-				}
-			],
 			"stateMutability": "nonpayable",
 			"type": "function"
 		}

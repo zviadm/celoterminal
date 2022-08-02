@@ -1,2 +1,164 @@
-{"abi":
-[{"type":"constructor","stateMutability":"nonpayable","payable":false,"inputs":[{"type":"address","name":"_fallbackOracle","internalType":"address"}]},{"type":"event","name":"AssetSourceUpdated","inputs":[{"type":"address","name":"asset","internalType":"address","indexed":true},{"type":"address","name":"source","internalType":"address","indexed":true}],"anonymous":false},{"type":"event","name":"FallbackOracleUpdated","inputs":[{"type":"address","name":"fallbackOracle","internalType":"address","indexed":true}],"anonymous":false},{"type":"event","name":"OwnershipTransferred","inputs":[{"type":"address","name":"previousOwner","internalType":"address","indexed":true},{"type":"address","name":"newOwner","internalType":"address","indexed":true}],"anonymous":false},{"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"uint256","name":"","internalType":"uint256"}],"name":"getAssetPrice","inputs":[{"type":"address","name":"_asset","internalType":"address"}],"constant":true},{"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"uint256[]","name":"","internalType":"uint256[]"}],"name":"getAssetsPrices","inputs":[{"type":"address[]","name":"_assets","internalType":"address[]"}],"constant":true},{"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"address","name":"","internalType":"address"}],"name":"getFallbackOracle","inputs":[],"constant":true},{"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"bool","name":"","internalType":"bool"}],"name":"isOwner","inputs":[],"constant":true},{"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"address","name":"","internalType":"address"}],"name":"owner","inputs":[],"constant":true},{"type":"function","stateMutability":"view","payable":false,"outputs":[{"type":"address","name":"","internalType":"contract IRegistry"}],"name":"registry","inputs":[],"constant":true},{"type":"function","stateMutability":"nonpayable","payable":false,"outputs":[],"name":"renounceOwnership","inputs":[],"constant":false},{"type":"function","stateMutability":"nonpayable","payable":false,"outputs":[],"name":"setFallbackOracle","inputs":[{"type":"address","name":"_fallbackOracle","internalType":"address"}],"constant":false},{"type":"function","stateMutability":"nonpayable","payable":false,"outputs":[],"name":"transferOwnership","inputs":[{"type":"address","name":"newOwner","internalType":"address"}],"constant":false}]}
+{
+	"abi": [
+		{
+			"type": "constructor",
+			"stateMutability": "nonpayable",
+			"payable": false,
+			"inputs": [
+				{
+					"type": "address",
+					"name": "_fallbackOracle",
+					"internalType": "address"
+				}
+			]
+		},
+		{
+			"type": "event",
+			"name": "AssetSourceUpdated",
+			"inputs": [
+				{
+					"type": "address",
+					"name": "asset",
+					"internalType": "address",
+					"indexed": true
+				},
+				{
+					"type": "address",
+					"name": "source",
+					"internalType": "address",
+					"indexed": true
+				}
+			],
+			"anonymous": false
+		},
+		{
+			"type": "event",
+			"name": "FallbackOracleUpdated",
+			"inputs": [
+				{
+					"type": "address",
+					"name": "fallbackOracle",
+					"internalType": "address",
+					"indexed": true
+				}
+			],
+			"anonymous": false
+		},
+		{
+			"type": "event",
+			"name": "OwnershipTransferred",
+			"inputs": [
+				{
+					"type": "address",
+					"name": "previousOwner",
+					"internalType": "address",
+					"indexed": true
+				},
+				{
+					"type": "address",
+					"name": "newOwner",
+					"internalType": "address",
+					"indexed": true
+				}
+			],
+			"anonymous": false
+		},
+		{
+			"type": "function",
+			"stateMutability": "view",
+			"payable": false,
+			"outputs": [{ "type": "uint256", "name": "", "internalType": "uint256" }],
+			"name": "getAssetPrice",
+			"inputs": [
+				{ "type": "address", "name": "_asset", "internalType": "address" }
+			],
+			"constant": true
+		},
+		{
+			"type": "function",
+			"stateMutability": "view",
+			"payable": false,
+			"outputs": [
+				{ "type": "uint256[]", "name": "", "internalType": "uint256[]" }
+			],
+			"name": "getAssetsPrices",
+			"inputs": [
+				{ "type": "address[]", "name": "_assets", "internalType": "address[]" }
+			],
+			"constant": true
+		},
+		{
+			"type": "function",
+			"stateMutability": "view",
+			"payable": false,
+			"outputs": [{ "type": "address", "name": "", "internalType": "address" }],
+			"name": "getFallbackOracle",
+			"inputs": [],
+			"constant": true
+		},
+		{
+			"type": "function",
+			"stateMutability": "view",
+			"payable": false,
+			"outputs": [{ "type": "bool", "name": "", "internalType": "bool" }],
+			"name": "isOwner",
+			"inputs": [],
+			"constant": true
+		},
+		{
+			"type": "function",
+			"stateMutability": "view",
+			"payable": false,
+			"outputs": [{ "type": "address", "name": "", "internalType": "address" }],
+			"name": "owner",
+			"inputs": [],
+			"constant": true
+		},
+		{
+			"type": "function",
+			"stateMutability": "view",
+			"payable": false,
+			"outputs": [
+				{ "type": "address", "name": "", "internalType": "contract IRegistry" }
+			],
+			"name": "registry",
+			"inputs": [],
+			"constant": true
+		},
+		{
+			"type": "function",
+			"stateMutability": "nonpayable",
+			"payable": false,
+			"outputs": [],
+			"name": "renounceOwnership",
+			"inputs": [],
+			"constant": false
+		},
+		{
+			"type": "function",
+			"stateMutability": "nonpayable",
+			"payable": false,
+			"outputs": [],
+			"name": "setFallbackOracle",
+			"inputs": [
+				{
+					"type": "address",
+					"name": "_fallbackOracle",
+					"internalType": "address"
+				}
+			],
+			"constant": false
+		},
+		{
+			"type": "function",
+			"stateMutability": "nonpayable",
+			"payable": false,
+			"outputs": [],
+			"name": "transferOwnership",
+			"inputs": [
+				{ "type": "address", "name": "newOwner", "internalType": "address" }
+			],
+			"constant": false
+		}
+	]
+}

@@ -1,15 +1,10 @@
 import * as React from "react";
-import {
-	Box,
-	Select,
-	Button,
-	MenuItem,
-	TextField,
-	InputLabel,
-} from "@material-ui/core";
+import { Box, Select, Button, MenuItem, InputLabel } from "@material-ui/core";
 import NumberInput from "../../components/number-input";
 import BigNumber from "bignumber.js";
 import SectionTitle from "../../components/section-title";
+import AddressAutocomplete from "../../components/address-autocomplete";
+import { Account } from "../../../lib/accounts/accounts";
 import { availableRateMode } from "./config";
 import { toBigNumberWei } from "./moola-helper";
 
@@ -18,11 +13,13 @@ const CreditDelegationBorrowerSection = ({
 	sectionTitle,
 	submitAction,
 	type,
+	addressBook,
 }: {
 	handleSubmit: (address: string, rateMode: number, amount: BigNumber) => void;
 	sectionTitle: string;
 	submitAction: string;
 	type: string;
+	addressBook: Account[];
 }) => {
 	const [address, setAddress] = React.useState("");
 	const [rateMode, setRateMode] = React.useState(availableRateMode.stable);
@@ -32,24 +29,17 @@ const CreditDelegationBorrowerSection = ({
 		<>
 			<SectionTitle>{sectionTitle}</SectionTitle>
 			<InputLabel style={{ marginTop: 18 }}>
-				Delegator Address to borrow from
+				{`Delegator Address to ${sectionTitle.toLowerCase()}`}
 			</InputLabel>
-			<TextField
-				InputLabelProps={{ shrink: true }}
-				autoFocus
-				fullWidth={true}
-				id={`${type}-address`}
-				inputProps={{
-					spellCheck: false,
-					style: { fontFamily: "monospace" },
+			<AddressAutocomplete
+				id="to-address-input"
+				textFieldProps={{
+					margin: "dense",
+					InputLabelProps: { shrink: true },
 				}}
-				onChange={(event) => {
-					setAddress(event.target.value);
-				}}
-				placeholder="0x..."
-				size="medium"
-				spellCheck={false}
-				value={address}
+				addresses={addressBook}
+				address={address}
+				onChange={setAddress}
 			/>
 			<InputLabel style={{ marginTop: 18 }}>Rate type</InputLabel>
 			<Select
@@ -102,6 +92,7 @@ const CreditDelegationBorrower = (props: {
 		amount: BigNumber
 	) => void;
 	onRepayFor: (delegator: string, rateMode: number, amount: BigNumber) => void;
+	addressBook: Account[];
 }): JSX.Element => {
 	return (
 		<Box display="flex" flexDirection="column">
@@ -110,12 +101,14 @@ const CreditDelegationBorrower = (props: {
 				sectionTitle="Borrow From"
 				submitAction="Borrow"
 				type="borrow-from"
+				addressBook={props.addressBook}
 			/>
 			<CreditDelegationBorrowerSection
 				handleSubmit={props.onRepayFor}
 				sectionTitle="Repay For"
 				submitAction="Repay"
 				type="repay-for"
+				addressBook={props.addressBook}
 			/>
 		</Box>
 	);
