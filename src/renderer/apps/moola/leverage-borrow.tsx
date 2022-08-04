@@ -39,7 +39,7 @@ const LeverageBorrow = ({
 		<Box display="flex" flexDirection="column">
 			<div style={{ display: "flex", justifyContent: "space-between" }}>
 				<Box style={{ width: "45%" }}>
-					<InputLabel>Debt Asset</InputLabel>
+					<InputLabel>Collateral Asset</InputLabel>
 					<Select
 						onChange={(event) => {
 							setCollateralToken(event.target.value as CeloTokenType);
@@ -51,7 +51,7 @@ const LeverageBorrow = ({
 					</Select>
 				</Box>
 				<Box style={{ width: "45%" }}>
-					<InputLabel>Collateral Asset</InputLabel>
+					<InputLabel>Debt Asset</InputLabel>
 					<Tooltip title="Please select from token in the above section">
 						<Select disabled style={{ width: "100%" }} value={tokenName}>
 							<MenuItem value={tokenName}>{tokenName}</MenuItem>

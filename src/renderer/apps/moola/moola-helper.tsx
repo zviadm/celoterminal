@@ -61,10 +61,10 @@ export const getMoolaSwapPath = (
 	const moolaTokenAddresses = getMoolaTokenCeloAddresses();
 	const {
 		CELO: celoAddress,
-		CUSD: cusdAddress,
+		cUSD: cusdAddress,
 		MOO: mooAddress,
-		CREAL: crealAddress,
-		CEUR: ceurAddress,
+		cREAL: crealAddress,
+		cEUR: ceurAddress,
 	} = moolaTokenAddresses;
 
 	const celo_cusd = [celoAddress, mcusdAddress]; // celo-mcusd
@@ -261,6 +261,23 @@ export const buildLeverageBorrowParams = (
 	);
 };
 
+const promiseHandler = async (
+	// TODO-- use this hanlder in getUseMtOTKneFromTo
+	promise: Promise<{ tokenFrom: string; tokenTo: string; amountOut: BigNumber }>
+): Promise<{
+	success: boolean;
+	error: unknown;
+	result: { tokenFrom: string; tokenTo: string; amountOut: BigNumber };
+}> => {
+	let result = { tokenFrom: "", tokenTo: "", amountOut: BN(0) };
+	try {
+		result = await promise;
+		return { success: true, result, error: "" };
+	} catch (error) {
+		return { success: false, error, result };
+	}
+};
+
 export const getUseMTokenFromTo = async (
 	web3: Web3,
 	tokenFrom: string,
@@ -328,13 +345,12 @@ export const getUseMTokenFromTo = async (
 		[mFrom, mTo],
 		[mFrom, tokenTo],
 	];
+
 	const results = await Promise.all(
-		tokenCombs.map(
-			(comb) =>
-				Ubeswap.methods.getAmountsOut(amount, [comb[0], comb[1]]).call()[1]
+		tokenCombs.map((comb) =>
+			Ubeswap.methods.getAmountsOut(amount, [comb[0], comb[1]]).call()
 		)
 	);
-	console.log("results :>> ", results);
 
 	const result = {
 		tokenFrom: "",

@@ -79,6 +79,7 @@ const MoolaApp = (props: {
 		"Auto Repay",
 		"Repay from Collateral",
 		"Liquidity Swap",
+		"Leverage Borrow",
 	];
 
 	const [selectedToken, setSelectedToken] = useLocalStorageState(
@@ -657,6 +658,12 @@ const MoolaApp = (props: {
 						lendingPoolDataProviderAddress,
 						userOnchainState.fetched.ubeswapAddress
 					);
+				console.log(
+					"useMTokenAsFrom, useMTokenAsTo, amountOut :>> ",
+					useMTokenAsFrom,
+					useMTokenAsTo,
+					amountOut
+				);
 
 				const leverageBorrowParams = buildLeverageBorrowParams(
 					kit.web3,
@@ -666,7 +673,7 @@ const MoolaApp = (props: {
 					collateralAssetAddress,
 					amountOut.multipliedBy(999).dividedBy(1000).toFixed(0) // 0.1% slippage
 				);
-
+				console.log("leverageBorrowParams :>> ", leverageBorrowParams);
 				const leverageBorrowTx = toTransactionObject(
 					kit.connection,
 					LendingPool.methods.flashLoan(
@@ -682,7 +689,8 @@ const MoolaApp = (props: {
 
 				txs.push({ tx: leverageBorrowTx });
 
-				return txs;
+				// return txs;
+				return [];
 			},
 			() => {
 				userOnchainState.refetch();
@@ -774,7 +782,7 @@ const MoolaApp = (props: {
 		"Leverage Borrow": (
 			<LeverageBorrow
 				onLeverageBorrow={handleLeverageBorrow}
-				toTokens={moolaTokensExcludingSelected}
+				collateralTokenList={moolaTokensExcludingSelected}
 				tokenMenuItems={tokenMenuItemsExcludingSelected}
 				tokenName={selectedToken}
 			/>
