@@ -253,28 +253,20 @@ export const buildLeverageBorrowParams = (
 	toAsset: string,
 	minAmountOut: string
 ): string => {
-	return web3.eth.abi.encodeParameters(
-		[
-			"tuple(bool useATokenAsFrom, bool useATokenAsTo, bool useEthPath, address toAsset, uint256 minAmountOut)[]",
-		],
-		[[{ useATokenAsFrom, useATokenAsTo, useEthPath, toAsset, minAmountOut }]]
+	return web3.eth.abi.encodeParameter(
+		"tuple(bool useATokenAsFrom, bool useATokenAsTo, bool useEthPath, address toAsset, uint256 minAmountOut)[]",
+		[[useATokenAsFrom, useATokenAsTo, useEthPath, toAsset, minAmountOut]]
 	);
 };
 
-const promiseHandler = async (
-	// TODO-- use this hanlder in getUseMtOTKneFromTo
-	promise: Promise<{ tokenFrom: string; tokenTo: string; amountOut: BigNumber }>
-): Promise<{
-	success: boolean;
-	error: unknown;
-	result: { tokenFrom: string; tokenTo: string; amountOut: BigNumber };
-}> => {
-	let result = { tokenFrom: "", tokenTo: "", amountOut: BN(0) };
+const getAmountOutPromiseHandler = async (
+	promise: Promise<number[]>
+): Promise<BigNumber> => {
 	try {
-		result = await promise;
-		return { success: true, result, error: "" };
+		const amounts = await promise;
+		return BN(amounts[1]);
 	} catch (error) {
-		return { success: false, error, result };
+		return BN(0);
 	}
 };
 
@@ -311,34 +303,7 @@ export const getUseMTokenFromTo = async (
 
 	const mFrom = await getMTokenAddress(tokenFrom);
 	const mTo = await getMTokenAddress(tokenTo);
-	// const result = await Promise.reduce(
-	// 	[
-	// 		[tokenFrom, tokenTo],
-	// 		[tokenFrom, mTo],
-	// 		[mFrom, mTo],
-	// 		[mFrom, tokenTo],
-	// 	],
-	// 	async (
-	// 		res: { tokenFrom: string; tokenTo: string; amountOut: BigNumber },
-	// 		[tFrom, tTo]: [string, string]
-	// 	) => {
-	// 		let amountOut = BN(0);
-	// 		try {
-	// 			amountOut = BN(
-	// 				(await Ubeswap.methods.getAmountsOut(amount, [tFrom, tTo]).call())[1]
-	// 			);
-	// 		} catch (err) {
-	// 			return res;
-	// 		}
-	// 		if (amountOut.gt(res.amountOut)) {
-	// 			res.tokenFrom = tFrom;
-	// 			res.tokenTo = tTo;
-	// 			res.amountOut = amountOut;
-	// 		}
-	// 		return res;
-	// 	},
-	// 	{ tokenFrom: "", tokenTo: "", amountOut: BN(0) }
-	// );
+
 	const tokenCombs = [
 		[tokenFrom, tokenTo],
 		[tokenFrom, mTo],
@@ -346,31 +311,34 @@ export const getUseMTokenFromTo = async (
 		[mFrom, tokenTo],
 	];
 
-	const results = await Promise.all(
-		tokenCombs.map((comb) =>
+	const promises = tokenCombs.map((comb) =>
+		getAmountOutPromiseHandler(
 			Ubeswap.methods.getAmountsOut(amount, [comb[0], comb[1]]).call()
 		)
 	);
 
-	const result = {
+	const results = await Promise.all(promises);
+
+	const finalResult = {
 		tokenFrom: "",
 		tokenTo: "",
 		amountOut: BN(0),
 		useMTokenAsFrom: false,
 		useMTokenAsTo: false,
 	};
-	results.forEach((res, index) => {
-		if (BN(res).gt(result.amountOut)) {
-			result.tokenFrom = tokenCombs[index][0];
-			result.tokenTo = tokenCombs[index][1];
-			result.amountOut = BN(res);
+
+	results.forEach((amountOut, index) => {
+		if (BN(amountOut).gt(finalResult.amountOut)) {
+			finalResult.tokenFrom = tokenCombs[index][0];
+			finalResult.tokenTo = tokenCombs[index][1];
+			finalResult.amountOut = BN(amountOut);
 		}
 	});
 
-	result.useMTokenAsFrom = mFrom === result.tokenFrom;
-	result.useMTokenAsTo = mTo === result.tokenTo;
+	finalResult.useMTokenAsFrom = mFrom === finalResult.tokenFrom;
+	finalResult.useMTokenAsTo = mTo === finalResult.tokenTo;
 
-	return result;
+	return finalResult;
 };
 
 export const ALLOWANCE_THRESHOLD = BN("1e+30");

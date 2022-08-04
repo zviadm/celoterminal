@@ -662,9 +662,8 @@ const MoolaApp = (props: {
 					"useMTokenAsFrom, useMTokenAsTo, amountOut :>> ",
 					useMTokenAsFrom,
 					useMTokenAsTo,
-					amountOut
+					amountOut.toFixed(10)
 				);
-
 				const leverageBorrowParams = buildLeverageBorrowParams(
 					kit.web3,
 					useMTokenAsFrom,
@@ -673,7 +672,6 @@ const MoolaApp = (props: {
 					collateralAssetAddress,
 					amountOut.multipliedBy(999).dividedBy(1000).toFixed(0) // 0.1% slippage
 				);
-				console.log("leverageBorrowParams :>> ", leverageBorrowParams);
 				const leverageBorrowTx = toTransactionObject(
 					kit.connection,
 					LendingPool.methods.flashLoan(
@@ -681,7 +679,7 @@ const MoolaApp = (props: {
 						[debtAssetAddress],
 						[amount],
 						[rateMode],
-						account,
+						account.address,
 						leverageBorrowParams,
 						0
 					)
@@ -689,8 +687,7 @@ const MoolaApp = (props: {
 
 				txs.push({ tx: leverageBorrowTx });
 
-				// return txs;
-				return [];
+				return txs;
 			},
 			() => {
 				userOnchainState.refetch();

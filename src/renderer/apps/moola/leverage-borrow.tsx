@@ -101,7 +101,7 @@ const LeverageBorrow = ({
 					style={{ textTransform: "none", width: 150, marginTop: 30 }}
 					variant="contained"
 				>
-					Swap
+					Leverage Borrow
 				</Button>
 			</div>
 		</Box>
