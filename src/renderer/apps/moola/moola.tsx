@@ -658,12 +658,6 @@ const MoolaApp = (props: {
 						lendingPoolDataProviderAddress,
 						userOnchainState.fetched.ubeswapAddress
 					);
-				console.log(
-					"useMTokenAsFrom, useMTokenAsTo, amountOut :>> ",
-					useMTokenAsFrom,
-					useMTokenAsTo,
-					amountOut.toFixed(10)
-				);
 				const leverageBorrowParams = buildLeverageBorrowParams(
 					kit.web3,
 					useMTokenAsFrom,
