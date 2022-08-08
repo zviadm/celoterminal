@@ -35,7 +35,7 @@ const RepayFromCollateral = ({
 	);
 	const [useFlashLoan, toggleUseFlashLoan] = React.useState("NO");
 
-	const hanldeSubmit = () => {
+	const handleSubmit = () => {
 		const useFlashLoanBool = useFlashLoan === "YES";
 		onRepayFromCollateral(
 			collateralAsset,
@@ -117,7 +117,7 @@ const RepayFromCollateral = ({
 				<Button
 					color="primary"
 					disabled={amount === ""}
-					onClick={hanldeSubmit}
+					onClick={handleSubmit}
 					style={{ textTransform: "none", width: 150, marginTop: 30 }}
 					variant="contained"
 				>

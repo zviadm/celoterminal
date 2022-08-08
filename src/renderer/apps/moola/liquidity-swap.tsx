@@ -30,7 +30,7 @@ const LiquiditySwap = ({
 		if (!toTokens.find((token) => token.symbol === toToken)) {
 			setToToken(toTokens[0].symbol);
 		}
-	}, [tokenMenuItems]);
+	}, [toTokens, toToken]);
 
 	return (
 		<Box display="flex" flexDirection="column">

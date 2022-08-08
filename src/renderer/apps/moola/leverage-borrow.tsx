@@ -41,7 +41,7 @@ const LeverageBorrow = ({
 		) {
 			setCollateralToken(collateralTokenList[0].symbol);
 		}
-	}, [tokenMenuItems]);
+	}, [collateralTokenList, collateralToken]);
 
 	return (
 		<Box display="flex" flexDirection="column">
