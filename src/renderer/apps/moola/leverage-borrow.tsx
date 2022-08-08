@@ -35,6 +35,14 @@ const LeverageBorrow = ({
 		collateralTokenList[0].symbol
 	);
 
+	React.useEffect(() => {
+		if (
+			!collateralTokenList.find((token) => token.symbol === collateralToken)
+		) {
+			setCollateralToken(collateralTokenList[0].symbol);
+		}
+	}, [tokenMenuItems]);
+
 	return (
 		<Box display="flex" flexDirection="column">
 			<div style={{ display: "flex", justifyContent: "space-between" }}>

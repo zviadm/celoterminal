@@ -26,6 +26,12 @@ const LiquiditySwap = ({
 	const [amount, setAmount] = React.useState("");
 	const [toToken, setToToken] = React.useState(toTokens[0].symbol);
 
+	React.useEffect(() => {
+		if (!toTokens.find((token) => token.symbol === toToken)) {
+			setToToken(toTokens[0].symbol);
+		}
+	}, [tokenMenuItems]);
+
 	return (
 		<Box display="flex" flexDirection="column">
 			<div style={{ display: "flex", justifyContent: "space-between" }}>
