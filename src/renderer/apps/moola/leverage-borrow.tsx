@@ -3,74 +3,79 @@ import {
 	Box,
 	Select,
 	Button,
-	MenuItem,
 	InputLabel,
+	MenuItem,
 	Tooltip,
 } from "@material-ui/core";
 import { CeloTokenType } from "@celo/contractkit";
-import { availableRateMode, moolaTokens } from "./config";
-import NumberInput from "../../components/number-input";
 import BigNumber from "bignumber.js";
-import { toBigNumberWei } from "./moola-helper";
+import NumberInput from "../../components/number-input";
+import { moolaToken, toBigNumberWei } from "./moola-helper";
+import { availableRateMode } from "./config";
 
-const RepayFromCollateral = ({
-	tokenName,
-	onRepayFromCollateral,
+const LeverageBorrow = ({
+	onLeverageBorrow,
+	collateralTokenList,
 	tokenMenuItems,
+	tokenName,
 }: {
-	tokenName: string;
-	onRepayFromCollateral: (
+	onLeverageBorrow: (
 		collateralAssetSymbol: string,
 		debtAssetSymbol: string,
 		rateMode: number,
-		amount: BigNumber,
-		useFlashLoan: boolean
+		amount: BigNumber
 	) => void;
+	collateralTokenList: moolaToken[];
 	tokenMenuItems: JSX.Element[];
+	tokenName: string;
 }): JSX.Element => {
 	const [amount, setAmount] = React.useState("");
 	const [rateMode, setRateMode] = React.useState(availableRateMode.stable);
-	const [collateralAsset, setCollateralAsset] = React.useState(
-		moolaTokens[0].symbol
+	const [collateralToken, setCollateralToken] = React.useState(
+		collateralTokenList[0].symbol
 	);
-	const [useFlashLoan, toggleUseFlashLoan] = React.useState("NO");
 
-	const handleSubmit = () => {
-		const useFlashLoanBool = useFlashLoan === "YES";
-		onRepayFromCollateral(
-			collateralAsset,
-			tokenName,
-			rateMode,
-			toBigNumberWei(amount),
-			useFlashLoanBool
-		);
-	};
+	React.useEffect(() => {
+		if (
+			!collateralTokenList.find((token) => token.symbol === collateralToken)
+		) {
+			setCollateralToken(collateralTokenList[0].symbol);
+		}
+	}, [collateralTokenList, collateralToken]);
 
 	return (
-		<Box>
+		<Box display="flex" flexDirection="column">
 			<div style={{ display: "flex", justifyContent: "space-between" }}>
 				<Box style={{ width: "45%" }}>
 					<InputLabel>Collateral Asset</InputLabel>
 					<Select
 						onChange={(event) => {
-							setCollateralAsset(event.target.value as CeloTokenType);
+							setCollateralToken(event.target.value as CeloTokenType);
 						}}
 						style={{ width: "100%" }}
-						value={collateralAsset}
+						value={collateralToken}
 					>
 						{tokenMenuItems}
 					</Select>
 				</Box>
 				<Box style={{ width: "45%" }}>
 					<InputLabel>Debt Asset</InputLabel>
-					<Tooltip title="Please change debt asset in the above section">
+					<Tooltip title="Please select from token in the above section">
 						<Select disabled style={{ width: "100%" }} value={tokenName}>
 							<MenuItem value={tokenName}>{tokenName}</MenuItem>
 						</Select>
 					</Tooltip>
 				</Box>
 			</div>
-			<InputLabel style={{ marginTop: 18 }}>Rate type</InputLabel>
+			<NumberInput
+				id="leverage-borrow-amount"
+				label="Borrow Amount"
+				margin="normal"
+				onChangeValue={setAmount}
+				placeholder="0.0"
+				value={amount}
+			/>
+			<InputLabel>Rate type</InputLabel>
 			<Select
 				onChange={(event) => {
 					setRateMode(event.target.value as number);
@@ -89,43 +94,26 @@ const RepayFromCollateral = ({
 					</MenuItem>
 				))}
 			</Select>
-			<InputLabel style={{ marginTop: 18 }}>Amount to repay</InputLabel>
-			<NumberInput
-				id="repay-from-collateral-amount"
-				margin="dense"
-				onChangeValue={setAmount}
-				placeholder="0.0"
-				value={amount}
-			/>
-			<InputLabel style={{ marginTop: 18 }}>Use flashloan</InputLabel>
-			<Select
-				onChange={(event) => {
-					toggleUseFlashLoan(event.target.value as string);
-				}}
-				style={{ width: "100%" }}
-				value={useFlashLoan}
-			>
-				<MenuItem key="use-flash-loan-false" value={"NO"}>
-					NO
-				</MenuItem>
-				<MenuItem key="use-flash-loan-true" value={"YES"}>
-					YES
-				</MenuItem>
-			</Select>
-
 			<div style={{ textAlign: "right" }}>
 				<Button
 					color="primary"
 					disabled={amount === ""}
-					onClick={handleSubmit}
+					onClick={() =>
+						onLeverageBorrow(
+							collateralToken,
+							tokenName,
+							rateMode,
+							toBigNumberWei(amount)
+						)
+					}
 					style={{ textTransform: "none", width: 150, marginTop: 30 }}
 					variant="contained"
 				>
-					Repay
+					Leverage Borrow
 				</Button>
 			</div>
 		</Box>
 	);
 };
 
-export default RepayFromCollateral;
+export default LeverageBorrow;

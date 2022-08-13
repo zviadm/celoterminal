@@ -30,6 +30,7 @@ import CreditDelegationBorrower from "./credit-delegation-borrower";
 import AutoRepay from "./auto-repay";
 import RepayFromCollateral from "./repay-from-collateral";
 import LiquiditySwap from "./liquidity-swap";
+import LeverageBorrow from "./leverage-borrow";
 import ReserveStatus from "./reserve-status";
 
 import useLocalStorageState from "../../state/localstorage-state";
@@ -58,6 +59,8 @@ import {
 	defaultUserReserveData,
 	moolaToken,
 	getMoolaSwapPath,
+	buildLeverageBorrowParams,
+	getUseMTokenFromTo,
 } from "./moola-helper";
 
 const MoolaApp = (props: {
@@ -76,6 +79,7 @@ const MoolaApp = (props: {
 		"Auto Repay",
 		"Repay from Collateral",
 		"Liquidity Swap",
+		"Leverage Borrow",
 	];
 
 	const [selectedToken, setSelectedToken] = useLocalStorageState(
@@ -600,6 +604,91 @@ const MoolaApp = (props: {
 		);
 	};
 
+	const handleLeverageBorrow = (
+		collateralAssetSymbol: string,
+		debtAssetSymbol: string,
+		rateMode: number,
+		amount: BigNumber
+	) => {
+		props.runTXs(
+			async (kit: ContractKit) => {
+				if (isFetching || !userOnchainState.fetched) return [];
+
+				const {
+					leverageBorrowAdapterAddress,
+				}: {
+					leverageBorrowAdapterAddress: string;
+				} = userOnchainState.fetched;
+
+				const txs = [];
+
+				const collateralAssetInfo: moolaToken | undefined = moolaTokens.find(
+					(token) => token.symbol === collateralAssetSymbol
+				);
+
+				const debtAssetInfo: moolaToken | undefined = moolaTokens.find(
+					(token) => token.symbol === debtAssetSymbol
+				);
+				if (!collateralAssetInfo || !debtAssetInfo) {
+					throw new Error("Cannot find selected collateral asset");
+				}
+				const collateralAssetAddress = selectAddressOrThrow(
+					collateralAssetInfo.addresses
+				);
+				const debtAssetAddress = selectAddressOrThrow(debtAssetInfo.addresses);
+				if (
+					!collateralAssetAddress ||
+					!debtAssetAddress ||
+					collateralAssetAddress === debtAssetAddress
+				) {
+					throw new Error("Collateral asset or debt asset address is invalid");
+				}
+
+				const LendingPool = new kit.web3.eth.Contract(
+					LendingPoolABI as AbiItem[],
+					lendingPoolAddress
+				);
+
+				const { useMTokenAsFrom, useMTokenAsTo, amountOut } =
+					await getUseMTokenFromTo(
+						kit.web3,
+						debtAssetAddress,
+						collateralAssetAddress,
+						amount,
+						lendingPoolDataProviderAddress,
+						userOnchainState.fetched.ubeswapAddress
+					);
+				const leverageBorrowParams = buildLeverageBorrowParams(
+					kit.web3,
+					useMTokenAsFrom,
+					useMTokenAsTo,
+					false,
+					collateralAssetAddress,
+					amountOut.multipliedBy(999).dividedBy(1000).toFixed(0) // 0.1% slippage
+				);
+				const leverageBorrowTx = toTransactionObject(
+					kit.connection,
+					LendingPool.methods.flashLoan(
+						leverageBorrowAdapterAddress,
+						[debtAssetAddress],
+						[amount],
+						[rateMode],
+						account.address,
+						leverageBorrowParams,
+						0
+					)
+				);
+
+				txs.push({ tx: leverageBorrowTx });
+
+				return txs;
+			},
+			() => {
+				userOnchainState.refetch();
+			}
+		);
+	};
+
 	const refetchAll = () => {
 		accountState.refetch();
 		userOnchainState.refetch();
@@ -677,6 +766,14 @@ const MoolaApp = (props: {
 			<LiquiditySwap
 				onLiquiditySwap={handleLiquiditySwap}
 				toTokens={moolaTokensExcludingSelected}
+				tokenMenuItems={tokenMenuItemsExcludingSelected}
+				tokenName={selectedToken}
+			/>
+		),
+		"Leverage Borrow": (
+			<LeverageBorrow
+				onLeverageBorrow={handleLeverageBorrow}
+				collateralTokenList={moolaTokensExcludingSelected}
 				tokenMenuItems={tokenMenuItemsExcludingSelected}
 				tokenName={selectedToken}
 			/>
