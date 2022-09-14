@@ -11,6 +11,10 @@ export const toBigNumberWei = (num: string): BigNumber =>
 	new BigNumber(num).shiftedBy(coreErc20Decimals);
 export const MOOLA_AVAILABLE_CHAIN_IDS = [mainnetChainId, alfajoresChainId];
 
+export const toHumanFriendlyWei = (wei: BigNumber | string): string => {
+	return Number(BN(wei)).toLocaleString();
+};
+
 export const defaultUserAccountData: userAccountData = {
 	"Total Collateral": "0",
 	"Total Debt": "0",
