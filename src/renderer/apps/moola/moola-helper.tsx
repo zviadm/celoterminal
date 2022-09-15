@@ -437,6 +437,8 @@ export interface moolaToken {
 	address?: string;
 }
 
+export interface moolaGovernanceProposals {}
+
 export const lendingPoolDataProviderAddresses = {
 	mainnet: "0x43d067ed784D9DD2ffEda73775e2CC4c560103A1",
 	alfajores: "0x31ccB9dC068058672D96E92BAf96B1607855822E",
@@ -469,4 +471,9 @@ export const repayFromCollateralAdapterAddresses = {
 export const leverageBorrowAdapterAddresses = {
 	mainnet: "0x3dC0FCd3Aa6ca66a434086180e2604B9A9CFE781",
 	alfajores: "0x2fc031C35bcc4625d5246D256934cE85ef86447D",
+};
+
+export const governanceAddresses = {
+	mainnet: "0xde457ed1A713C290C4f8dE1dE0D0308Fc7722937",
+	alfajores: "0xb91a5Ee2E9329B90C249fef89e3a922F4782Cad3",
 };

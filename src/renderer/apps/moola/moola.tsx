@@ -32,6 +32,7 @@ import RepayFromCollateral from "./repay-from-collateral";
 import LiquiditySwap from "./liquidity-swap";
 import LeverageBorrow from "./leverage-borrow";
 import ReserveStatus from "./reserve-status";
+import Governance from "./governance";
 
 import useLocalStorageState from "../../state/localstorage-state";
 import { useUserOnChainState } from "./state";
@@ -80,6 +81,7 @@ const MoolaApp = (props: {
 		"Repay from Collateral",
 		"Liquidity Swap",
 		"Leverage Borrow",
+		"Governance",
 	];
 
 	const [selectedToken, setSelectedToken] = useLocalStorageState(
@@ -716,6 +718,8 @@ const MoolaApp = (props: {
 	const accountsExcludingSelected = props.accounts.filter(
 		(acc) => acc.address !== account.address
 	);
+
+	const mooTokenAddress = selectAddressOrThrow(MOO.addresses);
 	const actionComponents = {
 		Deposit: <Deposit onDeposit={handleDeposit} tokenBalance={tokenBalance} />,
 		Withdraw: (
@@ -776,6 +780,16 @@ const MoolaApp = (props: {
 				collateralTokenList={moolaTokensExcludingSelected}
 				tokenMenuItems={tokenMenuItemsExcludingSelected}
 				tokenName={selectedToken}
+			/>
+		),
+		Governance: (
+			<Governance
+				runTXs={props.runTXs}
+				mooTokenAddress={mooTokenAddress}
+				governanceAddress={
+					userOnchainState.fetched?.governanceAddress || ZERO_HASH
+				}
+				userAddress={account.address}
 			/>
 		),
 	};

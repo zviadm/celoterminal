@@ -23,6 +23,7 @@ import {
 	leverageBorrowAdapterAddresses,
 	reserveData,
 	ubeswapAddresses,
+	governanceAddresses,
 	userAccountData,
 	userReserveData,
 } from "./moola-helper";
@@ -80,6 +81,7 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 				const leverageBorrowAdapterAddress = selectAddressOrThrow(
 					leverageBorrowAdapterAddresses
 				);
+				const governanceAddress = selectAddressOrThrow(governanceAddresses);
 
 				return {
 					autoRepayAddress,
@@ -92,6 +94,7 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 					leverageBorrowAdapterAddress,
 					reserveData: formattedReserveData(reserveDataRaw),
 					ubeswapAddress,
+					governanceAddress,
 					userAccountData: formattedUserAccountData(userAccountDataRaw),
 					userReserveData: formattedUserReserveData(
 						userReserveDataRaw,
