@@ -9,11 +9,34 @@ import { AbiItem } from "@celo/connect";
 
 export const toBigNumberWei = (num: string): BigNumber =>
 	new BigNumber(num).shiftedBy(coreErc20Decimals);
+
+export const toBigNumberEther = (num: string): BigNumber =>
+	new BigNumber(num).shiftedBy(-coreErc20Decimals);
+
 export const MOOLA_AVAILABLE_CHAIN_IDS = [mainnetChainId, alfajoresChainId];
 
 export const toHumanFriendlyWei = (wei: BigNumber | string): string => {
-	return Number(BN(wei)).toLocaleString();
+	return Number(BN(toBigNumberEther(wei.toString()))).toLocaleString();
 };
+
+export const MOOLA_GOVERNANCE_DEPLOY_BLOCK_NUMBER = 14642441;
+
+export enum ProposalState {
+	PENDING = 0,
+	ACTIVE,
+	CANCELED,
+	DEFEATED,
+	SUCCEEDED,
+	QUEUED,
+	EXPIRED,
+	EXECUTED,
+}
+
+export enum ProposalSupport {
+	AGAINST = 0,
+	FOR = 1,
+	ABSTAIN = 2,
+}
 
 export const defaultUserAccountData: userAccountData = {
 	"Total Collateral": "0",
@@ -437,7 +460,20 @@ export interface moolaToken {
 	address?: string;
 }
 
-export interface moolaGovernanceProposals {}
+export interface moolaGovernanceProposal {
+	readonly id: string;
+	readonly state: number;
+	readonly forVotes: string;
+	readonly againstVotes: string;
+	readonly proposer: string;
+}
+
+export interface moolaProposalDisplay {
+	readonly stateStr: string;
+	readonly timeText: string;
+	readonly stateColor: string;
+	readonly votingTimeColor: string;
+}
 
 export const lendingPoolDataProviderAddresses = {
 	mainnet: "0x43d067ed784D9DD2ffEda73775e2CC4c560103A1",

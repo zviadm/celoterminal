@@ -21,4 +21,7 @@ export const MOO: moolaToken = {
 
 // NOTE: need to make copy of coreErc20 objects since some of the token internal properties get
 // modified within moola codebase.
-export const moolaTokens: moolaToken[] = [...coreErc20s.map((e) => Object.assign({}, e)), MOO];
+export const moolaTokens: moolaToken[] = [
+	...coreErc20s.map((e) => Object.assign({}, e)),
+	MOO,
+];

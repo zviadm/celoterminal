@@ -29,14 +29,14 @@ const GovernanceDetails = ({
 			{isFetching ? (
 				<LinearProgress />
 			) : (
-				<Box display="flex" flexDirection="column">
-					<Box>
+				<Box>
+					<Box style={{ margin: "15px 0 15px 0" }}>
 						<SectionTitle>User Details</SectionTitle>
 						<Table size="small">
 							<TableBody>
 								<TableRow>
 									<TableCell>Voting Power</TableCell>
-									<TableCell>{votingPower}</TableCell>
+									<TableCell>{toHumanFriendlyWei(votingPower)}</TableCell>
 								</TableRow>
 								<TableRow>
 									<TableCell>Token Delegate</TableCell>
@@ -45,7 +45,7 @@ const GovernanceDetails = ({
 							</TableBody>
 						</Table>
 					</Box>
-					<Box>
+					<Box style={{ margin: "15px 0 15px 0" }}>
 						<SectionTitle>Governance Details</SectionTitle>
 						<Table size="small">
 							<TableBody>

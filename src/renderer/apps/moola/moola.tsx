@@ -92,6 +92,7 @@ const MoolaApp = (props: {
 		"terminal/moola/actions",
 		actions[0]
 	);
+
 	const tokenInfo: moolaToken =
 		moolaTokens.find((e) => e.symbol === selectedToken) || MOO;
 
@@ -794,18 +795,22 @@ const MoolaApp = (props: {
 		),
 	};
 
+	const displayMarketStatus = selectedAction !== "Governance";
 	return (
 		<AppContainer>
 			<AppHeader app={Moola} isFetching={isFetching} refetch={refetchAll} />
 
-			<AppSection>
-				<AccountStatus
-					isFetching={isFetching}
-					userAccountData={
-						userOnchainState.fetched?.userAccountData || defaultUserAccountData
-					}
-				/>
-			</AppSection>
+			{displayMarketStatus && (
+				<AppSection>
+					<AccountStatus
+						isFetching={isFetching}
+						userAccountData={
+							userOnchainState.fetched?.userAccountData ||
+							defaultUserAccountData
+						}
+					/>
+				</AppSection>
+			)}
 
 			<AppSection>
 				<Box
@@ -847,24 +852,29 @@ const MoolaApp = (props: {
 				{actionComponents[selectedAction as keyof typeof actionComponents]}
 			</AppSection>
 
-			<AppSection>
-				<ReserveStatus
-					isFetching={isFetching}
-					reserveData={
-						userOnchainState.fetched?.reserveData || defaultReserveData
-					}
-					tokenName={selectedToken}
-				/>
-			</AppSection>
-			<AppSection>
-				<UserReserveStatus
-					isFetching={isFetching}
-					tokenName={selectedToken}
-					userReserveData={
-						userOnchainState.fetched?.userReserveData || defaultUserReserveData
-					}
-				/>
-			</AppSection>
+			{displayMarketStatus && (
+				<div>
+					<AppSection>
+						<ReserveStatus
+							isFetching={isFetching}
+							reserveData={
+								userOnchainState.fetched?.reserveData || defaultReserveData
+							}
+							tokenName={selectedToken}
+						/>
+					</AppSection>
+					<AppSection>
+						<UserReserveStatus
+							isFetching={isFetching}
+							tokenName={selectedToken}
+							userReserveData={
+								userOnchainState.fetched?.userReserveData ||
+								defaultUserReserveData
+							}
+						/>
+					</AppSection>
+				</div>
+			)}
 		</AppContainer>
 	);
 };
