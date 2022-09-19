@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
 import Web3 from "web3";
 import { coreErc20Decimals } from "../../../lib/erc20/core";
-import { mainnetChainId, alfajoresChainId } from "../../../lib/cfg";
+import { mainnetChainId, alfajoresChainId, CFG } from "../../../lib/cfg";
 import { moolaTokens } from "./config";
 import { abi as LendingPoolDataProviderABI } from "./abi/DataProvider.json";
 import { abi as UbeswapABI } from "./abi/Ubeswap.json";
@@ -18,8 +18,6 @@ export const MOOLA_AVAILABLE_CHAIN_IDS = [mainnetChainId, alfajoresChainId];
 export const toHumanFriendlyWei = (wei: BigNumber | string): string => {
 	return Number(BN(toBigNumberEther(wei.toString()))).toLocaleString();
 };
-
-export const MOOLA_GOVERNANCE_DEPLOY_BLOCK_NUMBER = 14642441;
 
 export enum ProposalState {
 	PENDING = 0,
@@ -378,6 +376,23 @@ export interface moolaTokenCeloAddressesMap {
 	[tokenSymbol: string]: string;
 }
 
+export const getMoolaGovernanceDeployBlockNumber = (): number => {
+	const moolaGovernanceDeployedBlockNumber = {
+		[mainnetChainId.toString()]: 14642441,
+		[alfajoresChainId.toString()]: 13517524,
+	};
+
+	const blockNumber = moolaGovernanceDeployedBlockNumber[CFG().chainId];
+
+	if (!blockNumber) {
+		throw new Error(
+			`Moola governance is not deployed to chainId: ${CFG().chainId}!`
+		);
+	}
+
+	return blockNumber;
+};
+
 export interface moolaTokenSwapPath {
 	path: string[];
 	useATokenAsFrom: boolean;
@@ -466,6 +481,8 @@ export interface moolaGovernanceProposal {
 	readonly forVotes: string;
 	readonly againstVotes: string;
 	readonly proposer: string;
+	readonly startBlock: string;
+	userVotingPower: BigNumber;
 }
 
 export interface moolaProposalDisplay {

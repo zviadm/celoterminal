@@ -11,7 +11,7 @@ import { Account } from "../../../lib/accounts/accounts";
 import { TXFunc, TXFinishFunc } from "../../components/app-definition";
 import { newErc20 } from "../../../lib/erc20/erc20-contract";
 import { Moola } from "./def";
-import { moolaTokens, MOO } from "./config";
+import { moolaTokens, MOO, MOO_GOV } from "./config";
 import { CFG, selectAddressOrThrow } from "../../../lib/cfg";
 
 import AppHeader from "../../components/app-header";
@@ -721,6 +721,7 @@ const MoolaApp = (props: {
 	);
 
 	const mooTokenAddress = selectAddressOrThrow(MOO.addresses);
+	const governanceTokenAddress = selectAddressOrThrow(MOO_GOV.addresses);
 	const actionComponents = {
 		Deposit: <Deposit onDeposit={handleDeposit} tokenBalance={tokenBalance} />,
 		Withdraw: (
@@ -786,7 +787,7 @@ const MoolaApp = (props: {
 		Governance: (
 			<Governance
 				runTXs={props.runTXs}
-				mooTokenAddress={mooTokenAddress}
+				mooTokenAddress={governanceTokenAddress}
 				governanceAddress={
 					userOnchainState.fetched?.governanceAddress || ZERO_HASH
 				}

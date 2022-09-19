@@ -19,7 +19,7 @@ const createProposal = ({
 }: {
 	onCreateProposal: (
 		targets: string[],
-		values: (number | string)[],
+		values: BigNumber[],
 		signatures: string[],
 		calldatas: BytesLike[],
 		description: string
