@@ -162,7 +162,7 @@ const Governance = ({
 
 				return formattedProposals;
 			},
-			[userAddress, governanceAddress]
+			[userAddress, latestBlockNumber, governanceAddress]
 		)
 	);
 

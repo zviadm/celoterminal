@@ -159,18 +159,18 @@ const GovernanceProposals = ({
 												</div>
 											</div>
 										</div>
-										<div style={{ marginTop: 15 }}>
+										<div>
 											{parsedDescriptionTitle && (
-												<span
-													style={{ fontWeight: "bold" }}
-												>{`${parsedDescriptionTitle} :`}</span>
+												<div
+													style={{ fontWeight: "bold", marginBottom: 5 }}
+												>{`${parsedDescriptionTitle}`}</div>
 											)}
-											<span>{parsedDescriptionContent}</span>
+											<div>{parsedDescriptionContent}</div>
 										</div>
 
 										<div
 											style={{
-												marginTop: 15,
+												marginTop: 20,
 												color: "#3488ec",
 												fontWeight: "bold",
 											}}
