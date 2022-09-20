@@ -146,13 +146,13 @@ const GovernanceProposals = ({
 												}}
 											>
 												<div>
-													{`For Votes: `}{" "}
+													{`For Votes: `}
 													<span className={classes.bold}>
 														{toHumanFriendlyWei(forVotes)}
 													</span>
 												</div>
 												<div>
-													{`Against Votes: `}{" "}
+													{`Against Votes: `}
 													<span className={classes.bold}>
 														{toHumanFriendlyWei(againstVotes)}
 													</span>
