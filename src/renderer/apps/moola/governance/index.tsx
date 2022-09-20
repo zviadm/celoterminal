@@ -50,7 +50,6 @@ const Governance = ({
 					if (governanceAddress === ZERO_HASH) {
 						return;
 					}
-					latestBlockNumber = await kit.web3.eth.getBlockNumber();
 
 					const governanceContract = new kit.web3.eth.Contract(
 						MoolaGovernorBravoDelegateABI as AbiItem[],
@@ -162,7 +161,7 @@ const Governance = ({
 
 				return formattedProposals;
 			},
-			[userAddress, latestBlockNumber, governanceAddress]
+			[userAddress, latestBlockNumber, governanceAddress, mooTokenAddress]
 		)
 	);
 

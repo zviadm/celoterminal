@@ -720,7 +720,6 @@ const MoolaApp = (props: {
 		(acc) => acc.address !== account.address
 	);
 
-	const mooTokenAddress = selectAddressOrThrow(MOO.addresses);
 	const governanceTokenAddress = selectAddressOrThrow(MOO_GOV.addresses);
 	const actionComponents = {
 		Deposit: <Deposit onDeposit={handleDeposit} tokenBalance={tokenBalance} />,

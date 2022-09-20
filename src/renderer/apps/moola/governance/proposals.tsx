@@ -234,9 +234,11 @@ function getProposalDisplay(
 	startBlock: string,
 	endBlock: string
 ): moolaProposalDisplay {
+	let blocksTilStart = 0;
+	let blocksTilEnd = 0;
 	switch (state) {
 		case ProposalState.PENDING:
-			const blocksTilStart = Number(startBlock) - Number(latestBlockNumber);
+			blocksTilStart = Number(startBlock) - Number(latestBlockNumber);
 			return {
 				stateStr: "Pending",
 				timeText:
@@ -247,7 +249,7 @@ function getProposalDisplay(
 				votingTimeColor: "#F3841E",
 			};
 		case ProposalState.ACTIVE:
-			const blocksTilEnd = Number(endBlock) - Number(latestBlockNumber);
+			blocksTilEnd = Number(endBlock) - Number(latestBlockNumber);
 			return {
 				stateStr: "Active",
 				timeText:
