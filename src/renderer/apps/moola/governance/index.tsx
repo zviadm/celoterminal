@@ -60,7 +60,7 @@ const Governance = ({
 					);
 
 					const votingPower = await tokenContract.methods
-						.getPriorVotes(userAddress, latestBlockNumber - 3) // shift by 3 blocks to avoid voing power "not yet determined" error
+						.getPriorVotes(userAddress, latestBlockNumber - 1) // minus one to avoid voting power not yet determined error
 						.call();
 					const tokenDelegate = await tokenContract.methods
 						.delegates(userAddress)
@@ -79,7 +79,7 @@ const Governance = ({
 						proposalThreshold,
 					};
 				},
-				[userAddress, governanceAddress]
+				[userAddress, governanceAddress, latestBlockNumber]
 			)
 		);
 
@@ -148,6 +148,8 @@ const Governance = ({
 				);
 
 				formattedProposals.forEach(async ({ startBlock }, index) => {
+					if (BN(startBlock).gt(BN(latestBlockNumber))) return;
+
 					const userVotingPower = await tokenContract.methods
 						.getPriorVotes(userAddress, startBlock)
 						.call();

@@ -36,13 +36,7 @@ const createProposal = ({
 		const valuesArr = values.split(",").map((v) => BN(v));
 		const signaturesArr = signatures.split(",");
 		const calldatasArr = calldatas.split(",");
-		console.log("object :>> ", {
-			targetsArr,
-			valuesArr,
-			signaturesArr,
-			calldatasArr,
-			description,
-		});
+
 		onCreateProposal(
 			targetsArr,
 			valuesArr,

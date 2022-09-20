@@ -500,6 +500,11 @@ export interface moolaProposalDisplay {
 	readonly votingTimeColor: string;
 }
 
+export interface parsedMoolaGovernanceProposalDescription {
+	title: string;
+	description: string;
+}
+
 export const lendingPoolDataProviderAddresses = {
 	mainnet: "0x43d067ed784D9DD2ffEda73775e2CC4c560103A1",
 	alfajores: "0x31ccB9dC068058672D96E92BAf96B1607855822E",

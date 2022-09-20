@@ -19,6 +19,7 @@ import {
 	ProposalSupport,
 	moolaProposalDisplay,
 	BN,
+	parsedMoolaGovernanceProposalDescription,
 } from "../moola-helper";
 import BigNumber from "bignumber.js";
 
@@ -94,6 +95,11 @@ const GovernanceProposals = ({
 							const proposalActive = state === ProposalState.ACTIVE;
 							const canVote = hasVotingPower && proposalActive;
 
+							const {
+								title: parsedDescriptionTitle,
+								description: parsedDescriptionContent,
+							} = parseDescription(description);
+
 							/**
 							 * A proposal is eligible to be cancelled at any time prior to its execution, including while queued in the Timelock, using this function.
 							 * The cancel function on the contract can be called by any address,
@@ -147,11 +153,24 @@ const GovernanceProposals = ({
 												</div>
 											</div>
 										</div>
-										<div>
-											<div>{`Description: ${description}`}</div>
+										<div style={{ marginTop: 15 }}>
+											{parsedDescriptionTitle && (
+												<span
+													style={{ fontWeight: "bold" }}
+												>{`${parsedDescriptionTitle} :`}</span>
+											)}
+											<span>{parsedDescriptionContent}</span>
 										</div>
 
-										<div style={{ marginTop: 15 }}>{timeText}</div>
+										<div
+											style={{
+												marginTop: 15,
+												color: "#3488ec",
+												fontWeight: "bold",
+											}}
+										>
+											{timeText}
+										</div>
 									</CardContent>
 									{!hasVotingPower && (
 										<div style={{ marginLeft: 10 }}>
@@ -282,6 +301,24 @@ function getProposalDisplay(
 				votingTimeColor: "#909090",
 			};
 	}
+}
+
+function parseDescription(
+	description: string
+): parsedMoolaGovernanceProposalDescription {
+	const parsed = { title: "", description: "" };
+
+	try {
+		const { title: parsedTitle, description: parseddescription } =
+			JSON.parse(description);
+		parsed.title = parsedTitle;
+		parsed.description = parseddescription;
+	} catch (e) {
+		console.error("Proposal description not in correct parsable format");
+		parsed.description = description;
+	}
+
+	return parsed;
 }
 
 export default GovernanceProposals;
