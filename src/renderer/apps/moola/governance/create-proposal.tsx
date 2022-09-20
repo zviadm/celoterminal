@@ -1,18 +1,9 @@
 import * as React from "react";
 import { BytesLike } from "ethers";
-import {
-	Box,
-	Table,
-	TableBody,
-	TableRow,
-	TableCell,
-	LinearProgress,
-	TextField,
-	Button,
-} from "@material-ui/core";
+import { Box, TextField, Button } from "@material-ui/core";
 import SectionTitle from "../../../components/section-title";
 import BigNumber from "bignumber.js";
-import { toHumanFriendlyWei, BN } from "../moola-helper";
+import { BN } from "../moola-helper";
 
 const CreateProposal = ({
 	onCreateProposal,

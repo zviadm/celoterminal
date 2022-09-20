@@ -1,6 +1,6 @@
 import * as React from "react";
 import { BytesLike } from "ethers";
-import { Box, Button, Select, MenuItem, InputLabel } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import BigNumber from "bignumber.js";
 import AppSection from "../../../components/app-section";
 import {
