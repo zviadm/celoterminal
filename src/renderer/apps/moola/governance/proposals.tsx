@@ -69,7 +69,7 @@ const GovernanceProposals = ({
 
 	return (
 		<Box className={classes.container}>
-			<SectionTitle>Governance Proposals</SectionTitle>
+			<SectionTitle>Recent proposals</SectionTitle>
 			{isFetching ? (
 				<LinearProgress />
 			) : (
@@ -138,15 +138,21 @@ const GovernanceProposals = ({
 													</span>
 												</div>
 											</div>
-											<div>
+											<div
+												style={{
+													textAlign: "right",
+													border: "2px dashed lightgrey",
+													padding: 10,
+												}}
+											>
 												<div>
-													{`forVotes: `}{" "}
+													{`For Votes: `}{" "}
 													<span className={classes.bold}>
 														{toHumanFriendlyWei(forVotes)}
 													</span>
 												</div>
 												<div>
-													{`againstVotes: `}{" "}
+													{`Against Votes: `}{" "}
 													<span className={classes.bold}>
 														{toHumanFriendlyWei(againstVotes)}
 													</span>

@@ -21,6 +21,8 @@ import GovernanceDetails from "./details";
 import CreateGovernanceProposal from "./create-proposal";
 import GovernanceProposals from "./proposals";
 
+const FETCH_PROPOSAL_COUNT = 10; // displays 10 most recent proposal details
+
 const Governance = ({
 	runTXs,
 	mooTokenAddress,
@@ -109,10 +111,12 @@ const Governance = ({
 						fromBlock: getMoolaGovernanceDeployBlockNumber(),
 					}
 				);
-				const mostRecent3Proposals = proposalEvents.reverse().slice(0, 3);
-				const proposalIDs = mostRecent3Proposals.map((e) => e.returnValues.id);
+				const recentProposals = proposalEvents
+					.reverse()
+					.slice(0, FETCH_PROPOSAL_COUNT);
+				const proposalIDs = recentProposals.map((e) => e.returnValues.id);
 
-				const proposalDescriptionsAndBlocks = mostRecent3Proposals.map((e) => ({
+				const proposalDescriptionsAndBlocks = recentProposals.map((e) => ({
 					description: e.returnValues.description,
 					startBlock: e.returnValues.startBlock,
 					endBlock: e.returnValues.endBlock,
