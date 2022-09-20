@@ -80,7 +80,7 @@ const Governance = ({
 						proposalThreshold,
 					};
 				},
-				[userAddress, governanceAddress, latestBlockNumber]
+				[userAddress, governanceAddress, latestBlockNumber, mooTokenAddress]
 			)
 		);
 
