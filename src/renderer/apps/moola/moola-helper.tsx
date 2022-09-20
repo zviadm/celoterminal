@@ -30,6 +30,12 @@ export enum ProposalState {
 	EXECUTED,
 }
 
+export const CAN_CANCEL_PROPOSAL_STATES = [
+	ProposalState.PENDING,
+	ProposalState.ACTIVE,
+	ProposalState.QUEUED,
+];
+
 export enum ProposalSupport {
 	AGAINST = 0,
 	FOR = 1,
@@ -482,6 +488,8 @@ export interface moolaGovernanceProposal {
 	readonly againstVotes: string;
 	readonly proposer: string;
 	readonly startBlock: string;
+	readonly endBlock: string;
+	description: string;
 	userVotingPower: BigNumber;
 }
 

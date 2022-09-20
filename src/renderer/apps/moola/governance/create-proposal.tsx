@@ -117,5 +117,3 @@ const createProposal = ({
 };
 
 export default createProposal;
-
-// ddress[] memory targets, uint[] memory values, string[] memory signatures, bytes[] memory calldatas, string memory description

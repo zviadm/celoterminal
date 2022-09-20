@@ -34,6 +34,7 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 		React.useCallback(
 			async (kit: ContractKit) => {
 				const goldToken = await kit.contracts.getGoldToken();
+				const latestBlockNumber = await kit.web3.eth.getBlockNumber();
 
 				const lendingPoolAddressesProviderAddress = selectAddressOrThrow(
 					lendingPoolAddressesProviderAddresses
@@ -84,6 +85,7 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 				const governanceAddress = selectAddressOrThrow(governanceAddresses);
 
 				return {
+					latestBlockNumber,
 					autoRepayAddress,
 					goldToken,
 					lendingPoolAddress,

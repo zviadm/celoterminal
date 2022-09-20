@@ -792,6 +792,7 @@ const MoolaApp = (props: {
 					userOnchainState.fetched?.governanceAddress || ZERO_HASH
 				}
 				userAddress={account.address}
+				latestBlockNumber={userOnchainState.fetched?.latestBlockNumber || 0}
 			/>
 		),
 	};

@@ -2,10 +2,6 @@ import * as React from "react";
 import {
 	Box,
 	LinearProgress,
-	Table,
-	TableBody,
-	TableRow,
-	TableCell,
 	Button,
 	CardActions,
 	CardContent,
@@ -17,6 +13,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import SectionTitle from "../../../components/section-title";
 import {
 	moolaGovernanceProposal,
+	CAN_CANCEL_PROPOSAL_STATES,
 	toHumanFriendlyWei,
 	ProposalState,
 	ProposalSupport,
@@ -54,12 +51,18 @@ const GovernanceProposals = ({
 	isFetching,
 	proposals,
 	votingPower,
-	castVote,
+	onCastVote,
+	latestBlockNumber,
+	userAddress,
+	onCancelProposal,
 }: {
 	isFetching: boolean;
 	proposals: moolaGovernanceProposal[];
 	votingPower: BigNumber;
-	castVote: (id: string, support: ProposalSupport) => void;
+	onCastVote: (id: string, support: ProposalSupport) => void;
+	onCancelProposal: (id: string) => void;
+	latestBlockNumber: number;
+	userAddress: string;
 }): JSX.Element => {
 	const classes = useStyles();
 
@@ -70,117 +73,162 @@ const GovernanceProposals = ({
 				<LinearProgress />
 			) : (
 				<div>
-					{proposals.map(({ id, proposer, forVotes, againstVotes, state }) => {
-						const { stateStr, stateColor } = getProposalDisplay(state);
-						const hasVotingPower = BN(votingPower).gt(BN(0));
-						const proposalActive = state === ProposalState.ACTIVE;
-						const canVote = hasVotingPower && proposalActive;
-						return (
-							<Card key={`proposal-${id}`} className={classes.card}>
-								<CardContent>
-									<Typography
-										className={classes.title}
-									>{`Proposal ${id}`}</Typography>
-									<div
-										style={{ display: "flex", justifyContent: "space-between" }}
-									>
-										<div>
-											<div>
-												{`Proposed By: `}
-												<span className={classes.bold}>
-													{`${proposer.slice(0, 6)}...${proposer.slice(37)}`}
-												</span>
-											</div>
+					{proposals.map(
+						({
+							id,
+							proposer,
+							forVotes,
+							againstVotes,
+							state,
+							description,
+							startBlock,
+							endBlock,
+						}) => {
+							const { stateStr, stateColor, timeText } = getProposalDisplay(
+								state,
+								latestBlockNumber,
+								startBlock,
+								endBlock
+							);
+							const hasVotingPower = BN(votingPower).gt(BN(0));
+							const proposalActive = state === ProposalState.ACTIVE;
+							const canVote = hasVotingPower && proposalActive;
 
+							/**
+							 * A proposal is eligible to be cancelled at any time prior to its execution, including while queued in the Timelock, using this function.
+							 * The cancel function on the contract can be called by any address,
+							 * if the proposal creator fails to maintain more delegated votes than the proposal threshold.
+							 * But here the cancel button is only displayed for the proposor.
+							 */
+							const canCancelProposal =
+								proposer === userAddress &&
+								CAN_CANCEL_PROPOSAL_STATES.includes(state);
+
+							return (
+								<Card key={`proposal-${id}`} className={classes.card}>
+									<CardContent>
+										<Typography
+											className={classes.title}
+										>{`Proposal ${id}`}</Typography>
+										<div
+											style={{
+												display: "flex",
+												justifyContent: "space-between",
+											}}
+										>
 											<div>
-												{`state: `}
-												<span
-													className={classes.bold}
-													style={{ color: stateColor }}
-												>
-													{stateStr}
-												</span>
+												<div>
+													{`Proposed By: `}
+													<span className={classes.bold}>{proposer}</span>
+												</div>
+
+												<div>
+													{`state: `}
+													<span
+														className={classes.bold}
+														style={{ color: stateColor }}
+													>
+														{stateStr}
+													</span>
+												</div>
+											</div>
+											<div>
+												<div>
+													{`forVotes: `}{" "}
+													<span className={classes.bold}>
+														{toHumanFriendlyWei(forVotes)}
+													</span>
+												</div>
+												<div>
+													{`againstVotes: `}{" "}
+													<span className={classes.bold}>
+														{toHumanFriendlyWei(againstVotes)}
+													</span>
+												</div>
 											</div>
 										</div>
 										<div>
-											<div>
-												{`forVotes: `}{" "}
-												<span className={classes.bold}>
-													{toHumanFriendlyWei(forVotes)}
-												</span>
-											</div>
-											<div>
-												{`againstVotes: `}{" "}
-												<span className={classes.bold}>
-													{toHumanFriendlyWei(againstVotes)}
-												</span>
-											</div>
+											<div>{`Description: ${description}`}</div>
 										</div>
-									</div>
-								</CardContent>
-								{!hasVotingPower && (
-									<div style={{ marginLeft: 10 }}>
-										* You have no voting power for this proposal.
-									</div>
-								)}
-								{canVote && (
-									<CardActions style={{ display: "flex" }}>
-										<Button
-											size="small"
-											color="primary"
-											onClick={() => castVote(id, ProposalSupport.FOR)}
-											className={classes.actionButton}
-											variant="contained"
-										>
-											{`vote for #${id}`}
-										</Button>
-										<Button
-											size="small"
-											color="secondary"
-											onClick={() => castVote(id, ProposalSupport.AGAINST)}
-											className={classes.actionButton}
-											variant="contained"
-										>
-											{`vote against #${id}`}
-										</Button>
-									</CardActions>
-								)}
-							</Card>
-						);
-					})}
+
+										<div style={{ marginTop: 15 }}>{timeText}</div>
+									</CardContent>
+									{!hasVotingPower && (
+										<div style={{ marginLeft: 10 }}>
+											* You have no voting power for this proposal.
+										</div>
+									)}
+									{canVote && (
+										<CardActions style={{ display: "flex" }}>
+											<Button
+												size="small"
+												color="primary"
+												onClick={() => onCastVote(id, ProposalSupport.FOR)}
+												className={classes.actionButton}
+												variant="contained"
+											>
+												{`vote for #${id}`}
+											</Button>
+											<Button
+												size="small"
+												color="secondary"
+												onClick={() => onCastVote(id, ProposalSupport.AGAINST)}
+												className={classes.actionButton}
+												variant="contained"
+											>
+												{`vote against #${id}`}
+											</Button>
+										</CardActions>
+									)}
+									{canCancelProposal && (
+										<CardActions>
+											<Button
+												size="small"
+												color="secondary"
+												onClick={() => onCancelProposal(id)}
+												className={classes.actionButton}
+												variant="contained"
+											>
+												{`Cancel Proposal #${id}`}
+											</Button>
+										</CardActions>
+									)}
+								</Card>
+							);
+						}
+					)}
 				</div>
 			)}
 		</Box>
 	);
 };
 
-function getProposalDisplay(state: number): moolaProposalDisplay {
+function getProposalDisplay(
+	state: number,
+	latestBlockNumber: number,
+	startBlock: string,
+	endBlock: string
+): moolaProposalDisplay {
 	switch (state) {
 		case ProposalState.PENDING:
-			// const secondsTilStart =
-			//   (Number(latestBlockNumber) -
-			//     Number(proposalEvent.args.startBlock.toString())) *
-			//   SECONDS_PER_BLOCK;
+			const blocksTilStart = Number(startBlock) - Number(latestBlockNumber);
 			return {
 				stateStr: "Pending",
-				// timeText: `${moment
-				//   .duration(secondsTilStart, "seconds")
-				//   .humanize()} until voting begins`,
-				timeText: "Voting will begin soon",
+				timeText:
+					latestBlockNumber && blocksTilStart >= 0
+						? `${blocksTilStart} blocks until voting begins`
+						: `Voting will begin soon`,
 				stateColor: "#F3841E",
 				votingTimeColor: "#F3841E",
 			};
 		case ProposalState.ACTIVE:
-			// const secondsTilEnd =
-			//   (Number(proposalEvent.args.endBlock.toString()) -
-			//     Number(latestBlockNumber)) *
-			//   SECONDS_PER_BLOCK;
+			const blocksTilEnd = Number(endBlock) - Number(latestBlockNumber);
 			return {
 				stateStr: "Active",
-				// timeText: `${moment
-				//   .duration(secondsTilEnd, "seconds")
-				//   .humanize()} until voting ends`,
-				timeText: "Voting ongoing",
+				timeText:
+					latestBlockNumber && blocksTilEnd >= 0
+						? `${blocksTilEnd} blocks until voting ends`
+						: `Voting ongoing`,
 				stateColor: "#35D07F",
 				votingTimeColor: "#35D07F",
 			};

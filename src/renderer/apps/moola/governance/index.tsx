@@ -26,10 +26,12 @@ const Governance = ({
 	mooTokenAddress,
 	governanceAddress,
 	userAddress,
+	latestBlockNumber,
 }: {
 	governanceAddress: string;
 	mooTokenAddress: string;
 	userAddress: string;
+	latestBlockNumber: number;
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void;
 }): JSX.Element => {
 	const defaultGovernanceDetails = {
@@ -46,7 +48,7 @@ const Governance = ({
 					if (governanceAddress === ZERO_HASH) {
 						return;
 					}
-					const latestBlockNumber = await kit.web3.eth.getBlockNumber();
+					latestBlockNumber = await kit.web3.eth.getBlockNumber();
 
 					const governanceContract = new kit.web3.eth.Contract(
 						MoolaGovernorBravoDelegateABI as AbiItem[],
@@ -58,7 +60,7 @@ const Governance = ({
 					);
 
 					const votingPower = await tokenContract.methods
-						.getPriorVotes(userAddress, latestBlockNumber - 1)
+						.getPriorVotes(userAddress, latestBlockNumber - 3) // shift by 3 blocks to avoid voing power "not yet determined" error
 						.call();
 					const tokenDelegate = await tokenContract.methods
 						.delegates(userAddress)
@@ -107,10 +109,14 @@ const Governance = ({
 						fromBlock: getMoolaGovernanceDeployBlockNumber(),
 					}
 				);
-				const proposalIDs = proposalEvents
-					.reverse()
-					.slice(0, 3)
-					.map((e) => e.returnValues.id);
+				const mostRecent3Proposals = proposalEvents.reverse().slice(0, 3);
+				const proposalIDs = mostRecent3Proposals.map((e) => e.returnValues.id);
+
+				const proposalDescriptionsAndBlocks = mostRecent3Proposals.map((e) => ({
+					description: e.returnValues.description,
+					startBlock: e.returnValues.startBlock,
+					endBlock: e.returnValues.endBlock,
+				}));
 
 				const proposalInfoPromises = proposalIDs.map((id) =>
 					governanceContract.methods.proposals(id).call()
@@ -123,10 +129,9 @@ const Governance = ({
 				const proposalStates = await Promise.all(proposalStatePromises);
 
 				const formattedProposals: moolaGovernanceProposal[] = proposalInfo.map(
-					(
-						{ id, proposer, executed, forVotes, againstVotes, startBlock },
-						idx
-					) => {
+					({ id, proposer, executed, forVotes, againstVotes }, idx) => {
+						const { startBlock, endBlock, description } =
+							proposalDescriptionsAndBlocks[idx];
 						return {
 							id,
 							proposer,
@@ -134,7 +139,9 @@ const Governance = ({
 							forVotes,
 							againstVotes,
 							startBlock,
+							endBlock,
 							userVotingPower: BN(0),
+							description,
 							state: parseInt(proposalStates[idx]),
 						};
 					}
@@ -153,7 +160,7 @@ const Governance = ({
 		)
 	);
 
-	const castVote = (id: string, support: ProposalSupport) => {
+	const handleCastVote = (id: string, support: ProposalSupport) => {
 		runTXs(async (kit: ContractKit) => {
 			if (governanceAddress === ZERO_HASH) {
 				return [];
@@ -205,6 +212,26 @@ const Governance = ({
 		}, refetchProposals);
 	};
 
+	const handleCancelProposal = (proposalId: string) => {
+		runTXs(async (kit: ContractKit) => {
+			if (governanceAddress === ZERO_HASH) {
+				return [];
+			}
+
+			const governanceContract = new kit.web3.eth.Contract(
+				MoolaGovernorBravoDelegateABI as AbiItem[],
+				governanceAddress
+			);
+
+			const tx = toTransactionObject(
+				kit.connection,
+				governanceContract.methods.cancel(proposalId)
+			);
+
+			return [{ tx }];
+		}, refetchProposals);
+	};
+
 	const { votingPower, tokenDelegate, quorumVotes, proposalThreshold } =
 		governanceDetails || defaultGovernanceDetails;
 
@@ -229,9 +256,12 @@ const Governance = ({
 			<AppSection>
 				<GovernanceProposals
 					votingPower={votingPower}
-					castVote={castVote}
+					onCastVote={handleCastVote}
+					userAddress={userAddress}
+					onCancelProposal={handleCancelProposal}
 					isFetching={isFetchingProposals}
 					proposals={proposals || []}
+					latestBlockNumber={latestBlockNumber}
 				/>
 			</AppSection>
 		</Box>
