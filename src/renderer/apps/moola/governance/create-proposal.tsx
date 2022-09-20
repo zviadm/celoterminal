@@ -14,7 +14,7 @@ import SectionTitle from "../../../components/section-title";
 import BigNumber from "bignumber.js";
 import { toHumanFriendlyWei, BN } from "../moola-helper";
 
-const createProposal = ({
+const CreateProposal = ({
 	onCreateProposal,
 }: {
 	onCreateProposal: (
@@ -110,4 +110,4 @@ const createProposal = ({
 	);
 };
 
-export default createProposal;
+export default CreateProposal;
