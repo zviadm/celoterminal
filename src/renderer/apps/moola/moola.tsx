@@ -11,7 +11,7 @@ import { Account } from "../../../lib/accounts/accounts";
 import { TXFunc, TXFinishFunc } from "../../components/app-definition";
 import { newErc20 } from "../../../lib/erc20/erc20-contract";
 import { Moola } from "./def";
-import { moolaTokens, MOO } from "./config";
+import { moolaTokens, MOO, MOO_GOV } from "./config";
 import { CFG, selectAddressOrThrow } from "../../../lib/cfg";
 
 import AppHeader from "../../components/app-header";
@@ -32,6 +32,7 @@ import RepayFromCollateral from "./repay-from-collateral";
 import LiquiditySwap from "./liquidity-swap";
 import LeverageBorrow from "./leverage-borrow";
 import ReserveStatus from "./reserve-status";
+import Governance from "./governance";
 
 import useLocalStorageState from "../../state/localstorage-state";
 import { useUserOnChainState } from "./state";
@@ -80,6 +81,7 @@ const MoolaApp = (props: {
 		"Repay from Collateral",
 		"Liquidity Swap",
 		"Leverage Borrow",
+		"Governance",
 	];
 
 	const [selectedToken, setSelectedToken] = useLocalStorageState(
@@ -90,6 +92,7 @@ const MoolaApp = (props: {
 		"terminal/moola/actions",
 		actions[0]
 	);
+
 	const tokenInfo: moolaToken =
 		moolaTokens.find((e) => e.symbol === selectedToken) || MOO;
 
@@ -716,6 +719,8 @@ const MoolaApp = (props: {
 	const accountsExcludingSelected = props.accounts.filter(
 		(acc) => acc.address !== account.address
 	);
+
+	const governanceTokenAddress = selectAddressOrThrow(MOO_GOV.addresses);
 	const actionComponents = {
 		Deposit: <Deposit onDeposit={handleDeposit} tokenBalance={tokenBalance} />,
 		Withdraw: (
@@ -778,20 +783,35 @@ const MoolaApp = (props: {
 				tokenName={selectedToken}
 			/>
 		),
+		Governance: (
+			<Governance
+				runTXs={props.runTXs}
+				mooTokenAddress={governanceTokenAddress}
+				governanceAddress={
+					userOnchainState.fetched?.governanceAddress || ZERO_HASH
+				}
+				userAddress={account.address}
+				latestBlockNumber={userOnchainState.fetched?.latestBlockNumber || 0}
+			/>
+		),
 	};
 
+	const displayMarketStatus = selectedAction !== "Governance";
 	return (
 		<AppContainer>
 			<AppHeader app={Moola} isFetching={isFetching} refetch={refetchAll} />
 
-			<AppSection>
-				<AccountStatus
-					isFetching={isFetching}
-					userAccountData={
-						userOnchainState.fetched?.userAccountData || defaultUserAccountData
-					}
-				/>
-			</AppSection>
+			{displayMarketStatus && (
+				<AppSection>
+					<AccountStatus
+						isFetching={isFetching}
+						userAccountData={
+							userOnchainState.fetched?.userAccountData ||
+							defaultUserAccountData
+						}
+					/>
+				</AppSection>
+			)}
 
 			<AppSection>
 				<Box
@@ -833,24 +853,29 @@ const MoolaApp = (props: {
 				{actionComponents[selectedAction as keyof typeof actionComponents]}
 			</AppSection>
 
-			<AppSection>
-				<ReserveStatus
-					isFetching={isFetching}
-					reserveData={
-						userOnchainState.fetched?.reserveData || defaultReserveData
-					}
-					tokenName={selectedToken}
-				/>
-			</AppSection>
-			<AppSection>
-				<UserReserveStatus
-					isFetching={isFetching}
-					tokenName={selectedToken}
-					userReserveData={
-						userOnchainState.fetched?.userReserveData || defaultUserReserveData
-					}
-				/>
-			</AppSection>
+			{displayMarketStatus && (
+				<div>
+					<AppSection>
+						<ReserveStatus
+							isFetching={isFetching}
+							reserveData={
+								userOnchainState.fetched?.reserveData || defaultReserveData
+							}
+							tokenName={selectedToken}
+						/>
+					</AppSection>
+					<AppSection>
+						<UserReserveStatus
+							isFetching={isFetching}
+							tokenName={selectedToken}
+							userReserveData={
+								userOnchainState.fetched?.userReserveData ||
+								defaultUserReserveData
+							}
+						/>
+					</AppSection>
+				</div>
+			)}
 		</AppContainer>
 	);
 };
