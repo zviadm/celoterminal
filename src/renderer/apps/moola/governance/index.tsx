@@ -9,6 +9,7 @@ import {
 	getMoolaGovernanceDeployBlockNumber,
 	moolaGovernanceProposal,
 	ProposalSupport,
+	ProposalState,
 } from "../moola-helper";
 import { ContractKit } from "@celo/contractkit";
 import { abi as MoolaGovernorBravoDelegateABI } from "../abi/MoolaGovernorBravoDelegate.json";
@@ -16,6 +17,7 @@ import { TXFunc, TXFinishFunc } from "../../../components/app-definition";
 import { abi as MooTokenABI } from "../abi/MooToken.json";
 import { AbiItem, toTransactionObject } from "@celo/connect";
 import useOnChainState from "../../../state/onchain-state";
+import { Account } from "../../../../lib/accounts/accounts";
 
 import GovernanceDetails from "./details";
 import CreateGovernanceProposal from "./create-proposal";
@@ -29,12 +31,14 @@ const Governance = ({
 	governanceAddress,
 	userAddress,
 	latestBlockNumber,
+	addressBook,
 }: {
 	governanceAddress: string;
 	mooTokenAddress: string;
 	userAddress: string;
 	latestBlockNumber: number;
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void;
+	addressBook: Account[];
 }): JSX.Element => {
 	const defaultGovernanceDetails = {
 		votingPower: BN(0),
@@ -43,46 +47,49 @@ const Governance = ({
 		proposalThreshold: BN(0),
 	};
 
-	const { isFetching: isFetchingDetails, fetched: governanceDetails } =
-		useOnChainState(
-			React.useCallback(
-				async (kit: ContractKit) => {
-					if (governanceAddress === ZERO_HASH) {
-						return;
-					}
+	const {
+		isFetching: isFetchingDetails,
+		fetched: governanceDetails,
+		refetch: refetchDetails,
+	} = useOnChainState(
+		React.useCallback(
+			async (kit: ContractKit) => {
+				if (governanceAddress === ZERO_HASH) {
+					return;
+				}
 
-					const governanceContract = new kit.web3.eth.Contract(
-						MoolaGovernorBravoDelegateABI as AbiItem[],
-						governanceAddress
-					);
-					const tokenContract = new kit.web3.eth.Contract(
-						MooTokenABI as AbiItem[],
-						mooTokenAddress
-					);
+				const governanceContract = new kit.web3.eth.Contract(
+					MoolaGovernorBravoDelegateABI as AbiItem[],
+					governanceAddress
+				);
+				const tokenContract = new kit.web3.eth.Contract(
+					MooTokenABI as AbiItem[],
+					mooTokenAddress
+				);
 
-					const votingPower = await tokenContract.methods
-						.getPriorVotes(userAddress, latestBlockNumber - 1) // minus one to avoid voting power not yet determined error
-						.call();
-					const tokenDelegate = await tokenContract.methods
-						.delegates(userAddress)
-						.call();
-					const quorumVotes = await governanceContract.methods
-						.quorumVotes()
-						.call();
-					const proposalThreshold = await governanceContract.methods
-						.proposalThreshold()
-						.call();
+				const votingPower = await tokenContract.methods
+					.getPriorVotes(userAddress, latestBlockNumber - 1) // minus one to avoid voting power not yet determined error
+					.call();
+				const tokenDelegate = await tokenContract.methods
+					.delegates(userAddress)
+					.call();
+				const quorumVotes = await governanceContract.methods
+					.quorumVotes()
+					.call();
+				const proposalThreshold = await governanceContract.methods
+					.proposalThreshold()
+					.call();
 
-					return {
-						votingPower,
-						tokenDelegate,
-						quorumVotes,
-						proposalThreshold,
-					};
-				},
-				[userAddress, governanceAddress, latestBlockNumber, mooTokenAddress]
-			)
-		);
+				return {
+					votingPower,
+					tokenDelegate,
+					quorumVotes,
+					proposalThreshold,
+				};
+			},
+			[userAddress, governanceAddress, latestBlockNumber, mooTokenAddress]
+		)
+	);
 
 	const {
 		isFetching: isFetchingProposals,
@@ -150,6 +157,33 @@ const Governance = ({
 					}
 				);
 
+				const queuedProposalIdMap: { [key: string]: number } = {};
+				formattedProposals.forEach((fp, idx) => {
+					if (fp.state === ProposalState.QUEUED) {
+						queuedProposalIdMap[fp.id] = idx;
+					}
+				});
+
+				const queuedProposalIds = Object.keys(queuedProposalIdMap);
+
+				let queuedProposalEvents = [];
+				if (queuedProposalIds.length) {
+					queuedProposalEvents = await governanceContract.getPastEvents(
+						"ProposalQueued",
+						{
+							fromBlock: getMoolaGovernanceDeployBlockNumber(),
+							filter: {
+								id: queuedProposalIds,
+							},
+						}
+					);
+
+					queuedProposalEvents.forEach((e) => {
+						const proposalIndex = queuedProposalIdMap[e.returnValues.id];
+						formattedProposals[proposalIndex].eta = e.returnValues.eta;
+					});
+				}
+
 				formattedProposals.forEach(async ({ startBlock }, index) => {
 					if (BN(startBlock).gt(BN(latestBlockNumber))) return;
 
@@ -164,6 +198,25 @@ const Governance = ({
 			[userAddress, latestBlockNumber, governanceAddress, mooTokenAddress]
 		)
 	);
+
+	const handleSetDelegate = (address: string) => {
+		runTXs(async (kit: ContractKit) => {
+			if (governanceAddress === ZERO_HASH) {
+				return [];
+			}
+			const tokenContract = new kit.web3.eth.Contract(
+				MooTokenABI as AbiItem[],
+				mooTokenAddress
+			);
+
+			const tx = toTransactionObject(
+				kit.connection,
+				tokenContract.methods.delegates(address)
+			);
+
+			return [{ tx }];
+		}, refetchDetails);
+	};
 
 	const handleCastVote = (id: string, support: ProposalSupport) => {
 		runTXs(async (kit: ContractKit) => {
@@ -237,19 +290,62 @@ const Governance = ({
 		}, refetchProposals);
 	};
 
+	const handleQueueProposal = (proposalId: string) => {
+		runTXs(async (kit: ContractKit) => {
+			if (governanceAddress === ZERO_HASH) {
+				return [];
+			}
+
+			const governanceContract = new kit.web3.eth.Contract(
+				MoolaGovernorBravoDelegateABI as AbiItem[],
+				governanceAddress
+			);
+
+			const tx = toTransactionObject(
+				kit.connection,
+				governanceContract.methods.queue(proposalId)
+			);
+
+			return [{ tx }];
+		}, refetchProposals);
+	};
+
+	const handleExecuteProposal = (proposalId: string) => {
+		runTXs(async (kit: ContractKit) => {
+			if (governanceAddress === ZERO_HASH) {
+				return [];
+			}
+
+			const governanceContract = new kit.web3.eth.Contract(
+				MoolaGovernorBravoDelegateABI as AbiItem[],
+				governanceAddress
+			);
+
+			const tx = toTransactionObject(
+				kit.connection,
+				governanceContract.methods.execute(proposalId)
+			);
+
+			return [{ tx }];
+		}, refetchProposals);
+	};
+
 	const { votingPower, tokenDelegate, quorumVotes, proposalThreshold } =
 		governanceDetails || defaultGovernanceDetails;
 
 	const canCreateProposal = BN(votingPower).gte(proposalThreshold);
+
 	return (
 		<Box>
 			<AppSection>
 				<GovernanceDetails
+					addressBook={addressBook}
 					isFetching={isFetchingDetails}
 					votingPower={votingPower}
 					tokenDelegate={tokenDelegate}
 					quorumVotes={quorumVotes}
 					proposalThreshold={proposalThreshold}
+					onSaveDelegateAddress={handleSetDelegate}
 				/>
 			</AppSection>
 
@@ -264,6 +360,8 @@ const Governance = ({
 					onCastVote={handleCastVote}
 					userAddress={userAddress}
 					onCancelProposal={handleCancelProposal}
+					onQueueProposal={handleQueueProposal}
+					onExecuteProposal={handleExecuteProposal}
 					isFetching={isFetchingProposals}
 					proposals={proposals || []}
 					latestBlockNumber={latestBlockNumber}

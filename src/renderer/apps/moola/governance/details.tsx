@@ -6,10 +6,13 @@ import {
 	TableRow,
 	TableCell,
 	LinearProgress,
+	Button,
 } from "@material-ui/core";
-import SectionTitle from "../../../components/section-title";
 import BigNumber from "bignumber.js";
 import { toHumanFriendlyWei } from "../moola-helper";
+import { Account } from "../../../../lib/accounts/accounts";
+import SectionTitle from "../../../components/section-title";
+import AddressAutocomplete from "../../../components/address-autocomplete";
 
 const GovernanceDetails = ({
 	isFetching,
@@ -17,13 +20,20 @@ const GovernanceDetails = ({
 	tokenDelegate,
 	quorumVotes,
 	proposalThreshold,
+	addressBook,
+	onSaveDelegateAddress,
 }: {
 	isFetching: boolean;
 	votingPower: BigNumber;
 	tokenDelegate: string;
 	quorumVotes: BigNumber;
 	proposalThreshold: BigNumber;
+	addressBook: Account[];
+	onSaveDelegateAddress: (address: string) => void;
 }): JSX.Element => {
+	const [changingDelegate, setChangingDelegate] = React.useState(false);
+	const [delegateAddress, setDelegateAddress] = React.useState("");
+
 	return (
 		<Box>
 			{isFetching ? (
@@ -41,6 +51,26 @@ const GovernanceDetails = ({
 								<TableRow>
 									<TableCell>Token Delegate</TableCell>
 									<TableCell>{tokenDelegate}</TableCell>
+									<Button
+										onClick={() => setChangingDelegate(!changingDelegate)}
+									>
+										Change
+									</Button>
+									{changingDelegate && (
+										<div>
+											<AddressAutocomplete
+												id="gov-delegate-input"
+												textFieldProps={{
+													margin: "normal",
+													InputLabelProps: { shrink: true },
+												}}
+												addresses={addressBook}
+												address={delegateAddress}
+												onChange={setDelegateAddress}
+											/>
+											<Button onClick={onSaveDelegateAddress}>Save</Button>
+										</div>
+									)}
 								</TableRow>
 							</TableBody>
 						</Table>
