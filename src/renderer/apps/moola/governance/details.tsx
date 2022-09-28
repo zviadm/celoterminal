@@ -50,26 +50,46 @@ const GovernanceDetails = ({
 								</TableRow>
 								<TableRow>
 									<TableCell>Token Delegate</TableCell>
-									<TableCell>{tokenDelegate}</TableCell>
-									<Button
-										onClick={() => setChangingDelegate(!changingDelegate)}
-									>
-										Change
-									</Button>
-									{changingDelegate && (
-										<div>
-											<AddressAutocomplete
-												id="gov-delegate-input"
-												textFieldProps={{
-													margin: "normal",
-													InputLabelProps: { shrink: true },
-												}}
-												addresses={addressBook}
-												address={delegateAddress}
-												onChange={setDelegateAddress}
-											/>
-											<Button onClick={onSaveDelegateAddress}>Save</Button>
-										</div>
+									<TableCell>
+										{changingDelegate ? (
+											<div>
+												<AddressAutocomplete
+													id="gov-delegate-input"
+													textFieldProps={{
+														margin: "normal",
+														InputLabelProps: { shrink: true },
+													}}
+													addresses={addressBook}
+													address={delegateAddress}
+													onChange={setDelegateAddress}
+												/>
+											</div>
+										) : (
+											tokenDelegate
+										)}
+									</TableCell>
+									{changingDelegate ? (
+										<Button
+											size="small"
+											// color="primary"
+											variant="contained"
+											onClick={() => {
+												onSaveDelegateAddress(delegateAddress);
+												setChangingDelegate(false);
+											}}
+											style={{ marginTop: 20 }}
+										>
+											Save
+										</Button>
+									) : (
+										<Button
+											onClick={() => setChangingDelegate(!changingDelegate)}
+											size="small"
+											// color="primary"
+											variant="contained"
+										>
+											Change
+										</Button>
 									)}
 								</TableRow>
 							</TableBody>

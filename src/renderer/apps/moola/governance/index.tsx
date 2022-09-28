@@ -199,7 +199,7 @@ const Governance = ({
 		)
 	);
 
-	const handleSetDelegate = (address: string) => {
+	const handleSetDelegateAddress = (address: string) => {
 		runTXs(async (kit: ContractKit) => {
 			if (governanceAddress === ZERO_HASH) {
 				return [];
@@ -211,7 +211,7 @@ const Governance = ({
 
 			const tx = toTransactionObject(
 				kit.connection,
-				tokenContract.methods.delegates(address)
+				tokenContract.methods.delegate(address)
 			);
 
 			return [{ tx }];
@@ -345,7 +345,7 @@ const Governance = ({
 					tokenDelegate={tokenDelegate}
 					quorumVotes={quorumVotes}
 					proposalThreshold={proposalThreshold}
-					onSaveDelegateAddress={handleSetDelegate}
+					onSaveDelegateAddress={handleSetDelegateAddress}
 				/>
 			</AppSection>
 
