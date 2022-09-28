@@ -71,7 +71,6 @@ const GovernanceDetails = ({
 									{changingDelegate ? (
 										<Button
 											size="small"
-											// color="primary"
 											variant="contained"
 											onClick={() => {
 												onSaveDelegateAddress(delegateAddress);
@@ -85,7 +84,6 @@ const GovernanceDetails = ({
 										<Button
 											onClick={() => setChangingDelegate(!changingDelegate)}
 											size="small"
-											// color="primary"
 											variant="contained"
 										>
 											Change
