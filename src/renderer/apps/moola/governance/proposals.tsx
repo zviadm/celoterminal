@@ -100,10 +100,12 @@ const GovernanceProposals = ({
 							const proposalActive = state === ProposalState.ACTIVE;
 							const canVote = hasVotingPower && proposalActive;
 							const canQueueProposal = state === ProposalState.SUCCEEDED;
-							const canExecuteProposal = eta
-								? true
-								: state === ProposalState.QUEUED && new Date() > new Date(eta);
 
+							const hasPassedTimelock = eta
+								? BN(Date.now()).isGreaterThan(BN(eta).multipliedBy(1000))
+								: true;
+							const canExecuteProposal =
+								state === ProposalState.QUEUED && hasPassedTimelock;
 							const {
 								title: parsedDescriptionTitle,
 								description: parsedDescriptionContent,
@@ -231,7 +233,7 @@ const GovernanceProposals = ({
 										<CardActions>
 											<Button
 												size="small"
-												color="secondary"
+												color="primary"
 												onClick={() => onQueueProposal(id)}
 												className={classes.actionButton}
 												variant="contained"
@@ -244,7 +246,7 @@ const GovernanceProposals = ({
 										<CardActions>
 											<Button
 												size="small"
-												color="secondary"
+												color="primary"
 												onClick={() => onExecuteProposal(id)}
 												className={classes.actionButton}
 												variant="contained"
