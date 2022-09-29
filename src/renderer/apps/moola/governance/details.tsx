@@ -69,24 +69,37 @@ const GovernanceDetails = ({
 										)}
 									</TableCell>
 									{changingDelegate ? (
-										<Button
-											size="small"
-											variant="contained"
-											onClick={() => {
-												onSaveDelegateAddress(delegateAddress);
-												setChangingDelegate(false);
-											}}
-											style={{ marginTop: 20 }}
-										>
-											Save
-										</Button>
+										<div style={{ display: "flex" }}>
+											<Button
+												size="small"
+												variant="contained"
+												color="primary"
+												onClick={() => {
+													onSaveDelegateAddress(delegateAddress);
+													setChangingDelegate(false);
+												}}
+												style={{ marginTop: 20 }}
+											>
+												Submit
+											</Button>
+											<Button
+												size="small"
+												variant="contained"
+												onClick={() => setChangingDelegate(false)}
+												style={{ marginTop: 20, marginLeft: 20 }}
+											>
+												Cancel
+											</Button>
+										</div>
 									) : (
 										<Button
 											onClick={() => setChangingDelegate(!changingDelegate)}
 											size="small"
 											variant="contained"
+											color="primary"
+											style={{ marginLeft: 20 }}
 										>
-											Change
+											Update
 										</Button>
 									)}
 								</TableRow>
