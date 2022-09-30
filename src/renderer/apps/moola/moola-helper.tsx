@@ -491,7 +491,7 @@ export interface moolaGovernanceProposal {
 	readonly endBlock: string;
 	description: string;
 	userVotingPower: BigNumber;
-	eta?: string;
+	eta: string;
 }
 
 export interface moolaProposalDisplay {

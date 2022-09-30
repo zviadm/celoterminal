@@ -139,7 +139,7 @@ const Governance = ({
 				const proposalStates = await Promise.all(proposalStatePromises);
 
 				const formattedProposals: moolaGovernanceProposal[] = proposalInfo.map(
-					({ id, proposer, executed, forVotes, againstVotes }, idx) => {
+					({ id, proposer, executed, forVotes, againstVotes, eta }, idx) => {
 						const { startBlock, endBlock, description } =
 							proposalDescriptionsAndBlocks[idx];
 						return {
@@ -152,37 +152,11 @@ const Governance = ({
 							endBlock,
 							userVotingPower: BN(0),
 							description,
+							eta,
 							state: parseInt(proposalStates[idx]),
 						};
 					}
 				);
-
-				const queuedProposalIdMap: { [key: string]: number } = {};
-				formattedProposals.forEach((fp, idx) => {
-					if (fp.state === ProposalState.QUEUED) {
-						queuedProposalIdMap[fp.id] = idx;
-					}
-				});
-
-				const queuedProposalIds = Object.keys(queuedProposalIdMap);
-
-				let queuedProposalEvents = [];
-				if (queuedProposalIds.length) {
-					queuedProposalEvents = await governanceContract.getPastEvents(
-						"ProposalQueued",
-						{
-							fromBlock: getMoolaGovernanceDeployBlockNumber(),
-							filter: {
-								id: queuedProposalIds,
-							},
-						}
-					);
-
-					queuedProposalEvents.forEach((e) => {
-						const proposalIndex = queuedProposalIdMap[e.returnValues.id];
-						formattedProposals[proposalIndex].eta = e.returnValues.eta;
-					});
-				}
 
 				formattedProposals.forEach(async ({ startBlock }, index) => {
 					if (BN(startBlock).gt(BN(latestBlockNumber))) return;
