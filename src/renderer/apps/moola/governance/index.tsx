@@ -9,7 +9,6 @@ import {
 	getMoolaGovernanceDeployBlockNumber,
 	moolaGovernanceProposal,
 	ProposalSupport,
-	ProposalState,
 } from "../moola-helper";
 import { ContractKit } from "@celo/contractkit";
 import { abi as MoolaGovernorBravoDelegateABI } from "../abi/MoolaGovernorBravoDelegate.json";
