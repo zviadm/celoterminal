@@ -56,12 +56,16 @@ const GovernanceProposals = ({
 	latestBlockNumber,
 	userAddress,
 	onCancelProposal,
+	onQueueProposal,
+	onExecuteProposal,
 }: {
 	isFetching: boolean;
 	proposals: moolaGovernanceProposal[];
 	votingPower: BigNumber;
 	onCastVote: (id: string, support: ProposalSupport) => void;
 	onCancelProposal: (id: string) => void;
+	onQueueProposal: (id: string) => void;
+	onExecuteProposal: (id: string) => void;
 	latestBlockNumber: number;
 	userAddress: string;
 }): JSX.Element => {
@@ -84,6 +88,7 @@ const GovernanceProposals = ({
 							description,
 							startBlock,
 							endBlock,
+							eta,
 						}) => {
 							const { stateStr, stateColor, timeText } = getProposalDisplay(
 								state,
@@ -94,7 +99,13 @@ const GovernanceProposals = ({
 							const hasVotingPower = BN(votingPower).gt(BN(0));
 							const proposalActive = state === ProposalState.ACTIVE;
 							const canVote = hasVotingPower && proposalActive;
+							const canQueueProposal = state === ProposalState.SUCCEEDED;
 
+							const hasPassedTimelock = eta
+								? BN(Date.now()).isGreaterThan(BN(eta).multipliedBy(1000))
+								: true;
+							const canExecuteProposal =
+								state === ProposalState.QUEUED && hasPassedTimelock;
 							const {
 								title: parsedDescriptionTitle,
 								description: parsedDescriptionContent,
@@ -215,6 +226,32 @@ const GovernanceProposals = ({
 												variant="contained"
 											>
 												{`Cancel Proposal #${id}`}
+											</Button>
+										</CardActions>
+									)}
+									{canQueueProposal && (
+										<CardActions>
+											<Button
+												size="small"
+												color="primary"
+												onClick={() => onQueueProposal(id)}
+												className={classes.actionButton}
+												variant="contained"
+											>
+												{`Queue Proposal #${id}`}
+											</Button>
+										</CardActions>
+									)}
+									{canExecuteProposal && (
+										<CardActions>
+											<Button
+												size="small"
+												color="primary"
+												onClick={() => onExecuteProposal(id)}
+												className={classes.actionButton}
+												variant="contained"
+											>
+												{`Execute Proposal #${id}`}
 											</Button>
 										</CardActions>
 									)}

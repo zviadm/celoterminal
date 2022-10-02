@@ -785,6 +785,7 @@ const MoolaApp = (props: {
 		),
 		Governance: (
 			<Governance
+				addressBook={accountsExcludingSelected}
 				runTXs={props.runTXs}
 				mooTokenAddress={governanceTokenAddress}
 				governanceAddress={

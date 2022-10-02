@@ -6,10 +6,13 @@ import {
 	TableRow,
 	TableCell,
 	LinearProgress,
+	Button,
 } from "@material-ui/core";
-import SectionTitle from "../../../components/section-title";
 import BigNumber from "bignumber.js";
 import { toHumanFriendlyWei } from "../moola-helper";
+import { Account } from "../../../../lib/accounts/accounts";
+import SectionTitle from "../../../components/section-title";
+import AddressAutocomplete from "../../../components/address-autocomplete";
 
 const GovernanceDetails = ({
 	isFetching,
@@ -17,13 +20,20 @@ const GovernanceDetails = ({
 	tokenDelegate,
 	quorumVotes,
 	proposalThreshold,
+	addressBook,
+	onSaveDelegateAddress,
 }: {
 	isFetching: boolean;
 	votingPower: BigNumber;
 	tokenDelegate: string;
 	quorumVotes: BigNumber;
 	proposalThreshold: BigNumber;
+	addressBook: Account[];
+	onSaveDelegateAddress: (address: string) => void;
 }): JSX.Element => {
+	const [changingDelegate, setChangingDelegate] = React.useState(false);
+	const [delegateAddress, setDelegateAddress] = React.useState("");
+
 	return (
 		<Box>
 			{isFetching ? (
@@ -40,7 +50,58 @@ const GovernanceDetails = ({
 								</TableRow>
 								<TableRow>
 									<TableCell>Token Delegate</TableCell>
-									<TableCell>{tokenDelegate}</TableCell>
+									<TableCell>
+										{changingDelegate ? (
+											<div>
+												<AddressAutocomplete
+													id="gov-delegate-input"
+													textFieldProps={{
+														margin: "normal",
+														InputLabelProps: { shrink: true },
+													}}
+													addresses={addressBook}
+													address={delegateAddress}
+													onChange={setDelegateAddress}
+												/>
+											</div>
+										) : (
+											tokenDelegate
+										)}
+									</TableCell>
+									{changingDelegate ? (
+										<div style={{ display: "flex" }}>
+											<Button
+												size="small"
+												variant="contained"
+												color="primary"
+												onClick={() => {
+													onSaveDelegateAddress(delegateAddress);
+													setChangingDelegate(false);
+												}}
+												style={{ marginTop: 20 }}
+											>
+												Submit
+											</Button>
+											<Button
+												size="small"
+												variant="contained"
+												onClick={() => setChangingDelegate(false)}
+												style={{ marginTop: 20, marginLeft: 20 }}
+											>
+												Cancel
+											</Button>
+										</div>
+									) : (
+										<Button
+											onClick={() => setChangingDelegate(!changingDelegate)}
+											size="small"
+											variant="contained"
+											color="primary"
+											style={{ marginLeft: 20 }}
+										>
+											Update
+										</Button>
+									)}
 								</TableRow>
 							</TableBody>
 						</Table>
