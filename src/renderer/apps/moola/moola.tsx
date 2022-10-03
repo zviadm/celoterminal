@@ -213,7 +213,7 @@ const MoolaApp = (props: {
 
 				let approveAmount: BigNumber = amount;
 
-				if (BN(amount).isEqualTo(BN(MAX_UINT_256))) {
+				if (!BN(amount).isEqualTo(BN(MAX_UINT_256))) {
 					approveAmount = BN(amount).multipliedBy("1.001");
 				}
 
