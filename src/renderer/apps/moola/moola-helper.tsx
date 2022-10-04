@@ -43,6 +43,8 @@ export enum ProposalSupport {
 	ABSTAIN = 2,
 }
 
+export const MOOLA_SLIPPAGE_OPTIONS = ["0.1", "0.5", "1.0", "1.5", "2.0"];
+
 export const defaultUserAccountData: userAccountData = {
 	"Total Collateral": "0",
 	"Total Debt": "0",
@@ -280,12 +282,15 @@ export const printRayRate = (num: number | string): string => {
 export const getTokenToSwapPrice = (
 	amount: BigNumber,
 	tokenFromPrice: BigNumber,
-	tokenToPrice: BigNumber
+	tokenToPrice: BigNumber,
+	slippage: string
 ): string => {
+	const multiplyNumber = 1000 - parseFloat(slippage) * 10;
+
 	return BN(amount)
 		.multipliedBy(BN(tokenFromPrice))
 		.dividedBy(BN(tokenToPrice))
-		.multipliedBy(995)
+		.multipliedBy(multiplyNumber)
 		.dividedBy(1000) // 0.5% slippage
 		.toFixed(0);
 };

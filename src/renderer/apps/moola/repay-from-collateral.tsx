@@ -19,7 +19,6 @@ import {
 	getMoolaSwapPath,
 	moolaToken,
 	lendingPoolAddressesProviderAddresses,
-	toBigNumberEther,
 	toHumanFriendlyWei,
 } from "./moola-helper";
 import { abi as UbeswapABI } from "./abi/Ubeswap.json";
@@ -49,7 +48,6 @@ const RepayFromCollateral = ({
 	lendingPoolDataProviderAddress: string;
 	userAddress: string;
 	stableDebt: string;
-
 	variableDebt: string;
 }): JSX.Element => {
 	const [amount, setAmount] = React.useState("");
@@ -75,19 +73,7 @@ const RepayFromCollateral = ({
 	const { fetched: collateralInDebt } = useOnChainState(
 		React.useCallback(
 			async (kit: ContractKit) => {
-				if (!ubeswapAddress || noDebt) {
-					return;
-				}
-
-				const userReserveDataRaw = await LendingPoolDataProvider.methods
-					.getUserReserveData(collateralAssetAddress, userAddress)
-					.call();
-
-				const totalCollateral = userReserveDataRaw.currentATokenBalance;
-
-				if (BN(totalCollateral).isEqualTo(BN(0))) {
-					return;
-				}
+				if (!ubeswapAddress || noDebt) return;
 
 				const collateralAssetInfo: moolaToken | undefined = moolaTokens.find(
 					(token) => token.symbol === collateralAsset
@@ -113,6 +99,14 @@ const RepayFromCollateral = ({
 					LendingPoolDataProviderABI as AbiItem[],
 					lendingPoolDataProviderAddress
 				);
+
+				const userReserveDataRaw = await LendingPoolDataProvider.methods
+					.getUserReserveData(collateralAssetAddress, userAddress)
+					.call();
+
+				const totalCollateral = userReserveDataRaw.currentATokenBalance;
+
+				if (BN(totalCollateral).isEqualTo(BN(0))) return;
 
 				const Ubeswap = new kit.web3.eth.Contract(
 					UbeswapABI as AbiItem[],

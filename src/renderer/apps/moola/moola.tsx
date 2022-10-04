@@ -502,7 +502,11 @@ const MoolaApp = (props: {
 		);
 	};
 
-	const handleLiquiditySwap = (assetToSymbol: string, amount: BigNumber) => {
+	const handleLiquiditySwap = (
+		assetToSymbol: string,
+		amount: BigNumber,
+		slippage: string
+	) => {
 		props.runTXs(
 			async (kit: ContractKit) => {
 				if (isFetching || !userOnchainState.fetched) return [];
@@ -555,8 +559,10 @@ const MoolaApp = (props: {
 				const tokenSwapPrice = getTokenToSwapPrice(
 					amount,
 					tokenFromPrice,
-					tokenToPrice
+					tokenToPrice,
+					slippage
 				);
+
 				const currentAllowance = await mToken.methods
 					.allowance(account.address, liquiditySwapAdapterAddress)
 					.call();
@@ -774,7 +780,6 @@ const MoolaApp = (props: {
 					userOnchainState.fetched?.userReserveData["Current Stable Debt"] ||
 					"0"
 				}
-				tokenBalance={tokenBalance}
 				variableDebt={
 					userOnchainState.fetched?.userReserveData["Current Variable Debt"] ||
 					"0"
