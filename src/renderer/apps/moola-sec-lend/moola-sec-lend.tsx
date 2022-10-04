@@ -40,7 +40,7 @@ import {
 
 import { MOOLA_SEC_LEND_AVAILABLE_CHAIN_IDS } from "./moola-sec-lend-helper";
 
-const MoolaApp = (props: {
+const MoolaSecLendApp = (props: {
 	accounts: Account[];
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void;
 	selectedAccount: Account;
@@ -338,4 +338,4 @@ const MoolaApp = (props: {
 		</AppContainer>
 	);
 };
-export default MoolaApp;
+export default MoolaSecLendApp;
