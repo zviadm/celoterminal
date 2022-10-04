@@ -5,22 +5,16 @@ import useOnChainState from "../../state/onchain-state";
 import { Account } from "../../../lib/accounts/accounts";
 import { selectAddressOrThrow } from "../../../lib/cfg";
 
-import { abi as LendingPoolAddressesProviderABI } from "./abi/AddressesProvider.json";
-import { abi as LendingPoolABI } from "./abi/LendingPool.json";
-import { abi as LendingPoolDataProviderABI } from "./abi/DataProvider.json";
+import { abi as LendingPoolAddressesProviderABI } from "../moola/abi/AddressesProvider.json";
+import { abi as LendingPoolABI } from "../moola/abi/LendingPool.json";
+import { abi as LendingPoolDataProviderABI } from "../moola/abi/DataProvider.json";
 import {
-	autoRepayAddresses,
 	lendingPoolAddressesProviderAddresses,
 	lendingPoolDataProviderAddresses,
-	liquiditySwapAdapterAddresses,
-	repayFromCollateralAdapterAddresses,
-	leverageBorrowAdapterAddresses,
-	ubeswapAddresses,
-	governanceAddresses,
 	formattedUserAccountData,
 	formattedReserveData,
 	formattedUserReserveData,
-} from "./moola-helper";
+} from "../moola/moola-helper";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useUserOnChainState = (account: Account, tokenAddress: string) => {
@@ -28,7 +22,6 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 		React.useCallback(
 			async (kit: ContractKit) => {
 				const goldToken = await kit.contracts.getGoldToken();
-				const latestBlockNumber = await kit.web3.eth.getBlockNumber();
 
 				const lendingPoolAddressesProviderAddress = selectAddressOrThrow(
 					lendingPoolAddressesProviderAddresses
@@ -65,32 +58,15 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 					.getReserveData(tokenAddress)
 					.call();
 
-				const autoRepayAddress = selectAddressOrThrow(autoRepayAddresses);
-				const liquiditySwapAdapterAddress = selectAddressOrThrow(
-					liquiditySwapAdapterAddresses
-				);
-				const ubeswapAddress = selectAddressOrThrow(ubeswapAddresses);
-				const repayFromCollateralAdapterAddress = selectAddressOrThrow(
-					repayFromCollateralAdapterAddresses
-				);
-				const leverageBorrowAdapterAddress = selectAddressOrThrow(
-					leverageBorrowAdapterAddresses
-				);
-				const governanceAddress = selectAddressOrThrow(governanceAddresses);
-
 				return {
-					latestBlockNumber,
-					autoRepayAddress,
 					goldToken,
 					lendingPoolAddress,
 					lendingPoolDataProviderAddress,
-					liquiditySwapAdapterAddress,
+
 					priceOracleAddress,
-					repayFromCollateralAdapterAddress,
-					leverageBorrowAdapterAddress,
+
 					reserveData: formattedReserveData(reserveDataRaw),
-					ubeswapAddress,
-					governanceAddress,
+
 					userAccountData: formattedUserAccountData(userAccountDataRaw),
 					userReserveData: formattedUserReserveData(
 						userReserveDataRaw,

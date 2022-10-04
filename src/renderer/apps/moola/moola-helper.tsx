@@ -399,6 +399,51 @@ export const getMoolaGovernanceDeployBlockNumber = (): number => {
 	return blockNumber;
 };
 
+export const formattedUserAccountData = (
+	data: onChainUserReserveData
+): userAccountData => {
+	return {
+		"Total Collateral": print(data.totalCollateralETH),
+		"Total Debt": print(data.totalDebtETH),
+		"Available Borrow": print(data.availableBorrowsETH),
+		"Liquidation Threshold": `${BN(data.currentLiquidationThreshold).div(
+			BN(100)
+		)}%`,
+		"Loan To Value": `${BN(data.ltv).div(BN(100))}%`,
+		"Health Factor":
+			data.healthFactor.length > 30 ? "SAFE" : print(data.healthFactor),
+	};
+};
+
+export const formattedReserveData = (data: onChainReserveData): reserveData => {
+	return {
+		"Available Liquidity": print(data.availableLiquidity),
+		"Total Stable Borrows": print(data.totalStableDebt),
+		"Total Variable Borrows": print(data.totalVariableDebt),
+		"Liquidity Rate": printRayRate(data.liquidityRate),
+		"Variable Borrow Rate": printRayRate(data.variableBorrowRate),
+		"Stable Borrow Rate": printRayRate(data.stableBorrowRate),
+		"Average Stable Rate": printRayRate(data.averageStableBorrowRate),
+	};
+};
+
+export const formattedUserReserveData = (
+	userData: onChainUserData,
+	reserveData: onChainReserveData
+): userReserveData => {
+	return {
+		Deposited: print(userData.currentATokenBalance),
+		"Stable Borrow Rate": printRayRate(userData.stableBorrowRate),
+		"Variable Borrow Rate": printRayRate(reserveData.variableBorrowRate),
+		"Principal Stable Debt": print(userData.principalStableDebt),
+		"Current Stable Debt": print(userData.currentStableDebt),
+		"Scaled Variable Debt": print(userData.scaledVariableDebt),
+		"Current Variable Debt": print(userData.currentVariableDebt),
+		"Liquidity Rate": printRayRate(userData.liquidityRate),
+		"Is Collateral": userData.usageAsCollateralEnabled ? "YES" : "NO",
+	};
+};
+
 export interface moolaTokenSwapPath {
 	path: string[];
 	useATokenAsFrom: boolean;
