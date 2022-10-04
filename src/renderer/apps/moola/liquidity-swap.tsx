@@ -10,18 +10,20 @@ import {
 import { CeloTokenType } from "@celo/contractkit";
 import BigNumber from "bignumber.js";
 import NumberInput from "../../components/number-input";
-import { moolaToken, toBigNumberWei } from "./moola-helper";
+import { BN, moolaToken, toBigNumberWei } from "./moola-helper";
 
 const LiquiditySwap = ({
 	onLiquiditySwap,
 	toTokens,
 	tokenMenuItems,
 	tokenName,
+	maxSwapAmount,
 }: {
 	onLiquiditySwap: (assetToSymbol: string, amount: BigNumber) => void;
 	toTokens: moolaToken[];
 	tokenMenuItems: JSX.Element[];
 	tokenName: string;
+	maxSwapAmount: BigNumber;
 }): JSX.Element => {
 	const [amount, setAmount] = React.useState("");
 	const [toToken, setToToken] = React.useState(toTokens[0].symbol);
@@ -60,6 +62,7 @@ const LiquiditySwap = ({
 				id="liquidity-swap-amount"
 				label="Amount to swap"
 				margin="normal"
+				maxValue={BN(maxSwapAmount)}
 				onChangeValue={setAmount}
 				placeholder="0.0"
 				value={amount}

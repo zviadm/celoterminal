@@ -773,6 +773,7 @@ const MoolaApp = (props: {
 				toTokens={moolaTokensExcludingSelected}
 				tokenMenuItems={tokenMenuItemsExcludingSelected}
 				tokenName={selectedToken}
+				maxSwapAmount={userOnchainState.fetched?.userReserveData.Deposited}
 			/>
 		),
 		"Leverage Borrow": (
