@@ -765,6 +765,20 @@ const MoolaApp = (props: {
 				onRepayFromCollateral={handleRepayFromCollateral}
 				tokenMenuItems={tokenMenuItems}
 				tokenName={selectedToken}
+				ubeswapAddress={userOnchainState.fetched?.ubeswapAddress || ""}
+				lendingPoolDataProviderAddress={
+					userOnchainState.fetched?.lendingPoolDataProviderAddress || ""
+				}
+				userAddress={account.address}
+				stableDebt={
+					userOnchainState.fetched?.userReserveData["Current Stable Debt"] ||
+					"0"
+				}
+				tokenBalance={tokenBalance}
+				variableDebt={
+					userOnchainState.fetched?.userReserveData["Current Variable Debt"] ||
+					"0"
+				}
 			/>
 		),
 		"Liquidity Swap": (
@@ -773,7 +787,9 @@ const MoolaApp = (props: {
 				toTokens={moolaTokensExcludingSelected}
 				tokenMenuItems={tokenMenuItemsExcludingSelected}
 				tokenName={selectedToken}
-				maxSwapAmount={userOnchainState.fetched?.userReserveData.Deposited}
+				maxSwapAmount={
+					userOnchainState.fetched?.userReserveData.Deposited || "0"
+				}
 			/>
 		),
 		"Leverage Borrow": (

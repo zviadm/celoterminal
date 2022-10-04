@@ -7,16 +7,34 @@ import {
 	InputLabel,
 	Tooltip,
 } from "@material-ui/core";
-import { CeloTokenType } from "@celo/contractkit";
+import { CeloTokenType, ContractKit } from "@celo/contractkit";
 import { availableRateMode, moolaTokens } from "./config";
+import { AbiItem } from "@celo/connect";
 import NumberInput from "../../components/number-input";
 import BigNumber from "bignumber.js";
-import { toBigNumberWei } from "./moola-helper";
+import useOnChainState from "../../state/onchain-state";
+import {
+	BN,
+	toBigNumberWei,
+	getMoolaSwapPath,
+	moolaToken,
+	lendingPoolAddressesProviderAddresses,
+	toBigNumberEther,
+	toHumanFriendlyWei,
+} from "./moola-helper";
+import { abi as UbeswapABI } from "./abi/Ubeswap.json";
+import { abi as LendingPoolDataProviderABI } from "./abi/DataProvider.json";
+import { selectAddressOrThrow } from "../../../lib/cfg";
 
 const RepayFromCollateral = ({
 	tokenName,
 	onRepayFromCollateral,
 	tokenMenuItems,
+	ubeswapAddress,
+	lendingPoolDataProviderAddress,
+	userAddress,
+	stableDebt,
+	variableDebt,
 }: {
 	tokenName: string;
 	onRepayFromCollateral: (
@@ -27,6 +45,12 @@ const RepayFromCollateral = ({
 		useFlashLoan: boolean
 	) => void;
 	tokenMenuItems: JSX.Element[];
+	ubeswapAddress: string;
+	lendingPoolDataProviderAddress: string;
+	userAddress: string;
+	stableDebt: string;
+
+	variableDebt: string;
 }): JSX.Element => {
 	const [amount, setAmount] = React.useState("");
 	const [rateMode, setRateMode] = React.useState(availableRateMode.stable);
@@ -34,6 +58,8 @@ const RepayFromCollateral = ({
 		moolaTokens[0].symbol
 	);
 	const [useFlashLoan, toggleUseFlashLoan] = React.useState("NO");
+	const totalDebt = rateMode === 1 ? BN(stableDebt) : BN(variableDebt);
+	const noDebt = BN(totalDebt).isEqualTo(BN(0));
 
 	const handleSubmit = () => {
 		const useFlashLoanBool = useFlashLoan === "YES";
@@ -45,6 +71,82 @@ const RepayFromCollateral = ({
 			useFlashLoanBool
 		);
 	};
+
+	const { fetched: collateralInDebt } = useOnChainState(
+		React.useCallback(
+			async (kit: ContractKit) => {
+				if (!ubeswapAddress || noDebt) {
+					return;
+				}
+
+				const userReserveDataRaw = await LendingPoolDataProvider.methods
+					.getUserReserveData(collateralAssetAddress, userAddress)
+					.call();
+
+				const totalCollateral = userReserveDataRaw.currentATokenBalance;
+
+				if (BN(totalCollateral).isEqualTo(BN(0))) {
+					return;
+				}
+
+				const collateralAssetInfo: moolaToken | undefined = moolaTokens.find(
+					(token) => token.symbol === collateralAsset
+				);
+
+				const debtAssetInfo: moolaToken | undefined = moolaTokens.find(
+					(token) => token.symbol === tokenName
+				);
+				if (!collateralAssetInfo || !debtAssetInfo) {
+					throw new Error("Cannot find selected collateral asset");
+				}
+
+				const collateralAssetAddress = selectAddressOrThrow(
+					collateralAssetInfo.addresses
+				);
+				const debtAssetAddress = selectAddressOrThrow(debtAssetInfo.addresses);
+
+				if (!collateralAssetAddress || !debtAssetAddress) {
+					throw new Error("Collateral asset or debt asset address is invalid");
+				}
+
+				const LendingPoolDataProvider = new kit.web3.eth.Contract(
+					LendingPoolDataProviderABI as AbiItem[],
+					lendingPoolDataProviderAddress
+				);
+
+				const Ubeswap = new kit.web3.eth.Contract(
+					UbeswapABI as AbiItem[],
+					ubeswapAddress
+				);
+
+				const swapPath = getMoolaSwapPath(
+					collateralAssetAddress,
+					debtAssetAddress
+				);
+
+				const amounstOut = await Ubeswap.methods
+					.getAmountsOut(totalCollateral, swapPath.path)
+					.call(); // check how much debt asset can be repaid with current total collateral amount
+
+				return {
+					amount: toHumanFriendlyWei(BN(amounstOut[amounstOut.length - 1])),
+				};
+			},
+			[
+				userAddress,
+				ubeswapAddress,
+				lendingPoolAddressesProviderAddresses,
+				rateMode,
+				collateralAsset,
+				tokenName,
+			]
+		)
+	);
+
+	let maxRepayAmount = BN(0);
+	if (!noDebt && collateralInDebt?.amount) {
+		maxRepayAmount = BigNumber.minimum(collateralInDebt.amount, totalDebt);
+	}
 
 	return (
 		<Box>
@@ -96,6 +198,7 @@ const RepayFromCollateral = ({
 				onChangeValue={setAmount}
 				placeholder="0.0"
 				value={amount}
+				maxValue={maxRepayAmount}
 			/>
 			<InputLabel style={{ marginTop: 18 }}>Use flashloan</InputLabel>
 			<Select

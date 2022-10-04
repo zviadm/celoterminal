@@ -6,6 +6,7 @@ import { moolaTokens } from "./config";
 import { abi as LendingPoolDataProviderABI } from "./abi/DataProvider.json";
 import { abi as UbeswapABI } from "./abi/Ubeswap.json";
 import { AbiItem } from "@celo/connect";
+import { Token } from "@celo/contractkit";
 
 export const toBigNumberWei = (num: string): BigNumber =>
 	new BigNumber(num).shiftedBy(coreErc20Decimals);
@@ -73,10 +74,18 @@ export const defaultReserveData: reserveData = {
 	"Average Stable Rate": "0",
 };
 
-const getMoolaTokenCeloAddresses = () => {
-	const coreErc20Addresses: moolaTokenCeloAddressesMap = {};
+const getMoolaTokenAddresses = () => {
+	const coreErc20Addresses: moolaTokenAddressesMap = {};
+
+	const chainId = CFG().chainId;
+	let key = "mainnet";
+	if (chainId === alfajoresChainId) {
+		key = "alfajores";
+	}
+
 	moolaTokens.forEach((token) => {
-		coreErc20Addresses[token.symbol] = token.addresses.mainnet;
+		coreErc20Addresses[token.symbol] =
+			token.addresses[key as keyof typeof token.addresses];
 	});
 
 	return coreErc20Addresses;
@@ -89,7 +98,7 @@ export const getMoolaSwapPath = (
 	const mcusdAddress = "0x918146359264c492bd6934071c6bd31c854edbc3";
 	const mceurAddress = "0xe273ad7ee11dcfaa87383ad5977ee1504ac07568";
 	const mceloAddress = "0x7d00cd74ff385c955ea3d79e47bf06bd7386387d";
-	const moolaTokenAddresses = getMoolaTokenCeloAddresses();
+	const moolaTokenAddresses = getMoolaTokenAddresses();
 	const {
 		CELO: celoAddress,
 		cUSD: cusdAddress,
@@ -113,6 +122,11 @@ export const getMoolaSwapPath = (
 	const creal_moo = [crealAddress, cusdAddress, celoAddress, mooAddress]; // creal-cusd, cusd-celo, celo-moo
 
 	const pathKey = `${tokenFrom}_${tokenTo}`.toLowerCase();
+	console.log("pathKey :>> ", pathKey);
+	console.log(
+		"${celoAddress}_${cusdAddress} :>> ",
+		`${celoAddress}_${cusdAddress}`
+	);
 	switch (pathKey) {
 		case `${celoAddress}_${cusdAddress}`.toLowerCase():
 			return {
@@ -378,8 +392,8 @@ export const MAX_UINT_256 =
 export const ZERO_HASH =
 	"0x0000000000000000000000000000000000000000000000000000000000000000";
 
-export interface moolaTokenCeloAddressesMap {
-	[tokenSymbol: string]: string;
+export interface moolaTokenAddressesMap {
+	[tokenSymbol: string]: string | undefined;
 }
 
 export const getMoolaGovernanceDeployBlockNumber = (): number => {

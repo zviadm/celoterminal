@@ -23,7 +23,7 @@ const LiquiditySwap = ({
 	toTokens: moolaToken[];
 	tokenMenuItems: JSX.Element[];
 	tokenName: string;
-	maxSwapAmount: BigNumber;
+	maxSwapAmount: string;
 }): JSX.Element => {
 	const [amount, setAmount] = React.useState("");
 	const [toToken, setToToken] = React.useState(toTokens[0].symbol);
