@@ -7,7 +7,7 @@ import { Account } from "../../../lib/accounts/accounts";
 import { TXFunc, TXFinishFunc } from "../../components/app-definition";
 import { newErc20 } from "../../../lib/erc20/erc20-contract";
 import { MoolaSecLend } from "./def";
-import { moolaSecLendTokens, MOO } from "./config";
+import { moolaSecLendTokens } from "./config";
 import { CFG, selectAddressOrThrow } from "../../../lib/cfg";
 
 import AppHeader from "../../components/app-header";
@@ -27,7 +27,8 @@ import useLocalStorageState from "../../state/localstorage-state";
 import { useUserOnChainState } from "./state";
 import useOnChainState from "../../state/onchain-state";
 
-import { abi as LendingPoolABI } from "../moola/abi/LendingPool.json";
+import { abi as LendingPoolABI } from "../moola/abi/LendingPool.json"; // TODO: update to sec lend lending pool abi
+// TODO: get reserve data / data provider contract is permissioned?
 
 import {
 	BN,
@@ -35,10 +36,14 @@ import {
 	defaultUserAccountData,
 	defaultReserveData,
 	defaultUserReserveData,
-	moolaToken,
 } from "../moola/moola-helper";
 
-import { MOOLA_SEC_LEND_AVAILABLE_CHAIN_IDS } from "./moola-sec-lend-helper";
+import {
+	MOOLA_SEC_LEND_AVAILABLE_CHAIN_IDS,
+	moolaSecLendToken,
+} from "./moola-sec-lend-helper";
+
+import { DEFAULT_TOKEN } from "./config";
 
 const MoolaSecLendApp = (props: {
 	accounts: Account[];
@@ -57,8 +62,8 @@ const MoolaSecLendApp = (props: {
 		actions[0]
 	);
 
-	const tokenInfo: moolaToken =
-		moolaSecLendTokens.find((e) => e.symbol === selectedToken) || MOO;
+	const tokenInfo: moolaSecLendToken =
+		moolaSecLendTokens.find((e) => e.symbol === selectedToken) || DEFAULT_TOKEN;
 
 	const tokenAddress = selectAddressOrThrow(tokenInfo.addresses);
 	tokenInfo.address = tokenAddress;

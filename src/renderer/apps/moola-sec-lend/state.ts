@@ -5,16 +5,19 @@ import useOnChainState from "../../state/onchain-state";
 import { Account } from "../../../lib/accounts/accounts";
 import { selectAddressOrThrow } from "../../../lib/cfg";
 
-import { abi as LendingPoolAddressesProviderABI } from "../moola/abi/AddressesProvider.json";
-import { abi as LendingPoolABI } from "../moola/abi/LendingPool.json";
-import { abi as LendingPoolDataProviderABI } from "../moola/abi/DataProvider.json";
+import { abi as LendingPoolAddressesProviderABI } from "./abi/AddressesProvider.json";
+import { abi as LendingPoolABI } from "./abi/LendingPool.json";
+import { abi as LendingPoolDataProviderABI } from "./abi/DataProvider.json";
 import {
-	lendingPoolAddressesProviderAddresses,
-	lendingPoolDataProviderAddresses,
 	formattedUserAccountData,
 	formattedReserveData,
 	formattedUserReserveData,
 } from "../moola/moola-helper";
+
+import {
+	lendingPoolAddressesProviderAddresses,
+	lendingPoolDataProviderAddresses,
+} from "./moola-sec-lend-helper";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useUserOnChainState = (account: Account, tokenAddress: string) => {
@@ -54,6 +57,7 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 				const userReserveDataRaw = await LendingPoolDataProvider.methods
 					.getUserReserveData(tokenAddress, account.address)
 					.call();
+
 				const reserveDataRaw = await LendingPoolDataProvider.methods
 					.getReserveData(tokenAddress)
 					.call();
@@ -62,11 +66,8 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 					goldToken,
 					lendingPoolAddress,
 					lendingPoolDataProviderAddress,
-
 					priceOracleAddress,
-
 					reserveData: formattedReserveData(reserveDataRaw),
-
 					userAccountData: formattedUserAccountData(userAccountDataRaw),
 					userReserveData: formattedUserReserveData(
 						userReserveDataRaw,

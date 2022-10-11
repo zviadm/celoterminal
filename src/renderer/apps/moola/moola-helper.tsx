@@ -6,7 +6,6 @@ import { moolaTokens } from "./config";
 import { abi as LendingPoolDataProviderABI } from "./abi/DataProvider.json";
 import { abi as UbeswapABI } from "./abi/Ubeswap.json";
 import { AbiItem } from "@celo/connect";
-import { Token } from "@celo/contractkit";
 
 export const toBigNumberWei = (num: string): BigNumber =>
 	new BigNumber(num).shiftedBy(coreErc20Decimals);
@@ -578,6 +577,7 @@ export const lendingPoolAddressesProviderAddresses = {
 	mainnet: "0xD1088091A174d33412a968Fa34Cb67131188B332",
 	alfajores: "0xb3072f5F0d5e8B9036aEC29F37baB70E86EA0018",
 };
+
 export const autoRepayAddresses = {
 	mainnet: "0xeb1549caebf24dd83e1b5e48abedd81be240e408",
 	alfajores: "0x19F8322CaC86623432e9142a349504DE6754f12A",
