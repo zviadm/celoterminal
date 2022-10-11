@@ -155,6 +155,13 @@ export const SPOT: moolaSecLendToken = {
 };
 
 export const DEFAULT_TOKEN = CUSD;
+export const DEFAULT_TICKER_SYMBOL_LIST = [
+	"CUSD",
+	"AAPL",
+	"TSLA",
+	"IBM",
+	"AMZN",
+];
 
 // NOTE: need to make copy of coreErc20 objects since some of the token internal properties get
 // modified within moola codebase.

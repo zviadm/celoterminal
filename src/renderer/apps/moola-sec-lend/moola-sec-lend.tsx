@@ -22,13 +22,13 @@ import Repay from "../moola/repay";
 import ReserveStatus from "../moola/reserve-status";
 import UserReserveStatus from "../moola/user-reserve-status";
 import AccountStatus from "../moola/account-status";
+import SelectTicker from "./select-ticker";
 
 import useLocalStorageState from "../../state/localstorage-state";
 import { useUserOnChainState } from "./state";
 import useOnChainState from "../../state/onchain-state";
 
-import { abi as LendingPoolABI } from "../moola/abi/LendingPool.json"; // TODO: update to sec lend lending pool abi
-// TODO: get reserve data / data provider contract is permissioned?
+import { abi as LendingPoolABI } from "./abi/LendingPool.json";
 
 import {
 	BN,
@@ -37,13 +37,14 @@ import {
 	defaultReserveData,
 	defaultUserReserveData,
 } from "../moola/moola-helper";
+import { useTickerList, setUpDefaultList } from "./select-ticker/ticker-state";
 
 import {
 	MOOLA_SEC_LEND_AVAILABLE_CHAIN_IDS,
 	moolaSecLendToken,
 } from "./moola-sec-lend-helper";
 
-import { DEFAULT_TOKEN } from "./config";
+import { DEFAULT_TOKEN, DEFAULT_TICKER_SYMBOL_LIST } from "./config";
 
 const MoolaSecLendApp = (props: {
 	accounts: Account[];
@@ -54,13 +55,19 @@ const MoolaSecLendApp = (props: {
 	const actions = ["Deposit", "Withdraw", "Borrow", "Repay"];
 
 	const [selectedToken, setSelectedToken] = useLocalStorageState(
-		"terminal/moola-sec-lend/erc20",
+		"terminal/moola-sec-lend/ticker",
 		moolaSecLendTokens[0].symbol
 	);
 	const [selectedAction, setSelectedAction] = useLocalStorageState(
 		"terminal/moola-sec-lend/actions",
 		actions[0]
 	);
+
+	const registeredTickerList = useTickerList();
+	if (!registeredTickerList.tickers.length) {
+		setUpDefaultList();
+		registeredTickerList.reload();
+	}
 
 	const tokenInfo: moolaSecLendToken =
 		moolaSecLendTokens.find((e) => e.symbol === selectedToken) || DEFAULT_TOKEN;
@@ -115,7 +122,6 @@ const MoolaSecLendApp = (props: {
 				);
 
 				return [{ tx: txApprove }, { tx: txDeposit }];
-				// return [{ tx: txApprove }];
 			},
 			() => {
 				userOnchainState.refetch();
@@ -257,7 +263,27 @@ const MoolaSecLendApp = (props: {
 		),
 	};
 
-	const displayMarketStatus = selectedAction !== "Governance";
+	const registeredTickerListSet = new Set(
+		registeredTickerList.tickers.map((t) => selectAddressOrThrow(t.addresses))
+	);
+	const registeredTickersObject = moolaSecLendTokens.filter((t) => {
+		const address = selectAddressOrThrow(t.addresses);
+		return registeredTickerListSet.has(address);
+	});
+
+	const handleAddRegisteredTicker = (ticker: moolaSecLendToken) => {
+		setSelectedToken(ticker.symbol);
+		registeredTickerList.reload();
+	};
+
+	const handleRemoveRegisteredTicker = (ticker: moolaSecLendToken) => {
+		if (ticker.symbol === selectedToken) {
+			setSelectedToken(DEFAULT_TOKEN.symbol);
+		}
+
+		registeredTickerList.reload();
+	};
+
 	return (
 		<AppContainer>
 			<AppHeader
@@ -266,17 +292,14 @@ const MoolaSecLendApp = (props: {
 				refetch={refetchAll}
 			/>
 
-			{displayMarketStatus && (
-				<AppSection>
-					<AccountStatus
-						isFetching={isFetching}
-						userAccountData={
-							userOnchainState.fetched?.userAccountData ||
-							defaultUserAccountData
-						}
-					/>
-				</AppSection>
-			)}
+			<AppSection>
+				<AccountStatus
+					isFetching={isFetching}
+					userAccountData={
+						userOnchainState.fetched?.userAccountData || defaultUserAccountData
+					}
+				/>
+			</AppSection>
 
 			<AppSection>
 				<Box
@@ -285,15 +308,13 @@ const MoolaSecLendApp = (props: {
 				>
 					<Box style={{ width: "45%" }}>
 						<SectionTitle>Token</SectionTitle>
-						<Select
-							onChange={(event) => {
-								setSelectedToken(event.target.value as CeloTokenType);
-							}}
-							style={{ width: "100%" }}
-							value={selectedToken}
-						>
-							{tokenMenuItems}
-						</Select>
+						<SelectTicker
+							tickers={registeredTickersObject}
+							selected={selectedToken}
+							onSelect={(t) => setSelectedToken(t.symbol)}
+							onAddTickers={handleAddRegisteredTicker}
+							onRemoveTickers={handleRemoveRegisteredTicker}
+						/>
 					</Box>
 					<Box style={{ width: "45%" }}>
 						<SectionTitle>Action</SectionTitle>
@@ -313,34 +334,31 @@ const MoolaSecLendApp = (props: {
 					</Box>
 				</Box>
 			</AppSection>
-
 			<AppSection>
 				{actionComponents[selectedAction as keyof typeof actionComponents]}
 			</AppSection>
 
-			{displayMarketStatus && (
-				<div>
-					<AppSection>
-						<ReserveStatus
-							isFetching={isFetching}
-							reserveData={
-								userOnchainState.fetched?.reserveData || defaultReserveData
-							}
-							tokenName={selectedToken}
-						/>
-					</AppSection>
-					<AppSection>
-						<UserReserveStatus
-							isFetching={isFetching}
-							tokenName={selectedToken}
-							userReserveData={
-								userOnchainState.fetched?.userReserveData ||
-								defaultUserReserveData
-							}
-						/>
-					</AppSection>
-				</div>
-			)}
+			<div>
+				<AppSection>
+					<ReserveStatus
+						isFetching={isFetching}
+						reserveData={
+							userOnchainState.fetched?.reserveData || defaultReserveData
+						}
+						tokenName={selectedToken}
+					/>
+				</AppSection>
+				<AppSection>
+					<UserReserveStatus
+						isFetching={isFetching}
+						tokenName={selectedToken}
+						userReserveData={
+							userOnchainState.fetched?.userReserveData ||
+							defaultUserReserveData
+						}
+					/>
+				</AppSection>
+			</div>
 		</AppContainer>
 	);
 };
