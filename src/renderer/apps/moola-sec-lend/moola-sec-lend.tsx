@@ -54,11 +54,11 @@ const MoolaSecLendApp = (props: {
 	const actions = ["Deposit", "Withdraw", "Borrow", "Repay"];
 
 	const [selectedToken, setSelectedToken] = useLocalStorageState(
-		"terminal/moola/erc20",
+		"terminal/moola-sec-lend/erc20",
 		moolaSecLendTokens[0].symbol
 	);
 	const [selectedAction, setSelectedAction] = useLocalStorageState(
-		"terminal/moola/actions",
+		"terminal/moola-sec-lend/actions",
 		actions[0]
 	);
 
@@ -115,6 +115,7 @@ const MoolaSecLendApp = (props: {
 				);
 
 				return [{ tx: txApprove }, { tx: txDeposit }];
+				// return [{ tx: txApprove }];
 			},
 			() => {
 				userOnchainState.refetch();
