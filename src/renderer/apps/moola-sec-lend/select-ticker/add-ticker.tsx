@@ -1,9 +1,5 @@
-import { isValidAddress } from "ethereumjs-util";
-import { ensureLeading0x, toChecksumAddress } from "@celo/utils/lib/address";
-
 import { moolaSecLendTickers } from "../config";
 import { moolaSecLendTicker } from "../moola-sec-lend-helper";
-// import { addCustomErc20, addRegisteredErc20 } from "../state/erc20list-state";
 import { addTickerToList } from "./ticker-state";
 
 import * as React from "react";
@@ -13,15 +9,7 @@ import {
 	DialogActions,
 	DialogContent,
 	DialogTitle,
-	LinearProgress,
-	Tab,
-	Table,
-	TableBody,
 	TextField,
-	TableRow,
-	TableCell,
-	Paper,
-	TableContainer,
 	Box,
 	ListItemText,
 } from "@material-ui/core";
