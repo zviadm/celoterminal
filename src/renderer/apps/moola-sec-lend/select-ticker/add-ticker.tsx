@@ -1,8 +1,8 @@
 import { isValidAddress } from "ethereumjs-util";
 import { ensureLeading0x, toChecksumAddress } from "@celo/utils/lib/address";
 
-import { moolaSecLendTokens } from "../config";
-import { moolaSecLendToken } from "../moola-sec-lend-helper";
+import { moolaSecLendTickers } from "../config";
+import { moolaSecLendTicker } from "../moola-sec-lend-helper";
 // import { addCustomErc20, addRegisteredErc20 } from "../state/erc20list-state";
 import { addTickerToList } from "./ticker-state";
 
@@ -29,10 +29,10 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 
 const addTicker = (props: {
 	onCancel: () => void;
-	onAdd: (ticker: moolaSecLendToken) => void;
+	onAdd: (ticker: moolaSecLendTicker) => void;
 }): JSX.Element => {
 	const [tickerSymbol, setTickerSymbol] = React.useState("");
-	const matchingTicker = moolaSecLendTokens.find(
+	const matchingTicker = moolaSecLendTickers.find(
 		(f) => f.symbol === tickerSymbol
 	);
 
@@ -54,7 +54,7 @@ const addTicker = (props: {
 					<Autocomplete
 						id="registered-erc20"
 						autoHighlight
-						options={moolaSecLendTokens}
+						options={moolaSecLendTickers}
 						renderOption={(o) => (
 							<ListItemText primary={o.symbol} secondary={o.name} />
 						)}

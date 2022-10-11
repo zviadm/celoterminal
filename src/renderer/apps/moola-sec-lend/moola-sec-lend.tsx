@@ -7,7 +7,7 @@ import { Account } from "../../../lib/accounts/accounts";
 import { TXFunc, TXFinishFunc } from "../../components/app-definition";
 import { newErc20 } from "../../../lib/erc20/erc20-contract";
 import { MoolaSecLend } from "./def";
-import { moolaSecLendTokens } from "./config";
+import { moolaSecLendTickers } from "./config";
 import { CFG, selectAddressOrThrow } from "../../../lib/cfg";
 
 import AppHeader from "../../components/app-header";
@@ -41,7 +41,7 @@ import { useTickerList, setUpDefaultList } from "./select-ticker/ticker-state";
 
 import {
 	MOOLA_SEC_LEND_AVAILABLE_CHAIN_IDS,
-	moolaSecLendToken,
+	moolaSecLendTicker,
 } from "./moola-sec-lend-helper";
 
 import { DEFAULT_TOKEN, DEFAULT_TICKER_SYMBOL_LIST } from "./config";
@@ -56,7 +56,7 @@ const MoolaSecLendApp = (props: {
 
 	const [selectedToken, setSelectedToken] = useLocalStorageState(
 		"terminal/moola-sec-lend/ticker",
-		moolaSecLendTokens[0].symbol
+		moolaSecLendTickers[0].symbol
 	);
 	const [selectedAction, setSelectedAction] = useLocalStorageState(
 		"terminal/moola-sec-lend/actions",
@@ -69,8 +69,9 @@ const MoolaSecLendApp = (props: {
 		registeredTickerList.reload();
 	}
 
-	const tokenInfo: moolaSecLendToken =
-		moolaSecLendTokens.find((e) => e.symbol === selectedToken) || DEFAULT_TOKEN;
+	const tokenInfo: moolaSecLendTicker =
+		moolaSecLendTickers.find((e) => e.symbol === selectedToken) ||
+		DEFAULT_TOKEN;
 
 	const tokenAddress = selectAddressOrThrow(tokenInfo.addresses);
 	tokenInfo.address = tokenAddress;
@@ -88,7 +89,7 @@ const MoolaSecLendApp = (props: {
 		)
 	);
 
-	const tokenNames = moolaSecLendTokens.map((t) => t.symbol);
+	const tokenNames = moolaSecLendTickers.map((t) => t.symbol);
 	const userOnchainState = useUserOnChainState(account, tokenAddress);
 
 	const isFetching = accountState.isFetching || userOnchainState.isFetching;
@@ -263,20 +264,12 @@ const MoolaSecLendApp = (props: {
 		),
 	};
 
-	const registeredTickerListSet = new Set(
-		registeredTickerList.tickers.map((t) => selectAddressOrThrow(t.addresses))
-	);
-	const registeredTickersObject = moolaSecLendTokens.filter((t) => {
-		const address = selectAddressOrThrow(t.addresses);
-		return registeredTickerListSet.has(address);
-	});
-
-	const handleAddRegisteredTicker = (ticker: moolaSecLendToken) => {
+	const handleAddRegisteredTicker = (ticker: moolaSecLendTicker) => {
 		setSelectedToken(ticker.symbol);
 		registeredTickerList.reload();
 	};
 
-	const handleRemoveRegisteredTicker = (ticker: moolaSecLendToken) => {
+	const handleRemoveRegisteredTicker = (ticker: moolaSecLendTicker) => {
 		if (ticker.symbol === selectedToken) {
 			setSelectedToken(DEFAULT_TOKEN.symbol);
 		}
@@ -309,7 +302,7 @@ const MoolaSecLendApp = (props: {
 					<Box style={{ width: "45%" }}>
 						<SectionTitle>Token</SectionTitle>
 						<SelectTicker
-							tickers={registeredTickersObject}
+							tickers={registeredTickerList.tickers}
 							selected={selectedToken}
 							onSelect={(t) => setSelectedToken(t.symbol)}
 							onAddTickers={handleAddRegisteredTicker}

@@ -1,25 +1,53 @@
 import * as log from "electron-log";
 import * as React from "react";
 import { CFG, selectAddressOrThrow } from "../../../../lib/cfg";
-import { DEFAULT_TICKER_SYMBOL_LIST, moolaSecLendTokens } from "../config";
-import { moolaSecLendToken } from "../moola-sec-lend-helper";
+import { DEFAULT_TICKER_SYMBOL_LIST, moolaSecLendTickers } from "../config";
+import { moolaSecLendTicker } from "../moola-sec-lend-helper";
+
+const cmpMoolaTickers = (
+	a: moolaSecLendTicker,
+	b: moolaSecLendTicker
+): number => {
+	// always put CUSD and CEUR in front
+	if (a.symbol === "CUSD") {
+		return -1;
+	} else if (b.symbol === "CUSD") {
+		return 1;
+	} else if (a.symbol === "CEUR") {
+		return -1;
+	} else if (b.symbol === "CEUR") {
+		return 1;
+	}
+
+	const isLowerA = a.symbol[0] === a.symbol[0].toLowerCase();
+	const isLowerB = b.symbol[0] === b.symbol[0].toLowerCase();
+
+	return isLowerA && !isLowerB
+		? -1
+		: !isLowerA && isLowerB
+		? 1
+		: a.symbol < b.symbol
+		? -1
+		: 1;
+};
 
 export const useTickerList = (): {
-	tickers: moolaSecLendToken[];
+	tickers: moolaSecLendTicker[];
 	reload: () => void;
 } => {
 	const [changeN, setChangeN] = React.useState(0);
 	const tickers = React.useMemo(() => {
 		const registered = registeredList()
 			.map((r) =>
-				moolaSecLendTokens.find(
+				moolaSecLendTickers.find(
 					(f) => selectAddressOrThrow(f.addresses) === r.address
 				)
 			)
-			.filter((v) => v !== undefined) as moolaSecLendToken[];
+			.filter((v) => v !== undefined) as moolaSecLendTicker[];
 
-		return registered;
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		const sorted = registered.sort(cmpMoolaTickers);
+
+		return sorted;
 	}, [changeN]);
 	const reload = () => {
 		setChangeN((n) => n + 1);
@@ -32,7 +60,7 @@ export const useTickerList = (): {
 
 export const setUpDefaultList = () => {
 	const symbolSet = new Set(DEFAULT_TICKER_SYMBOL_LIST);
-	const tickers = moolaSecLendTokens.filter((r) => symbolSet.has(r.symbol));
+	const tickers = moolaSecLendTickers.filter((r) => symbolSet.has(r.symbol));
 	const list = tickers.map((t) => ({
 		address: selectAddressOrThrow(t.addresses),
 	}));
@@ -40,8 +68,8 @@ export const setUpDefaultList = () => {
 	setRegisteredList(list);
 };
 
-export const addTickerToList = (symbol: string): moolaSecLendToken => {
-	const ticker = moolaSecLendTokens.find((r) => r.symbol === symbol);
+export const addTickerToList = (symbol: string): moolaSecLendTicker => {
+	const ticker = moolaSecLendTickers.find((r) => r.symbol === symbol);
 	if (!ticker) {
 		throw new Error(`Ticker: ${symbol} not found in registry.`);
 	}

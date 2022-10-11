@@ -1,7 +1,7 @@
 import { coreErc20s, coreErc20Decimals } from "../../../lib/erc20/core";
-import { moolaSecLendToken } from "./moola-sec-lend-helper";
+import { moolaSecLendTicker } from "./moola-sec-lend-helper";
 
-export const CUSD: moolaSecLendToken = {
+export const CUSD: moolaSecLendTicker = {
 	name: "Celo Dollar",
 	symbol: "CUSD",
 	decimals: coreErc20Decimals,
@@ -10,7 +10,7 @@ export const CUSD: moolaSecLendToken = {
 	},
 };
 
-export const CEUR: moolaSecLendToken = {
+export const CEUR: moolaSecLendTicker = {
 	name: "Celo Euro",
 	symbol: "CEUR",
 	decimals: coreErc20Decimals,
@@ -19,7 +19,7 @@ export const CEUR: moolaSecLendToken = {
 	},
 };
 
-export const AAPL: moolaSecLendToken = {
+export const AAPL: moolaSecLendTicker = {
 	name: "Apple Inc",
 	symbol: "AAPL",
 	decimals: coreErc20Decimals,
@@ -28,7 +28,7 @@ export const AAPL: moolaSecLendToken = {
 	},
 };
 
-export const TSLA: moolaSecLendToken = {
+export const TSLA: moolaSecLendTicker = {
 	name: "Tesla Inc",
 	symbol: "TSLA",
 	decimals: coreErc20Decimals,
@@ -37,7 +37,7 @@ export const TSLA: moolaSecLendToken = {
 	},
 };
 
-export const IBM: moolaSecLendToken = {
+export const IBM: moolaSecLendTicker = {
 	name: "IBM Common Stock",
 	symbol: "IBM",
 	decimals: coreErc20Decimals,
@@ -46,7 +46,7 @@ export const IBM: moolaSecLendToken = {
 	},
 };
 
-export const AMZN: moolaSecLendToken = {
+export const AMZN: moolaSecLendTicker = {
 	name: "Amazon.com, Inc.",
 	symbol: "AMZN",
 	decimals: coreErc20Decimals,
@@ -55,7 +55,7 @@ export const AMZN: moolaSecLendToken = {
 	},
 };
 
-export const GOOG: moolaSecLendToken = {
+export const GOOG: moolaSecLendTicker = {
 	name: "Alphabet Inc",
 	symbol: "GOOG",
 	decimals: coreErc20Decimals,
@@ -64,7 +64,7 @@ export const GOOG: moolaSecLendToken = {
 	},
 };
 
-export const COST: moolaSecLendToken = {
+export const COST: moolaSecLendTicker = {
 	name: "Costco Wholesale Corporation",
 	symbol: "COST",
 	decimals: coreErc20Decimals,
@@ -73,7 +73,7 @@ export const COST: moolaSecLendToken = {
 	},
 };
 
-export const DIS: moolaSecLendToken = {
+export const DIS: moolaSecLendTicker = {
 	name: "Walt Disney Co",
 	symbol: "DIS",
 	decimals: coreErc20Decimals,
@@ -82,7 +82,7 @@ export const DIS: moolaSecLendToken = {
 	},
 };
 
-export const FB: moolaSecLendToken = {
+export const FB: moolaSecLendTicker = {
 	name: "Facebook Inc",
 	symbol: "FB",
 	decimals: coreErc20Decimals,
@@ -91,7 +91,7 @@ export const FB: moolaSecLendToken = {
 	},
 };
 
-export const MA: moolaSecLendToken = {
+export const MA: moolaSecLendTicker = {
 	name: "Mastercard Inc",
 	symbol: "MA",
 	decimals: coreErc20Decimals,
@@ -100,7 +100,7 @@ export const MA: moolaSecLendToken = {
 	},
 };
 
-export const MSFT: moolaSecLendToken = {
+export const MSFT: moolaSecLendTicker = {
 	name: "Microsoft Corporation",
 	symbol: "MSFT",
 	decimals: coreErc20Decimals,
@@ -109,7 +109,7 @@ export const MSFT: moolaSecLendToken = {
 	},
 };
 
-export const NFLX: moolaSecLendToken = {
+export const NFLX: moolaSecLendTicker = {
 	name: "Netflix Inc",
 	symbol: "NFLX",
 	decimals: coreErc20Decimals,
@@ -118,7 +118,7 @@ export const NFLX: moolaSecLendToken = {
 	},
 };
 
-export const NKE: moolaSecLendToken = {
+export const NKE: moolaSecLendTicker = {
 	name: "Nike Inc",
 	symbol: "NKE",
 	decimals: coreErc20Decimals,
@@ -127,7 +127,7 @@ export const NKE: moolaSecLendToken = {
 	},
 };
 
-export const PINS: moolaSecLendToken = {
+export const PINS: moolaSecLendTicker = {
 	name: "Pinterest Inc",
 	symbol: "PINS",
 	decimals: coreErc20Decimals,
@@ -136,7 +136,7 @@ export const PINS: moolaSecLendToken = {
 	},
 };
 
-export const SHOP: moolaSecLendToken = {
+export const SHOP: moolaSecLendTicker = {
 	name: "Shopify Inc",
 	symbol: "SHOP",
 	decimals: coreErc20Decimals,
@@ -145,7 +145,7 @@ export const SHOP: moolaSecLendToken = {
 	},
 };
 
-export const SPOT: moolaSecLendToken = {
+export const SPOT: moolaSecLendTicker = {
 	name: "Spotify Technology SA",
 	symbol: "SPOT",
 	decimals: coreErc20Decimals,
@@ -165,7 +165,7 @@ export const DEFAULT_TICKER_SYMBOL_LIST = [
 
 // NOTE: need to make copy of coreErc20 objects since some of the token internal properties get
 // modified within moola codebase.
-export const moolaSecLendTokens: moolaSecLendToken[] = [
+export const moolaSecLendTickers: moolaSecLendTicker[] = [
 	CUSD,
 	CEUR,
 	AAPL,

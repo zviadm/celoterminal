@@ -7,12 +7,12 @@ import {
 	DialogTitle,
 	Typography,
 } from "@material-ui/core";
-import { moolaSecLendToken } from "../moola-sec-lend-helper";
+import { moolaSecLendTicker } from "../moola-sec-lend-helper";
 import { removeTickerFromList } from "./ticker-state";
 import { selectAddressOrThrow } from "../../../../lib/cfg";
 
 const RemoveTicker = (props: {
-	toRemove: moolaSecLendToken;
+	toRemove: moolaSecLendTicker;
 	onCancel: () => void;
 	onRemove: () => void;
 }): JSX.Element => {

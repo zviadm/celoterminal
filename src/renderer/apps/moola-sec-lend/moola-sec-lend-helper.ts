@@ -2,7 +2,7 @@ import { alfajoresChainId } from "../../../lib/cfg";
 
 export const MOOLA_SEC_LEND_AVAILABLE_CHAIN_IDS = [alfajoresChainId];
 
-export interface moolaSecLendToken {
+export interface moolaSecLendTicker {
 	readonly name: string;
 	readonly symbol: string;
 	readonly decimals: number;

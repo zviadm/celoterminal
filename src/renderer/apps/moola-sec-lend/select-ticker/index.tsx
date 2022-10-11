@@ -11,23 +11,23 @@ import {
 import Close from "@material-ui/icons/Close";
 import Search from "@material-ui/icons/Search";
 
-import { moolaSecLendToken } from "../moola-sec-lend-helper";
+import { moolaSecLendTicker } from "../moola-sec-lend-helper";
 
 import RemoveTicker from "./remove-ticker";
 import AddTicker from "./add-ticker";
 import { DEFAULT_TOKEN } from "../config";
 
 const SelectErc20 = (props: {
-	tickers: moolaSecLendToken[];
+	tickers: moolaSecLendTicker[];
 	selected: string;
-	onSelect: (ticker: moolaSecLendToken) => void;
-	onAddTickers: (ticker: moolaSecLendToken) => void;
-	onRemoveTickers: (ticker: moolaSecLendToken) => void;
+	onSelect: (ticker: moolaSecLendTicker) => void;
+	onAddTickers: (ticker: moolaSecLendTicker) => void;
+	onRemoveTickers: (ticker: moolaSecLendTicker) => void;
 	displayFullName?: boolean;
 }): JSX.Element => {
 	const [showAddToken, setShowAddToken] = React.useState(false);
 	const [toRemove, setToRemove] = React.useState<
-		moolaSecLendToken | undefined
+		moolaSecLendTicker | undefined
 	>();
 
 	return (
