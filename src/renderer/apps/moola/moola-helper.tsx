@@ -187,7 +187,7 @@ export const getMoolaSwapPath = (
 			return {
 				path: creal_moo,
 				useATokenAsFrom: false,
-				useATokenAsTo: true,
+				useATokenAsTo: false,
 			};
 		case `${cusdAddress}_${celoAddress}`.toLowerCase():
 			return {
@@ -246,7 +246,7 @@ export const getMoolaSwapPath = (
 		case `${mooAddress}_${crealAddress}`.toLowerCase():
 			return {
 				path: [...creal_moo].reverse(),
-				useATokenAsFrom: true,
+				useATokenAsFrom: false,
 				useATokenAsTo: false,
 			};
 		default:
