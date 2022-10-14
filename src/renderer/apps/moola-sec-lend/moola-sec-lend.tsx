@@ -7,7 +7,7 @@ import { Account } from "../../../lib/accounts/accounts";
 import { TXFunc, TXFinishFunc } from "../../components/app-definition";
 import { newErc20 } from "../../../lib/erc20/erc20-contract";
 import { MoolaSecLend } from "./def";
-import { moolaSecLendTickers } from "./config";
+import { moolaSecLendTickers, DEFAULT_TOKEN } from "./config";
 import { CFG, selectAddressOrThrow } from "../../../lib/cfg";
 
 import AppHeader from "../../components/app-header";
@@ -43,8 +43,6 @@ import {
 	MOOLA_SEC_LEND_AVAILABLE_CHAIN_IDS,
 	moolaSecLendTicker,
 } from "./moola-sec-lend-helper";
-
-import { DEFAULT_TOKEN } from "./config";
 
 const MoolaSecLendApp = (props: {
 	accounts: Account[];
@@ -231,11 +229,6 @@ const MoolaSecLendApp = (props: {
 	const tokenBalance =
 		accountState.fetched?.balance.shiftedBy(-tokenInfo.decimals) ||
 		new BigNumber("0");
-	const tokenMenuItems: JSX.Element[] = tokenNames.map((token) => (
-		<MenuItem key={token} value={token}>
-			{token}
-		</MenuItem>
-	));
 
 	const actionComponents = {
 		Deposit: <Deposit onDeposit={handleDeposit} tokenBalance={tokenBalance} />,
