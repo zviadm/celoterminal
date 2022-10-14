@@ -1,4 +1,4 @@
-import { coreErc20s, coreErc20Decimals } from "../../../lib/erc20/core";
+import { coreErc20Decimals } from "../../../lib/erc20/core";
 import { moolaSecLendTicker } from "./moola-sec-lend-helper";
 
 export const CUSD: moolaSecLendTicker = {
@@ -6,7 +6,7 @@ export const CUSD: moolaSecLendTicker = {
 	symbol: "CUSD",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0x6ca8C729475a8565C2Ec5A76116ffB668EFFcDAA",
+		alfajores: "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1",
 	},
 };
 
@@ -15,7 +15,7 @@ export const CEUR: moolaSecLendTicker = {
 	symbol: "CEUR",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0xe64a13883988950e4FE35f60fe342dc63E6bf701",
+		alfajores: "0x10c892A6EC43a53E45D0B916B4b7D383B1b78C0F",
 	},
 };
 
@@ -24,7 +24,7 @@ export const AAPL: moolaSecLendTicker = {
 	symbol: "AAPL",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0x68ce45F885514eDF61C9691de9F4C91529a8D081",
+		alfajores: "0xE1f94AF96a22489Afb50e6ec574FDa10F288aa0A",
 	},
 };
 
@@ -33,7 +33,7 @@ export const TSLA: moolaSecLendTicker = {
 	symbol: "TSLA",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0x93Ed9c790587212099f5B2F5D48c07A9b10B9e3A",
+		alfajores: "0xd1243C0585A49F167a980D266ed452d953D7a4bd",
 	},
 };
 
@@ -42,7 +42,7 @@ export const IBM: moolaSecLendTicker = {
 	symbol: "IBM",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0x03d0cF58cE495715f519028C3b5A00491a9FFe46",
+		alfajores: "0xb981E018ce3a06b42D113985EC1D552EAFf15f1C",
 	},
 };
 
@@ -51,7 +51,7 @@ export const AMZN: moolaSecLendTicker = {
 	symbol: "AMZN",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0xD9912859cBEaC4C10d68AC4Cbc0338c078F15c81",
+		alfajores: "0x563B9Ce9a2fEDa3875E44216b707a1175BD908D8",
 	},
 };
 
@@ -60,7 +60,7 @@ export const GOOG: moolaSecLendTicker = {
 	symbol: "GOOG",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0x08e9826B97851b995aB03CB17830EA49e715e17B",
+		alfajores: "0x30E2A875D6E9cd346775aA723fb9DDA2a16025f3",
 	},
 };
 
@@ -69,7 +69,7 @@ export const COST: moolaSecLendTicker = {
 	symbol: "COST",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0xf747747c78BE37Af896364ac083988e4a5E24cd5",
+		alfajores: "0xd54C41e5078cCdb4A14C5d94c3adf159788d414f",
 	},
 };
 
@@ -78,7 +78,7 @@ export const DIS: moolaSecLendTicker = {
 	symbol: "DIS",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0x236caeA2C28714Fc85E8B021A657eF33a67BcC8B",
+		alfajores: "0x9408e989F9a83456B14389F33c00B29D1e9D616c",
 	},
 };
 
@@ -87,7 +87,7 @@ export const FB: moolaSecLendTicker = {
 	symbol: "FB",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0x7657CCAC3F92Bd5C272dB564d264288159f75912",
+		alfajores: "0x259f5FC36aEb08C72E10A63eFd656F716667F8a0",
 	},
 };
 
@@ -96,7 +96,7 @@ export const MA: moolaSecLendTicker = {
 	symbol: "MA",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0xd30cd9B5c7c2d1bf50DAAB2a02759ABc744d328D",
+		alfajores: "0x6Bb29c8f6121ed5535a0F29475702BC2bD282a0d",
 	},
 };
 
@@ -105,7 +105,7 @@ export const MSFT: moolaSecLendTicker = {
 	symbol: "MSFT",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0xa1bAa726F03190395afd5a797dbaf17FCBc35e75",
+		alfajores: "0xB9790908C525093E001976b449a4134d3000697E",
 	},
 };
 
@@ -114,7 +114,7 @@ export const NFLX: moolaSecLendTicker = {
 	symbol: "NFLX",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0x5fEeb47425b400bB92733619e0B714305d84ffD5",
+		alfajores: "0x190fb53B4cCff1884069731b95A46103892cDc67",
 	},
 };
 
@@ -123,7 +123,7 @@ export const NKE: moolaSecLendTicker = {
 	symbol: "NKE",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0x03B1B5CCfC6300aDc2D516E17eFd0db05549190D",
+		alfajores: "0xD6F45A1039Fe6E6c5bdC30b84E35DAECDa4EAbFE",
 	},
 };
 
@@ -132,7 +132,7 @@ export const PINS: moolaSecLendTicker = {
 	symbol: "PINS",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0x739b736AF91bc7a0F0aC8C853087b237643f4fc9",
+		alfajores: "0x2b6D4881DFcA060F23B47612f1246f65Ea523e56",
 	},
 };
 
@@ -141,7 +141,7 @@ export const SHOP: moolaSecLendTicker = {
 	symbol: "SHOP",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0x5646aF821aFaDdaEF8B96fDa7E0309CD757e148f",
+		alfajores: "0x808D36c14C796BE6f92196600B8fC12f6Ef394C5",
 	},
 };
 
@@ -150,7 +150,7 @@ export const SPOT: moolaSecLendTicker = {
 	symbol: "SPOT",
 	decimals: coreErc20Decimals,
 	addresses: {
-		alfajores: "0x625BC1978390fda44d989988941f72721eC80AE6",
+		alfajores: "0x7A7Cd84ae41a86B7069421Ad02CFf1F6FAd91B57",
 	},
 };
 
@@ -184,3 +184,11 @@ export const moolaSecLendTickers: moolaSecLendTicker[] = [
 	SHOP,
 	SPOT,
 ];
+
+export const lendingPoolDataProviderAddresses = {
+	alfajores: "0x72831079098E2b4726Bf5236f886dbD44A975197",
+};
+
+export const lendingPoolAddressesProviderAddresses = {
+	alfajores: "0xe752eA2ece5a2E257aF9FE82987d9F878200abA9",
+};

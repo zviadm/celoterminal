@@ -44,7 +44,7 @@ import {
 	moolaSecLendTicker,
 } from "./moola-sec-lend-helper";
 
-import { DEFAULT_TOKEN, DEFAULT_TICKER_SYMBOL_LIST } from "./config";
+import { DEFAULT_TOKEN } from "./config";
 
 const MoolaSecLendApp = (props: {
 	accounts: Account[];

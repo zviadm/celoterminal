@@ -13,11 +13,3 @@ export interface moolaSecLendTicker {
 	};
 	address?: string;
 }
-
-export const lendingPoolDataProviderAddresses = {
-	alfajores: "0x46c4E7570Fbdc525C58bb1c935f86DbC06da1329",
-};
-
-export const lendingPoolAddressesProviderAddresses = {
-	alfajores: "0x71b18885D0f14C1604DC583a1bDa8E66d17b2386",
-};

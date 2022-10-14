@@ -17,7 +17,7 @@ import {
 import {
 	lendingPoolAddressesProviderAddresses,
 	lendingPoolDataProviderAddresses,
-} from "./moola-sec-lend-helper";
+} from "./config";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const useUserOnChainState = (account: Account, tokenAddress: string) => {
@@ -61,6 +61,10 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 				const reserveDataRaw = await LendingPoolDataProvider.methods
 					.getReserveData(tokenAddress)
 					.call();
+				const test = await LendingPoolDataProvider.methods
+					.getReserveTokensAddresses(tokenAddress)
+					.call();
+				console.log("test :>> ", lendingPoolAddress);
 
 				return {
 					goldToken,
