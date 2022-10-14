@@ -28,9 +28,8 @@ const RemoveTicker = (props: {
 			<DialogTitle>Remove Token?</DialogTitle>
 			<DialogContent>
 				<Typography>
-					Removing a token will hide it from all Celo Terminal apps that
-					interact with the custom tokens. You can always add this token back at
-					any time in the future.
+					Removing a stock symbol will hide it from the Moola SecLend app. You
+					can always add this token back at any time in the future.
 				</Typography>
 			</DialogContent>
 			<DialogActions>
