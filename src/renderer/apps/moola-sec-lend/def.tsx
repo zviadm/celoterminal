@@ -9,6 +9,6 @@ export const MoolaSecLend: AppDefinition = {
 	icon: <img src={icon} width="24px" />,
 	iconLarge: <img src={icon} width="35px" />,
 	url: "",
-	description: `A stock lending market`,
+	description: `Moola stock lending market`,
 	renderApp: MoolaSecLendApp,
 };
