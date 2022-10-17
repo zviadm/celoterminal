@@ -76,7 +76,7 @@ export const defaultReserveData: reserveData = {
 };
 
 const getMoolaTokenAddresses = () => {
-	const coreErc20Addresses: moolaTokenAddressesMap = {};
+	const moolaTokenAddresses: moolaTokenAddressesMap = {};
 
 	const chainId = CFG().chainId;
 	let key = "mainnet";
@@ -85,11 +85,11 @@ const getMoolaTokenAddresses = () => {
 	}
 
 	moolaTokens.forEach((token) => {
-		coreErc20Addresses[token.symbol] =
+		moolaTokenAddresses[token.symbol.toUpperCase()] =
 			token.addresses[key as keyof typeof token.addresses];
 	});
 
-	return coreErc20Addresses;
+	return moolaTokenAddresses;
 };
 
 export const getMoolaSwapPath = (
@@ -102,10 +102,10 @@ export const getMoolaSwapPath = (
 	const moolaTokenAddresses = getMoolaTokenAddresses();
 	const {
 		CELO: celoAddress,
-		cUSD: cusdAddress,
+		CUSD: cusdAddress,
 		MOO: mooAddress,
-		cREAL: crealAddress,
-		cEUR: ceurAddress,
+		CREAL: crealAddress,
+		CEUR: ceurAddress,
 	} = moolaTokenAddresses;
 
 	const celo_cusd = [celoAddress, mcusdAddress]; // celo-mcusd
@@ -123,144 +123,158 @@ export const getMoolaSwapPath = (
 	const creal_moo = [crealAddress, cusdAddress, celoAddress, mooAddress]; // creal-cusd, cusd-celo, celo-moo
 
 	const pathKey = `${tokenFrom}_${tokenTo}`.toLowerCase();
-	console.log("pathKey :>> ", pathKey);
-	console.log(
-		"${celoAddress}_${cusdAddress} :>> ",
-		`${celoAddress}_${cusdAddress}`
-	);
+
+	let configuration: moolaTokenSwapPath;
 	switch (pathKey) {
 		case `${celoAddress}_${cusdAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: celo_cusd,
 				useATokenAsFrom: false,
 				useATokenAsTo: true,
 			};
+			break;
 		case `${celoAddress}_${ceurAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: celo_ceur,
 				useATokenAsFrom: false,
 				useATokenAsTo: true,
 			};
+			break;
 		case `${celoAddress}_${crealAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: celo_creal,
 				useATokenAsFrom: false,
 				useATokenAsTo: false,
 			};
+			break;
 		case `${celoAddress}_${mooAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: celo_moo,
 				useATokenAsFrom: true,
 				useATokenAsTo: false,
 			};
+			break;
 		case `${cusdAddress}_${ceurAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: cusd_ceur,
 				useATokenAsFrom: true,
 				useATokenAsTo: true,
 			};
+			break;
 		case `${cusdAddress}_${crealAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: cusd_creal,
 				useATokenAsFrom: false,
 				useATokenAsTo: false,
 			};
+			break;
 		case `${cusdAddress}_${mooAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: cusd_moo,
 				useATokenAsFrom: false,
 				useATokenAsTo: false,
 			};
+			break;
 		case `${ceurAddress}_${crealAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: ceur_creal,
 				useATokenAsFrom: false,
 				useATokenAsTo: false,
 			};
+			break;
 		case `${ceurAddress}_${mooAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: ceur_moo,
 				useATokenAsFrom: true,
 				useATokenAsTo: false,
 			};
+			break;
 		case `${crealAddress}_${mooAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: creal_moo,
 				useATokenAsFrom: false,
 				useATokenAsTo: false,
 			};
+			break;
 		case `${cusdAddress}_${celoAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: [...celo_cusd].reverse(),
 				useATokenAsFrom: true,
 				useATokenAsTo: false,
 			};
+			break;
 		case `${ceurAddress}_${celoAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: [...celo_ceur].reverse(),
 				useATokenAsFrom: true,
 				useATokenAsTo: false,
 			};
+			break;
 		case `${crealAddress}_${celoAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: [...celo_creal].reverse(),
 				useATokenAsFrom: false,
 				useATokenAsTo: false,
 			};
+			break;
 		case `${mooAddress}_${celoAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: [...celo_moo].reverse(),
-				useATokenAsFrom: true,
-				useATokenAsTo: false,
+				useATokenAsFrom: false,
+				useATokenAsTo: true,
 			};
+			break;
 		case `${ceurAddress}_${cusdAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: [...cusd_ceur].reverse(),
 				useATokenAsFrom: true,
 				useATokenAsTo: true,
 			};
+			break;
 		case `${crealAddress}_${cusdAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: [...cusd_creal].reverse(),
 				useATokenAsFrom: false,
 				useATokenAsTo: false,
 			};
+			break;
 		case `${mooAddress}_${cusdAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: [...cusd_moo].reverse(),
 				useATokenAsFrom: false,
 				useATokenAsTo: false,
 			};
+			break;
 		case `${crealAddress}_${ceurAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: [...ceur_creal].reverse(),
 				useATokenAsFrom: false,
 				useATokenAsTo: false,
 			};
+			break;
 		case `${mooAddress}_${ceurAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: [...ceur_moo].reverse(),
 				useATokenAsFrom: false,
 				useATokenAsTo: true,
 			};
+			break;
 		case `${mooAddress}_${crealAddress}`.toLowerCase():
-			return {
+			configuration = {
 				path: [...creal_moo].reverse(),
 				useATokenAsFrom: false,
 				useATokenAsTo: false,
 			};
+			break;
 		default:
-			return {
-				path: [
-					moolaTokenAddresses[
-						(tokenFrom.toUpperCase(),
-						moolaTokenAddresses[tokenTo.toUpperCase()])
-					],
-				],
-				useATokenAsFrom: false,
-				useATokenAsTo: false,
-			};
+			throw new Error("No path configuratiioin available");
 	}
+
+	if (!configuration.path || !configuration.path[0]) {
+		throw new Error("Swap path is not valid");
+	}
+
+	return configuration;
 };
 
 export const ETHER = "1000000000000000000";
@@ -463,7 +477,7 @@ export const formattedUserReserveData = (
 };
 
 export interface moolaTokenSwapPath {
-	path: string[];
+	path: (string | undefined)[];
 	useATokenAsFrom: boolean;
 	useATokenAsTo: boolean;
 }
