@@ -15,7 +15,7 @@ import {
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 
-const addTicker = (props: {
+const AddTicker = (props: {
 	onCancel: () => void;
 	onAdd: (ticker: moolaSecLendTicker) => void;
 }): JSX.Element => {
@@ -25,12 +25,11 @@ const addTicker = (props: {
 	);
 
 	const handleAdd = () => {
-		let added;
-
 		if (!matchingTicker) {
 			return;
 		}
-		added = addTickerToList(matchingTicker.symbol);
+
+		const added = addTickerToList(matchingTicker.symbol);
 
 		return props.onAdd(added);
 	};
@@ -78,4 +77,5 @@ const addTicker = (props: {
 		</Dialog>
 	);
 };
-export default addTicker;
+
+export default AddTicker;
