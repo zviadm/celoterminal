@@ -48,6 +48,7 @@ export const useTickerList = (): {
 		const sorted = registered.sort(cmpMoolaTickers);
 
 		return sorted;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [changeN]);
 	const reload = () => {
 		setChangeN((n) => n + 1);
@@ -58,7 +59,7 @@ export const useTickerList = (): {
 	};
 };
 
-export const setUpDefaultList = () => {
+export const setUpDefaultList = (): void => {
 	const symbolSet = new Set(DEFAULT_TICKER_SYMBOL_LIST);
 	const tickers = moolaSecLendTickers.filter((r) => symbolSet.has(r.symbol));
 	const list = tickers.map((t) => ({

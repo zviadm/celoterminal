@@ -61,9 +61,6 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 				const reserveDataRaw = await LendingPoolDataProvider.methods
 					.getReserveData(tokenAddress)
 					.call();
-				const test = await LendingPoolDataProvider.methods
-					.getReserveTokensAddresses(tokenAddress)
-					.call();
 
 				return {
 					goldToken,
