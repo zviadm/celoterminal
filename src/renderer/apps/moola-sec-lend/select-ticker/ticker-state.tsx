@@ -59,7 +59,7 @@ export const useTickerList = (): {
 	};
 };
 
-export const setUpDefaultList = () => {
+export const setUpDefaultList = (): void => {
 	const symbolSet = new Set(DEFAULT_TICKER_SYMBOL_LIST);
 	const tickers = moolaSecLendTickers.filter((r) => symbolSet.has(r.symbol));
 	const list = tickers.map((t) => ({
