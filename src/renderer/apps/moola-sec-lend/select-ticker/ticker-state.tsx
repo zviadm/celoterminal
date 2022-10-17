@@ -48,6 +48,7 @@ export const useTickerList = (): {
 		const sorted = registered.sort(cmpMoolaTickers);
 
 		return sorted;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [changeN]);
 	const reload = () => {
 		setChangeN((n) => n + 1);

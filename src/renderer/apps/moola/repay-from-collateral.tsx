@@ -18,7 +18,6 @@ import {
 	toBigNumberWei,
 	getMoolaSwapPath,
 	moolaToken,
-	lendingPoolAddressesProviderAddresses,
 	toHumanFriendlyWei,
 } from "./moola-helper";
 import { abi as UbeswapABI } from "./abi/Ubeswap.json";
@@ -129,10 +128,10 @@ const RepayFromCollateral = ({
 			[
 				userAddress,
 				ubeswapAddress,
-				lendingPoolAddressesProviderAddresses,
-				rateMode,
 				collateralAsset,
 				tokenName,
+				lendingPoolDataProviderAddress,
+				noDebt,
 			]
 		)
 	);

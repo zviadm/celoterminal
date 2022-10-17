@@ -89,7 +89,6 @@ const MoolaSecLendApp = (props: {
 		)
 	);
 
-	const tokenNames = moolaSecLendTickers.map((t) => t.symbol);
 	const userOnchainState = useUserOnChainState(account, tokenAddress);
 
 	const isFetching = accountState.isFetching || userOnchainState.isFetching;
