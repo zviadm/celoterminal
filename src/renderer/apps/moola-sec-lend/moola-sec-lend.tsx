@@ -7,7 +7,7 @@ import { Account } from "../../../lib/accounts/accounts";
 import { TXFunc, TXFinishFunc } from "../../components/app-definition";
 import { newErc20 } from "../../../lib/erc20/erc20-contract";
 import { MoolaSecLend } from "./def";
-import { moolaSecLendTickers, DEFAULT_TOKEN } from "./config";
+
 import { CFG, selectAddressOrThrow } from "../../../lib/cfg";
 
 import AppHeader from "../../components/app-header";
@@ -39,7 +39,11 @@ import {
 } from "../moola/moola-helper";
 import { useTickerList, setUpDefaultList } from "./select-ticker/ticker-state";
 
-import { MOOLA_SEC_LEND_AVAILABLE_CHAIN_IDS } from "./config";
+import {
+	MOOLA_SEC_LEND_AVAILABLE_CHAIN_IDS,
+	moolaSecLendTickers,
+	DEFAULT_TOKEN,
+} from "./config";
 import { moolaSecLendTicker } from "./moola-sec-lend-helper";
 
 const MoolaSecLendApp = (props: {
