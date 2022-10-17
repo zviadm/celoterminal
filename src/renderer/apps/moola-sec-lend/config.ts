@@ -1,5 +1,8 @@
+import { alfajoresChainId } from "../../../lib/cfg";
 import { coreErc20Decimals } from "../../../lib/erc20/core";
 import { moolaSecLendTicker } from "./moola-sec-lend-helper";
+
+export const MOOLA_SEC_LEND_AVAILABLE_CHAIN_IDS = [alfajoresChainId];
 
 export const CUSD: moolaSecLendTicker = {
 	name: "Celo Dollar",

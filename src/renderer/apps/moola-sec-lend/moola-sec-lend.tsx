@@ -39,10 +39,8 @@ import {
 } from "../moola/moola-helper";
 import { useTickerList, setUpDefaultList } from "./select-ticker/ticker-state";
 
-import {
-	MOOLA_SEC_LEND_AVAILABLE_CHAIN_IDS,
-	moolaSecLendTicker,
-} from "./moola-sec-lend-helper";
+import { MOOLA_SEC_LEND_AVAILABLE_CHAIN_IDS } from "./config";
+import { moolaSecLendTicker } from "./moola-sec-lend-helper";
 
 const MoolaSecLendApp = (props: {
 	accounts: Account[];
