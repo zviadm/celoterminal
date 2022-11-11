@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
 import Web3 from "web3";
 import { coreErc20Decimals } from "../../../lib/erc20/core";
-import { mainnetChainId, alfajoresChainId } from "../../../lib/cfg";
+import { mainnetChainId, alfajoresChainId, CFG } from "../../../lib/cfg";
 import { moolaTokens } from "./config";
 import { abi as LendingPoolDataProviderABI } from "./abi/DataProvider.json";
 import { abi as UbeswapABI } from "./abi/Ubeswap.json";
@@ -9,7 +9,38 @@ import { AbiItem } from "@celo/connect";
 
 export const toBigNumberWei = (num: string): BigNumber =>
 	new BigNumber(num).shiftedBy(coreErc20Decimals);
+
+export const toBigNumberEther = (num: string): BigNumber =>
+	new BigNumber(num).shiftedBy(-coreErc20Decimals);
+
 export const MOOLA_AVAILABLE_CHAIN_IDS = [mainnetChainId, alfajoresChainId];
+
+export const toHumanFriendlyWei = (wei: BigNumber | string): string => {
+	return Number(BN(toBigNumberEther(wei.toString()))).toLocaleString();
+};
+
+export enum ProposalState {
+	PENDING = 0,
+	ACTIVE,
+	CANCELED,
+	DEFEATED,
+	SUCCEEDED,
+	QUEUED,
+	EXPIRED,
+	EXECUTED,
+}
+
+export const CAN_CANCEL_PROPOSAL_STATES = [
+	ProposalState.PENDING,
+	ProposalState.ACTIVE,
+	ProposalState.QUEUED,
+];
+
+export enum ProposalSupport {
+	AGAINST = 0,
+	FOR = 1,
+	ABSTAIN = 2,
+}
 
 export const defaultUserAccountData: userAccountData = {
 	"Total Collateral": "0",
@@ -351,6 +382,23 @@ export interface moolaTokenCeloAddressesMap {
 	[tokenSymbol: string]: string;
 }
 
+export const getMoolaGovernanceDeployBlockNumber = (): number => {
+	const moolaGovernanceDeployedBlockNumber = {
+		[mainnetChainId.toString()]: 14642441,
+		[alfajoresChainId.toString()]: 13517524,
+	};
+
+	const blockNumber = moolaGovernanceDeployedBlockNumber[CFG().chainId];
+
+	if (!blockNumber) {
+		throw new Error(
+			`Moola governance is not deployed to chainId: ${CFG().chainId}!`
+		);
+	}
+
+	return blockNumber;
+};
+
 export interface moolaTokenSwapPath {
 	path: string[];
 	useATokenAsFrom: boolean;
@@ -433,6 +481,31 @@ export interface moolaToken {
 	address?: string;
 }
 
+export interface moolaGovernanceProposal {
+	readonly id: string;
+	readonly state: number;
+	readonly forVotes: string;
+	readonly againstVotes: string;
+	readonly proposer: string;
+	readonly startBlock: string;
+	readonly endBlock: string;
+	description: string;
+	userVotingPower: BigNumber;
+	eta: string;
+}
+
+export interface moolaProposalDisplay {
+	readonly stateStr: string;
+	readonly timeText: string;
+	readonly stateColor: string;
+	readonly votingTimeColor: string;
+}
+
+export interface parsedMoolaGovernanceProposalDescription {
+	title: string;
+	description: string;
+}
+
 export const lendingPoolDataProviderAddresses = {
 	mainnet: "0x43d067ed784D9DD2ffEda73775e2CC4c560103A1",
 	alfajores: "0x31ccB9dC068058672D96E92BAf96B1607855822E",
@@ -465,4 +538,9 @@ export const repayFromCollateralAdapterAddresses = {
 export const leverageBorrowAdapterAddresses = {
 	mainnet: "0x3dC0FCd3Aa6ca66a434086180e2604B9A9CFE781",
 	alfajores: "0x2fc031C35bcc4625d5246D256934cE85ef86447D",
+};
+
+export const governanceAddresses = {
+	mainnet: "0xde457ed1A713C290C4f8dE1dE0D0308Fc7722937",
+	alfajores: "0xb91a5Ee2E9329B90C249fef89e3a922F4782Cad3",
 };
