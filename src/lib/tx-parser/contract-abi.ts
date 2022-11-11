@@ -112,13 +112,13 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 				break
 			}
 			if (abi === undefined) {
-				// Fallback to checking if contract is verified on celoscan.xyz.
-				// NOTE: celoscan.xyz API key is hardcoded here but this is a non issue since this API key
+				// Fallback to checking if contract is verified on celoscan.
+				// NOTE: celoscan API key is hardcoded here but this is a non issue since this API key
 				// is only used for rate limiting.
 				const resp = await explorerCli().get<{
 						message: string,
 						result: string,
-					}>(`https://api.celoscan.xyz/api?module=contract&action=getabi&address=${contractAddress}&apikey=G3VEE5GFKX7WEBGBAPKQCUS4DFJB1HMQR6`)
+					}>(`https://api.celoscan.io/api?module=contract&action=getabi&address=${contractAddress}&apikey=G3VEE5GFKX7WEBGBAPKQCUS4DFJB1HMQR6`)
 				if (resp.data.message.toLowerCase() === "ok") {
 					abi = JSON.parse(resp.data.result) as AbiItem[]
 				} else {
