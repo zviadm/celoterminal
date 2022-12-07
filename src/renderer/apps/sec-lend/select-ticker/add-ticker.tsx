@@ -1,5 +1,5 @@
-import { moolaSecLendTickers } from "../config";
-import { moolaSecLendTicker } from "../moola-sec-lend-helper";
+import { secLendTickers } from "../config";
+import { SecLendTicker } from "../sec-lend-helper";
 import { addTickerToList } from "./ticker-state";
 
 import * as React from "react";
@@ -17,12 +17,10 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 
 const AddTicker = (props: {
 	onCancel: () => void;
-	onAdd: (ticker: moolaSecLendTicker) => void;
+	onAdd: (ticker: SecLendTicker) => void;
 }): JSX.Element => {
 	const [tickerSymbol, setTickerSymbol] = React.useState("");
-	const matchingTicker = moolaSecLendTickers.find(
-		(f) => f.symbol === tickerSymbol
-	);
+	const matchingTicker = secLendTickers.find((f) => f.symbol === tickerSymbol);
 
 	const handleAdd = () => {
 		if (!matchingTicker) {
@@ -41,7 +39,7 @@ const AddTicker = (props: {
 					<Autocomplete
 						id="registered-erc20"
 						autoHighlight
-						options={moolaSecLendTickers}
+						options={secLendTickers}
 						renderOption={(o) => (
 							<ListItemText primary={o.symbol} secondary={o.name} />
 						)}

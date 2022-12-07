@@ -1,4 +1,4 @@
-export interface moolaSecLendTicker {
+export interface SecLendTicker {
 	readonly name: string;
 	readonly symbol: string;
 	readonly decimals: number;

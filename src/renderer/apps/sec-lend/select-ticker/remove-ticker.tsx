@@ -7,12 +7,12 @@ import {
 	DialogTitle,
 	Typography,
 } from "@material-ui/core";
-import { moolaSecLendTicker } from "../moola-sec-lend-helper";
+import { SecLendTicker } from "../sec-lend-helper";
 import { removeTickerFromList } from "./ticker-state";
 import { selectAddressOrThrow } from "../../../../lib/cfg";
 
 const RemoveTicker = (props: {
-	toRemove: moolaSecLendTicker;
+	toRemove: SecLendTicker;
 	onCancel: () => void;
 	onRemove: () => void;
 }): JSX.Element => {
@@ -28,8 +28,8 @@ const RemoveTicker = (props: {
 			<DialogTitle>Remove Token?</DialogTitle>
 			<DialogContent>
 				<Typography>
-					Removing a stock symbol will hide it from the Moola SecLend app. You
-					can always add this token back at any time in the future.
+					Removing a stock symbol will hide it from the SecLend app. You can
+					always add this token back at any time in the future.
 				</Typography>
 			</DialogContent>
 			<DialogActions>

@@ -6,7 +6,7 @@ import { AbiItem, toTransactionObject } from "@celo/connect";
 import { Account } from "../../../lib/accounts/accounts";
 import { TXFunc, TXFinishFunc } from "../../components/app-definition";
 import { newErc20 } from "../../../lib/erc20/erc20-contract";
-import { MoolaSecLend } from "./def";
+import { SecLend } from "./def";
 
 import { CFG, selectAddressOrThrow } from "../../../lib/cfg";
 
@@ -40,13 +40,13 @@ import {
 import { useTickerList, setUpDefaultList } from "./select-ticker/ticker-state";
 
 import {
-	MOOLA_SEC_LEND_AVAILABLE_CHAIN_IDS,
-	moolaSecLendTickers,
+	SEC_LEND_AVAILABLE_CHAIN_IDS,
+	secLendTickers,
 	DEFAULT_TOKEN,
 } from "./config";
-import { moolaSecLendTicker } from "./moola-sec-lend-helper";
+import { SecLendTicker } from "./sec-lend-helper";
 
-const MoolaSecLendApp = (props: {
+const SecLendApp = (props: {
 	accounts: Account[];
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void;
 	selectedAccount: Account;
@@ -56,7 +56,7 @@ const MoolaSecLendApp = (props: {
 
 	const [selectedToken, setSelectedToken] = useLocalStorageState(
 		"terminal/moola-sec-lend/ticker",
-		moolaSecLendTickers[0].symbol
+		secLendTickers[0].symbol
 	);
 	const [selectedAction, setSelectedAction] = useLocalStorageState(
 		"terminal/moola-sec-lend/actions",
@@ -69,9 +69,8 @@ const MoolaSecLendApp = (props: {
 		registeredTickerList.reload();
 	}
 
-	const tokenInfo: moolaSecLendTicker =
-		moolaSecLendTickers.find((e) => e.symbol === selectedToken) ||
-		DEFAULT_TOKEN;
+	const tokenInfo: SecLendTicker =
+		secLendTickers.find((e) => e.symbol === selectedToken) || DEFAULT_TOKEN;
 
 	const tokenAddress = selectAddressOrThrow(tokenInfo.addresses);
 	tokenInfo.address = tokenAddress;
@@ -93,8 +92,8 @@ const MoolaSecLendApp = (props: {
 
 	const isFetching = accountState.isFetching || userOnchainState.isFetching;
 
-	if (!MOOLA_SEC_LEND_AVAILABLE_CHAIN_IDS.includes(CFG().chainId.toString())) {
-		throw new Error(`Moola is not available on chainId: ${CFG().chainId}!`);
+	if (!SEC_LEND_AVAILABLE_CHAIN_IDS.includes(CFG().chainId.toString())) {
+		throw new Error(`SecLend is not available on chainId: ${CFG().chainId}!`);
 	}
 
 	let lendingPoolAddress: string;
@@ -258,12 +257,12 @@ const MoolaSecLendApp = (props: {
 		),
 	};
 
-	const handleAddRegisteredTicker = (ticker: moolaSecLendTicker) => {
+	const handleAddRegisteredTicker = (ticker: SecLendTicker) => {
 		setSelectedToken(ticker.symbol);
 		registeredTickerList.reload();
 	};
 
-	const handleRemoveRegisteredTicker = (ticker: moolaSecLendTicker) => {
+	const handleRemoveRegisteredTicker = (ticker: SecLendTicker) => {
 		if (ticker.symbol === selectedToken) {
 			setSelectedToken(DEFAULT_TOKEN.symbol);
 		}
@@ -273,11 +272,7 @@ const MoolaSecLendApp = (props: {
 
 	return (
 		<AppContainer>
-			<AppHeader
-				app={MoolaSecLend}
-				isFetching={isFetching}
-				refetch={refetchAll}
-			/>
+			<AppHeader app={SecLend} isFetching={isFetching} refetch={refetchAll} />
 
 			<AppSection>
 				<AccountStatus
@@ -349,4 +344,4 @@ const MoolaSecLendApp = (props: {
 		</AppContainer>
 	);
 };
-export default MoolaSecLendApp;
+export default SecLendApp;

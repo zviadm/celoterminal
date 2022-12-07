@@ -1,10 +1,10 @@
 import { alfajoresChainId } from "../../../lib/cfg";
 import { coreErc20Decimals } from "../../../lib/erc20/core";
-import { moolaSecLendTicker } from "./moola-sec-lend-helper";
+import { SecLendTicker } from "./sec-lend-helper";
 
-export const MOOLA_SEC_LEND_AVAILABLE_CHAIN_IDS = [alfajoresChainId];
+export const SEC_LEND_AVAILABLE_CHAIN_IDS = [alfajoresChainId];
 
-export const CUSD: moolaSecLendTicker = {
+export const CUSD: SecLendTicker = {
 	name: "Celo Dollar",
 	symbol: "CUSD",
 	decimals: coreErc20Decimals,
@@ -13,7 +13,7 @@ export const CUSD: moolaSecLendTicker = {
 	},
 };
 
-export const CEUR: moolaSecLendTicker = {
+export const CEUR: SecLendTicker = {
 	name: "Celo Euro",
 	symbol: "CEUR",
 	decimals: coreErc20Decimals,
@@ -22,7 +22,7 @@ export const CEUR: moolaSecLendTicker = {
 	},
 };
 
-export const AAPL: moolaSecLendTicker = {
+export const AAPL: SecLendTicker = {
 	name: "Apple Inc",
 	symbol: "AAPL",
 	decimals: coreErc20Decimals,
@@ -31,7 +31,7 @@ export const AAPL: moolaSecLendTicker = {
 	},
 };
 
-export const TSLA: moolaSecLendTicker = {
+export const TSLA: SecLendTicker = {
 	name: "Tesla Inc",
 	symbol: "TSLA",
 	decimals: coreErc20Decimals,
@@ -40,7 +40,7 @@ export const TSLA: moolaSecLendTicker = {
 	},
 };
 
-export const IBM: moolaSecLendTicker = {
+export const IBM: SecLendTicker = {
 	name: "IBM Common Stock",
 	symbol: "IBM",
 	decimals: coreErc20Decimals,
@@ -49,7 +49,7 @@ export const IBM: moolaSecLendTicker = {
 	},
 };
 
-export const AMZN: moolaSecLendTicker = {
+export const AMZN: SecLendTicker = {
 	name: "Amazon.com, Inc.",
 	symbol: "AMZN",
 	decimals: coreErc20Decimals,
@@ -58,7 +58,7 @@ export const AMZN: moolaSecLendTicker = {
 	},
 };
 
-export const GOOG: moolaSecLendTicker = {
+export const GOOG: SecLendTicker = {
 	name: "Alphabet Inc",
 	symbol: "GOOG",
 	decimals: coreErc20Decimals,
@@ -67,7 +67,7 @@ export const GOOG: moolaSecLendTicker = {
 	},
 };
 
-export const COST: moolaSecLendTicker = {
+export const COST: SecLendTicker = {
 	name: "Costco Wholesale Corporation",
 	symbol: "COST",
 	decimals: coreErc20Decimals,
@@ -76,7 +76,7 @@ export const COST: moolaSecLendTicker = {
 	},
 };
 
-export const DIS: moolaSecLendTicker = {
+export const DIS: SecLendTicker = {
 	name: "Walt Disney Co",
 	symbol: "DIS",
 	decimals: coreErc20Decimals,
@@ -85,7 +85,7 @@ export const DIS: moolaSecLendTicker = {
 	},
 };
 
-export const FB: moolaSecLendTicker = {
+export const FB: SecLendTicker = {
 	name: "Facebook Inc",
 	symbol: "FB",
 	decimals: coreErc20Decimals,
@@ -94,7 +94,7 @@ export const FB: moolaSecLendTicker = {
 	},
 };
 
-export const MA: moolaSecLendTicker = {
+export const MA: SecLendTicker = {
 	name: "Mastercard Inc",
 	symbol: "MA",
 	decimals: coreErc20Decimals,
@@ -103,7 +103,7 @@ export const MA: moolaSecLendTicker = {
 	},
 };
 
-export const MSFT: moolaSecLendTicker = {
+export const MSFT: SecLendTicker = {
 	name: "Microsoft Corporation",
 	symbol: "MSFT",
 	decimals: coreErc20Decimals,
@@ -112,7 +112,7 @@ export const MSFT: moolaSecLendTicker = {
 	},
 };
 
-export const NFLX: moolaSecLendTicker = {
+export const NFLX: SecLendTicker = {
 	name: "Netflix Inc",
 	symbol: "NFLX",
 	decimals: coreErc20Decimals,
@@ -121,7 +121,7 @@ export const NFLX: moolaSecLendTicker = {
 	},
 };
 
-export const NKE: moolaSecLendTicker = {
+export const NKE: SecLendTicker = {
 	name: "Nike Inc",
 	symbol: "NKE",
 	decimals: coreErc20Decimals,
@@ -130,7 +130,7 @@ export const NKE: moolaSecLendTicker = {
 	},
 };
 
-export const PINS: moolaSecLendTicker = {
+export const PINS: SecLendTicker = {
 	name: "Pinterest Inc",
 	symbol: "PINS",
 	decimals: coreErc20Decimals,
@@ -139,7 +139,7 @@ export const PINS: moolaSecLendTicker = {
 	},
 };
 
-export const SHOP: moolaSecLendTicker = {
+export const SHOP: SecLendTicker = {
 	name: "Shopify Inc",
 	symbol: "SHOP",
 	decimals: coreErc20Decimals,
@@ -148,7 +148,7 @@ export const SHOP: moolaSecLendTicker = {
 	},
 };
 
-export const SPOT: moolaSecLendTicker = {
+export const SPOT: SecLendTicker = {
 	name: "Spotify Technology SA",
 	symbol: "SPOT",
 	decimals: coreErc20Decimals,
@@ -167,8 +167,8 @@ export const DEFAULT_TICKER_SYMBOL_LIST = [
 ];
 
 // NOTE: need to make copy of coreErc20 objects since some of the token internal properties get
-// modified within moola codebase.
-export const moolaSecLendTickers: moolaSecLendTicker[] = [
+// modified within codebase.
+export const secLendTickers: SecLendTicker[] = [
 	CUSD,
 	CEUR,
 	AAPL,

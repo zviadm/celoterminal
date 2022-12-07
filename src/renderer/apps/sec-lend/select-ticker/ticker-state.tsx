@@ -1,13 +1,10 @@
 import * as log from "electron-log";
 import * as React from "react";
 import { CFG, selectAddressOrThrow } from "../../../../lib/cfg";
-import { DEFAULT_TICKER_SYMBOL_LIST, moolaSecLendTickers } from "../config";
-import { moolaSecLendTicker } from "../moola-sec-lend-helper";
+import { DEFAULT_TICKER_SYMBOL_LIST, secLendTickers } from "../config";
+import { SecLendTicker } from "../sec-lend-helper";
 
-const cmpMoolaTickers = (
-	a: moolaSecLendTicker,
-	b: moolaSecLendTicker
-): number => {
+const cmpSecLendTickers = (a: SecLendTicker, b: SecLendTicker): number => {
 	// always put CUSD and CEUR in front
 	if (a.symbol === "CUSD") {
 		return -1;
@@ -32,20 +29,20 @@ const cmpMoolaTickers = (
 };
 
 export const useTickerList = (): {
-	tickers: moolaSecLendTicker[];
+	tickers: SecLendTicker[];
 	reload: () => void;
 } => {
 	const [changeN, setChangeN] = React.useState(0);
 	const tickers = React.useMemo(() => {
 		const registered = registeredList()
 			.map((r) =>
-				moolaSecLendTickers.find(
+				secLendTickers.find(
 					(f) => selectAddressOrThrow(f.addresses) === r.address
 				)
 			)
-			.filter((v) => v !== undefined) as moolaSecLendTicker[];
+			.filter((v) => v !== undefined) as SecLendTicker[];
 
-		const sorted = registered.sort(cmpMoolaTickers);
+		const sorted = registered.sort(cmpSecLendTickers);
 
 		return sorted;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -61,7 +58,7 @@ export const useTickerList = (): {
 
 export const setUpDefaultList = (): void => {
 	const symbolSet = new Set(DEFAULT_TICKER_SYMBOL_LIST);
-	const tickers = moolaSecLendTickers.filter((r) => symbolSet.has(r.symbol));
+	const tickers = secLendTickers.filter((r) => symbolSet.has(r.symbol));
 	const list = tickers.map((t) => ({
 		address: selectAddressOrThrow(t.addresses),
 	}));
@@ -69,8 +66,8 @@ export const setUpDefaultList = (): void => {
 	setRegisteredList(list);
 };
 
-export const addTickerToList = (symbol: string): moolaSecLendTicker => {
-	const ticker = moolaSecLendTickers.find((r) => r.symbol === symbol);
+export const addTickerToList = (symbol: string): SecLendTicker => {
+	const ticker = secLendTickers.find((r) => r.symbol === symbol);
 	if (!ticker) {
 		throw new Error(`Ticker: ${symbol} not found in registry.`);
 	}
@@ -90,7 +87,7 @@ export const addTickerToList = (symbol: string): moolaSecLendTicker => {
 	return ticker;
 };
 
-const registeredListKeyPrefix = "terminal/moola-sec-lend/registered-list/";
+const registeredListKeyPrefix = "terminal/sec-lend/registered-list/";
 
 const registeredList = (): { address: string }[] => {
 	const registeredListKey = registeredListKeyPrefix + CFG().chainId;
@@ -101,7 +98,7 @@ const registeredList = (): { address: string }[] => {
 	try {
 		return JSON.parse(json);
 	} catch (e) {
-		log.error(`MoolaSecLend: failed to parse: ${registeredListKey} - ${json}`);
+		log.error(`SecLend: failed to parse: ${registeredListKey} - ${json}`);
 		return [];
 	}
 };
