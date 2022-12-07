@@ -32,8 +32,7 @@ export const AppList: AppDefinition[] = [
 	Swappa,
 	Moola,
 	SecLend,
-].concat(
-	remote.app.isPackaged ? [] : [
+].concat(remote.app.isPackaged ? [] : [
 		// Test/Dev-only Apps.
 		Crasher,
 	])
