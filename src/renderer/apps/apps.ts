@@ -33,6 +33,6 @@ export const AppList: AppDefinition[] = [
 	Moola,
 	SecLend,
 ].concat(remote.app.isPackaged ? [] : [
-		// Test/Dev-only Apps.
-		Crasher,
-	])
+	// Test/Dev-only Apps.
+	Crasher,
+])
