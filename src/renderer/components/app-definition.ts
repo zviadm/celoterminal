@@ -4,23 +4,48 @@ import { CeloTransactionObject, CeloTx, CeloTxReceipt, EncodedTransaction } from
 import { Account } from '../../lib/accounts/accounts'
 
 export interface Transaction {
+	// TODO(zviadm): Transaction type is the "default"/undefined. This is to avoid making
+	// massive code changes to all the apps. In future this can be more explicitly set to
+	// `type: "transaction"`.
+	type?: undefined
 	tx: CeloTransactionObject<unknown> | "eth_signTransaction" | "eth_sendTransaction"
 	params?: CeloTx,
+}
 
+export interface SignPersonal {
+	type: "signPersonal"
+}
+
+export type SignatureRequest = (Transaction | SignPersonal) & {
 	// This flag is useful for contract/indirect account types. This
-	// flag signals that transaction should be executed using the parent/owner account
+	// flag signals that request should be executed using the parent/owner account
 	// as it is coming from the parent account itself.
 	executeUsingParentAccount?: boolean,
 }
+
+export interface ResponseSendTX {
+	type: "eth_sendTransaction"
+	receipt: CeloTxReceipt,
+}
+
+export interface ResponseSignTX {
+	type: "eth_signTransaction"
+	encodedTX: EncodedTransaction,
+}
+
+export interface ResponseSignPersonal {
+	type: "eth_signPersonal"
+}
+
+export type SignatureResponse = ResponseSendTX | ResponseSignTX | ResponseSignPersonal
 
 // All transaction running goes through central TXRunner system that has
 // access to accounts and their transaction signing methods.
 // Apps can ask TXRunner to run transactions by utlizing runTXs call, and
 // by supplying a TXFunc callback that prepares transactions to run. Once
 // TXRunner completes (or errors out), supplied onFinish call back will be called.
-export type TXFunc = (kit: ContractKit) => Promise<Transaction[]>
-export type TXFinishFunc = (
-	e?: Error, receipts?: CeloTxReceipt[], signedTXs?: EncodedTransaction[]) => void
+export type TXFunc = (kit: ContractKit) => Promise<SignatureRequest[]>
+export type TXFinishFunc = (e?: Error, r?: SignatureResponse[]) => void
 
 export interface AppDefinition {
 	// ID should match the app directory name. It is best to avoid changing the ID

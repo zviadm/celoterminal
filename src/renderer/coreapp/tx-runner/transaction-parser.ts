@@ -4,9 +4,10 @@ import BigNumber from "bignumber.js"
 import { fetchContractAbi, verifiedContractName } from "../../../lib/tx-parser/contract-abi"
 import { ParsedTXData, parseTransactionData } from "../../../lib/tx-parser/tx-parser"
 import { fmtAddress } from "../../../lib/utils"
-import { Transaction } from "../../components/app-definition"
+import { SignatureRequest, Transaction } from "../../components/app-definition"
 
 export interface ParsedTransaction {
+	type: "transaction"
 	encodedABI: string,
 	parsedTX?: ParsedTXData,
 	parseErr?: string,
@@ -16,6 +17,8 @@ export interface ParsedTransaction {
 	contractName: string,
 	contractAddress?: string,
 }
+
+export type ParsedSignatureRequest = ParsedTransaction
 
 export const extractTXDestinationAndData = (tx: Transaction): {destination?: string, data?: string} => {
 	return {
@@ -50,6 +53,7 @@ export const parseTransaction = async (
 		name = "DEPLOY NEW CONTRACT"
 	}
 	return {
+		type: "transaction",
 		encodedABI: data,
 		parsedTX: parsedTX,
 		parseErr: parseErr,
@@ -57,5 +61,16 @@ export const parseTransaction = async (
 
 		contractName: name,
 		contractAddress: destination,
+	}
+}
+
+export const parseSignatureRequest = async (
+	kit: ContractKit,
+	req: SignatureRequest): Promise<ParsedSignatureRequest> => {
+	switch (req.type) {
+	case undefined:
+		return parseTransaction(kit, req)
+	case "signPersonal":
+		throw new Error("not implemented")
 	}
 }

@@ -1,7 +1,5 @@
-import { CeloTxReceipt, EncodedTransaction } from '@celo/connect'
-
 import { Account } from '../../../lib/accounts/accounts'
-import { TXFinishFunc, TXFunc } from '../../components/app-definition'
+import { SignatureResponse, TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { WalletConnect } from './def'
 
 import * as React from 'react'
@@ -91,7 +89,7 @@ const WalletConnectApp = (props: {
 			async () => {
 				return [{tx: request.request.method, params: request.request.params}]
 			},
-			(e?: Error, receipts?: CeloTxReceipt[], signedTXs?: EncodedTransaction[]) => {
+			(e?: Error, r?: SignatureResponse[]) => {
 				setInProgress(false)
 				if (e) {
 					requestQueueGlobal().reject(request, {
@@ -99,20 +97,23 @@ const WalletConnectApp = (props: {
 						message: e.message,
 					})
 				} else {
-					if (request.request.method === "eth_signTransaction") {
-						if (signedTXs?.length !== 1) {
-							const errMsg = `Unexpected error while performing eth_signTransaction!`
+					if (r?.length !== 1) {
+						const errMsg = `Unexpected error while performing ${request.request.method}!`
+						requestQueueGlobal().reject(request, {code: -32000, message: errMsg})
+						throw new Error(errMsg)
+					}
+					switch (r[0].type) {
+						case "eth_signTransaction":
+							requestQueueGlobal().approve(request, r[0].encodedTX)
+							break
+						case "eth_sendTransaction":
+							requestQueueGlobal().approve(request, r[0].receipt.transactionHash)
+							break
+						default: {
+							const errMsg = `Unexpected response type while performing ${request.request.method}: ${r[0].type}!`
 							requestQueueGlobal().reject(request, {code: -32000, message: errMsg})
 							throw new Error(errMsg)
 						}
-						requestQueueGlobal().approve(request, signedTXs[0])
-					} else {
-						if (receipts?.length !== 1) {
-							const errMsg = `Unexpected error while performing eth_sendTransaction!`
-							requestQueueGlobal().reject(request, {code: -32000, message: errMsg})
-							throw new Error(errMsg)
-						}
-						requestQueueGlobal().approve(request, receipts[0].transactionHash)
 					}
 				}
 			}
