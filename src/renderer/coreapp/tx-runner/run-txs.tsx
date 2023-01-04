@@ -4,7 +4,7 @@ import { SignatureResponse, TXFinishFunc, TXFunc } from '../../components/app-de
 import { EstimatedFee, estimateGas } from './fee-estimation'
 import { ParsedSignatureRequest, parseSignatureRequest } from './transaction-parser'
 import { rootAccount, Wallet } from './wallet'
-import { CFG, explorerRootURL } from '../../../lib/cfg'
+import { CFG } from '../../../lib/cfg'
 import { spectronChainId } from '../../../lib/spectron-utils/constants'
 import { nowMS } from '../../state/time'
 import { sleep } from '../../../lib/utils'
@@ -22,16 +22,15 @@ import {
 import Send from '@material-ui/icons/Send'
 import CheckCircle from '@material-ui/icons/CheckCircle'
 
-import TransactionInfo from './transaction-info'
 import PromptLedgerAction from './prompt-ledger-action'
-import Link from '../../components/link'
 import { runWithInterval } from '../../../lib/interval'
 import BigNumber from 'bignumber.js'
+import SignatureRequestInfo from './signature-request-info'
+import SignatureRequestTitle from './signature-request-title'
 
 export class TXCancelled extends Error {
 	constructor() { super('Cancelled') }
 }
-
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -141,7 +140,6 @@ const RunTXs = (props: {
 							}
 						}
 
-
 						const txPromise = new Promise<void>((resolve, reject) => {
 							setCurrentReq({
 								idx: idx,
@@ -230,7 +228,9 @@ const RunTXs = (props: {
 								break
 							}
 							case "signPersonal": {
-								throw new Error("not implemented!")
+								const encodedData = await w.wallet.signPersonalMessage(req.address, req.data)
+								r.push({type: "eth_signPersonal", encodedData})
+								break
 							}
 						}
 					}
@@ -269,6 +269,7 @@ const RunTXs = (props: {
 			200)
 		return cancel
 	}, [stage, reqSendMS]);
+
 	return (
 		<Dialog
 			id="tx-runner-modal"
@@ -294,23 +295,17 @@ const RunTXs = (props: {
 											(idx === currentReq.idx) ? <Send /> : <></>
 											}
 										</ListItemIcon>
-										<ListItemText
-											primary={<Typography className={classes.address}>
-											Contract: {
-												preparedReqs[idx].contractAddress ?
-													<Link href={`${explorerRootURL()}/address/${preparedReqs[idx].contractAddress}`}>
-														{preparedReqs[idx].contractName}
-													</Link> :
-													preparedReqs[idx].contractName
-											}
-											</Typography>}
-										/>
+										<ListItemText primary={
+											<Typography className={classes.address}>
+												<SignatureRequestTitle req={preparedReqs[idx]} />
+											</Typography>
+										}/>
 									</ListItem>
 								))}
 							</List>
 						</Paper>
 						<Box marginTop={1}>
-							<TransactionInfo tx={preparedReqs[currentReq.idx]} fee={currentReq.estimatedFee} />
+							<SignatureRequestInfo req={preparedReqs[currentReq.idx]} fee={currentReq.estimatedFee} />
 						</Box>
 						<Box marginTop={1}>
 							<LinearProgress

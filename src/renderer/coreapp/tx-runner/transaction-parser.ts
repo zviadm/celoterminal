@@ -18,7 +18,12 @@ export interface ParsedTransaction {
 	contractAddress?: string,
 }
 
-export type ParsedSignatureRequest = ParsedTransaction
+export interface ParsedSignPersonal {
+	type: "signPersonal"
+	data: string
+}
+
+export type ParsedSignatureRequest = ParsedTransaction | ParsedSignPersonal
 
 export const extractTXDestinationAndData = (tx: Transaction): {destination?: string, data?: string} => {
 	return {
@@ -71,6 +76,6 @@ export const parseSignatureRequest = async (
 	case undefined:
 		return parseTransaction(kit, req)
 	case "signPersonal":
-		throw new Error("not implemented")
+		return {type: "signPersonal", data: req.data}
 	}
 }

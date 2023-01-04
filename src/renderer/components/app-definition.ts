@@ -1,5 +1,5 @@
 import { ContractKit } from '@celo/contractkit'
-import { CeloTransactionObject, CeloTx, CeloTxReceipt, EncodedTransaction } from '@celo/connect'
+import { Address, CeloTransactionObject, CeloTx, CeloTxReceipt, EncodedTransaction } from '@celo/connect'
 
 import { Account } from '../../lib/accounts/accounts'
 
@@ -14,6 +14,8 @@ export interface Transaction {
 
 export interface SignPersonal {
 	type: "signPersonal"
+	address: Address
+	data: string
 }
 
 export type SignatureRequest = (Transaction | SignPersonal) & {
@@ -35,6 +37,7 @@ export interface ResponseSignTX {
 
 export interface ResponseSignPersonal {
 	type: "eth_signPersonal"
+	encodedData: string
 }
 
 export type SignatureResponse = ResponseSendTX | ResponseSignTX | ResponseSignPersonal
