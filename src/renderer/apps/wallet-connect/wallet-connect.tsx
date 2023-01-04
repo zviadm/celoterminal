@@ -97,20 +97,23 @@ const WalletConnectApp = (props: {
 						message: e.message,
 					})
 				} else {
-					if (request.request.method === "eth_signTransaction") {
-						if (r?.length !== 1 || r[0].type !== "eth_signTransaction") {
-							const errMsg = `Unexpected error while performing eth_signTransaction!`
+					if (r?.length !== 1) {
+						const errMsg = `Unexpected error while performing ${request.request.method}!`
+						requestQueueGlobal().reject(request, {code: -32000, message: errMsg})
+						throw new Error(errMsg)
+					}
+					switch (r[0].type) {
+						case "eth_signTransaction":
+							requestQueueGlobal().approve(request, r[0].encodedTX)
+							break
+						case "eth_sendTransaction":
+							requestQueueGlobal().approve(request, r[0].receipt.transactionHash)
+							break
+						default: {
+							const errMsg = `Unexpected response type while performing ${request.request.method}: ${r[0].type}!`
 							requestQueueGlobal().reject(request, {code: -32000, message: errMsg})
 							throw new Error(errMsg)
 						}
-						requestQueueGlobal().approve(request, r[0].encodedTX)
-					} else {
-						if (r?.length !== 1 || r[0].type !== "eth_sendTransaction") {
-							const errMsg = `Unexpected error while performing eth_sendTransaction!`
-							requestQueueGlobal().reject(request, {code: -32000, message: errMsg})
-							throw new Error(errMsg)
-						}
-						requestQueueGlobal().approve(request, r[0].receipt.transactionHash)
 					}
 				}
 			}
