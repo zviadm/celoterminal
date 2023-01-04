@@ -18,7 +18,13 @@ export interface ParsedTransaction {
 	contractAddress?: string,
 }
 
-export type ParsedSignatureRequest = ParsedTransaction
+export interface ParsedSignPersonal {
+	type: "signPersonal"
+	data: string
+	dataAsText?: string
+}
+
+export type ParsedSignatureRequest = ParsedTransaction | ParsedSignPersonal
 
 export const extractTXDestinationAndData = (tx: Transaction): {destination?: string, data?: string} => {
 	return {
@@ -68,9 +74,17 @@ export const parseSignatureRequest = async (
 	kit: ContractKit,
 	req: SignatureRequest): Promise<ParsedSignatureRequest> => {
 	switch (req.type) {
-	case undefined:
-		return parseTransaction(kit, req)
-	case "signPersonal":
-		throw new Error("not implemented")
+		case undefined:
+			return parseTransaction(kit, req)
+		case "signPersonal": {
+			const dataAsBuf = Buffer.from(req.params.data.substring(2), "hex")
+			const dataAsText = dataAsBuf.toString("utf8");
+			const validUtf8 = Buffer.from(dataAsText).compare(dataAsBuf) === 0
+			return {
+				type: "signPersonal",
+				data: req.params.data,
+				dataAsText: validUtf8 ? dataAsText : undefined,
+			}
+		}
 	}
 }
