@@ -1,7 +1,5 @@
-import { CeloTxReceipt, EncodedTransaction } from '@celo/connect'
-
 import { Account } from '../../../lib/accounts/accounts'
-import { TXFinishFunc, TXFunc } from '../../components/app-definition'
+import { SignatureResponse, TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { WalletConnect } from './def'
 
 import * as React from 'react'
@@ -91,7 +89,7 @@ const WalletConnectApp = (props: {
 			async () => {
 				return [{tx: request.request.method, params: request.request.params}]
 			},
-			(e?: Error, receipts?: CeloTxReceipt[], signedTXs?: EncodedTransaction[]) => {
+			(e?: Error, r?: SignatureResponse[]) => {
 				setInProgress(false)
 				if (e) {
 					requestQueueGlobal().reject(request, {
@@ -100,19 +98,19 @@ const WalletConnectApp = (props: {
 					})
 				} else {
 					if (request.request.method === "eth_signTransaction") {
-						if (signedTXs?.length !== 1) {
+						if (r?.length !== 1 || r[0].type !== "eth_signTransaction") {
 							const errMsg = `Unexpected error while performing eth_signTransaction!`
 							requestQueueGlobal().reject(request, {code: -32000, message: errMsg})
 							throw new Error(errMsg)
 						}
-						requestQueueGlobal().approve(request, signedTXs[0])
+						requestQueueGlobal().approve(request, r[0].encodedTX)
 					} else {
-						if (receipts?.length !== 1) {
+						if (r?.length !== 1 || r[0].type !== "eth_sendTransaction") {
 							const errMsg = `Unexpected error while performing eth_sendTransaction!`
 							requestQueueGlobal().reject(request, {code: -32000, message: errMsg})
 							throw new Error(errMsg)
 						}
-						requestQueueGlobal().approve(request, receipts[0].transactionHash)
+						requestQueueGlobal().approve(request, r[0].receipt.transactionHash)
 					}
 				}
 			}

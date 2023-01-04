@@ -10,13 +10,13 @@ import { decryptLocalKey } from '../../../lib/accounts/accountsdb'
 import { UserError } from '../../../lib/error'
 import { CFG } from '../../../lib/cfg'
 import { spectronChainId } from '../../../lib/spectron-utils/constants'
-import { Transaction } from '../../components/app-definition'
+import { SignatureRequest } from '../../components/app-definition'
 import { extractTXDestinationAndData } from './transaction-parser'
 import { estimateGas } from './fee-estimation'
 
 export interface Wallet {
 	wallet: ReadOnlyWallet
-	transformTX?: (kit: ContractKit, tx: Transaction) => Promise<Transaction>
+	transformReq?: (kit: ContractKit, req: SignatureRequest) => Promise<SignatureRequest>
 	transport?: {close: () => void}
 }
 
@@ -83,18 +83,21 @@ const createMultiSigWallet = async (
 	password?: string): Promise<Wallet> => {
 	const owner = findMultiSigOwner(account, accounts)
 	const ownerWallet = await createWallet(owner, accounts, password)
-	const transformTX = async (kit: ContractKit, tx: Transaction): Promise<Transaction> => {
+	const transformReq = async (kit: ContractKit, req: SignatureRequest): Promise<SignatureRequest> => {
 		const multiSig = await kit._web3Contracts.getMultiSig(account.address)
-		if (ownerWallet.transformTX) {
-			tx = await ownerWallet.transformTX(kit, {
-				...tx,
+		if (ownerWallet.transformReq) {
+			req = await ownerWallet.transformReq(kit, {
+				...req,
 				executeUsingParentAccount: false,
 			})
 		}
-		if (tx.executeUsingParentAccount) {
-			return tx
+		if (req.executeUsingParentAccount) {
+			return req
 		}
-		const {destination, data} = extractTXDestinationAndData(tx)
+		if (req.type !== undefined) {
+			throw new UserError(`MultiSig accounts can only send and sign transactions.`)
+		}
+		const {destination, data} = extractTXDestinationAndData(req)
 		if (!destination) {
 			throw new UserError(`MultiSig accounts can not deploy new contracts.`)
 		}
@@ -103,17 +106,18 @@ const createMultiSigWallet = async (
 		}
 		const dataBytes = stringToSolidityBytes(data)
 		const txo = multiSig.methods.submitTransaction(
-			destination, tx.params?.value?.toString() || 0, dataBytes)
+			destination, req.params?.value?.toString() || 0, dataBytes)
 		// TODO(zviad): we need to figure out if there is need for additional logic for
 		// GAS estimation. If the original transaction has GAS provided, should we somehow
 		// take that into account for transformed TX?
-		if (tx.tx === "eth_signTransaction" || tx.tx === "eth_sendTransaction") {
+		if (req.tx === "eth_signTransaction" || req.tx === "eth_sendTransaction") {
 			const nonce = await kit.connection.nonce(owner.address)
 			const estimatedGas = await estimateGas(kit, {tx: toTransactionObject(kit.connection, txo)})
 			return {
-				tx: tx.tx,
+				type: req.type,
+				tx: req.tx,
 				params: {
-					...tx.params,
+					...req.params,
 					nonce: nonce,
 					from: owner.address,
 					to: account.address,
@@ -123,12 +127,12 @@ const createMultiSigWallet = async (
 				}
 			}
 		} else {
-			return {tx: toTransactionObject(kit.connection, txo)}
+			return {type: req.type, tx: toTransactionObject(kit.connection, txo)}
 		}
 	}
 	return {
 		wallet: ownerWallet.wallet,
 		transport: ownerWallet.transport,
-		transformTX,
+		transformReq,
 	}
 }

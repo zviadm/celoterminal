@@ -1,9 +1,9 @@
-import { CeloTx, CeloTxReceipt, EncodedTransaction } from '@celo/connect'
+import { CeloTx } from '@celo/connect'
 import { SessionTypes } from 'wcv2/types'
 import { SESSION_EVENTS } from 'wcv2/client'
 
 import { Account } from '../../../lib/accounts/accounts'
-import { TXFinishFunc, TXFunc } from '../../components/app-definition'
+import { SignatureResponse, TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { WalletConnect } from './def'
 import { wcGlobal } from './client'
 
@@ -115,19 +115,24 @@ const WalletConnectApp = (props: {
 				const tx: CeloTx = request.request.params
 				return [{tx: "eth_signTransaction", params: tx}]
 			},
-			(e?: Error, receipts?: CeloTxReceipt[], signedTXs?: EncodedTransaction[]) => {
+			(e?: Error, r?: SignatureResponse[]) => {
 				setInProgress(false)
-				if (e) {
+				if (e || !r) {
 					wcGlobal.reject(request, {
 						code: -32000,
-						message: e.message,
+						message: e?.message || "unexpected error: no response",
 						data: `${e}`,
 					})
 				} else {
-					if (!signedTXs) {
-						throw new Error(`Unexpected Error!`)
+					let resp
+					switch (r[0].type) {
+						case "eth_signTransaction":
+							resp = r[0].encodedTX
+							break
+						default:
+							throw new Error(`Unsupported response type: ${r[0].type}.`)
 					}
-					wcGlobal.respond(request, signedTXs[0])
+					wcGlobal.respond(request, resp)
 				}
 			}
 		)

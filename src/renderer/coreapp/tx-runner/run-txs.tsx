@@ -1,9 +1,8 @@
 import log from 'electron-log'
-import { CeloTxReceipt, EncodedTransaction } from '@celo/connect'
 
-import { TXFinishFunc, TXFunc } from '../../components/app-definition'
+import { SignatureResponse, TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { EstimatedFee, estimateGas } from './fee-estimation'
-import { ParsedTransaction, parseTransaction } from './transaction-parser'
+import { ParsedSignatureRequest, parseSignatureRequest } from './transaction-parser'
 import { rootAccount, Wallet } from './wallet'
 import { CFG, explorerRootURL } from '../../../lib/cfg'
 import { spectronChainId } from '../../../lib/spectron-utils/constants'
@@ -27,6 +26,7 @@ import TransactionInfo from './transaction-info'
 import PromptLedgerAction from './prompt-ledger-action'
 import Link from '../../components/link'
 import { runWithInterval } from '../../../lib/interval'
+import BigNumber from 'bignumber.js'
 
 export class TXCancelled extends Error {
 	constructor() { super('Cancelled') }
@@ -58,8 +58,8 @@ const RunTXs = (props: {
 	onFinish: TXFinishFunc,
 }): JSX.Element => {
 	const classes = useStyles()
-	const [preparedTXs, setPreparedTXs] = React.useState<ParsedTransaction[]>([])
-	const [currentTX, setCurrentTX] = React.useState<{
+	const [preparedReqs, setPreparedReqs] = React.useState<ParsedSignatureRequest[]>([])
+	const [currentReq, setCurrentReq] = React.useState<{
 		idx: number,
 		estimatedFee: EstimatedFee,
 		confirm: () => void,
@@ -70,7 +70,7 @@ const RunTXs = (props: {
 		"confirming" |
 		"sending"    |
 		"finishing">("preparing")
-	const [txSendMS, setTXSendMS] = React.useState(0)
+	const [reqSendMS, setReqSendMS] = React.useState(0)
 
 	const txFunc = props.txFunc
 	const onFinish = props.onFinish
@@ -79,8 +79,7 @@ const RunTXs = (props: {
 	React.useEffect(() => {
 		(async () => {
 			let onFinishErr: Error | undefined
-			let onFinishReceipts: CeloTxReceipt[] | undefined
-			let onFinishSignedTXs: EncodedTransaction[] | undefined
+			const r: SignatureResponse[] = []
 			try {
 				const cfg = CFG()
 				if (cfg.chainId !== spectronChainId) {
@@ -102,35 +101,49 @@ const RunTXs = (props: {
 							`Unexpected ChainId. Expected: ${cfg.chainId}, Got: ${chainId}. ` +
 							`Refusing to run transactions.`)
 					}
-					const txs = await txFunc(kit)
-					if (txs.length === 0) {
-						throw new Error(`No transactions to run.`)
+					const reqs = await txFunc(kit)
+					if (reqs.length === 0) {
+						throw new Error(`No requests to sign or run.`)
 					}
-					const parsedTXs: ParsedTransaction[] = []
-					for (const tx of txs) {
-						const parsedTX = await parseTransaction(kit, tx)
-						parsedTXs.push(parsedTX)
+					const parsedReqs: ParsedSignatureRequest[] = []
+					for (const req of reqs) {
+						const parsedReq = await parseSignatureRequest(kit, req)
+						parsedReqs.push(parsedReq)
 					}
-					setPreparedTXs(parsedTXs)
+					setPreparedReqs(parsedReqs)
 
-					const receipts: CeloTxReceipt[] = []
-					const signedTXs: EncodedTransaction[] = []
-					for (let idx = 0; idx < txs.length; idx += 1) {
-						let tx = txs[idx]
-						if (w.transformTX) {
-							tx = await w.transformTX(kit, tx)
+					for (let idx = 0; idx < reqs.length; idx += 1) {
+						let req = reqs[idx]
+						if (w.transformReq) {
+							req = await w.transformReq(kit, req)
 						}
-						const estimatedGas = await estimateGas(kit, tx)
-						// TODO(zviadm): Add support for other fee currencies.
-						const gasPrice = await kit.connection.gasPrice()
-						const estimatedFee = {
-							estimatedGas,
-							feeCurrency: "CELO",
-							estimatedFee: estimatedGas.multipliedBy(gasPrice).shiftedBy(-coreErc20Decimals),
+						let estimatedGas: BigNumber
+						let estimatedFee: EstimatedFee
+						switch (req.type) {
+							case undefined: {
+								estimatedGas = await estimateGas(kit, req)
+								// TODO(zviadm): Add support for other fee currencies.
+								const gasPrice = await kit.connection.gasPrice()
+								estimatedFee = {
+									estimatedGas,
+									feeCurrency: "CELO",
+									estimatedFee: estimatedGas.multipliedBy(gasPrice).shiftedBy(-coreErc20Decimals),
+								}
+								break
+							}
+							default: {
+								estimatedGas = new BigNumber(0)
+								estimatedFee = {
+									estimatedGas,
+									feeCurrency: "CELO",
+									estimatedFee: new BigNumber(0),
+								}
+							}
 						}
+
 
 						const txPromise = new Promise<void>((resolve, reject) => {
-							setCurrentTX({
+							setCurrentReq({
 								idx: idx,
 								estimatedFee: estimatedFee,
 								confirm: () => {
@@ -143,82 +156,88 @@ const RunTXs = (props: {
 								}
 							})
 						})
-						log.info(`TX:`, parsedTXs[idx])
+						log.info(`REQ:`, req)
 
-						setTXSendMS(0)
-						setTXProgress(0)
+						setReqSendMS(0)
+						setReqProgress(0)
 						setStage("confirming")
 						if (executingAccount.type === "local") {
 							// Only need to show confirmation dialog for Local accounts.
 							await txPromise
 							setStage("sending")
-							setTXSendMS(nowMS())
+							setReqSendMS(nowMS())
 						}
-						if (tx.tx === "eth_signTransaction" || tx.tx === "eth_sendTransaction") {
-							if (!tx.params) {
-								throw new Error(`${tx.tx}: Params must be provided to sign a transaction.`)
-							}
-							if (tx.params.chainId?.toString() !== cfg.chainId) {
-								throw new Error(
-									`Unexpected ChainId. Expected: ${cfg.chainId}, Got: ${tx.params.chainId}. ` +
-									`Refusing to ${tx.tx}.`)
-							}
-						}
-						if (tx.tx === "eth_signTransaction") {
-							const signedTX = await w.wallet.signTransaction({...tx.params})
-							signedTXs.push(signedTX)
-						} else {
-							let result
-							if (tx.tx === "eth_sendTransaction") {
-								result = await kit.sendTransaction({...tx.params})
-							} else {
-								result = await tx.tx.send({
-									...tx.params,
-									// perf improvement, avoid re-estimating gas again.
-									gas: estimatedGas.toNumber(),
-								})
-							}
-							let txHash
-							try {
-								txHash = await result.getHash()
-							} catch (e) {
-								if ((e as Error)?.message?.includes("already known") ||
-									(e as Error)?.message?.includes("nonce too low")) {
-									throw new Error(
-										`Transaction was aborted due to a potential conflict with another concurrent transaction. ${e}.`)
-								}
-								if ((e as Error)?.message?.includes("Invalid JSON RPC response")) {
-									throw new Error(
-										`Timed out while trying to send the transaction. ` +
-										`Transaction might have been sent and might get processed anyways. ` +
-										`Wait a bit before retrying to avoid performing your transaction twice.`)
-								}
-								if ((e as Error)?.message?.includes("Ledger device:")) {
-									throw e
-								}
-								throw new Error(
-									`Unexpected error occured while trying to send the transaction. ` +
-									`Transaction might have been sent and might get processed anyways. ${e}.`)
-							}
-							log.info(`TX-HASH:`, txHash)
-							// TODO(zviadm): For non-local wallets need to somehow intercept when signing is complete.
-							if (executingAccount.type !== "local") {
-								setStage("sending")
-								setTXSendMS(nowMS())
-							}
 
-							const receipt = await result.waitReceipt()
-							setTXProgress(100)
-							log.info(`TX-RECEIPT:`, receipt)
-							receipts.push(receipt)
+						switch (req.type) {
+							case undefined: {
+								if (req.tx === "eth_signTransaction" || req.tx === "eth_sendTransaction") {
+									if (!req.params) {
+										throw new Error(`${req.tx}: Params must be provided to sign a transaction.`)
+									}
+									if (req.params.chainId?.toString() !== cfg.chainId) {
+										throw new Error(
+											`Unexpected ChainId. Expected: ${cfg.chainId}, Got: ${req.params.chainId}. ` +
+											`Refusing to ${req.tx}.`)
+									}
+								}
+								if (req.tx === "eth_signTransaction") {
+									const encodedTX = await w.wallet.signTransaction({...req.params})
+									r.push({type: "eth_signTransaction", encodedTX})
+								} else {
+									let result
+									if (req.tx === "eth_sendTransaction") {
+										result = await kit.sendTransaction({...req.params})
+									} else {
+										result = await req.tx.send({
+											...req.params,
+											// perf improvement, avoid re-estimating gas again.
+											gas: estimatedGas.toNumber(),
+										})
+									}
+									let txHash
+									try {
+										txHash = await result.getHash()
+									} catch (e) {
+										if ((e as Error)?.message?.includes("already known") ||
+											(e as Error)?.message?.includes("nonce too low")) {
+											throw new Error(
+												`Transaction was aborted due to a potential conflict with another concurrent transaction. ${e}.`)
+										}
+										if ((e as Error)?.message?.includes("Invalid JSON RPC response")) {
+											throw new Error(
+												`Timed out while trying to send the transaction. ` +
+												`Transaction might have been sent and might get processed anyways. ` +
+												`Wait a bit before retrying to avoid performing your transaction twice.`)
+										}
+										if ((e as Error)?.message?.includes("Ledger device:")) {
+											throw e
+										}
+										throw new Error(
+											`Unexpected error occured while trying to send the transaction. ` +
+											`Transaction might have been sent and might get processed anyways. ${e}.`)
+									}
+									log.info(`TX-HASH:`, txHash)
+									// TODO(zviadm): For non-local wallets need to somehow intercept when signing is complete.
+									if (executingAccount.type !== "local") {
+										setStage("sending")
+										setReqSendMS(nowMS())
+									}
+									const receipt = await result.waitReceipt()
+									setReqProgress(100)
+									log.info(`TX-RECEIPT:`, receipt)
+									r.push({type: "eth_sendTransaction", receipt})
+								}
+								break
+							}
+							case "signPersonal": {
+								throw new Error("not implemented!")
+							}
 						}
 					}
 					setStage("finishing")
 					// Wait a bit after final TX so that it is more likely that blockchain state
 					// is now updated in most of the full nodes.
 					await sleep(500)
-					onFinishReceipts = receipts
-					onFinishSignedTXs = signedTXs
 				} finally {
 					kit.stop()
 					if (w.transport) {
@@ -228,14 +247,14 @@ const RunTXs = (props: {
 			} catch (e) {
 				onFinishErr = transformError(e as Error)
 			} finally {
-				onFinish(onFinishErr, onFinishReceipts, onFinishSignedTXs)
+				onFinish(onFinishErr, r)
 			}
 		})()
 	// NOTE: This effect is expected to run only once on first render and it is expected
 	// that parent will unmount the component once it calls onFinish.
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
-	const [txProgress, setTXProgress] = React.useState(0)
+	const [reqProgress, setReqProgress] = React.useState(0)
 	React.useEffect(() => {
 		if (stage !== "sending") {
 			return
@@ -244,12 +263,12 @@ const RunTXs = (props: {
 			"coreapp-tx-progress",
 			async () => {
 				const progress = (
-					txSendMS === 0 ? 0 : Math.min(99, (nowMS() - txSendMS) / 5000 * 100.0))
-				setTXProgress((txProgress) => Math.max(progress, txProgress))
+					reqSendMS === 0 ? 0 : Math.min(99, (nowMS() - reqSendMS) / 5000 * 100.0))
+				setReqProgress((reqProgress) => Math.max(progress, reqProgress))
 			},
 			200)
 		return cancel
-	}, [stage, txSendMS]);
+	}, [stage, reqSendMS]);
 	return (
 		<Dialog
 			id="tx-runner-modal"
@@ -257,32 +276,32 @@ const RunTXs = (props: {
 			<DialogContent className={classes.root}>
 				<Box display="flex" flexDirection="column">
 					{
-					stage === "preparing" || !currentTX ?
+					stage === "preparing" || !currentReq ?
 					<>
-						<Typography className={classes.progressText}>Preparing transactions...</Typography>
+						<Typography className={classes.progressText}>Preparing requests...</Typography>
 						<LinearProgress color="primary" />
 					</>
 					:
 					<>
 						<Paper>
 							<List dense={true}>
-								{preparedTXs.map((tx, idx) => (
+								{preparedReqs.map((req, idx) => (
 									<ListItem key={`${idx}`}>
 										<ListItemIcon>
 											{
-											(idx < currentTX.idx || stage === "finishing") ?
+											(idx < currentReq.idx || stage === "finishing") ?
 											<CheckCircle /> :
-											(idx === currentTX.idx) ? <Send /> : <></>
+											(idx === currentReq.idx) ? <Send /> : <></>
 											}
 										</ListItemIcon>
 										<ListItemText
 											primary={<Typography className={classes.address}>
 											Contract: {
-												preparedTXs[idx].contractAddress ?
-													<Link href={`${explorerRootURL()}/address/${preparedTXs[idx].contractAddress}`}>
-														{preparedTXs[idx].contractName}
+												preparedReqs[idx].contractAddress ?
+													<Link href={`${explorerRootURL()}/address/${preparedReqs[idx].contractAddress}`}>
+														{preparedReqs[idx].contractName}
 													</Link> :
-													preparedTXs[idx].contractName
+													preparedReqs[idx].contractName
 											}
 											</Typography>}
 										/>
@@ -291,14 +310,14 @@ const RunTXs = (props: {
 							</List>
 						</Paper>
 						<Box marginTop={1}>
-							<TransactionInfo tx={preparedTXs[currentTX.idx]} fee={currentTX.estimatedFee} />
+							<TransactionInfo tx={preparedReqs[currentReq.idx]} fee={currentReq.estimatedFee} />
 						</Box>
 						<Box marginTop={1}>
 							<LinearProgress
 								style={{visibility: stage === "confirming" ? "hidden" : undefined}}
 								color="primary"
 								variant="determinate"
-								value={txProgress}
+								value={reqProgress}
 								/>
 						</Box>
 					</>
@@ -313,11 +332,11 @@ const RunTXs = (props: {
 				<>
 					<Button
 						id="cancel-tx"
-						onClick={currentTX?.cancel}
+						onClick={currentReq?.cancel}
 						disabled={stage !== "confirming"}>Cancel</Button>
 					<Button
 						id="confirm-tx"
-						onClick={currentTX?.confirm}
+						onClick={currentReq?.confirm}
 						disabled={stage !== "confirming"}>Confirm</Button>
 				</>
 				}

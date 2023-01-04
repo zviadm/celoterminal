@@ -62,8 +62,11 @@ const CreateMultiSigAccount = (props: {
 			if (e || !r) {
 				return
 			}
-			const proxyAddress = r[0].contractAddress
-			const multiSigAddress = r[1].contractAddress
+			if (r[0].type !== "eth_sendTransaction" || r[1].type !== "eth_sendTransaction") {
+				throw new Error(`Unexpected response types for MultiSig deploy transactions.`)
+			}
+			const proxyAddress = r[0].receipt.contractAddress
+			const multiSigAddress = r[1].receipt.contractAddress
 			if (!proxyAddress || !multiSigAddress) {
 				throw new Error(`Unexpected error while deploying MultiSig contracts.`)
 			}
