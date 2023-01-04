@@ -87,7 +87,13 @@ const WalletConnectApp = (props: {
 		setInProgress(true)
 		runTXs(
 			async () => {
-				return [{tx: request.request.method, params: request.request.params}]
+				switch (request.request.method) {
+					case "eth_signTransaction":
+					case "eth_sendTransaction":
+						return [{tx: request.request.method, params: request.request.params}]
+					case "eth_signPersonal":
+						return [{type: "signPersonal", params: request.request.params}]
+				}
 			},
 			(e?: Error, r?: SignatureResponse[]) => {
 				setInProgress(false)
@@ -109,11 +115,9 @@ const WalletConnectApp = (props: {
 						case "eth_sendTransaction":
 							requestQueueGlobal().approve(request, r[0].receipt.transactionHash)
 							break
-						default: {
-							const errMsg = `Unexpected response type while performing ${request.request.method}: ${r[0].type}!`
-							requestQueueGlobal().reject(request, {code: -32000, message: errMsg})
-							throw new Error(errMsg)
-						}
+						case "eth_signPersonal":
+							requestQueueGlobal().approve(request, r[0].encodedData)
+							break
 					}
 				}
 			}

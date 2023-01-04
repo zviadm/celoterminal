@@ -21,7 +21,14 @@ export interface EthSignTransaction extends BaseRequest {
 	method: "eth_signTransaction"
 	params?: CeloTx,
 }
-export type RequestPayload = EthSendTransaction | EthSignTransaction
+export interface EthSignPersonal extends BaseRequest {
+	method: "eth_signPersonal"
+	params: {
+		from: string
+		data: string
+	}
+}
+export type RequestPayload = EthSendTransaction | EthSignTransaction | EthSignPersonal
 
 export interface IJsonRpcErrorMessage {
 	code?: number

@@ -67,6 +67,19 @@ export class WCV1 implements ISession {
 				)
 				break
 			}
+			case "personal_sign": {
+				requestQueueGlobal().pushRequest(
+					new WCV1Request(wc, {
+						id: payload.id,
+						method: "eth_signPersonal",
+						params: {
+							data: payload.params[0] as string,
+							from: payload.params[1] as string,
+						}
+					})
+				)
+				break
+			}
 			default:
 				wc.rejectRequest({
 					id: payload.id,

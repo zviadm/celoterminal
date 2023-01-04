@@ -17,6 +17,10 @@ const SignatureRequestTitle = (props: {
 					props.req.contractName
 			}
 		</> :
+		props.req.type === "signPersonal" ?
+		<>
+			SignPersonal: {(props.req.dataAsText || props.req.data).substring(0, 20)}...
+		</> :
 		<></>
 }
 

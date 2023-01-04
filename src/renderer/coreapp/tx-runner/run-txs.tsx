@@ -228,7 +228,7 @@ const RunTXs = (props: {
 								break
 							}
 							case "signPersonal": {
-								const encodedData = await w.wallet.signPersonalMessage(req.address, req.data)
+								const encodedData = await w.wallet.signPersonalMessage(req.params.from, req.params.data)
 								r.push({type: "eth_signPersonal", encodedData})
 								break
 							}

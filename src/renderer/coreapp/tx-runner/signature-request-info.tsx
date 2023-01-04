@@ -27,7 +27,7 @@ const SignatureRequestInfo = (props: {
 		""
 	const infoShort =
 		props.req.type === "transaction" ? props.req.contractName :
-		props.req.type === "signPersonal" ? `DATA: ${props.req.data.substring(0, 10)}...` :
+		props.req.type === "signPersonal" ? `DATA: ${(props.req.dataAsText || props.req.data).substring(0, 20)}...` :
 		""
 	const infoExpanded =
 		props.req.type === "transaction" ?
@@ -61,7 +61,7 @@ const SignatureRequestInfo = (props: {
 					colSpan={2}
 					style={{
 						fontFamily: "monospace",
-						overflowWrap: "anywhere"}}>{props.req.data}</TableCell>
+						overflowWrap: "anywhere"}}>{props.req.dataAsText || props.req.data}</TableCell>
 			</TableRow> :
 		""
 

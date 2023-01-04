@@ -14,8 +14,10 @@ export interface Transaction {
 
 export interface SignPersonal {
 	type: "signPersonal"
-	address: Address
-	data: string
+	params: {
+		from: Address
+		data: string
+	}
 }
 
 export type SignatureRequest = (Transaction | SignPersonal) & {
