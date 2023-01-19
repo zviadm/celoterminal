@@ -1,4 +1,5 @@
 import * as ubeswapTokenList from "@ubeswap/default-token-list/ubeswap.token-list.json"
+import * as celoTokenList from "./celo.tokenlist.json"
 
 import { ConversionFunc, coreErc20s } from "./core"
 import { convertSCELO } from "./conversions/savingscelo"
@@ -49,18 +50,33 @@ const _erc20Registry: RegisteredERC20[] = [
 ]
 
 export const erc20Registry: RegisteredERC20[] = (() => {
-	const ubeswapErc20s = ubeswapTokenList.tokens.filter((t) =>
-		t.chainId === 42220 &&
-		!_erc20Registry.find((r) => r.addresses.mainnet === t.address) &&
-		!coreErc20s.find((r) => r.symbol === t.symbol)
-		)
-		.map((t) => ({
+	const setOfAddrs = new Set<string>()
+	_erc20Registry.forEach((r) => {
+		if (r.addresses.mainnet) {
+			setOfAddrs.add(r.addresses.mainnet)
+		}
+	})
+
+	const tokensAll = [
+		...celoTokenList.tokens,
+		...ubeswapTokenList.tokens,
+	]
+	const erc20s: RegisteredERC20[] = []
+	tokensAll.forEach((t) => {
+		if (t.chainId !== 42220 ||
+			setOfAddrs.has(t.address) ||
+			coreErc20s.find((r) => r.symbol === t.symbol)) {
+			return
+		}
+		setOfAddrs.add(t.address)
+		erc20s.push({
 			name: t.name,
 			symbol: t.symbol,
 			decimals: t.decimals,
 			addresses: {
 				mainnet: t.address,
 			}
-		}))
-	return [..._erc20Registry, ...ubeswapErc20s]
+		})
+	})
+	return [..._erc20Registry, ...erc20s]
 })()
