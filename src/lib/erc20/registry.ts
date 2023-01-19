@@ -1,9 +1,12 @@
 import * as ubeswapTokenList from "@ubeswap/default-token-list/ubeswap.token-list.json"
+import * as celoTokenList from "./celo.tokenlist.json"
 
 import { ConversionFunc, coreErc20s } from "./core"
 import { convertSCELO } from "./conversions/savingscelo"
 
 import { SavingsCELOAddressAlfajores, SavingsCELOAddressBaklava } from "savingscelo"
+import { ensureLeading0x } from "@celo/base"
+import { toChecksumAddress } from "@celo/utils/lib/address"
 
 interface RegisteredERC20 {
 	name: string,
@@ -49,18 +52,43 @@ const _erc20Registry: RegisteredERC20[] = [
 ]
 
 export const erc20Registry: RegisteredERC20[] = (() => {
-	const ubeswapErc20s = ubeswapTokenList.tokens.filter((t) =>
-		t.chainId === 42220 &&
-		!_erc20Registry.find((r) => r.addresses.mainnet === t.address) &&
-		!coreErc20s.find((r) => r.symbol === t.symbol)
-		)
-		.map((t) => ({
+	const setOfAddrs = new Set<string>()
+	const setOfSymbols = new Set<string>()
+	_erc20Registry.forEach((r) => {
+		if (r.addresses.mainnet) {
+			setOfAddrs.add(r.addresses.mainnet)
+		}
+		setOfSymbols.add(r.symbol)
+	})
+	coreErc20s.forEach((r) => setOfSymbols.add(r.symbol))
+
+	const tokensAll = [
+		...celoTokenList.tokens,
+		...ubeswapTokenList.tokens,
+	]
+	const erc20s: RegisteredERC20[] = []
+	tokensAll.forEach((t) => {
+		const address = ensureLeading0x(toChecksumAddress(t.address))
+		if (t.chainId !== 42220 ||
+			setOfAddrs.has(address) ||
+			coreErc20s.find((r) => r.symbol === t.symbol)) {
+			return
+		}
+		setOfAddrs.add(t.address)
+		let symbol = t.symbol
+		while (setOfSymbols.has(symbol)) {
+			console.info(`REGISTRY: symbol conflict: ${symbol}`)
+			symbol = symbol + " "
+		}
+		setOfSymbols.add(symbol)
+		erc20s.push({
 			name: t.name,
-			symbol: t.symbol,
+			symbol: symbol,
 			decimals: t.decimals,
 			addresses: {
-				mainnet: t.address,
+				mainnet: address,
 			}
-		}))
-	return [..._erc20Registry, ...ubeswapErc20s]
+		})
+	})
+	return [..._erc20Registry, ...erc20s]
 })()

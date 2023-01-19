@@ -4948,12 +4948,7 @@
     "@typescript-eslint/types" "4.33.0"
     eslint-visitor-keys "^2.0.0"
 
-"@ubeswap/default-token-list@^4.0.10":
-  version "4.1.42"
-  resolved "https://registry.yarnpkg.com/@ubeswap/default-token-list/-/default-token-list-4.1.42.tgz#9917bf221a96d033032acc2fa0e66607f7efbc3c"
-  integrity sha512-GnbAZ5Qb33NG1/yPw8yHRKNfRre3UOKhTrlM4pop8hflxMeIWLyIbGJujeGZqUG77nvkBcQfrO8nlp3DV6qXoA==
-
-"@ubeswap/default-token-list@^4.0.11":
+"@ubeswap/default-token-list@^4.0.10", "@ubeswap/default-token-list@^4.0.11":
   version "4.1.57"
   resolved "https://registry.yarnpkg.com/@ubeswap/default-token-list/-/default-token-list-4.1.57.tgz#fcd343ea6cbd629ab02043fb8959d2cf3bbc59d7"
   integrity sha512-rPFsGh/8OpzlZ+td+5ohTcsXF+cyxTgl6OKspiWJL6C/HS3/ER2Eb6J2IZosz0oDj1XsXVlLNPE8Gfvzz/d80Q==
