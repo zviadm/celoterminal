@@ -53,11 +53,14 @@ const _erc20Registry: RegisteredERC20[] = [
 
 export const erc20Registry: RegisteredERC20[] = (() => {
 	const setOfAddrs = new Set<string>()
+	const setOfSymbols = new Set<string>()
 	_erc20Registry.forEach((r) => {
 		if (r.addresses.mainnet) {
 			setOfAddrs.add(r.addresses.mainnet)
 		}
+		setOfSymbols.add(r.symbol)
 	})
+	coreErc20s.forEach((r) => setOfSymbols.add(r.symbol))
 
 	const tokensAll = [
 		...celoTokenList.tokens,
@@ -72,9 +75,15 @@ export const erc20Registry: RegisteredERC20[] = (() => {
 			return
 		}
 		setOfAddrs.add(t.address)
+		let symbol = t.symbol
+		while (setOfSymbols.has(symbol)) {
+			console.info(`REGISTRY: symbol conflict: ${symbol}`)
+			symbol = symbol + " "
+		}
+		setOfSymbols.add(symbol)
 		erc20s.push({
 			name: t.name,
-			symbol: t.symbol,
+			symbol: symbol,
 			decimals: t.decimals,
 			addresses: {
 				mainnet: address,
