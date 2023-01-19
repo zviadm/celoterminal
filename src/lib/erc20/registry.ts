@@ -5,6 +5,8 @@ import { ConversionFunc, coreErc20s } from "./core"
 import { convertSCELO } from "./conversions/savingscelo"
 
 import { SavingsCELOAddressAlfajores, SavingsCELOAddressBaklava } from "savingscelo"
+import { ensureLeading0x } from "@celo/base"
+import { toChecksumAddress } from "@celo/utils/lib/address"
 
 interface RegisteredERC20 {
 	name: string,
@@ -63,8 +65,9 @@ export const erc20Registry: RegisteredERC20[] = (() => {
 	]
 	const erc20s: RegisteredERC20[] = []
 	tokensAll.forEach((t) => {
+		const address = ensureLeading0x(toChecksumAddress(t.address))
 		if (t.chainId !== 42220 ||
-			setOfAddrs.has(t.address) ||
+			setOfAddrs.has(address) ||
 			coreErc20s.find((r) => r.symbol === t.symbol)) {
 			return
 		}
@@ -74,7 +77,7 @@ export const erc20Registry: RegisteredERC20[] = (() => {
 			symbol: t.symbol,
 			decimals: t.decimals,
 			addresses: {
-				mainnet: t.address,
+				mainnet: address,
 			}
 		})
 	})
