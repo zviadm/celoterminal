@@ -144,10 +144,10 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 				// Fallback #2 to check if contract is verified on celo explorer.
 				const resp = await explorerCliFB().get<{
 						message: string,
-						result: AbiItem[],
+						result: string,
 					}>(`/api?module=contract&action=getabi&address=${contractAddress}`)
 				if (resp.data.message.toLowerCase() === "ok") {
-					abi = resp.data.result
+					abi = JSON.parse(resp.data.result) as AbiItem[]
 				} else {
 					log.warn(`explorer: ${contractAddress} not found ${resp.data.message}`)
 				}
