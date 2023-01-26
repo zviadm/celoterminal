@@ -42,6 +42,17 @@ const explorerCli = () => {
 	return _explorerClient
 }
 
+let _explorerClientFB: AxiosInstance
+const explorerCliFB = () => {
+	if (!_explorerClientFB) {
+		_explorerClientFB = axios.create({
+			baseURL: `https://explorer.celo.org/mainnet`,
+			timeout: 3000,
+		})
+	}
+	return _explorerClientFB
+}
+
 export interface ContractABI {
 	// User readable verifiedName is only available for contracts that are somehow verified to
 	// be authentic. This is different from source verification, because same source code can
@@ -112,7 +123,7 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 				break
 			}
 			if (abi === undefined) {
-				// Fallback to checking if contract is verified on celoscan.
+				// Fallback #1 to check if contract is verified on celoscan.
 				// NOTE: celoscan API key is hardcoded here but this is a non issue since this API key
 				// is only used for rate limiting.
 				const resp = await explorerCli().get<{
@@ -123,6 +134,18 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 					abi = JSON.parse(resp.data.result) as AbiItem[]
 				} else {
 					log.warn(`celoscan: ${contractAddress} not found ${resp.data.message}`)
+				}
+			}
+			if (abi === undefined) {
+				// Fallback #2 to check if contract is verified on celo explorer.
+				const resp = await explorerCliFB().get<{
+						message: string,
+						result: string,
+					}>(`/api?module=contract&action=getabi&address=${contractAddress}`)
+				if (resp.data.message.toLowerCase() === "ok") {
+					abi = JSON.parse(resp.data.result) as AbiItem[]
+				} else {
+					log.warn(`explorer: ${contractAddress} not found ${resp.data.message}`)
 				}
 			}
 			if (abi === undefined) {
