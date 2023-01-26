@@ -48,10 +48,6 @@ const explorerCliFB = () => {
 		_explorerClientFB = axios.create({
 			baseURL: `https://explorer.celo.org/mainnet`,
 			timeout: 3000,
-			// headers: {
-			// 	'Access-Control-Allow-Origin': '*',
-			// 	'Content-Type': 'application/json',
-			// },
 		})
 	}
 	return _explorerClientFB
