@@ -147,9 +147,9 @@ const LockerApp = (props: {
 		toLock !== "" && fetched && fetched.isAccount &&
 		toLockWEI.gt(0) && fetched.totalCELO.gte(toLockWEI))
 	// TODO(zviadm): only keep extra CELO if current feeCurrency is set as CELO.
-	// Keep at least 0.0001 CELO unlocked to avoid running out of Gas completely.
+	// Keep at least 0.01 CELO unlocked to avoid running out of Gas completely.
 	const maxToLock = fetched?.totalCELO && BigNumber.maximum(
-		fetched.totalCELO.shiftedBy(-coreErc20Decimals).minus(0.0001), 0)
+		fetched.totalCELO.shiftedBy(-coreErc20Decimals).minus(0.01), 0)
 	return (
 		<AppContainer>
 			<AppHeader app={Locker} isFetching={isFetching} refetch={refetch} />
