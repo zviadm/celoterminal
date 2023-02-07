@@ -82,7 +82,16 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 	let r
 	if (proxy) {
 		const proxyWeb3Contract = new kit.web3.eth.Contract(proxy.abi, contractAddress)
-		const implAddress = await proxyWeb3Contract.methods[proxy.implementationMethod]().call()
+		let implAddress
+		switch (proxy.implementation.type) {
+			case "method":
+				implAddress = await proxyWeb3Contract.methods[proxy.implementation.method]().call()
+				break
+			case "storage-slot":
+				implAddress = await kit.web3.eth.getStorageAt(contractAddress, proxy.implementation.address)
+				implAddress = "0x"+implAddress.substring(implAddress.length - 40)
+				break
+		}
 		const abi = [...proxy.abi]
 		let verifiedName = await verifiedContractName(kit, contractAddress)
 		if (implAddress !== "0x0000000000000000000000000000000000000000") {
