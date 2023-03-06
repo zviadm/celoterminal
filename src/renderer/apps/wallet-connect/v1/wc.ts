@@ -1,7 +1,7 @@
 import log from 'electron-log'
 import { CeloTx } from '@celo/connect'
 import WalletConnect from 'wcv1/client'
-import SessionStorage from "@walletconnect/core/dist/esm/storage"
+import SessionStorage from "wcv1/client/node_modules/@walletconnect/core/dist/esm/storage"
 
 import { CFG } from '../../../../lib/cfg'
 import { IJsonRpcErrorMessage, RequestPayload, requestQueueGlobal, WCRequest } from '../request-queue'
