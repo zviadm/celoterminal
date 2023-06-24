@@ -2,6 +2,16 @@ import { Account } from '../../../lib/accounts/accounts'
 import { SignatureResponse, TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { WalletConnect } from './def'
 
+import WCSession from './wc-session'
+import { runWithInterval } from '../../../lib/interval'
+import { ISession } from './session'
+import { requestQueueGlobal } from './request-queue'
+
+import EstablishSessionV1 from './v1/establish-session'
+import EstablishSessionV2 from './v2/establish-session'
+
+import { parseUri } from '@walletconnect/utils'
+
 import * as React from 'react'
 import {
 	Button, List, TextField,
@@ -14,12 +24,6 @@ import AppHeader from '../../components/app-header'
 import AppSection from '../../components/app-section'
 import AppContainer from '../../components/app-container'
 import SectionTitle from '../../components/section-title'
-import WCSession from './wc-session'
-import { runWithInterval } from '../../../lib/interval'
-import { ISession } from './session'
-import { requestQueueGlobal } from './request-queue'
-
-import EstablishSessionV1 from './v1/establish-session'
 
 if (module.hot) {
 	module.hot.decline()
@@ -126,6 +130,7 @@ const WalletConnectApp = (props: {
 
 	const [connectURI, setConnectURI] = React.useState("")
 	const [toApproveURI, setToApproveURI] = React.useState("")
+	const parsedURI = parseUri(toApproveURI)
 
 	const refreshAfterEstablish = () => {
 		setConnectURI("")
@@ -154,8 +159,15 @@ const WalletConnectApp = (props: {
 	return (
 		<AppContainer>
 			<AppHeader app={WalletConnect} />
-			{toApproveURI !== "" &&
+			{parsedURI.version === 1 &&
 			<EstablishSessionV1
+				uri={toApproveURI}
+				account={props.selectedAccount}
+				onCancel={refreshAfterEstablish}
+				onApprove={handleApprove}
+			/>}
+			{parsedURI.version === 2 &&
+			<EstablishSessionV2
 				uri={toApproveURI}
 				account={props.selectedAccount}
 				onCancel={refreshAfterEstablish}

@@ -1,20 +1,20 @@
 import * as log from 'electron-log'
 import { Web3Wallet, IWeb3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
-import { SessionTypes } from '@walletconnect/types'
 import { Core } from "@walletconnect/core";
 import { Lock } from '@celo/base/lib/lock'
 
 import { CFG } from '../../../../lib/cfg'
-import { Account } from '../../../../lib/accounts/accounts'
-import { sleep } from '../../../../lib/utils'
 import { showWindowAndFocus } from '../../../electron-utils'
+import { SessionTypes } from '@walletconnect/types';
+import { ISession, SessionMetadata } from '../session';
+import { getSdkError } from '@walletconnect/utils';
 
 if (module.hot) {
 	module.hot.decline()
 }
 
 const core = new Core({
-  projectId: process.env.PROJECT_ID,
+  projectId: "9e9a1a2420615978dc2409e90543aef9",
 });
 
 export interface ErrorResponse {
@@ -58,36 +58,6 @@ export class WalletConnectGlobal {
 		return this._wc
 	}
 
-	public resetStorage = async (afterMX?: () => void): Promise<void> => {
-		await this.wcMX.acquire()
-		try {
-			if (afterMX) { afterMX() }
-			if (this._wc) {
-				this._wc.off("session_request", this.onRequest)
-				const _wc = this._wc
-				const disconnectSessions = this._wc.session.values.map(
-					(session) => _wc.disconnect({topic: session.topic, reason: ERROR.USER_DISCONNECTED.format()}))
-				const deletePairings = this._wc.pairing.values.map(
-					(pairing) => _wc.pairing.delete({topic: pairing.topic, reason: ERROR.USER_DISCONNECTED.format()}))
-				await Promise.race([Promise.all([...disconnectSessions, ...deletePairings]), sleep(1000)])
-				this._wc.relayer.provider.events.removeAllListeners()
-				await Promise.race([this._wc.relayer.provider.disconnect(), sleep(5000)])
-				this._wc.session.events.removeAllListeners()
-				this._wc = undefined
-				this.requests = []
-			}
-			const storage = new PrefixedStorage()
-			const storageKeys = await storage.getKeys()
-			log.info(`wallet-connect: clearing storage`, storageKeys)
-			for (const key of storageKeys) {
-				await storage.removeItem(key)
-			}
-			return
-		} finally {
-			this.wcMX.release()
-		}
-	}
-
 	public wc = (): IWeb3Wallet => {
 		if (!this._wc) {
 			throw new Error("WalletConnectGlobal not initialized!")
@@ -97,14 +67,6 @@ export class WalletConnectGlobal {
 
 	public wcMaybe = (): IWeb3Wallet | undefined => {
 		return this._wc
-	}
-
-	public approve = async (
-		proposal: Web3WalletTypes.SessionProposal,
-		accounts: Account[]): Promise<SessionTypes.Struct> => {
-		const chainId = `eip155:${CFG().chainId}`
-		const settled = await this.wc().approveSession({id: proposal.id})
-		return settled
 	}
 
 	private onRequest = (event: Web3WalletTypes.SessionRequest) => {
@@ -134,13 +96,13 @@ export class WalletConnectGlobal {
 	}
 
 	public respond = <T>(
-		r: SessionTypes.RequestEvent,
+		r: Web3WalletTypes.SessionRequest,
 		result: T): void => {
 		this.requestRM(r)
-		this.wc().respond({
+		this.wc().respondSessionRequest({
 			topic: r.topic,
 			response: {
-				id: r.request.id,
+				id: r.id,
 				jsonrpc: '2.0',
 				result: result,
 			}
@@ -148,20 +110,20 @@ export class WalletConnectGlobal {
 	}
 
 	public reject = (
-		r: SessionTypes.RequestEvent,
+		r: Web3WalletTypes.SessionRequest,
 		error: ErrorResponse): void => {
 		this.requestRM(r)
-		this.wc().respond({
+		this.wc().respondSessionRequest({
 			topic: r.topic,
 			response: {
-				id: r.request.id,
+				id: r.id,
 				jsonrpc: '2.0',
 				error: error,
 			}
 		})
 	}
 
-	private requestRM(r: SessionTypes.RequestEvent) {
+	private requestRM(r: Web3WalletTypes.SessionRequest) {
 		const idx = this.requests.indexOf(r)
 		if (idx >= 0) {
 			this.requests.splice(idx, 1)
@@ -172,7 +134,27 @@ export class WalletConnectGlobal {
 		if (!this._wc) { this.init() }
 		return this.requests.length
 	}
+}
 
+export class SessionWrapper implements ISession {
+	constructor(private session: SessionTypes.Struct) {}
+
+	isConnected = (): boolean => {
+		return true
+	}
+
+	disconnect = (): void => {
+		wcGlobal.wc().disconnectSession({topic: this.session.topic, reason: getSdkError("USER_DISCONNECTED")})
+	}
+
+	metadata = (): SessionMetadata => {
+		const accounts = this.session.namespaces[this.session.topic].accounts
+		return {
+			...this.session.self.metadata,
+			accounts,
+		}
+	}
 }
 
 export const wcGlobal = new WalletConnectGlobal()
+wcGlobal.init()
