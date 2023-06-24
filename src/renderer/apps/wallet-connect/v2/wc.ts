@@ -1,5 +1,5 @@
 import * as log from 'electron-log'
-import { Web3Wallet, IWeb3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
+import { IWeb3Wallet, Web3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
 import { Core } from "@walletconnect/core";
 import { Lock } from '@celo/base/lib/lock'
 
@@ -8,6 +8,7 @@ import { showWindowAndFocus } from '../../../electron-utils'
 import { SessionTypes } from '@walletconnect/types';
 import { ISession, SessionMetadata } from '../session';
 import { getSdkError } from '@walletconnect/utils';
+import { IJsonRpcErrorMessage, RequestPayload, WCRequest, requestQueueGlobal } from '../request-queue';
 
 if (module.hot) {
 	module.hot.decline()
@@ -24,8 +25,6 @@ export interface ErrorResponse {
 }
 
 export class WalletConnectGlobal {
-	public requests: Web3WalletTypes.SessionRequest[] = []
-
 	private _wc: IWeb3Wallet | undefined
 	private wcMX = new Lock()
 
@@ -43,8 +42,6 @@ export class WalletConnectGlobal {
 		if (this._wc) {
 			return this._wc
 		}
-		// const storage = new PrefixedStorage()
-		// log.info(`wallet-connect: initialized with Storage`, await storage.getKeys())
 		this._wc = await Web3Wallet.init({
 			core,
 			metadata: {
@@ -74,65 +71,58 @@ export class WalletConnectGlobal {
 		const chainId = `eip155:${CFG().chainId}`
 		if (event.params.chainId !== chainId) {
 			log.info(`wallet-connect: rejected request with invalid chainId`)
-			this.reject(event, {
-				code: -32000,
-				message: `Expected ChainId: ${chainId}, received: ${event.params.chainId}`,
+			this.wc().respondSessionRequest({
+				topic: event.topic,
+				response: {
+					id: event.id,
+					jsonrpc: "2.0",
+					error: {
+						code: -32000,
+						message: `Expected ChainId: ${chainId}, received: ${event.params.chainId}`,
+					}
+				}
 			})
 			return
 		}
 
 		switch (event.params.request.method) {
+		case "eth_sendTransaction":
 		case "eth_signTransaction":
-			this.requests.push(event)
+			requestQueueGlobal().pushRequest(
+				new WCV2Request(this.wc(), event.topic, {
+					id: event.id,
+					method: event.params.request.method,
+					params: event.params.request.params[0],
+				})
+			)
 			showWindowAndFocus()
+			break
+		case "personal_sign":
+			requestQueueGlobal().pushRequest(
+				new WCV2Request(this.wc(), event.topic, {
+					id: event.id,
+					method: "eth_signPersonal",
+					params: {
+						data: event.params.request.params[0] as string,
+						from: event.params.request.params[1] as string,
+					}
+				})
+			)
 			break
 		default:
 			log.info(`wallet-connect: rejected not supported request`)
-			this.reject(event, {
-				code: -32000,
-				message: `Celo Terminal does not support: ${event.params.request.method}`
+			this.wc().respondSessionRequest({
+				topic: event.topic,
+				response: {
+					id: event.id,
+					jsonrpc: "2.0",
+					error: {
+						code: -32000,
+						message: `Method: ${event.params.request.method} not supported!`,
+					}
+				}
 			})
 		}
-	}
-
-	public respond = <T>(
-		r: Web3WalletTypes.SessionRequest,
-		result: T): void => {
-		this.requestRM(r)
-		this.wc().respondSessionRequest({
-			topic: r.topic,
-			response: {
-				id: r.id,
-				jsonrpc: '2.0',
-				result: result,
-			}
-		})
-	}
-
-	public reject = (
-		r: Web3WalletTypes.SessionRequest,
-		error: ErrorResponse): void => {
-		this.requestRM(r)
-		this.wc().respondSessionRequest({
-			topic: r.topic,
-			response: {
-				id: r.id,
-				jsonrpc: '2.0',
-				error: error,
-			}
-		})
-	}
-
-	private requestRM(r: Web3WalletTypes.SessionRequest) {
-		const idx = this.requests.indexOf(r)
-		if (idx >= 0) {
-			this.requests.splice(idx, 1)
-		}
-	}
-
-	public notifyCount = (): number => {
-		if (!this._wc) { this.init() }
-		return this.requests.length
 	}
 }
 
@@ -140,15 +130,22 @@ export class SessionWrapper implements ISession {
 	constructor(private session: SessionTypes.Struct) {}
 
 	isConnected = (): boolean => {
-		return true
+		return !!wcGlobal.wc().getActiveSessions()[this.session.topic]
 	}
 
 	disconnect = (): void => {
-		wcGlobal.wc().disconnectSession({topic: this.session.topic, reason: getSdkError("USER_DISCONNECTED")})
+		if (!this.isConnected()) {
+			return
+		}
+		try {
+			wcGlobal.wc().disconnectSession({topic: this.session.topic, reason: getSdkError("USER_DISCONNECTED")})
+		} catch (e) {
+			console.warn(e)
+		}
 	}
 
 	metadata = (): SessionMetadata => {
-		const accounts = this.session.namespaces[this.session.topic].accounts
+		const accounts = this.session.namespaces.eip155.accounts.map((a) => a.split(":").pop() || a)
 		return {
 			...this.session.self.metadata,
 			accounts,
@@ -156,5 +153,40 @@ export class SessionWrapper implements ISession {
 	}
 }
 
+class WCV2Request implements WCRequest {
+	constructor(
+		private wc: IWeb3Wallet,
+		private topic: string,
+		public readonly request: RequestPayload) {
+	}
+
+	reject = (error?: IJsonRpcErrorMessage): void => {
+		this.wc.respondSessionRequest({
+			topic: this.topic,
+			response: {
+				id: this.request.id,
+				jsonrpc: '2.0',
+				error: error || getSdkError("USER_REJECTED"),
+			}
+		})
+	}
+
+	approve = (result: unknown): void => {
+		this.wc.respondSessionRequest({
+			topic: this.topic,
+			response: {
+				id: this.request.id,
+				jsonrpc: '2.0',
+				result: result,
+			}
+		})
+	}
+}
+
 export const wcGlobal = new WalletConnectGlobal()
 wcGlobal.init()
+
+export const initializeStoredSessions = (): SessionWrapper[] => {
+	const sessions = Object.values(wcGlobal.wc().getActiveSessions())
+	return sessions.map((s) => new SessionWrapper(s))
+}

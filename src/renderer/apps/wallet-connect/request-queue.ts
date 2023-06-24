@@ -4,6 +4,7 @@ import { ISession } from "./session"
 
 import { wipeFullStorage as wipeFullStorageV1 } from './v1/storage'
 import { initializeStoredSessions as initializeStoredSessionsV1 } from './v1/wc'
+import { initializeStoredSessions as initializeStoredSessionsV2 } from './v2/wc'
 
 if (module.hot) {
 	module.hot.decline()
@@ -31,7 +32,7 @@ export interface EthSignPersonal extends BaseRequest {
 export type RequestPayload = EthSendTransaction | EthSignTransaction | EthSignPersonal
 
 export interface IJsonRpcErrorMessage {
-	code?: number
+	code: number
 	message: string
 }
 
@@ -131,6 +132,7 @@ export const requestQueueGlobal = (): RequestQueue => {
 	if (!_requestQueueGlobal) {
 		const sessions = [
 			...initializeStoredSessionsV1(),
+			...initializeStoredSessionsV2(),
 		]
 		_requestQueueGlobal = new RequestQueue(sessions)
 	}

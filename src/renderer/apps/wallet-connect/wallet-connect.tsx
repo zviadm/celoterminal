@@ -66,6 +66,7 @@ const WalletConnectApp = (props: {
 	// Discard all requests that are sent for an incorrect/unknown accounts.
 	React.useEffect(() => {
 		for (const request of requests) {
+			console.info("RRR", request.request)
 			const from = request.request.params?.from?.toString().toLowerCase()
 			const match = accounts.find((a) => a.address.toLowerCase() === from)
 			if (!match) {

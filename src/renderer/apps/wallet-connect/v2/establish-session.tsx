@@ -4,7 +4,7 @@ import { Account } from '../../../../lib/accounts/accounts'
 import { CFG } from '../../../../lib/cfg'
 import { ISession } from '../session'
 import { UserError } from '../../../../lib/error'
-import { SessionWrapper, wcGlobal } from './client'
+import { SessionWrapper, wcGlobal } from './wc'
 
 import { buildApprovedNamespaces, getSdkError } from '@walletconnect/utils'
 import { ProposalTypes } from "@walletconnect/types";
@@ -63,27 +63,32 @@ const EstablishSession = (props: {
 			return
 		}
 		setApproving(true)
-		const chainId = `eip155:${CFG().chainId}`
-		const namespaces = buildApprovedNamespaces({
-			proposal: proposal.params,
-			supportedNamespaces: {
-				eip155: {
-					chains: [chainId],
-					methods: [`eth_signTransaction`],
-					events: [],
-					accounts: [`${chainId}:${props.account.address}`],
+		try {
+			const chainId = `eip155:${CFG().chainId}`
+			const namespaces = buildApprovedNamespaces({
+				proposal: proposal.params,
+				supportedNamespaces: {
+					eip155: {
+						chains: [chainId],
+						methods: ["eth_sendTransaction", "eth_signTransaction", "eth_sign", "personal_sign", "eth_signTypedData"],
+						events: ["chainChanged", "accountsChanged"],
+						accounts: [`${chainId}:${props.account.address}`],
+					}
 				}
-			}
-		})
-		wcGlobal.wc().approveSession({
-			id: proposal.id,
-			namespaces,
-		})
-		.then(session => props.onApprove(new SessionWrapper(session)))
-		.catch((e) => {
+			})
+			wcGlobal.wc().approveSession({
+				id: proposal.id,
+				namespaces,
+			})
+			.then(session => props.onApprove(new SessionWrapper(session)))
+			.catch((e) => {
+				onCancel()
+				throw new UserError(`WalletConnect Error: ${e}`)
+			})
+		} catch (e) {
 			onCancel()
 			setTimeout(() => { throw new UserError(`WalletConnect Error: ${e}`) })
-		})
+		}
 	}
 
 	const icon = proposal?.params.proposer.metadata.icons[0]
@@ -106,6 +111,11 @@ const EstablishSession = (props: {
 					<CardContent>
 						<Typography variant="body2" color="textSecondary" component="p">
 							{proposal.params.proposer.metadata.description}
+						</Typography>
+					</CardContent>
+					<CardContent>
+						<Typography variant="body2" color="textSecondary" component="p">
+							Namespaces: {JSON.stringify(proposal.params.requiredNamespaces, undefined, 2)}
 						</Typography>
 					</CardContent>
 				</Card>
