@@ -118,18 +118,19 @@ const PortfolioApp = (props: {
 					<TableBody>
 						{fetched && balances &&
 						erc20s.map((erc20) => {
+							const isCELO = erc20.symbol === "CELO" && !erc20.address
 							const balance = balances.get(erc20.address || erc20.symbol) || new BigNumber(0)
-							if (balance.eq(0)) {
+							if (balance.eq(0) && !isCELO) {
 								return <></>
 							}
 							const price = fetched.conversionRates.get(erc20.address || erc20.symbol)
 							const value = price && price.multipliedBy(balance).shiftedBy(-erc20.decimals)
-							const isCELO = erc20.symbol === "CELO" && !erc20.address
+							const displayLockedBalance = isCELO && lockedBalance.gt(0)
 							return (
 								<TableRow key={erc20.address || erc20.symbol}>
 									<TableCell>
 										{erc20.name}
-										{isCELO && <><br />Celo Locked</>}
+										{displayLockedBalance && <><br />Celo Locked</>}
 									</TableCell>
 									<TableCell align="right" padding="none">
 										{erc20.address &&
@@ -142,12 +143,12 @@ const PortfolioApp = (props: {
 									</TableCell>
 									<TableCell align="right" style={{whiteSpace: "nowrap"}}>
 										{fmtAmount(balance, erc20.decimals)} {erc20.symbol}
-										{isCELO && <><br />{fmtAmount(lockedBalance, erc20.decimals)} {erc20.symbol}</>}
+										{displayLockedBalance && <><br />{fmtAmount(lockedBalance, erc20.decimals)} {erc20.symbol}</>}
 									</TableCell>
 									<TableCell align="right">{price ? "$"+fmtAmount(price, 0, 2) : "-"}</TableCell>
 									<TableCell align="right" style={{fontWeight: "bold"}}>
 										{value ? "$" + fmtAmount(value, 0, 2) : "-"}
-										{isCELO && <><br />${fmtAmount(lockedValue, 0, 2)}</>}
+										{displayLockedBalance && <><br />${fmtAmount(lockedValue, 0, 2)}</>}
 									</TableCell>
 								</TableRow>
 							)
