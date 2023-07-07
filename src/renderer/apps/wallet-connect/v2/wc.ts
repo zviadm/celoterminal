@@ -66,7 +66,7 @@ export class WalletConnectGlobal {
 		return this._wc
 	}
 
-	private onRequest = (event: Web3WalletTypes.SessionRequest) => {
+	private onRequest = async (event: Web3WalletTypes.SessionRequest) => {
 		log.info(`wallet-connect: received request`, event)
 		const chainId = `eip155:${CFG().chainId}`
 		if (event.params.chainId !== chainId) {
@@ -85,20 +85,24 @@ export class WalletConnectGlobal {
 			return
 		}
 
+		const rq = await requestQueueGlobal()
 		switch (event.params.request.method) {
 		case "eth_sendTransaction":
 		case "eth_signTransaction":
-			requestQueueGlobal().pushRequest(
+			rq.pushRequest(
 				new WCV2Request(this.wc(), event.topic, {
 					id: event.id,
 					method: event.params.request.method,
-					params: event.params.request.params[0],
+					params: {
+						...event.params.request.params[0],
+						chainId: CFG().chainId,
+					},
 				})
 			)
 			showWindowAndFocus()
 			break
 		case "personal_sign":
-			requestQueueGlobal().pushRequest(
+			rq.pushRequest(
 				new WCV2Request(this.wc(), event.topic, {
 					id: event.id,
 					method: "eth_signPersonal",
@@ -186,7 +190,8 @@ class WCV2Request implements WCRequest {
 export const wcGlobal = new WalletConnectGlobal()
 wcGlobal.init()
 
-export const initializeStoredSessions = (): SessionWrapper[] => {
-	const sessions = Object.values(wcGlobal.wc().getActiveSessions())
+export const initializeStoredSessions = async (): Promise<SessionWrapper[]> => {
+	const wc = await wcGlobal.init()
+	const sessions = Object.values(wc.getActiveSessions())
 	return sessions.map((s) => new SessionWrapper(s))
 }

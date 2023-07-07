@@ -5,7 +5,7 @@ import { WalletConnect } from './def'
 import WCSession from './wc-session'
 import { runWithInterval } from '../../../lib/interval'
 import { ISession } from './session'
-import { requestQueueGlobal } from './request-queue'
+import { RequestQueue, requestQueueGlobal } from './request-queue'
 
 import EstablishSessionV1 from './v1/establish-session'
 import EstablishSessionV2 from './v2/establish-session'
@@ -15,7 +15,7 @@ import { parseUri } from '@walletconnect/utils'
 import * as React from 'react'
 import {
 	Button, List, TextField,
-	ListItem, ListItemText, ListItemSecondaryAction, Badge
+	ListItem, ListItemText, ListItemSecondaryAction, Badge, LinearProgress
 } from '@material-ui/core'
 import Alert from '@material-ui/lab/Alert'
 import SendIcon from '@material-ui/icons/Send'
@@ -34,20 +34,27 @@ const WalletConnectApp = (props: {
 	selectedAccount: Account,
 	runTXs: (f: TXFunc, onFinish?: TXFinishFunc) => void,
 }): JSX.Element => {
-	const [sessions, _setSessions] = React.useState(requestQueueGlobal().sessionsSnapshot([]))
-	const [requests, _setRequests] = React.useState(requestQueueGlobal().requestsSnapshot([]))
+	const [rq, setRQ] = React.useState<RequestQueue | null>(null)
+	const [sessions, _setSessions] = React.useState(rq?.sessionsSnapshot([]))
+	const [requests, _setRequests] = React.useState(rq?.requestsSnapshot([]))
+
+	React.useEffect(() => {
+		if (!rq) {
+			requestQueueGlobal().then((r) => {setRQ(r)})
+		}
+	}, [rq, setRQ])
 
 	// Initialize WalletConnect sessions from localStorage.
 	const refreshSessions = React.useCallback(() => {
 		_setSessions((sessions) => {
-			return requestQueueGlobal().sessionsSnapshot(sessions)
+			return rq?.sessionsSnapshot(sessions || [])
 		})
-	}, [])
+	}, [rq])
 	const refreshRequests = React.useCallback(() => {
 		_setRequests((requests) => {
-			return requestQueueGlobal().requestsSnapshot(requests)
+			return rq?.requestsSnapshot(requests || [])
 		})
-	}, [])
+	}, [rq])
 
 	// Run periodic checks to discard disconnected sessions and to handle new
 	// WalletConnect requests.
@@ -65,18 +72,20 @@ const WalletConnectApp = (props: {
 	const accounts = props.accounts
 	// Discard all requests that are sent for an incorrect/unknown accounts.
 	React.useEffect(() => {
+		if (!requests) {
+			return
+		}
 		for (const request of requests) {
-			console.info("RRR", request.request)
 			const from = request.request.params?.from?.toString().toLowerCase()
 			const match = accounts.find((a) => a.address.toLowerCase() === from)
 			if (!match) {
-				requestQueueGlobal().reject(request, {
+				rq?.reject(request, {
 					code: -32000,
 					message: `Unknown account: ${request.request.params?.from}`,
 				})
 			}
 		}
-	}, [requests, accounts])
+	}, [rq, requests, accounts])
 
 	const [inProgress, setInProgress] = React.useState(false)
 	const account = props.selectedAccount
@@ -85,7 +94,7 @@ const WalletConnectApp = (props: {
 		if (inProgress) {
 			return
 		}
-		const request = requestQueueGlobal().requestFor(account.address)
+		const request = rq?.requestFor(account.address)
 		if (!request) {
 			return
 		}
@@ -103,31 +112,31 @@ const WalletConnectApp = (props: {
 			(e?: Error, r?: SignatureResponse[]) => {
 				setInProgress(false)
 				if (e) {
-					requestQueueGlobal().reject(request, {
+					rq?.reject(request, {
 						code: -32000,
 						message: e.message,
 					})
 				} else {
 					if (r?.length !== 1) {
 						const errMsg = `Unexpected error while performing ${request.request.method}!`
-						requestQueueGlobal().reject(request, {code: -32000, message: errMsg})
+						rq?.reject(request, {code: -32000, message: errMsg})
 						throw new Error(errMsg)
 					}
 					switch (r[0].type) {
 						case "eth_signTransaction":
-							requestQueueGlobal().approve(request, r[0].encodedTX)
+							rq?.approve(request, r[0].encodedTX)
 							break
 						case "eth_sendTransaction":
-							requestQueueGlobal().approve(request, r[0].receipt.transactionHash)
+							rq?.approve(request, r[0].receipt.transactionHash)
 							break
 						case "eth_signPersonal":
-							requestQueueGlobal().approve(request, r[0].encodedData)
+							rq?.approve(request, r[0].encodedData)
 							break
 					}
 				}
 			}
 		)
-	}, [inProgress, requests, account, runTXs])
+	}, [rq, inProgress, requests, account, runTXs])
 
 	const [connectURI, setConnectURI] = React.useState("")
 	const [toApproveURI, setToApproveURI] = React.useState("")
@@ -139,7 +148,7 @@ const WalletConnectApp = (props: {
 		refreshSessions()
 	}
 	const handleApprove = (s: ISession) => {
-		requestQueueGlobal().addSession(s)
+		rq?.addSession(s)
 		refreshAfterEstablish()
 	}
 	const handleDisconnect = (s: ISession) => {
@@ -147,15 +156,26 @@ const WalletConnectApp = (props: {
 		refreshSessions()
 	}
 	const handleDisconnectAll = () => {
-		requestQueueGlobal().resetAndRejectAll()
+		rq?.resetAndRejectAll()
 		refreshSessions()
 	}
 
 	const requestsByAccount = new Map<string, number>()
-	requests.forEach((r) => {
+	requests?.forEach((r) => {
 		const from = r.request.params?.from?.toString().toLowerCase() as string || ""
 		requestsByAccount.set(from, (requestsByAccount.get(from) || 0) + 1)
 	})
+
+	if (!rq) {
+		return (
+			<AppContainer>
+				<AppHeader app={WalletConnect} />
+				<AppSection>
+					<LinearProgress color="primary" />
+				</AppSection>
+			</AppContainer>
+		)
+	}
 
 	return (
 		<AppContainer>
@@ -225,7 +245,7 @@ const WalletConnectApp = (props: {
 			<AppSection>
 				<SectionTitle>Connected DApps</SectionTitle>
 				<List>
-				{sessions
+				{(sessions || [])
 					.map((s, idx) => {
 					const metadata = s.metadata()
 					if (!metadata) {
