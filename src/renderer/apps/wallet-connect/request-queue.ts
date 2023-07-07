@@ -60,8 +60,10 @@ export class RequestQueue {
 	}
 
 	public removeDisconnectedSessions = (): void => {
-		this.sessions.forEach((s) => {
+		const sessions = [...this.sessions]
+		sessions.forEach((s) => {
 			if (!s.isConnected()) {
+				this.rmSession(s)
 				s.disconnect()
 			}
 		})
@@ -71,7 +73,7 @@ export class RequestQueue {
 		this.sessions.push(s)
 	}
 
-	public rmSession = (s: ISession): void => {
+	private rmSession = (s: ISession) => {
 		const idx = this.sessions.indexOf(s)
 		if (idx >= 0) {
 			this.sessions.splice(idx, 1)
@@ -122,6 +124,7 @@ export class RequestQueue {
 			s.disconnect()
 		}
 		wipeFullStorageV1()
+		// NOTE(zviad): No need to wipe V2 storage, assuming it is all synced up.
 		for (const r of this.requests) {
 			this.reject(r, {code: -32000, message: "Disconnected"})
 		}

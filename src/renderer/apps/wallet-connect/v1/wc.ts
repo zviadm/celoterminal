@@ -45,12 +45,13 @@ export class WCV1 implements ISession {
 			log.info(`wallet-connect: disconnected ${wc.session.peerMeta?.name}`, error)
 			this.disconnect()
 		})
-		wc.on("call_request", (error, payload: {id: number, method: string, params: unknown[]}) => {
+		wc.on("call_request", async (error, payload: {id: number, method: string, params: unknown[]}) => {
 			if (error) {
 				log.error(`wallet-connect: call_request error`, error)
 				return
 			}
 			log.info(`wallet-connect: call_request`, payload)
+			const rq = await requestQueueGlobal()
 			switch (payload.method) {
 			case "eth_sendTransaction":
 			case "eth_signTransaction": {
@@ -58,7 +59,7 @@ export class WCV1 implements ISession {
 				if (!params.chainId) {
 					params.chainId = Number.parseInt(CFG().chainId)
 				}
-				requestQueueGlobal().pushRequest(
+				rq.pushRequest(
 					new WCV1Request(wc, {
 						id: payload.id,
 						method: payload.method,
@@ -68,7 +69,7 @@ export class WCV1 implements ISession {
 				break
 			}
 			case "personal_sign": {
-				requestQueueGlobal().pushRequest(
+				rq.pushRequest(
 					new WCV1Request(wc, {
 						id: payload.id,
 						method: "eth_signPersonal",
@@ -98,7 +99,6 @@ export class WCV1 implements ISession {
 		this.wc.off("disconnect")
 		this.wc.off("call_request")
 		removeSessionId(this.sessionId)
-		requestQueueGlobal().rmSession(this)
 	}
 
 	metadata = (): SessionMetadata | null => {

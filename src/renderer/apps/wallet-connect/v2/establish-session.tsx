@@ -114,7 +114,7 @@ const EstablishSession = (props: {
 						</Typography>
 					</CardContent>
 					<CardContent>
-						<Typography variant="body2" color="textSecondary" component="p">
+						<Typography variant="body2" color="textSecondary" component="pre">
 							Namespaces: {JSON.stringify(proposal.params.requiredNamespaces, undefined, 2)}
 						</Typography>
 					</CardContent>

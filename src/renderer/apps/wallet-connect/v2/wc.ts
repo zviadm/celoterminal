@@ -141,17 +141,14 @@ export class SessionWrapper implements ISession {
 		if (!this.isConnected()) {
 			return
 		}
-		try {
-			wcGlobal.wc().disconnectSession({topic: this.session.topic, reason: getSdkError("USER_DISCONNECTED")})
-		} catch (e) {
-			console.warn(e)
-		}
+		wcGlobal.wc().disconnectSession(
+			{topic: this.session.topic, reason: getSdkError("USER_DISCONNECTED")})
 	}
 
 	metadata = (): SessionMetadata => {
 		const accounts = this.session.namespaces.eip155.accounts.map((a) => a.split(":").pop() || a)
 		return {
-			...this.session.self.metadata,
+			...this.session.peer.metadata,
 			accounts,
 		}
 	}
