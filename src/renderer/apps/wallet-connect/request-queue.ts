@@ -1,9 +1,11 @@
 import { CeloTx } from "@celo/connect"
 import { showWindowAndFocus } from "../../electron-utils"
 import { ISession } from "./session"
+import { Lock } from '@celo/base/lib/lock'
 
 import { wipeFullStorage as wipeFullStorageV1 } from './v1/storage'
 import { initializeStoredSessions as initializeStoredSessionsV1 } from './v1/wc'
+import { initializeStoredSessions as initializeStoredSessionsV2 } from './v2/wc'
 
 if (module.hot) {
 	module.hot.decline()
@@ -31,7 +33,7 @@ export interface EthSignPersonal extends BaseRequest {
 export type RequestPayload = EthSendTransaction | EthSignTransaction | EthSignPersonal
 
 export interface IJsonRpcErrorMessage {
-	code?: number
+	code: number
 	message: string
 }
 
@@ -41,7 +43,7 @@ export interface WCRequest {
 	approve: (result: unknown) => void
 }
 
-class RequestQueue {
+export class RequestQueue {
 	private sessions: ISession[] = []
 	private requests: WCRequest[] = []
 
@@ -49,7 +51,7 @@ class RequestQueue {
 		this.sessions = [...sessions]
 	}
 
-	public sessionsSnapshot = (s: ISession[]) => {
+	public sessionsSnapshot = (s: ISession[]) : ISession[] => {
 		const matches = (
 			s.length === this.sessions.length &&
 			s.every((s, idx) => s === this.sessions[idx])
@@ -57,26 +59,28 @@ class RequestQueue {
 		return matches ? s : [...this.sessions]
 	}
 
-	public removeDisconnectedSessions = () => {
-		this.sessions.forEach((s) => {
+	public removeDisconnectedSessions = (): void => {
+		const sessions = [...this.sessions]
+		sessions.forEach((s) => {
 			if (!s.isConnected()) {
+				this.rmSession(s)
 				s.disconnect()
 			}
 		})
 	}
 
-	public addSession = (s: ISession) => {
+	public addSession = (s: ISession): void => {
 		this.sessions.push(s)
 	}
 
-	public rmSession = (s: ISession) => {
+	private rmSession = (s: ISession) => {
 		const idx = this.sessions.indexOf(s)
 		if (idx >= 0) {
 			this.sessions.splice(idx, 1)
 		}
 	}
 
-	public requestsSnapshot = (r: WCRequest[]) => {
+	public requestsSnapshot = (r: WCRequest[]): WCRequest[] => {
 		const matches = (
 			r.length === this.requests.length &&
 			r.every((r, idx) => r === this.requests[idx])
@@ -84,7 +88,7 @@ class RequestQueue {
 		return matches ? r : [...this.requests]
 	}
 
-	public pushRequest(req: WCRequest) {
+	public pushRequest(req: WCRequest): void {
 		this.requests.push(req)
 		showWindowAndFocus()
 	}
@@ -101,25 +105,26 @@ class RequestQueue {
 			r.request.params?.from?.toString().toLowerCase() === address.toLowerCase())
 	}
 
-	public approve(req: WCRequest, result: unknown) {
+	public approve(req: WCRequest, result: unknown): void {
 		this.rmRequest(req)
 		req.approve(result)
 	}
 
-	public reject(req: WCRequest, error: IJsonRpcErrorMessage) {
+	public reject(req: WCRequest, error: IJsonRpcErrorMessage): void {
 		this.rmRequest(req)
 		req.reject(error)
 	}
 
-	public requestsN() {
+	public requestsN(): number {
 		return this.requests.length
 	}
 
-	public resetAndRejectAll() {
+	public resetAndRejectAll(): void {
 		for (const s of this.sessions) {
 			s.disconnect()
 		}
 		wipeFullStorageV1()
+		// NOTE(zviad): No need to wipe V2 storage, assuming it is all synced up.
 		for (const r of this.requests) {
 			this.reject(r, {code: -32000, message: "Disconnected"})
 		}
@@ -127,18 +132,27 @@ class RequestQueue {
 }
 
 let _requestQueueGlobal: RequestQueue | undefined
-export const requestQueueGlobal = (): RequestQueue => {
-	if (!_requestQueueGlobal) {
-		const sessions = [
-			...initializeStoredSessionsV1(),
-		]
-		_requestQueueGlobal = new RequestQueue(sessions)
+const _requestQueueMX = new Lock()
+export const requestQueueGlobal = async (): Promise<RequestQueue> => {
+	_requestQueueMX.acquire()
+	try {
+		if (!_requestQueueGlobal) {
+			const sessions = [
+				...initializeStoredSessionsV1(),
+				...(await initializeStoredSessionsV2()),
+			]
+			_requestQueueGlobal = new RequestQueue(sessions)
+		}
+		return _requestQueueGlobal
+	} finally {
+		_requestQueueMX.release()
 	}
-	return _requestQueueGlobal
 }
 
 export const requestQueueNotifyN = (): number => {
-	const r = requestQueueGlobal()
-	r.removeDisconnectedSessions()
-	return r.requestsN()
+	if (!_requestQueueGlobal) {
+		return 0
+	}
+	_requestQueueGlobal.removeDisconnectedSessions()
+	return _requestQueueGlobal.requestsN()
 }

@@ -44,5 +44,11 @@ module.exports = (config) => {
 		test: /\.svg$/,
 		use: ['@svgr/webpack'],
 	})
+
+	config.module.rules.unshift({
+		test: /node_modules[\\/]@walletconnect/,
+		loader: 'babel-loader',
+	})
+
 	return config
 }
