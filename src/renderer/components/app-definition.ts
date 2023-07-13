@@ -20,7 +20,16 @@ export interface SignPersonal {
 	}
 }
 
-export type SignatureRequest = (Transaction | SignPersonal) & {
+export interface SignTypedDataV4 {
+	type: "signTypedData_v4"
+	params: {
+		from: Address
+		data: string
+	}
+}
+
+
+export type SignatureRequest = (Transaction | SignPersonal | SignTypedDataV4) & {
 	// This flag is useful for contract/indirect account types. This
 	// flag signals that request should be executed using the parent/owner account
 	// as it is coming from the parent account itself.
@@ -42,7 +51,12 @@ export interface ResponseSignPersonal {
 	encodedData: string
 }
 
-export type SignatureResponse = ResponseSendTX | ResponseSignTX | ResponseSignPersonal
+export interface ResponseSignTypedDataV4 {
+	type: "eth_signTypedData_v4"
+	encodedData: string
+}
+
+export type SignatureResponse = ResponseSendTX | ResponseSignTX | ResponseSignPersonal | ResponseSignTypedDataV4
 
 // All transaction running goes through central TXRunner system that has
 // access to accounts and their transaction signing methods.

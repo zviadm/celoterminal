@@ -113,6 +113,18 @@ export class WalletConnectGlobal {
 				})
 			)
 			break
+		case "eth_signTypedData_v4":
+			rq.pushRequest(
+				new WCV2Request(this.wc(), event.topic, {
+					id: event.id,
+					method: "eth_signTypedData_v4",
+					params: {
+						from: event.params.request.params[0] as string,
+						data: event.params.request.params[1] as string,
+					}
+				})
+			)
+			break
 		default:
 			log.info(`wallet-connect: rejected not supported request`)
 			this.wc().respondSessionRequest({

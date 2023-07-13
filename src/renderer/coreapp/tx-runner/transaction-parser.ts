@@ -1,9 +1,10 @@
 import { ContractKit } from "@celo/contractkit"
+import { EIP712TypedData } from '@celo/utils/lib/sign-typed-data-utils';
 import BigNumber from "bignumber.js"
 
 import { fetchContractAbi, verifiedContractName } from "../../../lib/tx-parser/contract-abi"
 import { ParsedTXData, parseTransactionData } from "../../../lib/tx-parser/tx-parser"
-import { fmtAddress } from "../../../lib/utils"
+import { fmtAddress, throwUnreachableError } from "../../../lib/utils"
 import { SignatureRequest, Transaction } from "../../components/app-definition"
 
 export interface ParsedTransaction {
@@ -24,7 +25,12 @@ export interface ParsedSignPersonal {
 	dataAsText?: string
 }
 
-export type ParsedSignatureRequest = ParsedTransaction | ParsedSignPersonal
+export interface ParsedSignTypeDataV4 {
+	type: "signTypedData_v4"
+	data: EIP712TypedData
+}
+
+export type ParsedSignatureRequest = ParsedTransaction | ParsedSignPersonal | ParsedSignTypeDataV4
 
 export const extractTXDestinationAndData = (tx: Transaction): {destination?: string, data?: string} => {
 	return {
@@ -86,5 +92,12 @@ export const parseSignatureRequest = async (
 				dataAsText: validUtf8 ? dataAsText : undefined,
 			}
 		}
+		case "signTypedData_v4": {
+			return {
+				type: "signTypedData_v4",
+				data: JSON.parse(req.params.data) as EIP712TypedData,
+			}
+		}
+		default: throwUnreachableError(req)
 	}
 }

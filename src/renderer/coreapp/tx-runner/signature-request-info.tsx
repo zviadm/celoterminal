@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 
 import { EstimatedFee } from './fee-estimation'
 import { ParsedSignatureRequest } from './transaction-parser'
-import { fmtAmount } from '../../../lib/utils'
+import { fmtAmount, throwUnreachableError } from '../../../lib/utils'
 
 import * as React from 'react'
 import {
@@ -13,6 +13,74 @@ import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown'
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp'
 import { ParsedTXData } from '../../../lib/tx-parser/tx-parser'
 
+const requestInfo = (req: ParsedSignatureRequest): {
+	sectionTitle: JSX.Element | string,
+	infoShort: JSX.Element | string,
+	infoExpanded: JSX.Element | string,
+} => {
+	switch (req.type) {
+		case "transaction":
+			return {
+				sectionTitle: "Contract",
+				infoShort: req.contractName,
+				infoExpanded:
+					<>
+						{req.parseErr &&
+						<TableRow>
+							<TableCell></TableCell>
+							<TableCell
+								colSpan={2}
+								style={{
+									color: "red",
+									fontFamily: "monospace",
+									overflowWrap: "anywhere"}}>TX Parsing {req.parseErr}</TableCell>
+						</TableRow>}
+						{req.parsedTX ?
+						<ParsedTXRow tx={req.parsedTX} />
+						:
+						<TableRow>
+							<TableCell></TableCell>
+							<TableCell
+								colSpan={2}
+								style={{
+									fontFamily: "monospace",
+									overflowWrap: "anywhere"}}>CALLDATA: {req.encodedABI}</TableCell>
+						</TableRow>}
+					</>
+			}
+		case "signPersonal":
+			return {
+				sectionTitle: "Sign",
+				infoShort: `DATA: ${(req.dataAsText || req.data).substring(0, 20)}...`,
+				infoExpanded:
+					<TableRow>
+						<TableCell></TableCell>
+						<TableCell
+							colSpan={2}
+							style={{
+								fontFamily: "monospace",
+								overflowWrap: "anywhere"}}>{req.dataAsText || req.data}</TableCell>
+					</TableRow>
+			}
+		case "signTypedData_v4":
+			// TODO(zviad): Need to have better formatting for typed data
+			return {
+				sectionTitle: "Sign",
+				infoShort: `Typed Data`,
+				infoExpanded:
+					<TableRow>
+						<TableCell></TableCell>
+						<TableCell
+							colSpan={2}
+							style={{
+								fontFamily: "monospace",
+								overflowWrap: "anywhere"}}><pre>{JSON.stringify(req.data, undefined, 2)}</pre></TableCell>
+					</TableRow>
+			}
+		default: throwUnreachableError(req)
+	}
+}
+
 const SignatureRequestInfo = (props: {
 	req: ParsedSignatureRequest
 	fee: EstimatedFee
@@ -20,51 +88,7 @@ const SignatureRequestInfo = (props: {
 	const openInitially = props.req.type === "transaction" ? !!props.req.parsedTX : true
 	const [open, setOpen] = React.useState(openInitially)
 	const [openFee, setOpenFee] = React.useState(false)
-
-	const sectionTitle =
-		props.req.type === "transaction" ? "Contract" :
-		props.req.type === "signPersonal" ? "Sign" :
-		""
-	const infoShort =
-		props.req.type === "transaction" ? props.req.contractName :
-		props.req.type === "signPersonal" ? `DATA: ${(props.req.dataAsText || props.req.data).substring(0, 20)}...` :
-		""
-	const infoExpanded =
-		props.req.type === "transaction" ?
-			<>
-				{props.req.parseErr &&
-				<TableRow>
-					<TableCell></TableCell>
-					<TableCell
-						colSpan={2}
-						style={{
-							color: "red",
-							fontFamily: "monospace",
-							overflowWrap: "anywhere"}}>TX Parsing {props.req.parseErr}</TableCell>
-				</TableRow>}
-				{props.req.parsedTX ?
-				<ParsedTXRow tx={props.req.parsedTX} />
-				:
-				<TableRow>
-					<TableCell></TableCell>
-					<TableCell
-						colSpan={2}
-						style={{
-							fontFamily: "monospace",
-							overflowWrap: "anywhere"}}>CALLDATA: {props.req.encodedABI}</TableCell>
-				</TableRow>}
-			</> :
-		props.req.type === "signPersonal" ?
-			<TableRow>
-				<TableCell></TableCell>
-				<TableCell
-					colSpan={2}
-					style={{
-						fontFamily: "monospace",
-						overflowWrap: "anywhere"}}>{props.req.dataAsText || props.req.data}</TableCell>
-			</TableRow> :
-		""
-
+	const {sectionTitle, infoShort, infoExpanded} = requestInfo(props.req)
 	return (
 		<TableContainer component={Paper}>
 			<Table size="small">

@@ -7,7 +7,7 @@ import { rootAccount, Wallet } from './wallet'
 import { CFG } from '../../../lib/cfg'
 import { spectronChainId } from '../../../lib/spectron-utils/constants'
 import { nowMS } from '../../state/time'
-import { sleep } from '../../../lib/utils'
+import { sleep, throwUnreachableError } from '../../../lib/utils'
 import { transformError } from '../ledger-utils'
 import { Account } from '../../../lib/accounts/accounts'
 import { cfgNetworkURL, newKitWithTimeout } from '../../state/kit'
@@ -232,6 +232,12 @@ const RunTXs = (props: {
 								r.push({type: "eth_signPersonal", encodedData})
 								break
 							}
+							case "signTypedData_v4": {
+								const encodedData = await w.wallet.signTypedData(req.params.from, JSON.parse(req.params.data))
+								r.push({type: "eth_signTypedData_v4", encodedData})
+								break
+							}
+							default: throwUnreachableError(req)
 						}
 					}
 					setStage("finishing")

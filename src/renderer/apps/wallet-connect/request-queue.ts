@@ -30,7 +30,14 @@ export interface EthSignPersonal extends BaseRequest {
 		data: string
 	}
 }
-export type RequestPayload = EthSendTransaction | EthSignTransaction | EthSignPersonal
+export interface EthSignTypedDataV4 extends BaseRequest {
+	method: "eth_signTypedData_v4"
+	params: {
+		from: string
+		data: string
+	}
+}
+export type RequestPayload = EthSendTransaction | EthSignTransaction | EthSignPersonal | EthSignTypedDataV4
 
 export interface IJsonRpcErrorMessage {
 	code: number

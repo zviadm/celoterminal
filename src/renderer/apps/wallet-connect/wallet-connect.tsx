@@ -4,6 +4,7 @@ import { WalletConnect } from './def'
 
 import WCSession from './wc-session'
 import { runWithInterval } from '../../../lib/interval'
+import { throwUnreachableError } from '../../../lib/utils'
 import { ISession } from './session'
 import { RequestQueue, requestQueueGlobal } from './request-queue'
 
@@ -107,6 +108,9 @@ const WalletConnectApp = (props: {
 						return [{tx: request.request.method, params: request.request.params}]
 					case "eth_signPersonal":
 						return [{type: "signPersonal", params: request.request.params}]
+					case "eth_signTypedData_v4":
+						return [{type: "signTypedData_v4", params: request.request.params}]
+					default: throwUnreachableError(request.request)
 				}
 			},
 			(e?: Error, r?: SignatureResponse[]) => {
@@ -132,6 +136,10 @@ const WalletConnectApp = (props: {
 						case "eth_signPersonal":
 							rq?.approve(request, r[0].encodedData)
 							break
+						case "eth_signTypedData_v4":
+							rq?.approve(request, r[0].encodedData)
+							break
+						default: throwUnreachableError(r[0])
 					}
 				}
 			}

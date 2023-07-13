@@ -71,3 +71,7 @@ export const erc20FromAddress = (address: string, extraErc20s?: RegisteredErc20[
 	}
 	return erc20
 }
+
+export function throwUnreachableError(x: never): never {
+	throw new Error(`Unreachable case: ${x}`);
+}
