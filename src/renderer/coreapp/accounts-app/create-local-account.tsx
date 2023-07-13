@@ -3,7 +3,7 @@ import {
 	generateKeys,
 	generateMnemonic,
 	MnemonicStrength,
-} from '@celo/utils/lib/account'
+} from '@celo/cryptographic-utils/lib/account'
 
 import Dialog from '@material-ui/core/Dialog'
 import Button from '@material-ui/core/Button'
