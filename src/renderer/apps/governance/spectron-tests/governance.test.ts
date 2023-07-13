@@ -32,6 +32,19 @@ test('Governance upvote & vote', async (done) => {
 
 	let votes2 = await governance.getVotes(2)
 	expect(votes2.Yes.toNumber()).toEqual(101e18)
+	const isApproved2 = await governance.isApproved(2)
+	expect(isApproved2).toEqual(true)
+
+	// Voting no longer needs Approval, make sure can vote on non-approved proposal 1 too.
+	const voteYes1 = await app.client.$("#vote-Yes-1")
+	await voteYes1.waitForEnabled()
+	await voteYes1.click()
+	await confirmTXs()
+	const votes1 = await governance.getVotes(1)
+	expect(votes1.Yes.toNumber()).toEqual(101e18)
+	const isApproved1 = await governance.isApproved(1)
+	expect(isApproved1).toEqual(false)
+
 
 	const voteNo2 = await app.client.$("#vote-No-2")
 	await voteNo2.click()
