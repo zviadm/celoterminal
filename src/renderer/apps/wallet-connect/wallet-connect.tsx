@@ -4,6 +4,7 @@ import { WalletConnect } from './def'
 
 import WCSession from './wc-session'
 import { runWithInterval } from '../../../lib/interval'
+import { throwUnreachableError } from '../../../lib/utils'
 import { ISession } from './session'
 import { RequestQueue, requestQueueGlobal } from './request-queue'
 
@@ -24,7 +25,6 @@ import AppHeader from '../../components/app-header'
 import AppSection from '../../components/app-section'
 import AppContainer from '../../components/app-container'
 import SectionTitle from '../../components/section-title'
-import { throwUnreachableError } from '../../../lib/utils'
 
 if (module.hot) {
 	module.hot.decline()
