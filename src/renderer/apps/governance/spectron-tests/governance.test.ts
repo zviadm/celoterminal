@@ -45,7 +45,6 @@ test('Governance upvote & vote', async (done) => {
 	const isApproved1 = await governance.isApproved(1)
 	expect(isApproved1).toEqual(false)
 
-
 	const voteNo2 = await app.client.$("#vote-No-2")
 	await voteNo2.click()
 	await confirmTXs()
