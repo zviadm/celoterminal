@@ -4480,12 +4480,12 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
-"@terminal-fi/celo-devchain@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@terminal-fi/celo-devchain/-/celo-devchain-5.0.0.tgz#981b38fcc948f73e9fc7277c184b2c926f11a0ca"
-  integrity sha512-rQcStrac2UxfD6bDCj2pk/pLyo/qeVZd0/+mgE4scQpiTuZFZg7QpWSMbMpl/r2haf7UuNy+vs6jfm2GSYu5cg==
+"@terminal-fi/celo-devchain@^9.0.0":
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/@terminal-fi/celo-devchain/-/celo-devchain-9.1.0.tgz#f5efb28163cd36c91073a9f06cab43fbda44715b"
+  integrity sha512-XIngVsQ2i8pPKco/0RuFMtp7HtM4Gd3PmqfQykwbz+8h3vQAisubMna/GSjX/rr4MO4BzjdItWQ7FUCwF5EX4g==
   dependencies:
-    "@celo/contractkit" "^1.2.4"
+    "@celo/contractkit" "^4.1.0"
     "@celo/ganache-cli" "git+https://github.com/zviadm/ganache-cli.git#53eabeb"
     commander "^6.2.0"
     node-fetch "^2.6.1"
@@ -6526,9 +6526,9 @@ bip32@^2.0.6:
     typeforce "^1.11.5"
     wif "^2.0.6"
 
-"bip39@git+https://github.com/bitcoinjs/bip39.git#d8ea080a18b40f301d4e2219a2991cd2417e83c2":
+"bip39@https://github.com/bitcoinjs/bip39#d8ea080a18b40f301d4e2219a2991cd2417e83c2":
   version "3.0.3"
-  resolved "git+https://github.com/bitcoinjs/bip39.git#d8ea080a18b40f301d4e2219a2991cd2417e83c2"
+  resolved "https://github.com/bitcoinjs/bip39#d8ea080a18b40f301d4e2219a2991cd2417e83c2"
   dependencies:
     "@types/node" "11.11.6"
     create-hash "^1.1.0"

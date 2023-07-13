@@ -81,7 +81,7 @@
     "@celo/explorer": "^4.1.0",
     "@celo/governance": "^4.1.0",
     "@svgr/webpack": "^5.5.0",
-    "@terminal-fi/celo-devchain": "^5.0.0",
+    "@terminal-fi/celo-devchain": "^9.0.0",
     "@types/better-sqlite3": "^5.4.1",
     "@types/jest": "^26.0.20",
     "@types/node-hid": "^1.3.0",
