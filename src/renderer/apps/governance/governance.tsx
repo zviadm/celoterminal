@@ -53,7 +53,6 @@ const GovernanceApp = (props: {
 					const timeUntilExecution =
 						secondsToDurationString(
 							record.metadata.timestamp
-							.plus(durations.Approval)
 							.plus(durations.Referendum)
 							.minus(now),
 							["day", "hour", "minute"],
