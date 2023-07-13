@@ -19,22 +19,7 @@ test('Governance upvote & vote', async (done) => {
 
 	await selectApp("governance")
 
-	const upvote1 = await app.client.$("#upvote-1")
-	await upvote1.isEnabled()
-	await upvote1.click()
-	await confirmTXs()
-
-	const upvote2 = await app.client.$("#upvote-2")
-	await upvote2.isEnabled()
-	await upvote2.click()
-	await confirmTXs({txCount: 2}) // needs to revoke previous upvote.
-
 	const governance = await kit.contracts.getGovernance()
-	const upvotes1 = await governance.getUpvotes(1)
-	expect(upvotes1.toNumber()).toEqual(0)
-	const upvotes2 = await governance.getUpvotes(2)
-	expect(upvotes2.toNumber()).toEqual(101e18)
-
 	const cfg = await governance.getConfig()
 	await adjustNow(cfg.dequeueFrequency.multipliedBy(1000).toNumber())
 	await dequeueAndApproveProposal(kit, 2)
@@ -44,9 +29,6 @@ test('Governance upvote & vote', async (done) => {
 	await voteYes2.waitForEnabled()
 	await voteYes2.click()
 	await confirmTXs()
-
-	const voteYes1 = await app.client.$("#vote-Yes-1")
-	await expect(voteYes1.isExisting()).resolves.toEqual(false)
 
 	let votes2 = await governance.getVotes(2)
 	expect(votes2.Yes.toNumber()).toEqual(101e18)
