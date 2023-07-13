@@ -24,6 +24,7 @@ import AppHeader from '../../components/app-header'
 import AppSection from '../../components/app-section'
 import AppContainer from '../../components/app-container'
 import SectionTitle from '../../components/section-title'
+import { throwUnreachableError } from '../../../lib/utils'
 
 if (module.hot) {
 	module.hot.decline()
@@ -107,6 +108,9 @@ const WalletConnectApp = (props: {
 						return [{tx: request.request.method, params: request.request.params}]
 					case "eth_signPersonal":
 						return [{type: "signPersonal", params: request.request.params}]
+					case "eth_signTypedData_v4":
+						return [{type: "signTypedData_v4", params: request.request.params}]
+					default: throwUnreachableError(request.request)
 				}
 			},
 			(e?: Error, r?: SignatureResponse[]) => {
@@ -132,6 +136,10 @@ const WalletConnectApp = (props: {
 						case "eth_signPersonal":
 							rq?.approve(request, r[0].encodedData)
 							break
+						case "eth_signTypedData_v4":
+							rq?.approve(request, r[0].encodedData)
+							break
+						default: throwUnreachableError(r[0])
 					}
 				}
 			}

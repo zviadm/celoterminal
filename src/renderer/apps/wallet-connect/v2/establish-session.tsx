@@ -70,7 +70,11 @@ const EstablishSession = (props: {
 				supportedNamespaces: {
 					eip155: {
 						chains: [chainId],
-						methods: ["eth_sendTransaction", "eth_signTransaction", "eth_sign", "personal_sign", "eth_signTypedData"],
+						methods: [
+							"eth_sendTransaction",
+							"eth_signTransaction",
+							"personal_sign",
+							"eth_signTypedData_v4"],
 						events: ["chainChanged", "accountsChanged"],
 						accounts: [`${chainId}:${props.account.address}`],
 					}
