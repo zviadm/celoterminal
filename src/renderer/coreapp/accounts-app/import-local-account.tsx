@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {
 	generateKeys,
-} from '@celo/utils/lib/account'
+} from '@celo/cryptographic-utils/lib/account'
 import { privateKeyToAddress, trimLeading0x } from '@celo/utils/lib/address'
 
 import { makeStyles } from '@material-ui/core/styles'

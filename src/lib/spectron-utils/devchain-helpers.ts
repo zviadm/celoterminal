@@ -5,7 +5,6 @@ import { addressToPublicKey } from '@celo/utils/lib/signatureUtils'
 import { ProposalBuilder } from '@celo/governance'
 
 import { spectronDefaultAccount } from "./constants"
-import { adjustNow } from "./app-helpers"
 
 // Creates eligable validator group with a single validator as its member.
 // Provided `vgroup` and `member` must be non-registered addresses with >10k CELO
@@ -64,7 +63,6 @@ export const createGovernanceProposal = async (kit: ContractKit): Promise<void> 
 
 export const dequeueAndApproveProposal = async (kit: ContractKit, proposalID: BigNumber.Value): Promise<void> => {
 	const governance = await kit.contracts.getGovernance()
-	const cfg = await governance.getConfig()
 	await governance
 		.dequeueProposalsIfReady()
 		.sendAndWaitForReceipt({from: spectronDefaultAccount})
@@ -75,5 +73,4 @@ export const dequeueAndApproveProposal = async (kit: ContractKit, proposalID: Bi
 	await (await governanceApproverMultiSig
 		.submitOrConfirmTransaction(governance.address, govTX.txo))
 		.sendAndWaitForReceipt({from: spectronDefaultAccount})
-	await adjustNow(cfg.stageDurations.Approval.multipliedBy(1000).toNumber())
 }
