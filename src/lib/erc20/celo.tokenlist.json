@@ -2,7 +2,7 @@
   "name": "Celo Token List",
   "version": {
     "major": 1,
-    "minor": 4,
+    "minor": 9,
     "patch": 0
   },
   "logoURI": "https://raw.githubusercontent.com/jesse-sawa/celo-token-list/master/assets/celo_logo.svg",
@@ -548,6 +548,54 @@
       "decimals": 18,
       "chainId": 44787,
       "logoURI": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_CELO.png"
+    },
+    {
+      "name": "AtlasX Carbon Credits",
+      "address": "0xc3377Ea71F1dc8e55Ba360724eff2d7aD62a8670",
+      "symbol": "ATLASX",
+      "decimals": 18,
+      "chainId": 42220,
+      "logoURI": "https://myterrablobs.blob.core.windows.net/public/token-icon.png"
+    },
+    {
+      "name": "PLASTIK Token",
+      "address": "0x27cd006548dF7C8c8e9fdc4A67fa05C2E3CA5CF9",
+      "symbol": "PLASTIK",
+      "decimals": 9,
+      "chainId": 42220,
+      "logoURI": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_PLASTIK.png"
+    },
+    {
+      "name": "Curve DAO Token",
+      "address": "0x173fd7434B8B50dF08e3298f173487ebDB35FD14",
+      "symbol": "CRV",
+      "decimals": 18,
+      "chainId": 42220,
+      "logoURI": "https://raw.githubusercontent.com/curvefi/curve-assets/main/branding/logo.svg"
+    },
+    {
+      "name": "Axelar Wrapped Bitcoin",
+      "address": "0x1a35EE4640b0A3B87705B0A4B45D227Ba60Ca2ad",
+      "symbol": "axlWBTC",
+      "decimals": 18,
+      "chainId": 42220,
+      "logoURI": "https://raw.githubusercontent.com/jesse-sawa/celo-token-list/master/assets/axelar_wbtc.svg"
+    },
+    {
+    "name": "Wormhole Wrapped Bitcoin",
+    "address": "0xd71Ffd0940c920786eC4DbB5A12306669b5b81EF",
+    "symbol": "WBTC",
+    "decimals": 18,
+    "chainId": 42220,
+    "logoURI": "https://raw.githubusercontent.com/jesse-sawa/celo-token-list/master/assets/wormhole_wbtc.png"
+    },
+    {
+    "name": "Good Dollar",
+    "address": "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A",
+    "symbol": "G$",
+    "decimals": 18,
+    "chainId": 42220,
+    "logoURI": "https://raw.githubusercontent.com/GoodDollar/GoodDAPP/master/src/assets/Splash/logo.svg"
     }
   ]
 }
