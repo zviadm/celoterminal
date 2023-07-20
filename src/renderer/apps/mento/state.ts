@@ -79,7 +79,7 @@ export const useExchangeHistoryState = (account: Account, stableToken: StableTok
 
 	return useEventHistoryState(
 		fetchCallback, {
-			maxHistoryDays: 7,
+			maxHistoryDays: 1,
 			maxEvents: 100,
 		},
 	)

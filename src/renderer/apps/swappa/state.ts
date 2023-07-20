@@ -154,7 +154,7 @@ export const useSwappaHistoryState = (account: Account) => {
 
 	return useEventHistoryState(
 		fetchCallback, {
-			maxHistoryDays: 7,
+			maxHistoryDays: 1,
 			maxEvents: 100,
 		},
 	)

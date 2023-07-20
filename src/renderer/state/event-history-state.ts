@@ -84,8 +84,9 @@ export default function useEventHistoryState <T>(
 	{noErrorPropagation: opts.noErrorPropagation})
 }
 
-const minFetchSize = 1000
-const maxFetchSize = 64 * minFetchSize
+const FETCH_SIZE_MIN = 100
+const FETCH_SIZE_MAX = 100_000
+const FETCH_TARGET_MS = 1_000
 
 async function progressiveFetch<T>(
 	fromBlock: number,
@@ -95,18 +96,30 @@ async function progressiveFetch<T>(
 	c?: CancelPromise,
 	): Promise<T[]> {
 	const all: T[] = []
-	let fetchSize = minFetchSize
+	let fetchSize = FETCH_SIZE_MIN
 	let _to = toBlock
 	for (;;) {
 		const _from = Math.max(fromBlock, _to - fetchSize)
+		const fetchT0 = Date.now()
 		const events = await fetch(_from, _to)
+		const fetchMs = Date.now() - fetchT0
 		all.push(...events.reverse())
-		log.info(`[progressive-fetch]: from: ${fromBlock} to: ${toBlock}, items: ${all.length}, _from: ${_from}`)
+		log.info(
+			`[progressive-fetch]: from: ${fromBlock} to: ${toBlock}, items: ${all.length}, ` +
+			`_from: ${_from}, _to: ${_to}, elapsed: ${fetchMs}ms`)
 		if (all.length >= minItems || _from === fromBlock || c?.isCancelled()) {
 			break
 		}
 		_to = _from - 1
-		fetchSize = Math.min(maxFetchSize, fetchSize *= 2)
+
+		if (fetchMs > FETCH_TARGET_MS * 2 || fetchMs < FETCH_TARGET_MS / 2) {
+			const fetchSizeMX =
+				Math.max(Math.min(FETCH_TARGET_MS / fetchMs, 5), 1/5)
+			fetchSize = Math.min(
+				FETCH_SIZE_MAX,
+				Math.max(FETCH_SIZE_MIN, Math.floor(fetchSize * fetchSizeMX)))
+		}
+		fetchSize = Math.min(FETCH_SIZE_MAX, fetchSize *= 2)
 	}
 	return all.slice(0, minItems)
 }
