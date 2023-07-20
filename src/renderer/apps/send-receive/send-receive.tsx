@@ -143,7 +143,7 @@ const SendReceiveApp = (props: {
 		},
 		[selectedAddress, erc20],
 	), {
-		maxHistoryDays: 7,
+		maxHistoryDays: 1,
 		maxEvents: 100,
 	})
 
