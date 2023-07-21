@@ -22,9 +22,10 @@ export const routerAddr = selectAddress({
 
 let _manager: SwappaManager | undefined
 let _tokenWhitelistInitialized: Set<Address> = new Set()
+let _managerReInitMs = 0
 let _managerRefreshMs = 0
 const managerReinitializeSecs = 60 * 60
-const managerRefreshSecs = 20
+const managerRefreshSecs = 60
 const _managerMX: Lock = new Lock()
 
 const managerGlobal = async (kit: ContractKit, tokenWhitelist?: Address[]): Promise<SwappaManager> => {
@@ -45,11 +46,13 @@ const managerGlobal = async (kit: ContractKit, tokenWhitelist?: Address[]): Prom
 				log.info(`swappa: initializing SwappaManager, tokenWhitelist: ${tokenWhitelist.length}...`)
 				await _manager.reinitializePairs(tokenWhitelist)
 				_tokenWhitelistInitialized = new Set(tokenWhitelist)
+				_managerReInitMs = Date.now()
 				_managerRefreshMs = Date.now()
 			}
 		}
-		if (_managerRefreshMs + managerReinitializeSecs * 1000.0 < Date.now()) {
+		if (_managerReInitMs + managerReinitializeSecs * 1000.0 < Date.now()) {
 			await _manager.reinitializePairs(Array.from(_tokenWhitelistInitialized))
+			_managerReInitMs = Date.now()
 			_managerRefreshMs = Date.now()
 		}
 		return _manager
@@ -80,7 +83,9 @@ export const useSwappaRouterState = (
 	const refreshPairsState = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
 			const manager = await managerGlobal(kit, tokenWhitelist)
-			await manager.refreshPairs()
+			if (_managerRefreshMs + managerRefreshSecs * 1000.0 < Date.now()) {
+				await manager.refreshPairs()
+			}
 			setManager(manager)
 			setRefreshN((n) => n + 1)
 		},
@@ -88,6 +93,10 @@ export const useSwappaRouterState = (
 	), {
 		autoRefetchSecs: managerRefreshSecs,
 	})
+	const refetch = () => {
+		_managerRefreshMs = 0
+		return refreshPairsState.refetch()
+	}
 
 	const tradeRoute = React.useMemo(() => {
 		if (!manager || !trade || refreshN < 0) {
@@ -104,6 +113,7 @@ export const useSwappaRouterState = (
 
 	return {
 		...refreshPairsState,
+		refetch,
 		tradeRoute: tradeRoute,
 	}
 }
