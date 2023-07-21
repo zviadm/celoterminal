@@ -4707,9 +4707,9 @@
     web3-utils "^1.3.0"
 
 "@terminal-fi/swappa@^1.19.0":
-  version "1.19.1"
-  resolved "https://registry.yarnpkg.com/@terminal-fi/swappa/-/swappa-1.19.1.tgz#870b0b59a6ae73936fa3017250904d2ed9971ed0"
-  integrity sha512-8WZHZY2t3cFJPY2pCxGcoO8WaGdwTanxtkYTVOMzWp3fGWmIWWwYm2byV6+wV01dbTVVMONiUcXodD7ZFvZ+ew==
+  version "1.19.2"
+  resolved "https://registry.yarnpkg.com/@terminal-fi/swappa/-/swappa-1.19.2.tgz#57cdbb873d967da1e923d49f7bea14faf2261849"
+  integrity sha512-Oxg4QLYnemvEVwQ4NiLIA8YqY8+aAL9r2FUUx3F07MB5ysnHF0CikgzQkBzgOZe9j8GdcybMf0McJaz6J97r0w==
   dependencies:
     "@celo/connect" "^4.1.0"
     "@celo/contractkit" "^4.1.0"
