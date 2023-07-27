@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js'
 import { ContractKit } from '@celo/contractkit'
-import { concurrentMap } from '@celo/utils/lib/async'
 import { secondsToDurationString } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 import { ProposalStage, VoteValue } from '@celo/contractkit/lib/wrappers/Governance'
+import { fastConcurrentMap } from '@terminal-fi/swappa'
 
 import { Account } from '../../../lib/accounts/accounts'
 import { Transaction, TXFinishFunc, TXFunc } from '../../components/app-definition'
@@ -41,46 +41,51 @@ const GovernanceApp = (props: {
 			const lockedGold = await kit.contracts.getLockedGold()
 
 			const upvotes = governance.getQueue()
-			const dequeue = governance.getDequeue(true)
-			const durations = governance.stageDurations()
 			const now = Math.round(nowMS() / 1000)
-			const proposals = Promise.all([dequeue, durations]).then(([dequeue, durations]) => {
-				return concurrentMap(4, dequeue, async (p) => {
-					const [record, isExpired] = await Promise.all([
-						governance.getProposalRecord(p),
-						governance.isDequeuedProposalExpired(p),
+			const proposalsInReferendumAsync = (async () => {
+				const [dequeue, durations] = await Promise.all([
+					governance.getDequeue(true),
+					governance.stageDurations(),
+				])
+				const proposalStages = await fastConcurrentMap(4, dequeue, governance.getProposalStage)
+				const proposalsInReferendum = dequeue.filter((_, idx) => proposalStages[idx] === ProposalStage.Referendum)
+				return fastConcurrentMap(4, proposalsInReferendum, async (p) => {
+					const [
+						votes,
+						passing,
+						metadata,
+					]= await Promise.all([
+						governance.getVotes(p),
+						governance.isProposalPassing(p),
+						governance.getProposalMetadata(p),
 					])
 					const timeUntilExecution =
 						secondsToDurationString(
-							record.metadata.timestamp
+							metadata.timestamp
 							.plus(durations.Referendum)
 							.minus(now),
 							["day", "hour", "minute"],
 						)
 					return {
 						proposalID: p,
-						stage: isExpired ? ProposalStage.Expiration : record.stage,
-						votes: record.votes,
-						passing: record.passed, // TODO(zviad): check if this is same as before.
-						timestamp: record.metadata.timestamp,
+						votes: votes,
+						passing: passing,
+						timestamp: metadata.timestamp,
 						timeUntilExecution,
 					}
 				})
-			})
+			})()
 
 			const isSigner = await accounts.isSigner(account.address)
 			const mainAccount = !isSigner ? account.address :
 				(await accounts.voteSignerToAccount(account.address))
-
 			const upvoteRecord = governance.getUpvoteRecord(mainAccount)
 			const voteRecords = governance.getVoteRecords(mainAccount)
-
-			const proposalsInReferendum = (await proposals)
-				.filter((p) => p.stage === ProposalStage.Referendum)
-				.sort((a, b) => (a.timestamp.lt(b.timestamp) ? -1 : 1))
 			const isAccount = await accounts.isAccount(mainAccount)
 			const lockedCELO = !isAccount ? new BigNumber(0) :
 				await lockedGold.getAccountTotalLockedGold(mainAccount)
+			const proposalsInReferendum = (await proposalsInReferendumAsync)
+				.sort((a, b) => (a.timestamp.lt(b.timestamp) ? -1 : 1))
 			return {
 				mainAccount,
 				isAccount,
