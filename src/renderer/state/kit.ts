@@ -13,7 +13,7 @@ export const cfgNetworkURL = (opts?: {withFornoKey?: boolean}): string => {
 		_cfgNetworkURL = (networkURL && networkURL !== "") ? networkURL : cfg.defaultNetworkURL
 	}
 	if (opts?.withFornoKey && _cfgNetworkURL === FORNO_MAINNET_URL && FORNO_API_KEY !== "") {
-		_cfgNetworkURL = FORNO_MAINNET_URL + `?api_key=${FORNO_API_KEY}`
+		return FORNO_MAINNET_URL + `?api_key=${FORNO_API_KEY}`
 	}
 	return _cfgNetworkURL
 }
