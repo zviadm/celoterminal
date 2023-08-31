@@ -10,6 +10,8 @@ const errsToIgnore: string[] = [
 	// WalleConnectV2 library doesn't have a way to catch unhandled errors from its event emitters.
 	// And it throws quite a few benign but spammy errors.
 	"Bad MAC",
+	// Benign ENS errors get thrown because Celo is not Ethereum Mainnet.
+	"ENS is not supported on network private",
 ]
 
 interface IErrorContext {
