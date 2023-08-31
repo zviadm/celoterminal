@@ -3,6 +3,8 @@ import { erc20Devchain } from "./erc20/registry-devchain"
 import { RegisteredErc20 } from "./erc20/core"
 import { spectronChainId } from "./spectron-utils/constants"
 
+import { API_KEY as FORNO_API_KEY } from "./forno.key.json"
+
 export const mainnetChainId = "42220"
 export const baklavaChainId = "62320"
 export const alfajoresChainId = "44787"
@@ -10,7 +12,7 @@ const defaultChainId = mainnetChainId
 const defaultAccountsDB = "home/.celoterminal/celoaccounts.db"
 
 const defaultNetworks: {[key: string]: string} = {
-	[mainnetChainId]: "https://forno.celo.org",
+	[mainnetChainId]: "https://forno.celo.org" + (FORNO_API_KEY !== "" ? `?apikey=${FORNO_API_KEY}` : ""),
 	[baklavaChainId]: "https://baklava-forno.celo-testnet.org",
 	[alfajoresChainId]: "https://alfajores-forno.celo-testnet.org",
 }

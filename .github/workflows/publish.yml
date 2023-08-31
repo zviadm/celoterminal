@@ -32,6 +32,8 @@ jobs:
           node-version: 14
       - run: node ./buildcfg/check-publish.js
 
+      - run: echo "{\"API_KEY\"":" \"${{ secrets.FORNO_API_KEY}}\"}" > ./src/lib/forno.key.json
+
       - run: sudo apt-get update && sudo apt-get install libudev-dev libusb-1.0-0-dev
         if: runner.os == 'Linux'
       - run: yarn config set network-timeout 600000 -g
