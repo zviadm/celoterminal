@@ -10,6 +10,7 @@ const errsToIgnore: string[] = [
 	// WalleConnectV2 library doesn't have a way to catch unhandled errors from its event emitters.
 	// And it throws quite a few benign but spammy errors.
 	"Bad MAC",
+	"ENS is not supported on network private",
 ]
 
 interface IErrorContext {
