@@ -91,7 +91,7 @@ const RunTXs = (props: {
 							`Refusing to run transactions.`)
 					}
 				}
-				const kit = newKitWithTimeout(cfgNetworkURL(), w.wallet)
+				const kit = newKitWithTimeout(cfgNetworkURL({withFornoKey: true}), w.wallet)
 				kit.defaultAccount = executingAccount.address
 				try {
 					const chainId = (await kit.web3.eth.getChainId()).toString()

@@ -2,15 +2,18 @@ import { ContractKit, newKitFromWeb3 } from "@celo/contractkit"
 import { ReadOnlyWallet } from "@celo/connect"
 import Web3 from "web3"
 import net from "net"
-import { CFG } from '../../lib/cfg'
+import { CFG, FORNO_API_KEY, FORNO_MAINNET_URL } from '../../lib/cfg'
 
 const networkURLKeyPrefix = "terminal/core/network-url/"
 let _cfgNetworkURL: string | undefined
-export const cfgNetworkURL = (): string => {
+export const cfgNetworkURL = (opts?: {withFornoKey?: boolean}): string => {
 	if (!_cfgNetworkURL) {
 		const cfg = CFG()
 		const networkURL: string | null = localStorage.getItem(networkURLKeyPrefix + cfg.chainId)
 		_cfgNetworkURL = (networkURL && networkURL !== "") ? networkURL : cfg.defaultNetworkURL
+	}
+	if (opts?.withFornoKey && _cfgNetworkURL === FORNO_MAINNET_URL && FORNO_API_KEY !== "") {
+		return FORNO_MAINNET_URL + `?api_key=${FORNO_API_KEY}`
 	}
 	return _cfgNetworkURL
 }
@@ -24,7 +27,7 @@ const setCFGNetworkURL = (v: string) => {
 let _kit: ContractKit | undefined
 let _kitURL: string
 const kitInstance = (): ContractKit => {
-	const networkURL = cfgNetworkURL()
+	const networkURL = cfgNetworkURL({withFornoKey: true})
 	if (_kit && _kitURL !== networkURL) {
 		_kit.stop()
 		_kit = undefined
