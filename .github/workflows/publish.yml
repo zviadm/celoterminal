@@ -38,7 +38,7 @@ jobs:
           path: ./src/lib/forno.key.json
           write-mode: overwrite
           contents: |
-            "{\"API_KEY\"":" \"${{ secrets.FORNO_API_KEY }}\"}"
+            {"API_KEY": "${{ secrets.FORNO_API_KEY }}"}
 
       - run: sudo apt-get update && sudo apt-get install libudev-dev libusb-1.0-0-dev
         if: runner.os == 'Linux'
