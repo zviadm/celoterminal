@@ -69,14 +69,17 @@ const EstablishSession = (props: {
 				proposal: proposal.params,
 				supportedNamespaces: {
 					eip155: {
-						chains: [chainId],
+						// NOTE(zviad): There are a lot of buggy dApps that are requesting eip155:1 chain permissions
+						// even when there is no need for it. Adding it here is safe since we have many other checks to
+						// make sure we don't perform actions for an incorrect chainId.
+						chains: ["eip155:1", chainId],
 						methods: [
 							"eth_sendTransaction",
 							"eth_signTransaction",
 							"personal_sign",
 							"eth_signTypedData_v4"],
 						events: ["chainChanged", "accountsChanged"],
-						accounts: [`${chainId}:${props.account.address}`],
+						accounts: [`eip155:1:${props.account.address}`, `${chainId}:${props.account.address}`],
 					}
 				}
 			})
