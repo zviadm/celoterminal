@@ -37,7 +37,6 @@ const EstablishSession = (props: {
 		try {
 			const wc = wcGlobal.wc()
 			const l = async (proposal: ProposalRequest) => {
-				wc.off("session_proposal", l)
 				log.info(`wallet-connect: proposal received (cancelled: ${cancelled})...`, proposal)
 				if (cancelled) {
 					wc.rejectSession({id: proposal.id, reason: getSdkError("USER_REJECTED_METHODS")})
@@ -45,7 +44,7 @@ const EstablishSession = (props: {
 				}
 				setProposal(proposal)
 			}
-			wc.on("session_proposal", l)
+			wc.once("session_proposal", l)
 			wc.pair({uri})
 		} catch (e) {
 			onCancel()
