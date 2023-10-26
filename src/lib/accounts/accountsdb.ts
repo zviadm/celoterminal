@@ -87,7 +87,8 @@ class AccountsDB {
 			version: number
 			data: string
 			encrypted_data: string
-		}[] = this.pSelectAccounts.all()
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		}[] = this.pSelectAccounts.all() as any
 		const accounts: Account[] = rows.filter(
 			(r) => supportedVersions.indexOf(r.version) >= 0).map((r) => {
 			const base = {
@@ -216,7 +217,8 @@ class AccountsDB {
 				address: string,
 				type: string,
 				encrypted_data: string,
-			}[] = this.pSelectEncryptedAccounts.all()
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			}[] = this.pSelectEncryptedAccounts.all() as any
 			for (const account of accounts) {
 				log.info(`accounts-db: re-encrypting: ${account.type}/${account.address}...`)
 				const newEncryptedData = encryptAES(decryptAES(account.encrypted_data, oldPassword), newPassword)
@@ -233,7 +235,8 @@ class AccountsDB {
 	// Must be called in a transaction.
 	private _verifyAndUpdatePassword = (oldPassword: string, newPassword: string) => {
 		const newEncryptedPassword = encryptAES(newPassword, newPassword)
-		const pws: {encrypted_password: string}[] = this.pSelectPassword.all()
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const pws: {encrypted_password: string}[] = this.pSelectPassword.all() as any
 		if (pws.length > 1) {
 			throw new Error(`Unexpected error while checking password. Is Database corrupted?`)
 		}
