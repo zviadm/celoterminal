@@ -4,7 +4,6 @@ import { Celovote } from './celovote/def'
 import { SCInspector } from './sc-inspector/def'
 import { Governance } from './governance/def'
 import { Locker } from './locker/def'
-import { Mento } from './mento/def'
 import { MultiSig } from './multisig/def'
 import { Portfolio } from './portfolio/def'
 import { SavingsCELO } from './savingscelo/def'
@@ -23,7 +22,6 @@ export const AppList: AppDefinition[] = [
 	WalletConnect,
 
 	// Optional Apps.
-	Mento,
 	Celovote,
 	MultiSig,
 	SCInspector,
