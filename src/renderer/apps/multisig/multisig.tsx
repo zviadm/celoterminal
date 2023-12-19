@@ -1,6 +1,6 @@
 import { ContractKit } from '@celo/contractkit'
 import { toTransactionObject } from '@celo/connect'
-import { concurrentMap } from '@celo/utils/lib/async'
+import { fastConcurrentMap } from '@terminal-fi/swappa'
 
 import { Account } from '../../../lib/accounts/accounts'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
@@ -45,7 +45,7 @@ const MultiSigApp = (props: {
 				requiredSignatures,
 				internalRequiredSignatures,
 			] = await Promise.all([
-				concurrentMap(
+				fastConcurrentMap(
 					10,
 					Array.from(Array(transactionsN).keys()),
 					(idx) => { return multiSig.getTransaction(idx) }
@@ -56,7 +56,7 @@ const MultiSigApp = (props: {
 			])
 
 			const transactions = _transactions.map((t, idx) => ({...t, idx: idx}))
-			const pendingTXsRaw = transactions.filter((t) => !t.executed)
+			const pendingTXsRaw = transactions.filter((t) => !t.executed).sort((a, b) => b.idx - a.idx)
 			const pendingTXs = await parseTXs(kit, pendingTXsRaw)
 			return {
 				transactions,
