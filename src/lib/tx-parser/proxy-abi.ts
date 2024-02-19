@@ -1,6 +1,7 @@
 import { AbiItem } from "web3-utils"
 
 import { deployedBytecode as proxyBytecodeV1, abi as proxyAbiV1 } from "../core-contracts/Proxy-v1.json"
+import { deployedBytecode as proxyBytecodeBrokerV1, abi as proxyAbiBrokerV1 } from "../core-contracts/BrokerProxy-v1.json"
 import { deployedBytecode as proxyBytecodeERC1967Upgrade, abi as proxyAbiERC1967Upgrade } from "../core-contracts/Proxy-ERC1967Upgrade.json"
 
 export interface KnownProxy {
@@ -21,6 +22,14 @@ export const KnownProxies: KnownProxy[] = [
 		verifiedName: "CoreContract:Proxy",
 		abi: proxyAbiV1 as AbiItem[],
 		bytecode: proxyBytecodeV1,
+		implementation: {
+			type:"method", method: "_getImplementation",
+		},
+	},
+	{
+		verifiedName: "Mento:BrokerProxy",
+		abi: proxyAbiBrokerV1 as AbiItem[],
+		bytecode: proxyBytecodeBrokerV1,
 		implementation: {
 			type:"method", method: "_getImplementation",
 		},
