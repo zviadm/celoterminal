@@ -5,9 +5,9 @@ import useOnChainState from "../../state/onchain-state";
 import { Account } from "../../../lib/accounts/accounts";
 import { selectAddressOrThrow } from "../../../lib/cfg";
 
-import { abi as LendingPoolAddressesProviderABI } from "./abi/AddressesProvider.json";
-import { abi as LendingPoolABI } from "./abi/LendingPool.json";
-import { abi as LendingPoolDataProviderABI } from "./abi/DataProvider.json";
+import ADDRESS_PROVIDER_JSON from "./abi/AddressesProvider.json";
+import LENDING_POOL_JSON from "./abi/LendingPool.json";
+import DATA_PROVIDER_JSON from "./abi/DataProvider.json";
 import {
 	BN,
 	autoRepayAddresses,
@@ -40,7 +40,7 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 					lendingPoolAddressesProviderAddresses
 				);
 				const LendingPoolAddressesProvider = new kit.web3.eth.Contract(
-					LendingPoolAddressesProviderABI as AbiItem[],
+					ADDRESS_PROVIDER_JSON.abi as AbiItem[],
 					lendingPoolAddressesProviderAddress
 				);
 				const lendingPoolAddress = await LendingPoolAddressesProvider.methods
@@ -50,14 +50,14 @@ export const useUserOnChainState = (account: Account, tokenAddress: string) => {
 					.getPriceOracle()
 					.call();
 				const LendingPool = new kit.web3.eth.Contract(
-					LendingPoolABI as AbiItem[],
+					LENDING_POOL_JSON.abi as AbiItem[],
 					lendingPoolAddress
 				);
 				const lendingPoolDataProviderAddress = selectAddressOrThrow(
 					lendingPoolDataProviderAddresses
 				);
 				const LendingPoolDataProvider = new kit.web3.eth.Contract(
-					LendingPoolDataProviderABI as AbiItem[],
+					DATA_PROVIDER_JSON.abi as AbiItem[],
 					lendingPoolDataProviderAddress
 				);
 
