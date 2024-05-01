@@ -1,5 +1,5 @@
 import * as React from 'react'
-import electron from 'electron'
+import remote from '@electron/remote'
 import path from 'path'
 
 import useLocalStorageState from '../../state/localstorage-state'
@@ -13,18 +13,18 @@ const accountsDB = (): AccountsDB => {
 	if (!_db) {
 		const cfg = CFG()
 		const dbPath = path.join(
-			electron.remote.app.getPath(cfg.accountsDBPath.root), ...cfg.accountsDBPath.path)
+			remote.app.getPath(cfg.accountsDBPath.root), ...cfg.accountsDBPath.path)
 		try {
 			_db = new AccountsDB(dbPath)
 		} catch (e) {
-			electron.remote.dialog.showMessageBoxSync({
+			remote.dialog.showMessageBoxSync({
 				type: "error",
 				title: "CRASH",
 				message:
 					`Accounts database: ${dbPath} can not be created or opened.\n` +
 					`CeloTerminal can not start.\n\n${e}`,
 			})
-			electron.remote.app.quit()
+			remote.app.quit()
 			throw e
 		}
 		window.addEventListener('unload', () => { _db.close() })

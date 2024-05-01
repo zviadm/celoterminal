@@ -3,7 +3,8 @@ import { erc20Devchain } from "./erc20/registry-devchain"
 import { RegisteredErc20 } from "./erc20/core"
 import { spectronChainId } from "./spectron-utils/constants"
 
-export { API_KEY as FORNO_API_KEY } from "./forno.key.json"
+import FORNO_KEY_JSON from "./forno.key.json"
+export const FORNO_API_KEY = FORNO_KEY_JSON.API_KEY
 
 export const mainnetChainId = "42220"
 export const baklavaChainId = "62320"

@@ -1,4 +1,4 @@
-import { remote } from 'electron'
+import remote from '@electron/remote'
 import { AppDefinition } from '../components/app-definition'
 import { Celovote } from './celovote/def'
 import { SCInspector } from './sc-inspector/def'

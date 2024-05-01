@@ -2,9 +2,8 @@ import * as path from 'path'
 import * as os from 'os'
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process'
 import { Application } from 'spectron'
-import { Remote } from 'electron'
 import { ContractKit, newKit } from '@celo/contractkit'
-import * as kill from 'tree-kill'
+import kill from 'tree-kill'
 
 import { SpectronAccountsDB, spectronChainId } from './constants'
 
@@ -21,7 +20,7 @@ export const testLog = (msg: string, opts?: {noNewLine?: boolean}): void => {
 // requires jestSetup to be called in the test.
 export let app: Application
 
-export const remote = (app: Application): Remote => {
+export const remote = (app: Application): any => {
 	// spectron.Application is mistyped.
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion
 	return (app!.electron as any).remote

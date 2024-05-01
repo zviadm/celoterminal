@@ -10,10 +10,6 @@ import { ISession, SessionMetadata } from '../session';
 import { getSdkError } from '@walletconnect/utils';
 import { IJsonRpcErrorMessage, RequestPayload, WCRequest, requestQueueGlobal } from '../request-queue';
 
-if (module.hot) {
-	module.hot.decline()
-}
-
 const core = new Core({
   projectId: "9e9a1a2420615978dc2409e90543aef9",
 });

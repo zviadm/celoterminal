@@ -1,5 +1,6 @@
 import path from "path"
-import { ipcRenderer, remote } from 'electron'
+import { ipcRenderer } from 'electron'
+import remote from '@electron/remote'
 import * as log from 'electron-log'
 import { testOnlyAdjustNow } from './state/time'
 
@@ -18,7 +19,3 @@ ipcRenderer.on("adjust-time", (event, increaseMS) => { testOnlyAdjustNow(increas
 
 import './styles.scss'
 import './coreapp/app'
-
-if (module.hot) {
-	module.hot.accept()
-}

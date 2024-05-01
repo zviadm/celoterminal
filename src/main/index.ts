@@ -15,10 +15,12 @@ const CORSByPassURLs = [
 	'https://repo.sourcify.dev/*',
 ]
 
-declare const __static: string
+declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
 
 const isSpectronTest = !app.isPackaged && !!process.env.SPECTRON_TEST
-app.allowRendererProcessReuse = true
+// TODO(zviad): figure out what this was?
+// app.allowRendererProcessReuse = true
 log.transports.console.level = app.isPackaged ? false : "debug"
 log.transports.file.level = app.isPackaged ? "info" : "debug"
 log.transports.file.resolvePath = () => path.join(
@@ -26,7 +28,7 @@ log.transports.file.resolvePath = () => path.join(
 	app.isPackaged ? 'main.log' : 'celoterminal-dev.main.log');
 
 // Global reference to mainWindow (necessary to prevent window from being garbage collected).
-let mainWindow: BrowserWindow | null
+let mainWindow: BrowserWindow | null = null
 let willQuitApp = false
 export const setForceQuit = (): void => { willQuitApp = true }
 const hideInsteadOfQuit = () => {
@@ -41,9 +43,10 @@ function createMainWindow() {
 	const noSplash = isSpectronTest // No splash screen during Spectron testing.
 	const width = noDevTools ? 950 : 1100
 
-	const iconOptions = isSpectronTest ? {} : {
-		icon: path.join(__static, 'icon.png')
-	}
+	const iconOptions = isSpectronTest ? {} : {}
+	// : {
+	// 	icon: path.join(__static, 'icon.png')
+	// }
 
 	if (isSpectronTest &&
 		CFG().accountsDBPath.path[CFG().accountsDBPath.path.length - 1] === SpectronAccountsDB) {
@@ -67,7 +70,6 @@ function createMainWindow() {
 			// for accounts database.
 			nodeIntegration: true,
 			contextIsolation: false,
-			enableRemoteModule: true,
 		},
 		show: noSplash,
 		// autoHide is causing unexpected issues during spectron tests. It is somehow
@@ -86,17 +88,12 @@ function createMainWindow() {
 	if (!noDevTools) {
 		window.webContents.openDevTools()
 	}
-	if (!app.isPackaged && !isSpectronTest) {
-		window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
-	} else {
-		window.loadURL(formatUrl({
-			pathname: !isSpectronTest ?
-				path.join(__dirname, 'index.html') :
-				path.join(__dirname, '../renderer/index.html'),
-			protocol: 'file',
-			slashes: true
-		}))
-	}
+	window.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
+	// if (!app.isPackaged && !isSpectronTest) {
+	// 	window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
+	// } else {
+	// 	window.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
+	// }
 
 	if (!noSplash) {
 		const splash = new BrowserWindow({
@@ -108,7 +105,7 @@ function createMainWindow() {
 			webPreferences: {contextIsolation: true},
 			...iconOptions,
 		})
-		splash.loadURL(`file://${__static}/splash.html`)
+		splash.loadURL(SPLASH_WINDOW_WEBPACK_ENTRY)
 
 		window.on('ready-to-show', () => {
 			window.show()
@@ -138,10 +135,11 @@ function createMainWindow() {
 		log.error(`main: navigation is not allowed...`)
 		event.preventDefault()
 	})
-	window.webContents.on('new-window', (event) => {
-		log.error(`main: new-window is not allowed...`)
-		event.preventDefault()
-	})
+	// TODO(zviad): figure out how to clear this.
+	// window.webContents.on('new-window', (event) => {
+	// 	log.error(`main: new-window is not allowed...`)
+	// 	event.preventDefault()
+	// })
 
 	// Bypass CORS restrictions since this is a native app, not a random website running
 	// in the browser. Bypass happens by clearing `Origin` in the request headers.
