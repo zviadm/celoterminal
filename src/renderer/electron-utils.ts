@@ -1,4 +1,4 @@
-import remote from '@electron/remote'
+import * as remote from '@electron/remote'
 
 export const showWindowAndFocus = (): void => {
 	const window = remote.getCurrentWindow()

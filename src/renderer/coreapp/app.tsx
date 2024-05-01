@@ -1,4 +1,4 @@
-import remote from '@electron/remote'
+import * as remote from '@electron/remote'
 import log from 'electron-log'
 
 import * as React from 'react'

@@ -1,6 +1,5 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'path'
-import { format as formatUrl } from 'url'
 import log from 'electron-log'
 
 import { setupAutoUpdater } from './auto-updater'
@@ -8,6 +7,9 @@ import { CFG } from '../lib/cfg'
 import { testOnlySetupAccountsDB } from './test-utils'
 import { SpectronAccountsDB } from '../lib/spectron-utils/constants'
 import { setupMenu } from './menu'
+import * as remoteMain from "@electron/remote/main"
+
+remoteMain.initialize()
 
 // List of URLs that don't allow CORS requests. Celo Terminal is a native app thus
 // CORS restrictions are completely unnecessary.
@@ -84,16 +86,12 @@ function createMainWindow() {
 		: {}),
 		...iconOptions,
 	})
+	remoteMain.enable(window.webContents)
 
 	if (!noDevTools) {
 		window.webContents.openDevTools()
 	}
 	window.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
-	// if (!app.isPackaged && !isSpectronTest) {
-	// 	window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
-	// } else {
-	// 	window.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
-	// }
 
 	if (!noSplash) {
 		const splash = new BrowserWindow({

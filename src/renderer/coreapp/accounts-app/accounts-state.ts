@@ -1,5 +1,5 @@
 import * as React from 'react'
-import remote from '@electron/remote'
+import * as remote from '@electron/remote'
 import path from 'path'
 
 import useLocalStorageState from '../../state/localstorage-state'

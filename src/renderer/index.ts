@@ -1,6 +1,6 @@
 import path from "path"
 import { ipcRenderer } from 'electron'
-import remote from '@electron/remote'
+import * as remote from '@electron/remote'
 import * as log from 'electron-log'
 import { testOnlyAdjustNow } from './state/time'
 
