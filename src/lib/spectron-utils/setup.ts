@@ -57,7 +57,7 @@ const startApp = async (): Promise<{app: Application, cleanup: () => Promise<voi
 
 	const rootPath = [__dirname, "..", "..", ".."]
 	const appPath = path.normalize(path.join(...rootPath, "node_modules", ".bin", "electron"))
-	const appArgs = ['--no-sandbox', path.normalize(path.join(...rootPath, "dist", "main", "main.js"))]
+	const appArgs = ['--no-sandbox', path.normalize(path.join(...rootPath, ".webpack", "main", "index.js"))]
 	const app = new Application({
 		path: appPath,
 		args: appArgs,
