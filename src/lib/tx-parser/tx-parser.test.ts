@@ -1,4 +1,4 @@
-import * as Web3 from "web3"
+import Web3 from "web3"
 import { AbiItem } from "@celo/connect"
 
 import erc20Abi from "../erc20/erc20-abi.json"

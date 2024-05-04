@@ -1,17 +1,31 @@
 {
-  "name": "celoterminal-n18",
-  "productName": "celoterminal-n18",
-  "version": "1.0.0",
-  "description": "My Electron application description",
+  "name": "celoterminal",
+  "version": "2.0.0",
+  "license": "MIT",
+  "repository": {
+    "url": "https://github.com/zviadm/celoterminal"
+  },
+  "author": "Zviad Metreveli",
+  "description": "Celo Terminal: Manage accounts and interact with the decentralized apps on Celo platform.",
   "main": ".webpack/main",
   "scripts": {
-    "start": "electron-forge start",
+    "lint": "eslint --max-warnings=0 src/",
+    "test": "ELECTRON_RUN_AS_NODE=true electron ./node_modules/.bin/jest --testPathIgnorePatterns '<rootDir>/.*/spectron-tests/'",
+
+    "dev:alfajores": "env-cmd -f env.dev.alfajores electron-forge start",
+    "dev:baklava": "env-cmd -f env.dev.baklava electron-forge start",
+    "dev:mainnet": "env-cmd -f env.dev.mainnet electron-forge start",
+    "dev:spectron": "env-cmd -f env.dev.spectron ./node_modules/.bin/electron ./dist/main/main.js",
+    "dev:fresh": "./env.dev.fresh.sh",
+
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx ."
+    "publish": "electron-forge publish"
   },
   "devDependencies": {
+    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-react": "^7.22.0",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "@celo/governance": "^4.1.0",
     "@electron-forge/cli": "^7.4.0",
     "@electron-forge/maker-deb": "^7.4.0",
@@ -35,8 +49,8 @@
     "@vercel/webpack-asset-relocator-loader": "^1.7.3",
     "css-loader": "^6.0.0",
     "electron": "28.3.1",
+    "env-cmd": "^10.1.0",
     "eslint": "^8.0.1",
-    "eslint-plugin-import": "^2.25.0",
     "fork-ts-checker-webpack-plugin": "^7.2.13",
     "jest": "^26.6.3",
     "node-loader": "^2.0.0",
@@ -53,11 +67,6 @@
     "typescript": "~4.5.4"
   },
   "keywords": [],
-  "author": {
-    "name": "Zviad Metreveli",
-    "email": "thezviad@gmail.com"
-  },
-  "license": "MIT",
   "dependencies": {
     "@celo/connect": "^4.1.0",
     "@celo/contractkit": "^4.1.0",
