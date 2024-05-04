@@ -24,6 +24,7 @@ import AppHeader from '../../components/app-header'
 import AppSection from '../../components/app-section'
 import AppContainer from '../../components/app-container'
 import SectionTitle from '../../components/section-title'
+import { monospaceFont } from '../../styles'
 
 const WalletConnectApp = (props: {
 	accounts: Account[],
@@ -230,7 +231,7 @@ const WalletConnectApp = (props: {
 					fullWidth={true}
 					spellCheck={false}
 					value={connectURI}
-					inputProps={{style: {fontFamily: "monospace", wordBreak: "break-all"}}}
+					inputProps={{style: {...monospaceFont, wordBreak: "break-all"}}}
 					onChange={(e) => { setConnectURI(e.target.value) }}
 				/>
 

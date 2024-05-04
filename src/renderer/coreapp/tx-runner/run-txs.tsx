@@ -27,6 +27,7 @@ import { runWithInterval } from '../../../lib/interval'
 import BigNumber from 'bignumber.js'
 import SignatureRequestInfo from './signature-request-info'
 import SignatureRequestTitle from './signature-request-title'
+import { monospaceFont } from '../../styles'
 
 export class TXCancelled extends Error {
 	constructor() { super('Cancelled') }
@@ -44,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
 		color: theme.palette.success.main,
 	},
 	address: {
-		fontFamily: "monospace",
+		...monospaceFont,
 		fontSize: theme.typography.body2.fontSize,
 	},
 }))

@@ -32,17 +32,18 @@ import CreateMultiSigAccount from './create-multisig-account'
 import ModifyMultiSig from './modify-multisig'
 import ImportMultiSigAccount from './import-multisig-account'
 import { AddAccount, AddType } from './add-account'
+import { monospaceFont } from '../../styles'
 
 const useStyles = makeStyles((theme) => ({
 	accountText: {
-		fontFamily: "monospace",
+		...monospaceFont,
 	},
 	buttonName: {
+		...monospaceFont,
 		padding: 0,
 		marginLeft: 0,
 		minWidth: 0,
 		textAlign: "left",
-		fontFamily: "monospace",
 		textTransform: "none",
 		fontSize: theme.typography.body1.fontSize,
 	},

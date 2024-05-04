@@ -21,8 +21,6 @@ declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
 
 const isSpectronTest = !app.isPackaged && !!process.env.SPECTRON_TEST
-// TODO(zviad): figure out what this was?
-// app.allowRendererProcessReuse = true
 log.transports.console.level = app.isPackaged ? false : "debug"
 log.transports.file.level = app.isPackaged ? "info" : "debug"
 log.transports.file.resolvePath = () => path.join(

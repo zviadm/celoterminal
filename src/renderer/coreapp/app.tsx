@@ -30,6 +30,7 @@ import { useInstalledApps } from './installed-apps-state'
 import AlertTitle from '@material-ui/lab/AlertTitle'
 
 const appBarHeightPX = process.platform === "darwin" ? 85 : 60
+const appBarDragHeightPX = 85 - 60
 
 const App = () => {
 	const {error, setError, clearError} = React.useContext(ErrorContext)
@@ -261,7 +262,7 @@ const ThemedApp = () => (
 const appDragRegionStyles = makeStyles(() => ({
 	titleBar: {
 		"-webkit-app-region": "drag",
-		"height": `${appBarHeightPX}px`,
+		"height": `${appBarDragHeightPX}px`,
 		"position": "absolute",
 		"top": 0,
 		"left": 0,

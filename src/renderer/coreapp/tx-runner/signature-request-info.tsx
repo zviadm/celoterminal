@@ -12,6 +12,7 @@ import {
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown'
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp'
 import { ParsedTXData } from '../../../lib/tx-parser/tx-parser'
+import { monospaceFont } from '../../styles'
 
 const requestInfo = (req: ParsedSignatureRequest): {
 	sectionTitle: JSX.Element | string,
@@ -31,8 +32,8 @@ const requestInfo = (req: ParsedSignatureRequest): {
 							<TableCell
 								colSpan={2}
 								style={{
+									...monospaceFont,
 									color: "red",
-									fontFamily: "monospace",
 									overflowWrap: "anywhere"}}>TX Parsing {req.parseErr}</TableCell>
 						</TableRow>}
 						{req.parsedTX ?
@@ -43,7 +44,7 @@ const requestInfo = (req: ParsedSignatureRequest): {
 							<TableCell
 								colSpan={2}
 								style={{
-									fontFamily: "monospace",
+									...monospaceFont,
 									overflowWrap: "anywhere"}}>CALLDATA: {req.encodedABI}</TableCell>
 						</TableRow>}
 					</>
@@ -58,7 +59,7 @@ const requestInfo = (req: ParsedSignatureRequest): {
 						<TableCell
 							colSpan={2}
 							style={{
-								fontFamily: "monospace",
+								...monospaceFont,
 								overflowWrap: "anywhere"}}>{req.dataAsText || req.data}</TableCell>
 					</TableRow>
 			}
@@ -73,7 +74,7 @@ const requestInfo = (req: ParsedSignatureRequest): {
 						<TableCell
 							colSpan={2}
 							style={{
-								fontFamily: "monospace",
+								...monospaceFont,
 								overflowWrap: "anywhere"}}><pre>{JSON.stringify(req.data, undefined, 2)}</pre></TableCell>
 					</TableRow>
 			}
@@ -95,7 +96,7 @@ const SignatureRequestInfo = (props: {
 				<TableBody>
 					<TableRow>
 						<TableCell width="20%">{sectionTitle}</TableCell>
-						<TableCell style={{fontFamily: "monospace"}}>{infoShort}</TableCell>
+						<TableCell style={{...monospaceFont}}>{infoShort}</TableCell>
 						<TableCell width="1%">
 							<IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
 								{open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
@@ -125,7 +126,7 @@ const SignatureRequestInfo = (props: {
 						<TableCell
 							colSpan={2}
 							style={{
-								fontFamily: "monospace",
+								...monospaceFont,
 								overflowWrap: "anywhere"}}>GAS: {props.fee.estimatedGas.toFixed(0)}</TableCell>
 					</TableRow>}
 				</TableBody>
@@ -148,7 +149,7 @@ const ParsedTXRow = (props: {tx: ParsedTXData}) => {
 			<TableCell
 				colSpan={2}
 				style={{
-					fontFamily: "monospace",
+					...monospaceFont,
 					overflowWrap: "anywhere"}}>{text}</TableCell>
 		</TableRow>
 	)

@@ -3,10 +3,11 @@ import { makeStyles } from '@material-ui/core/styles'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 import Typography from '@material-ui/core/Typography'
 import TextField, { TextFieldProps } from '@material-ui/core/TextField'
+import { monospaceFont } from '../styles'
 
 const useStyles = makeStyles(() => ({
 	address: {
-		fontFamily: "monospace",
+		...monospaceFont,
 	}
 }))
 

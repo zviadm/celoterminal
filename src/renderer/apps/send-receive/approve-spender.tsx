@@ -7,6 +7,7 @@ import { Account } from '../../../lib/accounts/accounts'
 import * as React from 'react'
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@material-ui/core'
 import NumberInput from '../../components/number-input'
+import { monospaceFont } from '../../styles'
 
 const ApproveSpender = (props: {
 	erc20: RegisteredErc20,
@@ -38,7 +39,7 @@ const ApproveSpender = (props: {
 					fullWidth={true}
 					InputLabelProps={{shrink: true}}
 					label="Spender address"
-					inputProps={{style: {fontFamily: "monospace"}}}
+					inputProps={{style: {...monospaceFont}}}
 					placeholder="0x..."
 					disabled={!!props.spender}
 					value={spender}

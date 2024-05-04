@@ -17,17 +17,18 @@ import OpenInNew from '@material-ui/icons/OpenInNew'
 
 import AccountIcon from './accounts-app/account-icon'
 import NetworkIndicator from './network-indicator'
+import { monospaceFont } from '../styles'
 
 const useStyles = makeStyles(() => ({
 	name: {
+		...monospaceFont,
 		width: 180,
-		fontFamily: "monospace",
 		textOverflow: "ellipsis",
 		overflow: "hidden",
 		marginRight: 20,
 	},
 	address: {
-		fontFamily: "monospace",
+		...monospaceFont,
 	},
 }))
 
@@ -159,10 +160,10 @@ const QRCodeButton = (props: {
 					<Paper>
 						<Box p={2} display="flex" flexDirection="column" alignItems="center">
 							<Typography color="textSecondary">Account Address</Typography>
-							<Typography style={{fontFamily: "monospace", fontSize: 20}}>
+							<Typography style={{...monospaceFont, fontSize: 20}}>
 								{address?.slice(2, 6)} {address?.slice(6, 10)} {address?.slice(10, 14)} {address?.slice(14, 18)} {address?.slice(18, 22)}
 							</Typography>
-							<Typography style={{fontFamily: "monospace", fontSize: 20}}>
+							<Typography style={{...monospaceFont, fontSize: 20}}>
 								{address?.slice(22, 26)} {address?.slice(26, 30)} {address?.slice(30, 34)} {address?.slice(34, 38)} {address?.slice(38)}
 							</Typography>
 						</Box>

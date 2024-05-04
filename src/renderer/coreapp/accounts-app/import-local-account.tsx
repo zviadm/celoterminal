@@ -21,10 +21,11 @@ import Box from '@material-ui/core/Box'
 import { LocalAccount } from '../../../lib/accounts/accounts'
 import { decryptLocalKey, encryptLocalKey, LocalKey } from '../../../lib/accounts/accountsdb'
 import { UserError } from '../../../lib/error'
+import { monospaceFont } from '../../styles'
 
 const useStyles = makeStyles(() => ({
 	secretText: {
-		fontFamily: "monospace",
+		...monospaceFont,
 	},
 }))
 

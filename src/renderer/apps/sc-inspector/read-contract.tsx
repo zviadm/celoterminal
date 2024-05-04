@@ -11,6 +11,7 @@ import {
 import Alert from '@material-ui/lab/Alert'
 
 import ContractCallInputs from './contract-call-inputs'
+import { monospaceFont } from '../../styles'
 
 const ReadContract = (props: {
 	contractAddress: string,
@@ -69,17 +70,17 @@ const ReadContract = (props: {
 									return (
 										<TableRow key={idx}>
 											<TableCell>
-												<Typography style={{fontFamily: "monospace"}}>
+												<Typography style={{...monospaceFont}}>
 													{o.name || "<output>"}
 												</Typography>
 											</TableCell>
 											<TableCell>
-												<Typography style={{fontFamily: "monospace"}} color="textSecondary">
+												<Typography style={{...monospaceFont}} color="textSecondary">
 													{o.type}
 												</Typography>
 											</TableCell>
 											<TableCell width="100%">
-												<Typography style={{fontFamily: "monospace", overflow: "wrap", overflowWrap: "anywhere"}}>
+												<Typography style={{...monospaceFont, overflow: "wrap", overflowWrap: "anywhere"}}>
 													<span id={`contract-result-${abi.name}-${idx}`}>
 														{`${abi.outputs?.length === 1 ? fetched.result : fetched.result[idx]}`}
 													</span>

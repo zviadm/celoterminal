@@ -15,6 +15,7 @@ import {
 	Box, Button, Card, CardContent, CardHeader, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Typography
 } from '@material-ui/core'
 import Link from '../../../components/link'
+import { monospaceFont } from '../../../styles'
 
 interface ProposalRequest {
 	id: number
@@ -130,7 +131,7 @@ const EstablishSession = (props: {
 						<Typography variant="body1" color="textPrimary">
 							{props.account.name}
 						</Typography>
-						<Typography variant="body1" color="textSecondary" style={{fontFamily: "monospace"}}>
+						<Typography variant="body1" color="textSecondary" style={{...monospaceFont}}>
 							{props.account.address}
 						</Typography>
 					</CardContent>

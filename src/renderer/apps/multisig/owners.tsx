@@ -8,6 +8,7 @@ import Add from "@material-ui/icons/Add"
 
 import LinkedAddress from "../../components/linked-address"
 import NumberInput from '../../components/number-input'
+import { monospaceFont } from '../../styles'
 
 export const OwnersTable = (props: {
 	owners: string[]
@@ -102,7 +103,7 @@ const InputAddressDialog = (props: {
 						margin="dense"
 						size="medium"
 						fullWidth={true}
-						inputProps={{style: {fontFamily: "monospace"}, spellCheck: false}}
+						inputProps={{style: {...monospaceFont}, spellCheck: false}}
 						InputLabelProps={{shrink: true}}
 						placeholder="0x..."
 						value={address}
