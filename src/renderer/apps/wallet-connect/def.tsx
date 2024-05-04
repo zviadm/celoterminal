@@ -7,6 +7,7 @@ import WalletConnectApp from './wallet-connect'
 import { requestQueueNotifyN } from './request-queue'
 import FindInPage from '@material-ui/icons/FindInPage'
 
+// TODO: N18-MIGRATION
 // const WCIcon = (props: {fontSize?: "default" | "large"}): JSX.Element => {
 // 	return <SvgIcon
 // 		fontSize={props.fontSize}

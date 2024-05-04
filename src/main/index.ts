@@ -131,7 +131,7 @@ function createMainWindow() {
 		log.error(`main: navigation is not allowed...`)
 		event.preventDefault()
 	})
-	// TODO(zviad): figure out how to clear this.
+	// TODO(zviad): N18-MIGRATION
 	// window.webContents.on('new-window', (event) => {
 	// 	log.error(`main: new-window is not allowed...`)
 	// 	event.preventDefault()

@@ -6,6 +6,7 @@ import CelovoteApp from "./celovote";
 // import SvgIcon from '@material-ui/core/SvgIcon';
 import FindInPage from '@material-ui/icons/FindInPage';
 
+// TODO: N18-MIGRATION
 // const CVIcon = (props: {fontSize?: "default" | "large"}): JSX.Element => {
 // 	return <SvgIcon
 // 		fontSize={props.fontSize}
