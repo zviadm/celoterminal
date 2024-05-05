@@ -29,7 +29,7 @@ rules.push({
 
 rules.push({
   test: /\.png$/,
-  use: [{loader: 'raw-loader'}],
+  type: "asset/resource",
 })
 
 export const rendererConfig: Configuration = {
