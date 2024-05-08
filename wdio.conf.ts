@@ -1,5 +1,6 @@
 /// <reference types="wdio-electron-service" />
 import type { Options } from '@wdio/types'
+process.env.E2E_TEST = 'true'
 export const config: Options.Testrunner = {
     //
     // ====================
@@ -14,7 +15,7 @@ export const config: Options.Testrunner = {
             transpileOnly: true
         }
     },
-    
+
     //
     // ==================
     // Specify Test Files
@@ -53,7 +54,7 @@ export const config: Options.Testrunner = {
     // and 30 processes will get spawned. The property handles how many capabilities
     // from the same test should run tests.
     //
-    maxInstances: 10,
+    maxInstances: 1,
     //
     // If you have trouble getting all important capabilities together, check out the
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
@@ -125,7 +126,7 @@ export const config: Options.Testrunner = {
     // Make sure you have the wdio adapter package for the specific framework installed
     // before running any tests.
     framework: 'mocha',
-    
+
     //
     // The number of times to retry the entire specfile when it fails as a whole
     // specFileRetries: 1,

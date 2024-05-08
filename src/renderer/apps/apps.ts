@@ -12,6 +12,7 @@ import { WalletConnect } from './wallet-connect/def'
 import { Swappa } from './swappa/def'
 import { Moola } from './moola/def'
 import { Crasher } from './test-crasher/def'
+import { IS_E2E_TEST } from '../../lib/cfg'
 
 export const AppList: AppDefinition[] = [
 	// Core Apps.
@@ -28,7 +29,7 @@ export const AppList: AppDefinition[] = [
 	SavingsCELO,
 	Swappa,
 	Moola,
-].concat(remote.app.isPackaged ? [] : [
+].concat((remote.app.isPackaged && !IS_E2E_TEST) ? [] : [
 	// Test/Dev-only Apps.
 	Crasher,
 ])

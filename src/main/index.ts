@@ -3,7 +3,7 @@ import path from 'path'
 import log from 'electron-log'
 
 import { setupAutoUpdater } from './auto-updater'
-import { CFG } from '../lib/cfg'
+import { CFG, IS_E2E_TEST } from '../lib/cfg'
 import { testOnlySetupAccountsDB } from './test-utils'
 import { SpectronAccountsDB } from '../../old-tests/spectron-utils/constants'
 import { setupMenu } from './menu'
@@ -20,12 +20,12 @@ const CORSByPassURLs = [
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
 
-const isSpectronTest = !app.isPackaged && !!process.env.SPECTRON_TEST
-log.transports.console.level = app.isPackaged ? false : "debug"
-log.transports.file.level = app.isPackaged ? "info" : "debug"
+log.transports.console.level = (app.isPackaged && !IS_E2E_TEST) ? false : "debug"
+log.transports.file.level = (app.isPackaged && !IS_E2E_TEST) ? "info" : "debug"
 log.transports.file.resolvePath = () => path.join(
 	app.getPath("logs"),
-	app.isPackaged ? 'main.log' : 'celoterminal-dev.main.log');
+	IS_E2E_TEST ? "celoterminal-e2e.main.log" :
+	app.isPackaged ? 'main.log' : 'celoterminal-dev.main.log')
 
 // Global reference to mainWindow (necessary to prevent window from being garbage collected).
 let mainWindow: BrowserWindow | null = null
@@ -39,16 +39,16 @@ function createMainWindow() {
 	const height = 800
 	const minWidth = 850
 
-	const noDevTools = app.isPackaged || isSpectronTest
-	const noSplash = isSpectronTest // No splash screen during Spectron testing.
+	const noDevTools = app.isPackaged || IS_E2E_TEST
+	const noSplash = IS_E2E_TEST // No splash screen during Spectron testing.
 	const width = noDevTools ? 950 : 1100
 
-	const iconOptions = isSpectronTest ? {} : {}
+	const iconOptions = IS_E2E_TEST ? {} : {}
 	// : {
 	// 	icon: path.join(__static, 'icon.png')
 	// }
 
-	if (isSpectronTest &&
+	if (IS_E2E_TEST &&
 		CFG().accountsDBPath.path[CFG().accountsDBPath.path.length - 1] === SpectronAccountsDB) {
 		testOnlySetupAccountsDB()
 	}
@@ -60,7 +60,7 @@ function createMainWindow() {
 		title: "Celo Terminal",
 		webPreferences: {
 			// Session/LocalStorage data is not persisted during testing.
-			partition: !isSpectronTest ? "persist:default" : "test-default",
+			partition: !IS_E2E_TEST ? "persist:default" : "test-default",
 			// Keep dev tools available in prod builds too. Can be helpful for
 			// debuging production binaries.
 			devTools: true,
@@ -75,7 +75,7 @@ function createMainWindow() {
 		// autoHide is causing unexpected issues during spectron tests. It is somehow
 		// blocking the test runner to exit gracefully, causing tests to lock up. Thus,
 		// do not autoHideMenuBar during tests.
-		autoHideMenuBar: !isSpectronTest,
+		autoHideMenuBar: !IS_E2E_TEST,
 		...(process.platform === "darwin"
 		? {
 				frame: false,

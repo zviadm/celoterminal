@@ -4,11 +4,12 @@ import log from 'electron-log'
 
 import { setForceQuit } from '.'
 import { runWithInterval } from '../lib/interval'
+import { IS_E2E_TEST } from '../lib/cfg'
 
 let _checkedOnStartup = false
 let _updateReady: UpdateInfo | undefined
 export const setupAutoUpdater = (): void => {
-	if (app.isPackaged) {
+	if (app.isPackaged && !IS_E2E_TEST) {
 		autoUpdater.autoInstallOnAppQuit = false
 		autoUpdater.allowPrerelease = false
 		runWithInterval(
@@ -30,7 +31,7 @@ export const setupAutoUpdater = (): void => {
 	ipcMain.on("set-allow-prerelease", (event, allow) => {
 		log.info(`autoupdater: allow-prerelease = ${allow}`)
 		autoUpdater.allowPrerelease = allow
-		if (!_checkedOnStartup && app.isPackaged) {
+		if (!_checkedOnStartup && app.isPackaged && !IS_E2E_TEST) {
 			autoUpdater.checkForUpdates()
 			_checkedOnStartup = true
 		}

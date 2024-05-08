@@ -9,6 +9,8 @@ export const mainnetChainId = "42220"
 export const baklavaChainId = "62320"
 export const alfajoresChainId = "44787"
 export const e2eTestChainId = "1337"
+export const IS_E2E_TEST = !!process.env.E2E_TEST
+
 const defaultChainId = mainnetChainId
 const defaultAccountsDB = "home/.celoterminal/celoaccounts.db"
 

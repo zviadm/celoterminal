@@ -11,17 +11,17 @@
   "scripts": {
     "lint": "eslint --max-warnings=0 src/",
     "test": "ELECTRON_RUN_AS_NODE=true electron ./node_modules/.bin/jest --testPathIgnorePatterns '<rootDir>/.*/spectron-tests/'",
-    "test:spectron": "jest --testTimeout 300000 --runInBand --bail",
-    "test:spectron-all": "yarn test:spectron src/.*/spectron-tests/.*.test.ts",
+    "wdio": "wdio run ./wdio.conf.ts",
+
     "dev:alfajores": "env-cmd -f env.dev.alfajores electron-forge start",
     "dev:baklava": "env-cmd -f env.dev.baklava electron-forge start",
     "dev:mainnet": "env-cmd -f env.dev.mainnet electron-forge start",
     "dev:spectron": "env-cmd -f env.dev.spectron ./node_modules/.bin/electron ./.webpack/main/index.js",
     "dev:fresh": "./env.dev.fresh.sh",
-    "package": "electron-forge package",
+
+    "compile": "electron-forge package",
     "make": "electron-forge make",
-    "publish": "electron-forge publish",
-    "wdio": "wdio run ./wdio.conf.ts"
+    "publish": "electron-forge publish"
   },
   "devDependencies": {
     "@celo/governance": "^4.1.0",
