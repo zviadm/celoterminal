@@ -4,9 +4,8 @@ import log from 'electron-log'
 
 import { setupAutoUpdater } from './auto-updater'
 import { CFG } from '../lib/cfg'
-import { IS_E2E_TEST } from '../lib/e2e-constants'
+import { E2ETestAccountsDB, IS_E2E_TEST } from '../lib/e2e-constants'
 import { testOnlySetupAccountsDB } from './test-utils'
-import { SpectronAccountsDB } from '../../test/constants'
 import { setupMenu } from './menu'
 import * as remoteMain from "@electron/remote/main"
 
@@ -50,7 +49,7 @@ function createMainWindow() {
 	// }
 
 	if (IS_E2E_TEST &&
-		CFG().accountsDBPath.path[CFG().accountsDBPath.path.length - 1] === SpectronAccountsDB) {
+		CFG().accountsDBPath.path[CFG().accountsDBPath.path.length - 1] === E2ETestAccountsDB) {
 		testOnlySetupAccountsDB()
 	}
 
