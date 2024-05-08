@@ -8,8 +8,7 @@ import { LocalWallet } from '@celo/wallet-local'
 import { Account, MultiSigAccount } from '../../../lib/accounts/accounts'
 import { decryptLocalKey } from '../../../lib/accounts/accountsdb'
 import { UserError } from '../../../lib/error'
-import { CFG } from '../../../lib/cfg'
-import { spectronChainId } from '../../../lib/spectron-utils/constants'
+import { CFG, e2eTestChainId } from '../../../lib/cfg'
 import { SignatureRequest } from '../../components/app-definition'
 import { extractTXDestinationAndData } from './transaction-parser'
 import { estimateGas } from './fee-estimation'
@@ -34,7 +33,7 @@ export async function createWallet(
 			// NOTE(zviad): celo-devchain (i.e. @celo/ganache-cli) doesn't support
 			// locally signed transactions. Thus it is important to make sure we aren't
 			// locally signing transactions when tests are running.
-			if (CFG().chainId !== spectronChainId) {
+			if (CFG().chainId !== e2eTestChainId) {
 				wallet.addAccount(localKey.privateKey)
 			}
 			return {wallet}

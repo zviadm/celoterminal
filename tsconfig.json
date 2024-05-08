@@ -25,5 +25,5 @@
 		"noUnusedLocals": false,
 		"jsx": "react"
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "test/**/*"]
 }

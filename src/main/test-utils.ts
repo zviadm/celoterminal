@@ -5,7 +5,7 @@ import { privateKeyToAddress } from '@celo/utils/lib/address'
 
 import AccountsDB, { encryptLocalKey } from '../lib/accounts/accountsdb'
 import { CFG } from '../lib/cfg'
-import { SpectronAccountKeys, SpectronAccountsDBPassword } from '../lib/spectron-utils/constants'
+import { SpectronAccountKeys, SpectronAccountsDBPassword } from '../../old-tests/spectron-utils/constants'
 
 export const testOnlySetupAccountsDB = (): void => {
 	const cfg = CFG()

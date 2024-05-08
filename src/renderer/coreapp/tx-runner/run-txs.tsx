@@ -4,8 +4,7 @@ import { SignatureResponse, TXFinishFunc, TXFunc } from '../../components/app-de
 import { EstimatedFee, estimateGas } from './fee-estimation'
 import { ParsedSignatureRequest, parseSignatureRequest } from './transaction-parser'
 import { rootAccount, Wallet } from './wallet'
-import { CFG } from '../../../lib/cfg'
-import { spectronChainId } from '../../../lib/spectron-utils/constants'
+import { CFG, e2eTestChainId } from '../../../lib/cfg'
 import { nowMS } from '../../state/time'
 import { sleep, throwUnreachableError } from '../../../lib/utils'
 import { transformError } from '../ledger-utils'
@@ -82,7 +81,7 @@ const RunTXs = (props: {
 			const r: SignatureResponse[] = []
 			try {
 				const cfg = CFG()
-				if (cfg.chainId !== spectronChainId) {
+				if (cfg.chainId !== e2eTestChainId) {
 					// NOTE: see comment in `createWallet` about limitations of celo-devchain.
 					const accounts = w.wallet.getAccounts()
 					if (accounts.length !== 1 ||

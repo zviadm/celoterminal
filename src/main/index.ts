@@ -5,7 +5,7 @@ import log from 'electron-log'
 import { setupAutoUpdater } from './auto-updater'
 import { CFG } from '../lib/cfg'
 import { testOnlySetupAccountsDB } from './test-utils'
-import { SpectronAccountsDB } from '../lib/spectron-utils/constants'
+import { SpectronAccountsDB } from '../../old-tests/spectron-utils/constants'
 import { setupMenu } from './menu'
 import * as remoteMain from "@electron/remote/main"
 
