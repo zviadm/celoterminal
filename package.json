@@ -9,7 +9,7 @@
   "description": "Celo Terminal: Manage accounts and interact with the decentralized apps on Celo platform.",
   "main": ".webpack/main",
   "scripts": {
-    "lint": "eslint --max-warnings=0 src/",
+    "lint": "eslint --max-warnings=0 src/ test/",
     "test": "ELECTRON_RUN_AS_NODE=true electron ./node_modules/.bin/jest",
     "wdio": "wdio run ./wdio.conf.ts",
 
