@@ -12,7 +12,7 @@ import { WalletConnect } from './wallet-connect/def'
 import { Swappa } from './swappa/def'
 import { Moola } from './moola/def'
 import { Crasher } from './test-crasher/def'
-import { IS_E2E_TEST } from '../../lib/cfg'
+import { IS_E2E_TEST } from '../../lib/e2e-constants'
 
 export const AppList: AppDefinition[] = [
 	// Core Apps.
