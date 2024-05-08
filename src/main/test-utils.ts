@@ -5,7 +5,7 @@ import { privateKeyToAddress } from '@celo/utils/lib/address'
 
 import AccountsDB, { encryptLocalKey } from '../lib/accounts/accountsdb'
 import { CFG } from '../lib/cfg'
-import { SpectronAccountKeys, SpectronAccountsDBPassword } from '../../old-tests/spectron-utils/constants'
+import { E2ETestAccountKeys, E2ETestAccountsDBPassword } from '../lib/e2e-constants'
 
 export const testOnlySetupAccountsDB = (): void => {
 	const cfg = CFG()
@@ -17,8 +17,8 @@ export const testOnlySetupAccountsDB = (): void => {
 	const testAcctIdxs = [0, 1, 2]
 	const testAccts = testAcctIdxs.map((idx) => ({
 		name: `Test/A${idx}`,
-		privateKey: SpectronAccountKeys[idx],
-		address: privateKeyToAddress(SpectronAccountKeys[idx]),
+		privateKey: E2ETestAccountKeys[idx],
+		address: privateKeyToAddress(E2ETestAccountKeys[idx]),
 	}))
 
 	const toRemove = accounts.filter((a) =>
@@ -37,8 +37,8 @@ export const testOnlySetupAccountsDB = (): void => {
 			type: "local",
 			name: account.name,
 			address: account.address,
-			encryptedData: encryptLocalKey({privateKey: account.privateKey}, SpectronAccountsDBPassword),
-		}, SpectronAccountsDBPassword)
+			encryptedData: encryptLocalKey({privateKey: account.privateKey}, E2ETestAccountsDBPassword),
+		}, E2ETestAccountsDBPassword)
 	}
 	db.close()
 	return

@@ -4,7 +4,7 @@ import { SignatureResponse, TXFinishFunc, TXFunc } from '../../components/app-de
 import { EstimatedFee, estimateGas } from './fee-estimation'
 import { ParsedSignatureRequest, parseSignatureRequest } from './transaction-parser'
 import { rootAccount, Wallet } from './wallet'
-import { CFG, e2eTestChainId } from '../../../lib/cfg'
+import { CFG } from '../../../lib/cfg'
 import { nowMS } from '../../state/time'
 import { sleep, throwUnreachableError } from '../../../lib/utils'
 import { transformError } from '../ledger-utils'
@@ -27,6 +27,7 @@ import BigNumber from 'bignumber.js'
 import SignatureRequestInfo from './signature-request-info'
 import SignatureRequestTitle from './signature-request-title'
 import { monospaceFont } from '../../styles'
+import { E2ETestChainId } from '../../../lib/e2e-constants'
 
 export class TXCancelled extends Error {
 	constructor() { super('Cancelled') }
@@ -81,7 +82,7 @@ const RunTXs = (props: {
 			const r: SignatureResponse[] = []
 			try {
 				const cfg = CFG()
-				if (cfg.chainId !== e2eTestChainId) {
+				if (cfg.chainId !== E2ETestChainId) {
 					// NOTE: see comment in `createWallet` about limitations of celo-devchain.
 					const accounts = w.wallet.getAccounts()
 					if (accounts.length !== 1 ||

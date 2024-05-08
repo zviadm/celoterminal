@@ -3,13 +3,12 @@ import { erc20Devchain } from "./erc20/registry-devchain"
 import { RegisteredErc20 } from "./erc20/core"
 
 import FORNO_KEY_JSON from "./forno.key.json"
+import { E2ETestChainId } from "./e2e-constants"
 export const FORNO_API_KEY = FORNO_KEY_JSON.API_KEY
 
 export const mainnetChainId = "42220"
 export const baklavaChainId = "62320"
 export const alfajoresChainId = "44787"
-export const e2eTestChainId = "1337"
-export const IS_E2E_TEST = !!process.env.E2E_TEST
 
 const defaultChainId = mainnetChainId
 const defaultAccountsDB = "home/.celoterminal/celoaccounts.db"
@@ -102,7 +101,7 @@ export const cmpErc20ASC = (a: RegisteredErc20, b: RegisteredErc20): number => {
 const _registeredErc20s = (): RegisteredErc20[] => {
 	const chainId = CFG().chainId
 	switch (chainId) {
-	case e2eTestChainId:
+	case E2ETestChainId:
 		return erc20Devchain
 	default:
 		return erc20Registry.map((e) => ({

@@ -4,7 +4,7 @@ import log from 'electron-log'
 
 import { setForceQuit } from '.'
 import { runWithInterval } from '../lib/interval'
-import { IS_E2E_TEST } from '../lib/cfg'
+import { IS_E2E_TEST } from '../lib/e2e-constants'
 
 let _checkedOnStartup = false
 let _updateReady: UpdateInfo | undefined

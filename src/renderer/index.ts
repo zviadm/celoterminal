@@ -2,8 +2,8 @@ import path from "path"
 import { ipcRenderer } from 'electron'
 import * as remote from '@electron/remote'
 import * as log from 'electron-log'
+import { IS_E2E_TEST } from "../lib/e2e-constants"
 import { testOnlyAdjustNow } from './state/time'
-import { IS_E2E_TEST } from "../lib/cfg"
 
 log.transports.console.level = (remote.app.isPackaged && !IS_E2E_TEST) ? false : "debug"
 log.transports.file.level = (remote.app.isPackaged && !IS_E2E_TEST) ? "info" : "debug"
@@ -21,3 +21,4 @@ ipcRenderer.on("adjust-time", (event, increaseMS) => { testOnlyAdjustNow(increas
 
 import './styles.scss'
 import './coreapp/app'
+
