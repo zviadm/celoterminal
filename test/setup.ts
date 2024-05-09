@@ -24,8 +24,8 @@ export const onComplete = async () => {
 	await _devchain.devchainKilled
 }
 
-// Bypasses Jest's capturing of `console` to have cleaner stdout when running
-// spectron tests.
+// Bypasses Test Runners capturing of `console` to have cleaner stdout when running
+// e2e tests.
 export const testLog = (msg: string, opts?: {noNewLine?: boolean}): void => {
 	process.stdout.write(opts?.noNewLine ? msg : msg + "\n")
 }

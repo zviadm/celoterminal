@@ -1,9 +1,9 @@
 export const IS_E2E_TEST = !!process.env.E2E_TEST
 export const E2ETestChainId = "1337"
-export const E2ETestAccountsDB = "celoaccounts-test-spectron.db"
+export const E2ETestAccountsDB = "celoaccounts-test-e2e.db"
 export const E2ETestAccountsDBPassword = "spec123"
 
-// Addresses & private keys of accounts that get initialized during Spectron test runs.
+// Addresses & private keys of accounts that get initialized during e2e test runs.
 export const E2ETestAccounts = [
 	'0x5409ED021D9299bf6814279A6A1411A7e866A631',
 	'0x6Ecbe1DB9EF729CBe972C83Fb886247691Fb6beb',

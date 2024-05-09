@@ -40,7 +40,7 @@ function createMainWindow() {
 	const minWidth = 850
 
 	const noDevTools = app.isPackaged || IS_E2E_TEST
-	const noSplash = IS_E2E_TEST // No splash screen during Spectron testing.
+	const noSplash = IS_E2E_TEST // No splash screen during e2e testing.
 	const width = noDevTools ? 950 : 1100
 
 	const iconOptions = IS_E2E_TEST ? {} : {}
@@ -72,7 +72,7 @@ function createMainWindow() {
 			contextIsolation: false,
 		},
 		show: noSplash,
-		// autoHide is causing unexpected issues during spectron tests. It is somehow
+		// autoHide is causing unexpected issues during e2e tests. It is somehow
 		// blocking the test runner to exit gracefully, causing tests to lock up. Thus,
 		// do not autoHideMenuBar during tests.
 		autoHideMenuBar: !IS_E2E_TEST,
