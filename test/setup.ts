@@ -3,18 +3,16 @@ import { spawn, ChildProcessWithoutNullStreams } from 'child_process'
 import { ContractKit, newKit } from '@celo/contractkit'
 import kill from 'tree-kill'
 
-
-// env: {
-// 	"SPECTRON_TEST": "true",
-// 	"CELOTERMINAL_ACCOUNTS_DB": "home/.celoterminal/" + SpectronAccountsDB,
-// 	"CELOTERMINAL_NETWORK_ID": spectronChainId,
-// 	"CELOTERMINAL_NETWORK_URL": `http://localhost:${devchainPort}`,
-// },
+import { E2ETestAccountsDB, E2ETestChainId } from '../src/lib/e2e-constants'
 
 const devchainPort = 7546
 let _devchain: {devchain: ChildProcessWithoutNullStreams, devchainKilled: Promise<void>}
 export const onPrepare = async () => {
 	_devchain = await startDevchain()
+	process.env.E2E_TEST = 'true'
+	process.env.CELOTERMINAL_ACCOUNTS_DB = "home/.celoterminal/" + E2ETestAccountsDB
+	process.env.CELOTERMINAL_NETWORK_ID = E2ETestChainId,
+	process.env.CELOTERMINAL_NETWORK_URL = `http://localhost:${devchainPort}`
 	return
 }
 
