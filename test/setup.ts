@@ -7,8 +7,8 @@ import { E2ETestAccountsDB, E2ETestChainId } from '../src/lib/e2e-constants'
 
 const devchainPort = 7546
 let _devchain: {devchain: ChildProcessWithoutNullStreams, devchainKilled: Promise<void>}
+
 export const onPrepare = async () => {
-	_devchain = await startDevchain()
 	process.env.E2E_TEST = 'true'
 	process.env.CELOTERMINAL_ACCOUNTS_DB = "home/.celoterminal/" + E2ETestAccountsDB
 	process.env.CELOTERMINAL_NETWORK_ID = E2ETestChainId,
@@ -16,7 +16,12 @@ export const onPrepare = async () => {
 	return
 }
 
-export const onComplete = async () => {
+export const beforeSession = async () => {
+	_devchain = await startDevchain()
+	return
+}
+
+export const afterSession = async () => {
 	if (!_devchain) {
 		return
 	}
