@@ -17,6 +17,6 @@ jobs:
       - run: yarn config set network-timeout 600000 -g
       - run: yarn
       - run: yarn lint
-      - run: yarn test
       - run: yarn compile
+      - run: yarn test
       - run: xvfb-run --auto-servernum --server-args='-screen 0, 1600x900x24' yarn wdio
