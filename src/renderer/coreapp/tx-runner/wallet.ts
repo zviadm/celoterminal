@@ -40,7 +40,7 @@ export async function createWallet(
 			return {wallet}
 		}
 		case "ledger": {
-			const _transport = await TransportNodeHid.open()
+			const _transport = await TransportNodeHid.open(null)
 			try {
 				const wallet = await newLedgerWalletWithSetup(
 					_transport,
