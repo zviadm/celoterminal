@@ -10,7 +10,7 @@
   "main": ".webpack/main",
   "scripts": {
     "lint": "eslint --max-warnings=0 src/ test/",
-    "test": "ELECTRON_RUN_AS_NODE=true electron ./node_modules/.bin/jest",
+    "test": "ELECTRON_RUN_AS_NODE=true electron ./node_modules/.bin/jest --testPathIgnorePatterns '<rootDir>/test/.*'",
     "wdio": "wdio run ./wdio.conf.ts",
     "dev:alfajores": "env-cmd -f env.dev.alfajores electron-forge start",
     "dev:baklava": "env-cmd -f env.dev.baklava electron-forge start",
