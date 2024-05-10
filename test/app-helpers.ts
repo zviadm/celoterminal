@@ -121,8 +121,7 @@ export const adjustNow = async (increaseMS: number): Promise<void> => {
 	await adjustTimeOpen.click()
 	const adjustTimeMSInput= await $(`#adjust-time-ms-input`)
 	await adjustTimeMSInput.waitForEnabled()
-	await adjustTimeMSInput.clearValue()
-	await adjustTimeMSInput.click()
+	await adjustTimeMSInput.doubleClick()
 	await browser.keys([..._adjustedNowMS.toString(), "Escape"])
 
 	await increaseTime(kit.web3.currentProvider as Provider, increaseMS / 1000)
