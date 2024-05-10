@@ -4,7 +4,7 @@ import * as React from 'react'
 import { AppDefinition } from "../../components/app-definition"
 import CelovoteApp from "./celovote";
 // import SvgIcon from '@material-ui/core/SvgIcon';
-import FindInPage from '@material-ui/icons/FindInPage';
+import ArrowForward from '@material-ui/icons/ArrowForward';
 
 // TODO: N18-MIGRATION
 // const CVIcon = (props: {fontSize?: "default" | "large"}): JSX.Element => {
@@ -18,8 +18,8 @@ import FindInPage from '@material-ui/icons/FindInPage';
 export const Celovote: AppDefinition = {
 	id: "celovote",
 	title: "Celovote",
-	icon: <FindInPage />,
-	iconLarge: <FindInPage fontSize="large" />,
+	icon: <ArrowForward />,
+	iconLarge: <ArrowForward fontSize="large" />,
 	// icon: <CVIcon />,
 	// iconLarge: <CVIcon fontSize="large" />,
 	url: "https://celovote.com",

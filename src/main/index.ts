@@ -9,6 +9,8 @@ import { testOnlySetupAccountsDB } from './test-utils'
 import { setupMenu } from './menu'
 import * as remoteMain from "@electron/remote/main"
 
+import celoTerminalIcon from './../../static/icon.png'
+
 remoteMain.initialize()
 
 // List of URLs that don't allow CORS requests. Celo Terminal is a native app thus
@@ -43,10 +45,7 @@ function createMainWindow() {
 	const noSplash = IS_E2E_TEST // No splash screen during e2e testing.
 	const width = noDevTools ? 950 : 1100
 
-	const iconOptions = IS_E2E_TEST ? {} : {}
-	// : {
-	// 	icon: path.join(__static, 'icon.png')
-	// }
+	const iconOptions = IS_E2E_TEST ? {} : {icon: celoTerminalIcon}
 
 	if (IS_E2E_TEST &&
 		CFG().accountsDBPath.path[CFG().accountsDBPath.path.length - 1] === E2ETestAccountsDB) {
@@ -131,11 +130,6 @@ function createMainWindow() {
 		log.error(`main: navigation is not allowed...`)
 		event.preventDefault()
 	})
-	// TODO(zviad): N18-MIGRATION
-	// window.webContents.on('new-window', (event) => {
-	// 	log.error(`main: new-window is not allowed...`)
-	// 	event.preventDefault()
-	// })
 
 	// Bypass CORS restrictions since this is a native app, not a random website running
 	// in the browser. Bypass happens by clearing `Origin` in the request headers.
