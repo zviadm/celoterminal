@@ -1,6 +1,7 @@
 import type { ForgeConfig } from '@electron-forge/shared-types';
 import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { MakerDMG } from '@electron-forge/maker-dmg';
+import { MakerDeb } from '@electron-forge/maker-deb';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
 import { WebpackPlugin } from '@electron-forge/plugin-webpack';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
@@ -19,6 +20,7 @@ const config: ForgeConfig = {
   makers: [
     new MakerSquirrel({}),
     new MakerDMG({}),
+    new MakerDeb({}),
   ],
   plugins: [
     new AutoUnpackNativesPlugin({}),
