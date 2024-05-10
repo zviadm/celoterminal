@@ -116,7 +116,14 @@ export const selectAccount = async (accountIdx: number): Promise<void> => {
 // Alters current time both for celo-devchain, and for the Celo Terminal app.
 export const adjustNow = async (increaseMS: number): Promise<void> => {
 	const kit = devchainKit()
-	_adjustedNowMS += increaseMS
-	// browser.webContents.send("adjust-time", increaseMS)
+	_adjustedNowMS += increaseMS;
+	const adjustTimeOpen = await $(`#adjust-time-open`)
+	await adjustTimeOpen.click()
+	const adjustTimeMSInput= await $(`#adjust-time-ms-input`)
+	await adjustTimeMSInput.waitForEnabled()
+	await adjustTimeMSInput.clearValue()
+	await adjustTimeMSInput.click()
+	await browser.keys([..._adjustedNowMS.toString(), "Escape"])
+
 	await increaseTime(kit.web3.currentProvider as Provider, increaseMS / 1000)
 }

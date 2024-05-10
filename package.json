@@ -12,13 +12,11 @@
     "lint": "eslint --max-warnings=0 src/ test/",
     "test": "ELECTRON_RUN_AS_NODE=true electron ./node_modules/.bin/jest",
     "wdio": "wdio run ./wdio.conf.ts",
-
     "dev:alfajores": "env-cmd -f env.dev.alfajores electron-forge start",
     "dev:baklava": "env-cmd -f env.dev.baklava electron-forge start",
     "dev:mainnet": "env-cmd -f env.dev.mainnet electron-forge start",
-    "dev:e2etest": "env-cmd -f env.dev.e2etest ./node_modules/.bin/electron ./.webpack/main/index.js",
+    "dev:e2etest": "env-cmd -f env.dev.e2etest electron-forge start",
     "dev:fresh": "./env.dev.fresh.sh",
-
     "compile": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish"

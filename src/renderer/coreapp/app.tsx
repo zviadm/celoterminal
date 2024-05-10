@@ -28,6 +28,8 @@ import AppStoreApp from './appstore-app/appstore-app'
 import { ErrorContext, ErrorProvider } from '../state/error-context'
 import { useInstalledApps } from './installed-apps-state'
 import AlertTitle from '@material-ui/lab/AlertTitle'
+import { IS_E2E_TEST } from '../../lib/e2e-constants'
+import TestOnlyAdjustTime from './testonly-adjust-time'
 
 const appBarHeightPX = process.platform === "darwin" ? 85 : 60
 const appBarDragHeightPX = 85 - 60
@@ -186,6 +188,7 @@ const App = () => {
 					<Box m={2} alignSelf="flex-end">
 						<CheckUpdate />
 					</Box>
+					{IS_E2E_TEST && <Box m={2} alignSelf="flex-end"><TestOnlyAdjustTime /></Box>}
 				</Box>
 				<Box
 					display="flex" flexDirection="column"

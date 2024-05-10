@@ -22,8 +22,9 @@
     "paths": {
       "*": ["node_modules/*"]
     },
-		"noUnusedLocals": false,
-		"jsx": "react"
+    "noUnusedLocals": false,
+    "jsx": "react",
+    "types": ["@wdio/globals/types", "mocha"]
   },
   "include": ["src/**/*", "test/**/*"]
 }
