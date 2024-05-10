@@ -23,6 +23,7 @@ import AppHeader from '../../components/app-header'
 import Link from '../../components/link'
 import AppContainer from '../../components/app-container'
 import AppSection from '../../components/app-section'
+import { monospaceFont } from '../../styles'
 
 let _client: AxiosInstance
 const gql = () => {
@@ -303,6 +304,6 @@ const GroupAddress = (props: {address: string}) => {
 	return (
 		<Link
 			href={url}
-			style={{fontFamily: "monospace"}}>{fmtAddress(props.address)}</Link>
+			style={{...monospaceFont}}>{fmtAddress(props.address)}</Link>
 	)
 }

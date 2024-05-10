@@ -10,6 +10,7 @@ import {
 
 import Link from '../../components/link'
 import SectionTitle from '../../components/section-title'
+import { monospaceFont } from '../../styles'
 
 const TransferHistory = (props: {
 	address: string,
@@ -50,9 +51,9 @@ const TransferHistory = (props: {
 							<Tooltip title={e.timestamp.toLocaleString()}>
 							<TableCell>{e.timestamp.toLocaleDateString()}</TableCell>
 							</Tooltip>
-							<TableCell style={{fontFamily: "monospace"}}>
+							<TableCell style={{...monospaceFont}}>
 								{e.from === props.address ? `\u00a0\u00a0To\u00a0` : `From\u00a0`}
-								<Link href={`${explorerRootURL()}/address/${addr}`} style={{fontFamily: "monospace"}}>
+								<Link href={`${explorerRootURL()}/address/${addr}`} style={{...monospaceFont}}>
 									{fmtAddress(addr)}
 								</Link>
 							</TableCell>
@@ -64,7 +65,7 @@ const TransferHistory = (props: {
 								{fmtAmount(e.amount, erc20.decimals)} {erc20.symbol}
 							</TableCell>
 							<TableCell>
-								<Link href={`${explorerRootURL()}/tx/${e.txHash}`} style={{fontFamily: "monospace"}}>
+								<Link href={`${explorerRootURL()}/tx/${e.txHash}`} style={{...monospaceFont}}>
 									{fmtAddress(e.txHash)}
 								</Link>
 							</TableCell>

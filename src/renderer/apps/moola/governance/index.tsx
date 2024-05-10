@@ -11,9 +11,9 @@ import {
 	ProposalSupport,
 } from "../moola-helper";
 import { ContractKit } from "@celo/contractkit";
-import { abi as MoolaGovernorBravoDelegateABI } from "../abi/MoolaGovernorBravoDelegate.json";
+import MOOLA_GOVERNOR_BRAVO_DELEGATE_JSON from "../abi/MoolaGovernorBravoDelegate.json";
+import MOO_TOKEN_JSON from "../abi/MooToken.json";
 import { TXFunc, TXFinishFunc } from "../../../components/app-definition";
-import { abi as MooTokenABI } from "../abi/MooToken.json";
 import { AbiItem, toTransactionObject } from "@celo/connect";
 import useOnChainState from "../../../state/onchain-state";
 import { Account } from "../../../../lib/accounts/accounts";
@@ -58,11 +58,11 @@ const Governance = ({
 				}
 
 				const governanceContract = new kit.web3.eth.Contract(
-					MoolaGovernorBravoDelegateABI as AbiItem[],
+					MOOLA_GOVERNOR_BRAVO_DELEGATE_JSON.abi as AbiItem[],
 					governanceAddress
 				);
 				const tokenContract = new kit.web3.eth.Contract(
-					MooTokenABI as AbiItem[],
+					MOO_TOKEN_JSON.abi as AbiItem[],
 					mooTokenAddress
 				);
 
@@ -101,12 +101,12 @@ const Governance = ({
 					return;
 				}
 				const tokenContract = new kit.web3.eth.Contract(
-					MooTokenABI as AbiItem[],
+					MOO_TOKEN_JSON.abi as AbiItem[],
 					mooTokenAddress
 				);
 
 				const governanceContract = new kit.web3.eth.Contract(
-					MoolaGovernorBravoDelegateABI as AbiItem[],
+					MOOLA_GOVERNOR_BRAVO_DELEGATE_JSON.abi as AbiItem[],
 					governanceAddress
 				);
 
@@ -178,7 +178,7 @@ const Governance = ({
 				return [];
 			}
 			const tokenContract = new kit.web3.eth.Contract(
-				MooTokenABI as AbiItem[],
+				MOO_TOKEN_JSON.abi as AbiItem[],
 				mooTokenAddress
 			);
 
@@ -198,7 +198,7 @@ const Governance = ({
 			}
 
 			const governanceContract = new kit.web3.eth.Contract(
-				MoolaGovernorBravoDelegateABI as AbiItem[],
+				MOOLA_GOVERNOR_BRAVO_DELEGATE_JSON.abi as AbiItem[],
 				governanceAddress
 			);
 
@@ -224,7 +224,7 @@ const Governance = ({
 			}
 
 			const governanceContract = new kit.web3.eth.Contract(
-				MoolaGovernorBravoDelegateABI as AbiItem[],
+				MOOLA_GOVERNOR_BRAVO_DELEGATE_JSON.abi as AbiItem[],
 				governanceAddress
 			);
 
@@ -250,7 +250,7 @@ const Governance = ({
 			}
 
 			const governanceContract = new kit.web3.eth.Contract(
-				MoolaGovernorBravoDelegateABI as AbiItem[],
+				MOOLA_GOVERNOR_BRAVO_DELEGATE_JSON.abi as AbiItem[],
 				governanceAddress
 			);
 
@@ -270,7 +270,7 @@ const Governance = ({
 			}
 
 			const governanceContract = new kit.web3.eth.Contract(
-				MoolaGovernorBravoDelegateABI as AbiItem[],
+				MOOLA_GOVERNOR_BRAVO_DELEGATE_JSON.abi as AbiItem[],
 				governanceAddress
 			);
 
@@ -290,7 +290,7 @@ const Governance = ({
 			}
 
 			const governanceContract = new kit.web3.eth.Contract(
-				MoolaGovernorBravoDelegateABI as AbiItem[],
+				MOOLA_GOVERNOR_BRAVO_DELEGATE_JSON.abi as AbiItem[],
 				governanceAddress
 			);
 

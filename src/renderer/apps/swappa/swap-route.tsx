@@ -5,6 +5,7 @@ import { erc20FromAddress } from '../../../lib/utils'
 import * as React from 'react'
 import { Box, Typography } from '@material-ui/core'
 import LinkedAddress from '../../components/linked-address'
+import { monospaceFont } from '../../styles'
 
 const SwapRoute = (props: {
 	route: Route,
@@ -15,7 +16,7 @@ const SwapRoute = (props: {
 
 	return (
 		<Box display="flex" flexDirection="row">
-			<Typography style={{fontFamily: "monospace"}}>
+			<Typography style={{...monospaceFont}}>
 				{
 					pathErc20s.map((p, idx) => {
 						return (<span key={`path-${idx}`}>

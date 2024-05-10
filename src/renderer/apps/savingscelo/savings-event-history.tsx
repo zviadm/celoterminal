@@ -13,6 +13,7 @@ import {
 
 import Link from '../../components/link'
 import SectionTitle from '../../components/section-title'
+import { monospaceFont } from '../../styles'
 
 const SavingsEventHistory = (props: {
 	events?: SavingsEvent[],
@@ -66,7 +67,7 @@ const SavingsEventHistory = (props: {
 								</Typography>
 							</TableCell>
 							<TableCell>
-								<Link href={`${explorerRootURL()}/tx/${e.txHash}`} style={{fontFamily: "monospace"}}>
+								<Link href={`${explorerRootURL()}/tx/${e.txHash}`} style={{...monospaceFont}}>
 									{fmtAddress(e.txHash)}
 								</Link>
 							</TableCell>

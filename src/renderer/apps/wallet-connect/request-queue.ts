@@ -3,13 +3,7 @@ import { showWindowAndFocus } from "../../electron-utils"
 import { ISession } from "./session"
 import { Lock } from '@celo/base/lib/lock'
 
-import { wipeFullStorage as wipeFullStorageV1 } from './v1/storage'
-import { initializeStoredSessions as initializeStoredSessionsV1 } from './v1/wc'
 import { initializeStoredSessions as initializeStoredSessionsV2 } from './v2/wc'
-
-if (module.hot) {
-	module.hot.decline()
-}
 
 export interface BaseRequest {
 	id: number
@@ -130,7 +124,6 @@ export class RequestQueue {
 		for (const s of this.sessions) {
 			s.disconnect()
 		}
-		wipeFullStorageV1()
 		// NOTE(zviad): No need to wipe V2 storage, assuming it is all synced up.
 		for (const r of this.requests) {
 			this.reject(r, {code: -32000, message: "Disconnected"})
@@ -145,7 +138,6 @@ export const requestQueueGlobal = async (): Promise<RequestQueue> => {
 	try {
 		if (!_requestQueueGlobal) {
 			const sessions = [
-				...initializeStoredSessionsV1(),
 				...(await initializeStoredSessionsV2()),
 			]
 			_requestQueueGlobal = new RequestQueue(sessions)

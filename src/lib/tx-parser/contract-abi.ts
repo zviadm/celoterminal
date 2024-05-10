@@ -7,7 +7,7 @@ import {
 	alfajoresChainId, baklavaChainId, CFG, mainnetChainId,
 	registeredErc20s, explorerRootURL, selectAddress
 } from "../cfg"
-import { deployedBytecode as multiSigBytecode, abi as multiSigAbi } from "../core-contracts/MultiSig.json"
+import MULTISIG_JSON from "../core-contracts/MultiSig.json"
 import { KnownProxies, KnownProxy } from "./proxy-abi"
 import { contractNamesRegistry } from "./registry"
 import { toChecksumAddress } from "ethereumjs-util"
@@ -19,8 +19,8 @@ const builtinContracts: {
 }[] = [
 	{
 		name: "CoreContract:MultiSig",
-		abi: multiSigAbi as AbiItem[],
-		bytecode: multiSigBytecode,
+		abi: MULTISIG_JSON.abi as AbiItem[],
+		bytecode: MULTISIG_JSON.deployedBytecode,
 	},
 ]
 

@@ -10,6 +10,7 @@ import {
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown'
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp'
 import LinkedAddress from '../../components/linked-address'
+import { monospaceFont } from '../../styles'
 
 export const TransactionsTable = (props: {
 	account: MultiSigAccount,
@@ -138,7 +139,7 @@ const TXRow = (props: {
 			<TableCell
 				colSpan={2}
 				style={{
-					fontFamily: "monospace",
+					...monospaceFont,
 					overflowWrap: "anywhere"}}>SEND: {fmtAmount(props.tx.tx.value, "CELO")} CELO</TableCell>
 			<TableCell colSpan={2} />
 		</TableRow>
@@ -147,7 +148,7 @@ const TXRow = (props: {
 			<TableCell
 				colSpan={2}
 				style={{
-					fontFamily: "monospace",
+					...monospaceFont,
 					overflowWrap: "anywhere"}}>{txData}</TableCell>
 			<TableCell colSpan={2} />
 		</TableRow>

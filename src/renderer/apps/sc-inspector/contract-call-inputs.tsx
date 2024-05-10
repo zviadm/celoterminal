@@ -6,6 +6,7 @@ import * as React from 'react'
 import {
 	Button, Box, TextField,
 } from '@material-ui/core'
+import { monospaceFont } from '../../styles'
 
 const ContractCallInputs = (props: {
 	abi: AbiItem,
@@ -42,7 +43,7 @@ const ContractCallInputs = (props: {
 						spellCheck={false}
 						inputProps={{
 							spellCheck: false,
-							style: {fontFamily: "monospace"}
+							style: {...monospaceFont},
 						}}
 						margin="dense"
 						style={{marginBottom: 10}}
@@ -62,7 +63,7 @@ const ContractCallInputs = (props: {
 			spellCheck={false}
 			inputProps={{
 				spellCheck: false,
-				style: {fontFamily: "monospace"}
+				style: {...monospaceFont},
 			}}
 			margin="dense"
 			style={{marginBottom: 10}}

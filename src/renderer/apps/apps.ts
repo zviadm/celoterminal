@@ -1,4 +1,4 @@
-import { remote } from 'electron'
+import * as remote from '@electron/remote'
 import { AppDefinition } from '../components/app-definition'
 import { Celovote } from './celovote/def'
 import { SCInspector } from './sc-inspector/def'
@@ -12,6 +12,7 @@ import { WalletConnect } from './wallet-connect/def'
 import { Swappa } from './swappa/def'
 import { Moola } from './moola/def'
 import { Crasher } from './test-crasher/def'
+import { IS_E2E_TEST } from '../../lib/e2e-constants'
 
 export const AppList: AppDefinition[] = [
 	// Core Apps.
@@ -28,7 +29,7 @@ export const AppList: AppDefinition[] = [
 	SavingsCELO,
 	Swappa,
 	Moola,
-].concat(remote.app.isPackaged ? [] : [
+].concat((remote.app.isPackaged && !IS_E2E_TEST) ? [] : [
 	// Test/Dev-only Apps.
 	Crasher,
 ])

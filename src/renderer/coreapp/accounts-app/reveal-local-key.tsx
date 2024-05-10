@@ -15,15 +15,16 @@ import Typography from '@material-ui/core/Typography'
 
 import { decryptLocalKey, LocalKey } from '../../../lib/accounts/accountsdb'
 import { LocalAccount } from '../../../lib/accounts/accounts'
+import { monospaceFont } from '../../styles'
 
 const useStyles = makeStyles((theme) => ({
 	textMnemonic: {
 		fontWeight: "bold"
 	},
 	textPrivateKey: {
+		...monospaceFont,
 		overflowWrap: "anywhere",
 		fontWeight: "bold",
-		fontFamily: "monospace",
 		fontSize: theme.typography.body2.fontSize,
 	}
 }))

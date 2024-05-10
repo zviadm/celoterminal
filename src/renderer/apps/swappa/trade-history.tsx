@@ -12,6 +12,7 @@ import {
 import Link from '../../components/link'
 import SectionTitle from '../../components/section-title'
 import { fmtTradeAmount } from './utils'
+import { monospaceFont } from '../../styles'
 
 const TradeHistory = (props: {
 	events?: TradeEvent[],
@@ -54,7 +55,7 @@ const TradeHistory = (props: {
 								{fmtAmount(e.outputAmount.shiftedBy(-outputDecimals).div(e.inputAmount.shiftedBy(-inputDecimals)), 0, 4)}
 							</TableCell>
 							<TableCell>
-								<Link href={`${explorerRootURL()}/tx/${e.txHash}`} style={{fontFamily: "monospace"}}>
+								<Link href={`${explorerRootURL()}/tx/${e.txHash}`} style={{...monospaceFont}}>
 									{fmtAddress(e.txHash)}
 								</Link>
 							</TableCell>

@@ -1,4 +1,4 @@
-import * as sqliteDB from 'better-sqlite3'
+import sqliteDB from 'better-sqlite3'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as crypto from 'crypto'
@@ -50,7 +50,14 @@ class AccountsDB {
 				encrypted_password TEXT
 			) WITHOUT ROWID;`)
 
-		this.pSelectAccounts = this.db.prepare<[]>(`SELECT * FROM accounts`)
+		this.pSelectAccounts = this.db.prepare<[], {
+			address: string
+			name: string
+			type: string
+			version: number
+			data: string
+			encrypted_data: string
+		}>(`SELECT * FROM accounts`)
 		this.pInsertAccount = this.db.prepare<
 			[string, number, string, string, string, string]>(
 			`INSERT INTO accounts
@@ -64,12 +71,16 @@ class AccountsDB {
 			[string, string]>("DELETE FROM accounts WHERE address = ? AND type = ?")
 		this.pRenameAccount = this.db.prepare<
 			[string, string, string]>("UPDATE accounts SET name = ? WHERE address = ? AND type = ?")
-		this.pSelectEncryptedAccounts = this.db.prepare<[]>(
+		this.pSelectEncryptedAccounts = this.db.prepare<[], {
+				address: string,
+				type: string,
+				encrypted_data: string,
+			}>(
 			`SELECT address, type, encrypted_data FROM accounts WHERE encrypted_data IS NOT NULL AND encrypted_data != ''`)
 		this.pUpdateEncryptedData = this.db.prepare<
 			[string, string]>(`UPDATE accounts SET encrypted_data = ? WHERE address = ?`)
 
-		this.pSelectPassword = this.db.prepare<[]>("SELECT * from password")
+		this.pSelectPassword = this.db.prepare<[], {encrypted_password: string}>("SELECT * from password")
 		this.pUpdatePassword = this.db.prepare<[string]>(`UPDATE password SET encrypted_password = ? WHERE id = 0`)
 		this.pInsertPassword = this.db.prepare<[string]>(`INSERT INTO password (id, encrypted_password) VALUES (0, ?)`)
 	}
@@ -80,14 +91,7 @@ class AccountsDB {
 	}
 
 	public readAccounts = (): Account[] => {
-		const rows: {
-			address: string
-			name: string
-			type: string
-			version: number
-			data: string
-			encrypted_data: string
-		}[] = this.pSelectAccounts.all()
+		const rows = this.pSelectAccounts.all()
 		const accounts: Account[] = rows.filter(
 			(r) => supportedVersions.indexOf(r.version) >= 0).map((r) => {
 			const base = {
@@ -212,11 +216,7 @@ class AccountsDB {
 		this.db.transaction(() => {
 			this._verifyAndUpdatePassword(oldPassword, newPassword)
 			log.info(`accounts-db: updating password...`)
-			const accounts: {
-				address: string,
-				type: string,
-				encrypted_data: string,
-			}[] = this.pSelectEncryptedAccounts.all()
+			const accounts = this.pSelectEncryptedAccounts.all()
 			for (const account of accounts) {
 				log.info(`accounts-db: re-encrypting: ${account.type}/${account.address}...`)
 				const newEncryptedData = encryptAES(decryptAES(account.encrypted_data, oldPassword), newPassword)
@@ -233,7 +233,7 @@ class AccountsDB {
 	// Must be called in a transaction.
 	private _verifyAndUpdatePassword = (oldPassword: string, newPassword: string) => {
 		const newEncryptedPassword = encryptAES(newPassword, newPassword)
-		const pws: {encrypted_password: string}[] = this.pSelectPassword.all()
+		const pws = this.pSelectPassword.all()
 		if (pws.length > 1) {
 			throw new Error(`Unexpected error while checking password. Is Database corrupted?`)
 		}

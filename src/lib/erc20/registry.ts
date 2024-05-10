@@ -1,5 +1,5 @@
-import * as ubeswapTokenList from "@ubeswap/default-token-list/ubeswap.token-list.json"
-import * as celoTokenList from "./celo.tokenlist.json"
+import ubeswapTokenList from "@ubeswap/default-token-list/ubeswap.token-list.json"
+import celoTokenList from "./celo.tokenlist.json"
 
 import { ConversionFunc, coreErc20s } from "./core"
 import { convertSCELO } from "./conversions/savingscelo"

@@ -11,10 +11,11 @@ import TextField from '@material-ui/core/TextField'
 import Alert from '@material-ui/lab/Alert'
 
 import { AddressOnlyAccount } from '../../../lib/accounts/accounts'
+import { monospaceFont } from '../../styles'
 
 const useStyles = makeStyles(() => ({
 	address: {
-		fontFamily: "monospace",
+		...monospaceFont,
 	}
 }))
 
