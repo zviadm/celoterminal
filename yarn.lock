@@ -1809,7 +1809,7 @@
     username "^5.1.0"
     yarn-or-npm "^3.0.1"
 
-"@electron-forge/maker-base@7.4.0", "@electron-forge/maker-base@^6.0.0 || ^7.0.0":
+"@electron-forge/maker-base@7.4.0":
   version "7.4.0"
   resolved "https://registry.yarnpkg.com/@electron-forge/maker-base/-/maker-base-7.4.0.tgz#28e0ef3a06241a313e1f74e193c8073d7344a4eb"
   integrity sha512-LwWS4VPdwjISl1KpLhmM1Qr1M3sRTTQ/RsX+GlFd7cQ1W/FsgxMjaTG4Od1d+a5CGVTh3s6X2g99TSUfxjOveg==
@@ -3525,15 +3525,6 @@
     unbzip2-stream "1.4.3"
     yargs "17.7.2"
 
-"@reforged/maker-appimage@^4.0.2":
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/@reforged/maker-appimage/-/maker-appimage-4.0.2.tgz#51b83b8d62dac6fcce1a6b8a47ea358d4fb2ce5f"
-  integrity sha512-VsdoXf9meNvbqPaASr1F+6r4cZ0NsTrdOOan1+0fKhyLQz0uTkn0FU8R1bbFO77AybEW5d3fxTzHoP18GkwBxg==
-  dependencies:
-    "@electron-forge/maker-base" "^6.0.0 || ^7.0.0"
-    "@spacingbat3/lss" "^1.0.0"
-    semver "^7.3.8"
-
 "@scure/base@~1.1.0":
   version "1.1.5"
   resolved "https://registry.yarnpkg.com/@scure/base/-/base-1.1.5.tgz#1d85d17269fe97694b9c592552dd9e5e33552157"
@@ -3606,11 +3597,6 @@
   integrity sha512-MZPUxrmFubI36XS1DI3qmI0YdN1gks62JtFZvxR67ljjSNCeK6U08Zx4msEWOXuofgqUt6zPHSi1H9fbjR/NRA==
   dependencies:
     "@sinonjs/commons" "^1.7.0"
-
-"@spacingbat3/lss@^1.0.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@spacingbat3/lss/-/lss-1.2.0.tgz#0d04ddee2e41682fd09b7eda67d43c1d49e28c05"
-  integrity sha512-aywhxHNb6l7COooF3m439eT/6QN8E/RSl5IVboSKthMHcp0GlZYMSoS7546rqDLmFRxTD8f1tu/NIS9vtDwYAg==
 
 "@stablelib/aead@^1.0.1":
   version "1.0.1"
@@ -15721,11 +15707,6 @@ semver@^7.3.7:
   integrity sha512-NB1ctGL5rlHrPJtFDVIVzTyQylMLu9N9VICA6HSFJo8MCGVTMW6gfpicwKmmK/dAjTOrqu5l63JJOpDSrAis3A==
   dependencies:
     lru-cache "^6.0.0"
-
-semver@^7.3.8:
-  version "7.6.2"
-  resolved "https://registry.yarnpkg.com/semver/-/semver-7.6.2.tgz#1e3b34759f896e8f14d6134732ce798aeb0c6e13"
-  integrity sha512-FNAIBWCx9qcRhoHcgcJ0gvU7SN1lYU2ZXuSfl04bSC5OpvDHFyJCjdNHomPXxjQlCBU67YW64PzY7/VIEH7F2w==
 
 send@0.17.1:
   version "0.17.1"
