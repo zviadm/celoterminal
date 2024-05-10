@@ -7,11 +7,11 @@ export const multiSigDeployTXs = (kit: ContractKit): {tx: CeloTransactionObject<
 	const tx0 = toTransactionObject(
 		kit.connection,
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		(new kit.web3.eth.Contract(PROXY_V1_JSON.abi as AbiItem[])).deploy({data: PROXY_V1_JSON.deployedBytecode}) as any)
+		(new kit.web3.eth.Contract(PROXY_V1_JSON.abi as AbiItem[])).deploy({data: PROXY_V1_JSON.bytecode}) as any)
 	const tx1 = toTransactionObject(
 		kit.connection,
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		(new kit.web3.eth.Contract(MULTISIG_JSON.abi as AbiItem[])).deploy({data: MULTISIG_JSON.deployedBytecode}) as any)
+		(new kit.web3.eth.Contract(MULTISIG_JSON.abi as AbiItem[])).deploy({data: MULTISIG_JSON.bytecode}) as any)
 	return [{tx: tx0}, {tx: tx1}]
 }
 

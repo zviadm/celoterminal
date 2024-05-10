@@ -3,6 +3,7 @@ import { devchainKit, testLog } from '../setup'
 import { confirmTXs, installOptionalApp, waitForRefetch } from '../app-helpers'
 import { E2ETestAccounts, e2eTestDefaultAccount } from '../../src/lib/e2e-constants'
 import { multiSigDeployTXs, multiSigInitializeTXs } from '../../src/lib/core-contracts/deploy'
+import { sleep } from '../../src/lib/utils'
 
 it('install app', async () => {
 	await installOptionalApp("sc-inspector")
@@ -54,10 +55,13 @@ it('test sc-inspector read & write', async () => {
 	await waitForRefetch()
 
 	const writeTab = await $("span=Write")
+	await writeTab.waitForClickable()
 	await writeTab.click()
 	const addOwner = await $("#contract-write-submitTransaction")
+	await addOwner.waitForClickable()
 	await addOwner.click()
 	const input0 = await $("#contract-submitTransaction-destination-input")
+	await input0.waitForClickable()
 	await input0.click()
 	await browser.keys(res0.contractAddress)
 	const input1 = await $("#contract-submitTransaction-value-input")
@@ -78,6 +82,7 @@ it('test sc-inspector read & write', async () => {
 	const ownersResult = await $("#contract-result-owners-0")
 	await expect(ownersResult.isExisting()).resolves.toEqual(false)
 	const ownersIdxInput = await $("#contract-owners--input")
+	await ownersIdxInput.waitForClickable()
 	await ownersIdxInput.click()
 	await browser.keys("0")
 	const query = await $("#contract-action-owners")
