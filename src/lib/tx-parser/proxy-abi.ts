@@ -1,4 +1,4 @@
-import { AbiItem } from "web3-utils"
+import { AbiItem } from "@celo/connect"
 
 import PROXY_V1_JSON from "../core-contracts/Proxy-v1.json"
 import PROXY_ERC1967_JSON from "../core-contracts/Proxy-ERC1967Upgrade.json"

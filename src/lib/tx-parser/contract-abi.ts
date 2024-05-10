@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from "axios"
-import { AbiItem } from "web3-utils"
+import { AbiItem } from '@celo/connect'
 import { Address, CeloContract, ContractKit } from '@celo/contractkit'
 import * as log from "electron-log"
 
