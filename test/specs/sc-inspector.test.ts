@@ -3,7 +3,6 @@ import { devchainKit, testLog } from '../setup'
 import { confirmTXs, installOptionalApp, waitForRefetch } from '../app-helpers'
 import { E2ETestAccounts, e2eTestDefaultAccount } from '../../src/lib/e2e-constants'
 import { multiSigDeployTXs, multiSigInitializeTXs } from '../../src/lib/core-contracts/deploy'
-import { sleep } from '../../src/lib/utils'
 
 it('install app', async () => {
 	await installOptionalApp("sc-inspector")
