@@ -16,7 +16,7 @@ jobs:
       - run: yarn lint
       - run: yarn test
       - run: yarn compile
-      - run: xvfb-run --auto-servernum --server-args='-screen 0, 1600x900x24' yarn test:spectron-all
+      - run: xvfb-run --auto-servernum --server-args='-screen 0, 1600x900x24' yarn test:wdio
 
   build:
     needs: test
