@@ -5,8 +5,6 @@ afterSign: ./buildcfg/notarize.js
 npmRebuild: false
 files: [
   ".webpack/**/*",
-  "build/**/*",
-  "buildcfg/**/*",
   "!node_modules/**/*",
 ]
 
