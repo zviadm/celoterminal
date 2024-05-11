@@ -2,6 +2,14 @@ appId: "com.celoterminal"
 productName: "Celo Terminal"
 afterSign: ./buildcfg/notarize.js
 
+npmRebuild: false
+files: [
+  ".webpack/**/*",
+  "build/**/*",
+  "buildcfg/**/*",
+  "!node_modules/**/*",
+]
+
 mac:
   artifactName: ${productName}-${version}-${os}-${arch}.${ext}
   category: "public.app-category.finance"

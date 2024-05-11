@@ -56,7 +56,7 @@ jobs:
           OSX_APPLE_ID_PASSWORD: ${{ secrets.OSX_APPLE_ID_PASSWORD }}
         if: runner.os == 'macOS'
 
-      - run: yarn build-win32-x64 --win --publish always
+      - run: yarn build --win --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
