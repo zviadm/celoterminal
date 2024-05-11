@@ -1,0 +1,32 @@
+appId: "com.celoterminal"
+productName: "Celo Terminal"
+afterSign: ./buildcfg/notarize.js
+
+mac:
+  artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+  category: "public.app-category.finance"
+  hardenedRuntime: true
+  entitlements: ./buildcfg/mac/entitlements.plist
+  entitlementsInherit: ./buildcfg/mac/entitlements.plist
+  target:
+    - dmg
+    - zip
+  publish: ["github"]
+
+win:
+  artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+  target:
+    - target: nsis
+      arch: ["x64"]
+  publish: ["github"]
+
+linux:
+  artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+  category: Finance
+  target:
+    - target: AppImage
+      arch:
+        - x64
+publish:
+  provider: "github"
+  owner: "zviadm"
