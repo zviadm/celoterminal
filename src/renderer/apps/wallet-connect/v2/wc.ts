@@ -1,14 +1,15 @@
 import * as log from 'electron-log'
+import { Lock } from '@celo/base/lib/lock'
 import { IWeb3Wallet, Web3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
 import { Core } from "@walletconnect/core";
-import { Lock } from '@celo/base/lib/lock'
+import { SessionTypes } from '@walletconnect/types';
+import { getSdkError } from '@walletconnect/utils';
 
 import { CFG } from '../../../../lib/cfg'
 import { showWindowAndFocus } from '../../../electron-utils'
-import { SessionTypes } from '@walletconnect/types';
 import { ISession, SessionMetadata } from '../session';
-import { getSdkError } from '@walletconnect/utils';
 import { IJsonRpcErrorMessage, RequestPayload, WCRequest, requestQueueGlobal } from '../request-queue';
+import { IS_E2E_TEST } from '../../../../lib/e2e-constants';
 
 const core = new Core({
   projectId: "9e9a1a2420615978dc2409e90543aef9",
@@ -193,7 +194,10 @@ class WCV2Request implements WCRequest {
 }
 
 export const wcGlobal = new WalletConnectGlobal()
-wcGlobal.init()
+if (!IS_E2E_TEST) {
+	// Don't initialize WalletConnect in E2E Tests to avoid random error snacks.
+	wcGlobal.init()
+}
 
 export const initializeStoredSessions = async (): Promise<SessionWrapper[]> => {
 	const wc = await wcGlobal.init()
