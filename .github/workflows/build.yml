@@ -44,19 +44,19 @@ jobs:
       - run: yarn
       - run: yarn compile
 
-      - run: yarn electron-builder build --pd ./out/celoterminal-darwin-arm64
+      - run: yarn electron-builder build --pd ./out/celoterminal-darwin-arm64 --publish never
         env:
           CSC_LINK: ${{ secrets.OSX_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.OSX_CSC_KEY_PASSWORD }}
         if: runner.os == 'macOS'
 
-      - run: yarn electron-builder build --pd ./out/celoterminal-win32-x64
+      - run: yarn electron-builder build --pd ./out/celoterminal-win32-x64 --publish never
         env:
           CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
         if: runner.os == 'Windows'
 
-      - run: yarn electron-builder build --pd ./out/celoterminal-linux-x64
+      - run: yarn electron-builder build --pd ./out/celoterminal-linux-x64 --publish never
         if: runner.os == 'Linux'
 
       - uses: actions/upload-artifact@v2
