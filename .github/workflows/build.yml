@@ -63,6 +63,6 @@ jobs:
         with:
           name: CeloTerminal-BIN
           path: |
-            out/make/celoterminal-*.dmg
-            out/make/celoterminal-*.AppImage
-            out/make/celoterminal-*.exe
+            dist/*-mac*.dmg
+            dist/*-linux*.AppImage
+            dist/*-win*.exe
