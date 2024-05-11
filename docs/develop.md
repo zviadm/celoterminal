@@ -20,7 +20,8 @@ Celo Terminal uses the following technologies:
 * [Typescript](https://www.typescriptlang.org/docs/)
 * [Yarn](https://classic.yarnpkg.com/en/docs/): Package manager.
 * [Electron](https://www.electronjs.org/docs): Framework for developing cross-platform desktop apps.
-* [Electron-Forge](https://www.electronforge.io/): Build & Publishing framework for Electron apps.
+* [Electron-Forge](https://www.electronforge.io/): Configures WebPack for compiling and bundling Electron apps.
+* [Electron-Builder](https://www.electron.build/): Turns bundles into platform specific distributables. Also provides hooks for code signing and auto updates.
 * [Jest](https://jestjs.io/): Testing framework for unit tests.
 * [WebDriverIO](https://webdriver.io/): UI automation testing framework.
 * [celo-devchain](https://github.com/terminal-fi/celo-devchain): Locally runnable blockchain with core celo contracts for full integration testing.
