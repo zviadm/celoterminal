@@ -3,8 +3,8 @@ import Web3 from "web3";
 import { coreErc20Decimals } from "../../../lib/erc20/core";
 import { mainnetChainId, alfajoresChainId, CFG } from "../../../lib/cfg";
 import { moolaTokens } from "./config";
-import { abi as LendingPoolDataProviderABI } from "./abi/DataProvider.json";
-import { abi as UbeswapABI } from "./abi/Ubeswap.json";
+import DATA_PROVIDER_JSON from "./abi/DataProvider.json";
+import UBESWAP_JSON from "./abi/Ubeswap.json";
 import { AbiItem } from "@celo/connect";
 
 export const toBigNumberWei = (num: string): BigNumber =>
@@ -317,7 +317,7 @@ export const getUseMTokenFromTo = async (
 }> => {
 	const getMTokenAddress = async (token: string) => {
 		const LendingPoolDataProvider = new web3.eth.Contract(
-			LendingPoolDataProviderABI as AbiItem[],
+			DATA_PROVIDER_JSON.abi as AbiItem[],
 			lendingPoolDataProviderAddress
 		);
 		return (
@@ -328,7 +328,7 @@ export const getUseMTokenFromTo = async (
 	};
 
 	const Ubeswap = new web3.eth.Contract(
-		UbeswapABI as AbiItem[],
+		UBESWAP_JSON.abi as AbiItem[],
 		ubeswapAddress
 	);
 

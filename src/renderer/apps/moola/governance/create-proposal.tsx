@@ -4,6 +4,7 @@ import { Box, TextField, Button } from "@material-ui/core";
 import SectionTitle from "../../../components/section-title";
 import BigNumber from "bignumber.js";
 import { BN } from "../moola-helper";
+import { monospaceFont } from "../../../styles";
 
 const CreateProposal = ({
 	onCreateProposal,
@@ -75,7 +76,7 @@ const CreateProposal = ({
 						spellCheck={false}
 						inputProps={{
 							spellCheck: false,
-							style: { fontFamily: "monospace" },
+							style: { ...monospaceFont },
 						}}
 						margin="dense"
 						style={{ marginBottom: 10 }}

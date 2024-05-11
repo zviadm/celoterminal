@@ -38,15 +38,15 @@ import useLocalStorageState from "../../state/localstorage-state";
 import { useUserOnChainState } from "./state";
 import useOnChainState from "../../state/onchain-state";
 
-import { abi as LendingPoolABI } from "./abi/LendingPool.json";
-import { abi as LiquiditySwapABI } from "./abi/LiquiditySwapAdapter.json";
-import { abi as LendingPoolDataProviderABI } from "./abi/DataProvider.json";
-import { abi as AutoRepayABI } from "./abi/AutoRepay.json";
-import { abi as MTokenABI } from "./abi/Mtoken.json";
-import { abi as DebtTokenABI } from "./abi/DebtToken.json";
-import { abi as PriceOracleABI } from "./abi/PriceOracle.json";
-import { abi as UbeswapABI } from "./abi/Ubeswap.json";
-import { abi as RepayFromCollateralAdapterABI } from "./abi/RepayFromCollateralAdapter.json";
+import LENDING_POOL_JSON from "./abi/LendingPool.json";
+import LIQUIDITY_SWAP_ADAPTER_JSON from "./abi/LiquiditySwapAdapter.json";
+import DATA_PROVIDER_JSON from "./abi/DataProvider.json";
+import AUTO_REPAY_JSON from "./abi/AutoRepay.json";
+import MTOKEN_JSON from "./abi/Mtoken.json";
+import DEBT_TOKEN_JSON from "./abi/DebtToken.json";
+import PRICE_ORACLE_JSON from "./abi/PriceOracle.json";
+import UBESWAP_JSON from "./abi/Ubeswap.json";
+import REPAY_FROM_COLLATERAL_ADAPTER_JSON from "./abi/RepayFromCollateralAdapter.json";
 
 import {
 	BN,
@@ -139,7 +139,7 @@ const MoolaApp = (props: {
 
 				// deposit
 				const LendingPool = new kit.web3.eth.Contract(
-					LendingPoolABI as AbiItem[],
+					LENDING_POOL_JSON.abi as AbiItem[],
 					lendingPoolAddress
 				);
 				const txDeposit = toTransactionObject(
@@ -161,7 +161,7 @@ const MoolaApp = (props: {
 				if (isFetching || !userOnchainState.fetched) return [];
 
 				const LendingPool = new kit.web3.eth.Contract(
-					LendingPoolABI as AbiItem[],
+					LENDING_POOL_JSON.abi as AbiItem[],
 					lendingPoolAddress
 				);
 
@@ -184,7 +184,7 @@ const MoolaApp = (props: {
 				if (isFetching || !userOnchainState.fetched) return [];
 
 				const LendingPool = new kit.web3.eth.Contract(
-					LendingPoolABI as AbiItem[],
+					LENDING_POOL_JSON.abi as AbiItem[],
 					lendingPoolAddress
 				);
 				const tx = toTransactionObject(
@@ -226,7 +226,7 @@ const MoolaApp = (props: {
 
 				// repay
 				const LendingPool = new kit.web3.eth.Contract(
-					LendingPoolABI as AbiItem[],
+					LENDING_POOL_JSON.abi as AbiItem[],
 					lendingPoolAddress
 				);
 
@@ -258,7 +258,7 @@ const MoolaApp = (props: {
 				if (isFetching || !userOnchainState.fetched) return [];
 
 				const LendingPool = new kit.web3.eth.Contract(
-					LendingPoolABI as AbiItem[],
+					LENDING_POOL_JSON.abi as AbiItem[],
 					lendingPoolAddress
 				);
 
@@ -294,7 +294,7 @@ const MoolaApp = (props: {
 				const txApprove = tokenContract.approve(lendingPoolAddress, amount);
 
 				const LendingPool = new kit.web3.eth.Contract(
-					LendingPoolABI as AbiItem[],
+					LENDING_POOL_JSON.abi as AbiItem[],
 					lendingPoolAddress
 				);
 				const txRepay = toTransactionObject(
@@ -325,7 +325,7 @@ const MoolaApp = (props: {
 				if (isFetching || !userOnchainState.fetched) return [];
 
 				const LendingPoolDataProvider = new kit.web3.eth.Contract(
-					LendingPoolDataProviderABI as AbiItem[],
+					DATA_PROVIDER_JSON.abi as AbiItem[],
 					lendingPoolDataProviderAddress
 				);
 				const reserveTokens = await LendingPoolDataProvider.methods
@@ -336,7 +336,7 @@ const MoolaApp = (props: {
 						? "stableDebtTokenAddress"
 						: "variableDebtTokenAddress";
 				const debtTokenContract = new kit.web3.eth.Contract(
-					DebtTokenABI as AbiItem[],
+					DEBT_TOKEN_JSON.abi as AbiItem[],
 					reserveTokens[key]
 				);
 
@@ -362,7 +362,7 @@ const MoolaApp = (props: {
 				if (isFetching || !userOnchainState.fetched) return [];
 
 				const AutoRepay = new kit.web3.eth.Contract(
-					AutoRepayABI as AbiItem[],
+					AUTO_REPAY_JSON.abi as AbiItem[],
 					userOnchainState.fetched.autoRepayAddress
 				);
 				const tx = toTransactionObject(
@@ -412,19 +412,19 @@ const MoolaApp = (props: {
 				}
 
 				const LendingPoolDataProvider = new kit.web3.eth.Contract(
-					LendingPoolDataProviderABI as AbiItem[],
+					DATA_PROVIDER_JSON.abi as AbiItem[],
 					lendingPoolDataProviderAddress
 				);
 				const reserveCollateralToken = await LendingPoolDataProvider.methods
 					.getReserveTokensAddresses(collateralAssetAddress)
 					.call();
 				const mToken = new kit.web3.eth.Contract(
-					MTokenABI as AbiItem[],
+					MTOKEN_JSON.abi as AbiItem[],
 					reserveCollateralToken.aTokenAddress
 				);
 
 				const Ubeswap = new kit.web3.eth.Contract(
-					UbeswapABI as AbiItem[],
+					UBESWAP_JSON.abi as AbiItem[],
 					userOnchainState.fetched.ubeswapAddress
 				);
 				let maxCollateralAmount: string = BN("0").toFixed(0);
@@ -469,7 +469,7 @@ const MoolaApp = (props: {
 				}
 
 				const RepayFromCollateralAdapter = new kit.web3.eth.Contract(
-					RepayFromCollateralAdapterABI as AbiItem[],
+					REPAY_FROM_COLLATERAL_ADAPTER_JSON.abi as AbiItem[],
 					repayFromCollateralAdapterAddress
 				);
 
@@ -533,19 +533,19 @@ const MoolaApp = (props: {
 				}
 
 				const LendingPoolDataProvider = new kit.web3.eth.Contract(
-					LendingPoolDataProviderABI as AbiItem[],
+					DATA_PROVIDER_JSON.abi as AbiItem[],
 					lendingPoolDataProviderAddress
 				);
 				const reserveTokens = await LendingPoolDataProvider.methods
 					.getReserveTokensAddresses(assetFromAddress)
 					.call();
 				const mToken = new kit.web3.eth.Contract(
-					MTokenABI as AbiItem[],
+					MTOKEN_JSON.abi as AbiItem[],
 					reserveTokens.aTokenAddress
 				);
 
 				const PriceOracle = new kit.web3.eth.Contract(
-					PriceOracleABI as AbiItem[],
+					PRICE_ORACLE_JSON.abi as AbiItem[],
 					priceOracleAddress
 				);
 				const [tokenFromPrice, tokenToPrice] = await PriceOracle.methods
@@ -570,7 +570,7 @@ const MoolaApp = (props: {
 				}
 
 				const LiquiditySwapAdapter = new kit.web3.eth.Contract(
-					LiquiditySwapABI as AbiItem[],
+					LIQUIDITY_SWAP_ADAPTER_JSON.abi as AbiItem[],
 					liquiditySwapAdapterAddress
 				);
 				const swapPath = getMoolaSwapPath(assetFromAddress, assetToAddress);
@@ -648,7 +648,7 @@ const MoolaApp = (props: {
 				}
 
 				const LendingPool = new kit.web3.eth.Contract(
-					LendingPoolABI as AbiItem[],
+					LENDING_POOL_JSON.abi as AbiItem[],
 					lendingPoolAddress
 				);
 

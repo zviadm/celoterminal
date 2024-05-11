@@ -1,12 +1,10 @@
-// This file gets imported in main & renderer code paths.
-// This file must have no DEV dependencies.
+export const IS_E2E_TEST = !!process.env.E2E_TEST
+export const E2ETestChainId = "1337"
+export const E2ETestAccountsDB = "celoaccounts-test-e2e.db"
+export const E2ETestAccountsDBPassword = "spec123"
 
-export const spectronChainId = "1337"
-export const SpectronAccountsDB = "celoaccounts-test-spectron.db"
-export const SpectronAccountsDBPassword = "spec123"
-
-// Addresses & private keys of accounts that get initialized during Spectron test runs.
-export const SpectronAccounts = [
+// Addresses & private keys of accounts that get initialized during e2e test runs.
+export const E2ETestAccounts = [
 	'0x5409ED021D9299bf6814279A6A1411A7e866A631',
 	'0x6Ecbe1DB9EF729CBe972C83Fb886247691Fb6beb',
 	'0xE36Ea790bc9d7AB70C55260C66D52b1eca985f84',
@@ -18,7 +16,7 @@ export const SpectronAccounts = [
 	'0x7457d5E02197480Db681D3fdF256c7acA21bDc12',
 	'0x91c987bf62D25945dB517BDAa840A6c661374402',
 ]
-export const SpectronAccountKeys = [
+export const E2ETestAccountKeys = [
 	'0xf2f48ee19680706196e2e339e5da3491186e0c4c5030670656b0e0164837257d',
 	'0x5d862464fe9303452126c8bc94274b8c5f9874cbd219789b3eb2128075a76f72',
 	'0xdf02719c4df8b9b8ac7f551fcb5d9ef48fa27eef7a66453879f4d8fdc6e78fb1',
@@ -31,5 +29,5 @@ export const SpectronAccountKeys = [
 	'0x23cb7121166b9a2f93ae0b7c05bde02eae50d64449b2cbb42bc84e9d38d6cc89',
 ]
 
-// Default selected account when running spectron tests.
-export const spectronDefaultAccount = SpectronAccounts[0]
+// Default selected account when running e2e tests.
+export const e2eTestDefaultAccount = E2ETestAccounts[0]

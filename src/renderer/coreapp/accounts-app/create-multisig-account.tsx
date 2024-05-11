@@ -16,6 +16,7 @@ import Clear from '@material-ui/icons/Clear'
 
 import NumberInput from '../../components/number-input'
 import { UserError } from '../../../lib/error'
+import { monospaceFont } from '../../styles'
 
 const CreateMultiSigAccount = (props: {
 	selectedAccount: Account,
@@ -108,7 +109,7 @@ const CreateMultiSigAccount = (props: {
 						size="medium"
 						fullWidth={true}
 						disabled={true}
-						inputProps={{style: {fontFamily: "monospace"}}}
+						inputProps={{style: {...monospaceFont}}}
 					/>
 					{
 						owners.map((o, idx) => (
@@ -117,7 +118,7 @@ const CreateMultiSigAccount = (props: {
 								margin="dense"
 								size="medium"
 								fullWidth={true}
-								inputProps={{style: {fontFamily: "monospace"}}}
+								inputProps={{style: {...monospaceFont}}}
 								placeholder="0x..."
 								value={o}
 								onChange={(e) => { handleEditOwner(idx, e.target.value) }}

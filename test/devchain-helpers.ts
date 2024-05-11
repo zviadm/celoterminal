@@ -4,7 +4,7 @@ import { toWei } from "web3-utils"
 import { addressToPublicKey } from '@celo/utils/lib/signatureUtils'
 import { ProposalBuilder } from '@celo/governance'
 
-import { spectronDefaultAccount } from "./constants"
+import { e2eTestDefaultAccount } from "../src/lib/e2e-constants"
 
 // Creates eligable validator group with a single validator as its member.
 // Provided `vgroup` and `member` must be non-registered addresses with >10k CELO
@@ -57,7 +57,7 @@ export const createGovernanceProposal = async (kit: ContractKit): Promise<void> 
 	await governance
 		.propose(proposal, 'URL')
 		.sendAndWaitForReceipt({
-			from: spectronDefaultAccount,
+			from: e2eTestDefaultAccount,
 			value: cfg.minDeposit.toFixed(0)})
 }
 
@@ -65,12 +65,12 @@ export const dequeueAndApproveProposal = async (kit: ContractKit, proposalID: Bi
 	const governance = await kit.contracts.getGovernance()
 	await governance
 		.dequeueProposalsIfReady()
-		.sendAndWaitForReceipt({from: spectronDefaultAccount})
+		.sendAndWaitForReceipt({from: e2eTestDefaultAccount})
 
 	const multiSigAddress = await governance.getApprover()
 	const governanceApproverMultiSig = await kit.contracts.getMultiSig(multiSigAddress)
 	const govTX = await governance.approve(proposalID)
 	await (await governanceApproverMultiSig
 		.submitOrConfirmTransaction(governance.address, govTX.txo))
-		.sendAndWaitForReceipt({from: spectronDefaultAccount})
+		.sendAndWaitForReceipt({from: e2eTestDefaultAccount})
 }

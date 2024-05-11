@@ -1,13 +1,12 @@
+import { $ } from '@wdio/globals'
 import { toWei } from 'web3-utils'
 
-import { app, devchainKit, jestSetup } from '../../../../lib/spectron-utils/setup'
-import { adjustNow, confirmTXs, refetchAppData, selectApp } from '../../../../lib/spectron-utils/app-helpers'
-import { createGovernanceProposal, dequeueAndApproveProposal } from '../../../../lib/spectron-utils/devchain-helpers'
-import { spectronDefaultAccount } from '../../../../lib/spectron-utils/constants'
+import { devchainKit } from '../setup'
+import { adjustNow, confirmTXs, refetchAppData, selectApp } from '../app-helpers'
+import { createGovernanceProposal, dequeueAndApproveProposal } from '../devchain-helpers'
+import { e2eTestDefaultAccount } from '../../src/lib/e2e-constants'
 
-jestSetup()
-
-test('Governance upvote & vote', async (done) => {
+it('Governance upvote & vote', async () => {
 	const kit = devchainKit()
 	await createGovernanceProposal(kit)
 	await createGovernanceProposal(kit)
@@ -15,15 +14,15 @@ test('Governance upvote & vote', async (done) => {
 
 	const accounts = await kit.contracts.getAccounts()
 	const lockedGold = await kit.contracts.getLockedGold()
-	await accounts.createAccount().sendAndWaitForReceipt({from: spectronDefaultAccount})
-	await lockedGold.lock().sendAndWaitForReceipt({from: spectronDefaultAccount, value: toWei("101", "ether")})
+	await accounts.createAccount().sendAndWaitForReceipt({from: e2eTestDefaultAccount})
+	await lockedGold.lock().sendAndWaitForReceipt({from: e2eTestDefaultAccount, value: toWei("101", "ether")})
 
 	await selectApp("governance")
 
 	const governance = await kit.contracts.getGovernance()
 
 	// Proposal 1 should be automatically dequeued and ready for voting.
-	const voteYes1 = await app.client.$("#vote-Yes-1")
+	const voteYes1 = await $("#vote-Yes-1")
 	await voteYes1.waitForEnabled()
 	await voteYes1.click()
 	await confirmTXs()
@@ -33,13 +32,13 @@ test('Governance upvote & vote', async (done) => {
 	expect(isApproved1).toEqual(false)
 
 	// Switch upvotes between Proposal 2 & 3.
-	const upvote2 = await app.client.$("#upvote-2")
+	const upvote2 = await $("#upvote-2")
 	await upvote2.isEnabled()
 	await upvote2.click()
 	await confirmTXs()
 	const upvotes2 = await governance.getUpvotes(2)
 	expect(upvotes2.toNumber()).toEqual(101e18)
-	const upvote3 = await app.client.$("#upvote-3")
+	const upvote3 = await $("#upvote-3")
 	await upvote3.isEnabled()
 	await upvote3.click()
 	await confirmTXs({txCount: 2}) // needs to revoke previous upvote.
@@ -54,7 +53,7 @@ test('Governance upvote & vote', async (done) => {
 	await dequeueAndApproveProposal(kit, 2)
 
 	await refetchAppData()
-	const voteYes2 = await app.client.$("#vote-Yes-2")
+	const voteYes2 = await $("#vote-Yes-2")
 	await voteYes2.waitForEnabled()
 	await voteYes2.click()
 	await confirmTXs()
@@ -64,17 +63,15 @@ test('Governance upvote & vote', async (done) => {
 	const isApproved2 = await governance.isApproved(2)
 	expect(isApproved2).toEqual(true)
 
-	const voteNo2 = await app.client.$("#vote-No-2")
+	const voteNo2 = await $("#vote-No-2")
 	await voteNo2.click()
 	await confirmTXs()
 	votes2 = await governance.getVotes(2)
 	expect(votes2.No.toNumber()).toEqual(101e18)
 
-	const voteAbstein2 = await app.client.$("#vote-Abstain-2")
+	const voteAbstein2 = await $("#vote-Abstain-2")
 	await voteAbstein2.click()
 	await confirmTXs()
 	votes2 = await governance.getVotes(2)
 	expect(votes2.Abstain.toNumber()).toEqual(101e18)
-
-	done()
 });

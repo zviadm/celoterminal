@@ -1,7 +1,7 @@
-import * as Web3 from "web3"
+import Web3 from "web3"
 import { AbiItem } from "@celo/connect"
 
-import * as erc20Abi from "../erc20/erc20-abi.json"
+import erc20Abi from "../erc20/erc20-abi.json"
 import { parseTransactionData } from "./tx-parser"
 
 test('tx-parser examples', () => {

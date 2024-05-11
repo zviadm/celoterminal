@@ -12,6 +12,7 @@ import {
 import useOnChainState from '../../state/onchain-state'
 import AddressAutocomplete from '../../components/address-autocomplete'
 import Alert from '@material-ui/lab/Alert'
+import { monospaceFont } from '../../styles'
 
 const ImportMultiSigAccount = (props: {
 	accounts: Account[],
@@ -63,7 +64,7 @@ const ImportMultiSigAccount = (props: {
 						margin="dense"
 						size="medium"
 						fullWidth={true}
-						inputProps={{style: {fontFamily: "monospace"}, spellCheck: false}}
+						inputProps={{style: {...monospaceFont}, spellCheck: false}}
 						InputLabelProps={{shrink: true}}
 						label="MultiSig address"
 						placeholder="0x..."

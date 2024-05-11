@@ -16,6 +16,7 @@ import Autocomplete from "@material-ui/lab/Autocomplete"
 import TabContext from "@material-ui/lab/TabContext"
 import TabList from "@material-ui/lab/TabList"
 import TabPanel from "@material-ui/lab/TabPanel"
+import { monospaceFont } from '../styles'
 
 // AddErc20 component can be used to let the user select a new token to add
 // in list of watched erc20s. AddErc20 token manages interaction with the
@@ -129,7 +130,7 @@ const AddErc20 = (props: {
 							spellCheck={false}
 							inputProps={{
 								spellCheck: false,
-								style: {fontFamily: "monospace"}
+								style: {...monospaceFont},
 							}}
 							value={customAddress}
 							onChange={(event) => { setCustomAddress(event.target.value) }}

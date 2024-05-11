@@ -9,3 +9,7 @@ export const nowMS = (): number => {
 export const testOnlyAdjustNow = (increaseMS: number): void => {
 	_adjustedMS += increaseMS
 }
+
+export const testOnlyAdjustedMS = (): number => {
+	return _adjustedMS
+}

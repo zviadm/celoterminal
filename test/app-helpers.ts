@@ -1,7 +1,8 @@
+import { browser, $ } from '@wdio/globals'
 import { increaseTime, Provider } from "@terminal-fi/celo-devchain"
 
-import { SpectronAccountsDBPassword } from "./constants"
-import { app, devchainKit } from "./setup"
+import { devchainKit } from "./setup"
+import { E2ETestAccountsDBPassword } from "../src/lib/e2e-constants"
 
 let _adjustedNowMS = 0
 let _pwEnteredMS = 0
@@ -13,11 +14,12 @@ export const confirmTXs = async(opts?: {
 	skipWaitForRefetch?: boolean,
 }): Promise<void> => {
 	if (Date.now() + _adjustedNowMS > _pwEnteredMS + pwCacheMS) {
-		const passwordInput = await app.client.$("#password-input")
+		const passwordInput = await $("#password-input")
 		await passwordInput.waitForEnabled()
-		await passwordInput.keys([...SpectronAccountsDBPassword, 'Enter'])
+		await passwordInput.click()
+		await browser.keys([...E2ETestAccountsDBPassword, 'Enter'])
 	}
-	const confirmTX = await app.client.$("#confirm-tx")
+	const confirmTX = await $("#confirm-tx")
 	const txCount = opts?.txCount || 1
 	for (let idx = 0; idx < txCount; idx += 1) {
 		await confirmTX.waitForEnabled({timeout: 8000})
@@ -25,7 +27,7 @@ export const confirmTXs = async(opts?: {
 		await confirmTX.click()
 	}
 
-	const txRunnerModal = await app.client.$("#tx-runner-modal")
+	const txRunnerModal = await $("#tx-runner-modal")
 	await txRunnerModal.waitForExist({
 		reverse: true,
 		timeout: 8000,
@@ -41,7 +43,7 @@ export const confirmTXs = async(opts?: {
 
 // Checks and throws if ErrorSnack is activated.
 export const checkErrorSnack = async (expectErrMsg?: string): Promise<void> => {
-	const errorSnack = await app.client.$("#error-snack")
+	const errorSnack = await $("#error-snack")
 	if (!expectErrMsg) {
 		const errorExists = await errorSnack.isExisting()
 		if (errorExists) {
@@ -60,7 +62,7 @@ export const checkErrorSnack = async (expectErrMsg?: string): Promise<void> => {
 
 // Clicks `refetch` button and waits for refetch to complete.
 export const refetchAppData = async (): Promise<void> => {
-	const refetchData = await app.client.$("#refetch-data")
+	const refetchData = await $("#refetch-data")
 	await refetchData.click()
 	await refetchData.waitForEnabled()
 	await checkErrorSnack()
@@ -68,45 +70,45 @@ export const refetchAppData = async (): Promise<void> => {
 
 // Waits for `refetch` to complete.
 export const waitForRefetch = async (): Promise<void> => {
-	const refetchData = await app.client.$("#refetch-data")
+	const refetchData = await $("#refetch-data")
 	await refetchData.waitForEnabled()
 	await checkErrorSnack()
 }
 
 // Installs optional app from the AppStore.
 export const installOptionalApp = async (appId: string): Promise<void> => {
-	const menuAppstore = await app.client.$("#menu-appstore")
+	const menuAppstore = await $("#menu-appstore")
 	await menuAppstore.waitForEnabled()
 	await menuAppstore.click()
 
-	const installApp = await app.client.$(`#install-app-${appId}`)
+	const installApp = await $(`#install-app-${appId}`)
 	await installApp.waitForEnabled()
 	await installApp.click()
 }
 
 // Uninstalls optional app.
 export const uninstallOptionalApp = async (appId: string): Promise<void> => {
-	const uninstallApp = await app.client.$(`#uninstall-app-${appId}`)
+	const uninstallApp = await $(`#uninstall-app-${appId}`)
 	await uninstallApp.waitForEnabled()
 	await uninstallApp.click()
 
-	const confirmUninstall = await app.client.$("#confirm-uninstall")
+	const confirmUninstall = await $("#confirm-uninstall")
 	await confirmUninstall.waitForEnabled()
 	await confirmUninstall.click()
 }
 
 export const selectApp = async (appId: string): Promise<void> => {
-	const menuItem = await app.client.$(`#menu-${appId}`)
+	const menuItem = await $(`#menu-${appId}`)
 	await menuItem.waitForEnabled()
 	await menuItem.click()
 }
 
 export const selectAccount = async (accountIdx: number): Promise<void> => {
-	const accountsSelect = await app.client.$(`#accounts-select`)
+	const accountsSelect = await $(`#accounts-select`)
 	await accountsSelect.waitForEnabled()
 	await accountsSelect.click()
 
-	const accountItem = await app.client.$(`#select-account-${accountIdx}-item`)
+	const accountItem = await $(`#select-account-${accountIdx}-item`)
 	await accountItem.waitForEnabled()
 	await accountItem.click()
 }
@@ -114,7 +116,13 @@ export const selectAccount = async (accountIdx: number): Promise<void> => {
 // Alters current time both for celo-devchain, and for the Celo Terminal app.
 export const adjustNow = async (increaseMS: number): Promise<void> => {
 	const kit = devchainKit()
-	_adjustedNowMS += increaseMS
-	app.webContents.send("adjust-time", increaseMS)
+	_adjustedNowMS += increaseMS;
+	const adjustTimeOpen = await $(`#adjust-time-open`)
+	await adjustTimeOpen.click()
+	const adjustTimeMSInput= await $(`#adjust-time-ms-input`)
+	await adjustTimeMSInput.waitForEnabled()
+	await adjustTimeMSInput.doubleClick()
+	await browser.keys([..._adjustedNowMS.toString(), "Escape"])
+
 	await increaseTime(kit.web3.currentProvider as Provider, increaseMS / 1000)
 }

@@ -8,6 +8,7 @@ import TextField from '@material-ui/core/TextField'
 import Alert from '@material-ui/lab/Alert'
 
 import { Account } from '../../../lib/accounts/accounts'
+import { monospaceFont } from '../../styles'
 
 const ConfirmRemove = (props: {
 	account: Account,
@@ -37,7 +38,7 @@ const ConfirmRemove = (props: {
 					placeholder="0x..."
 					size="medium"
 					fullWidth={true}
-					inputProps={{style: {fontFamily: "monospace"}}}
+					inputProps={{style: {...monospaceFont}}}
 					onChange={(e) => { setAddress(e.target.value) }}
 				/>
 				</> :

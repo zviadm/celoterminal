@@ -1,8 +1,8 @@
 import { AbiItem } from "web3-utils"
 
-import { deployedBytecode as proxyBytecodeV1, abi as proxyAbiV1 } from "../core-contracts/Proxy-v1.json"
-import { deployedBytecode as proxyBytecodeBrokerV1, abi as proxyAbiBrokerV1 } from "../core-contracts/BrokerProxy-v1.json"
-import { deployedBytecode as proxyBytecodeERC1967Upgrade, abi as proxyAbiERC1967Upgrade } from "../core-contracts/Proxy-ERC1967Upgrade.json"
+import PROXY_V1_JSON from "../core-contracts/Proxy-v1.json"
+import PROXY_ERC1967_JSON from "../core-contracts/Proxy-ERC1967Upgrade.json"
+import BROKER_PROXY_V1_JSON from "../core-contracts/BrokerProxy-v1.json"
 
 export interface KnownProxy {
 	verifiedName: string,
@@ -20,26 +20,26 @@ export interface KnownProxy {
 export const KnownProxies: KnownProxy[] = [
 	{
 		verifiedName: "CoreContract:Proxy",
-		abi: proxyAbiV1 as AbiItem[],
-		bytecode: proxyBytecodeV1,
-		implementation: {
-			type:"method", method: "_getImplementation",
-		},
-	},
-	{
-		verifiedName: "Mento:BrokerProxy",
-		abi: proxyAbiBrokerV1 as AbiItem[],
-		bytecode: proxyBytecodeBrokerV1,
+		abi: PROXY_V1_JSON.abi as AbiItem[],
+		bytecode: PROXY_V1_JSON.deployedBytecode,
 		implementation: {
 			type:"method", method: "_getImplementation",
 		},
 	},
 	{
 		verifiedName: "ERC1967UpgradableProxy",
-		abi: proxyAbiERC1967Upgrade as AbiItem[],
-		bytecode: proxyBytecodeERC1967Upgrade,
+		abi: PROXY_ERC1967_JSON.abi as AbiItem[],
+		bytecode: PROXY_ERC1967_JSON.deployedBytecode,
 		implementation: {
 			type:"storage-slot", address: "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+		},
+	},
+	{
+		verifiedName: "Mento:BrokerProxy",
+		abi: BROKER_PROXY_V1_JSON.abi as AbiItem[],
+		bytecode: BROKER_PROXY_V1_JSON.deployedBytecode,
+		implementation: {
+			type:"method", method: "_getImplementation",
 		},
 	},
 ]

@@ -26,6 +26,7 @@ import AppSection from '../../components/app-section'
 import LinkedAddress from '../../components/linked-address'
 import ReadContract from './read-contract'
 import WriteContract from './write-contract'
+import { monospaceFont } from '../../styles'
 
 const SCInspectorApp = (props: {
 	accounts: Account[],
@@ -94,7 +95,7 @@ const SCInspectorApp = (props: {
 					spellCheck={false}
 					inputProps={{
 						spellCheck: false,
-						style: {fontFamily: "monospace"}
+						style: {...monospaceFont},
 					}}
 					value={editAddress}
 					onChange={(event) => { setEditAddress(event.target.value) }}

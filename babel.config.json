@@ -1,6 +1,0 @@
-{
-  // NOTE: We are using very old version of webpack, due to incompatibility of newer version with
-  // electron-webpack that is no longer getting updates. Thus we need to use this extra babel
-  // transformer to handle optional chaining operators in javascript files.
-  "plugins": ["@babel/plugin-transform-optional-chaining"]
-}

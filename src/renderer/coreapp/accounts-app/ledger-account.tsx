@@ -22,6 +22,7 @@ import Box from '@material-ui/core/Box'
 import { LedgerAccount } from '../../../lib/accounts/accounts'
 import { transformError } from '../ledger-utils'
 import { UserError } from '../../../lib/error'
+import { monospaceFont } from '../../styles'
 
 const useStyles = makeStyles(() => ({
 	content: {
@@ -32,7 +33,7 @@ const useStyles = makeStyles(() => ({
 		fontStyle: "italic",
 	},
 	address: {
-		fontFamily: "monospace",
+		...monospaceFont,
 	},
 }))
 

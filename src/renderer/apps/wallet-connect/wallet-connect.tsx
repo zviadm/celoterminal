@@ -8,7 +8,6 @@ import { throwUnreachableError } from '../../../lib/utils'
 import { ISession } from './session'
 import { RequestQueue, requestQueueGlobal } from './request-queue'
 
-import EstablishSessionV1 from './v1/establish-session'
 import EstablishSessionV2 from './v2/establish-session'
 
 import { parseUri } from '@walletconnect/utils'
@@ -25,10 +24,7 @@ import AppHeader from '../../components/app-header'
 import AppSection from '../../components/app-section'
 import AppContainer from '../../components/app-container'
 import SectionTitle from '../../components/section-title'
-
-if (module.hot) {
-	module.hot.decline()
-}
+import { monospaceFont } from '../../styles'
 
 const WalletConnectApp = (props: {
 	accounts: Account[],
@@ -188,13 +184,7 @@ const WalletConnectApp = (props: {
 	return (
 		<AppContainer>
 			<AppHeader app={WalletConnect} />
-			{parsedURI.version === 1 &&
-			<EstablishSessionV1
-				uri={toApproveURI}
-				account={props.selectedAccount}
-				onCancel={refreshAfterEstablish}
-				onApprove={handleApprove}
-			/>}
+			{parsedURI.version === 1 /* TODO: show error */}
 			{parsedURI.version === 2 &&
 			<EstablishSessionV2
 				uri={toApproveURI}
@@ -241,7 +231,7 @@ const WalletConnectApp = (props: {
 					fullWidth={true}
 					spellCheck={false}
 					value={connectURI}
-					inputProps={{style: {fontFamily: "monospace", wordBreak: "break-all"}}}
+					inputProps={{style: {...monospaceFont, wordBreak: "break-all"}}}
 					onChange={(e) => { setConnectURI(e.target.value) }}
 				/>
 
