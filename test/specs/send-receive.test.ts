@@ -11,9 +11,9 @@ it('select app', async () => {
 it('simple send', async () => {
 	const randomAddr = devchainKit().web3.utils.randomHex(20)
 	const toAddressInput = await $("#to-address-input")
-	await toAddressInput.waitForEnabled()
+	await toAddressInput.waitForClickable()
 	await toAddressInput.click()
-	await browser.keys(randomAddr)
+	await browser.keys([...randomAddr, "Enter"])
 
 	const amountInput = await $("#amount-input")
 	await amountInput.click()
@@ -92,9 +92,9 @@ it('add/remove erc20', async () => {
 
 	const randomAddr = devchainKit().web3.utils.randomHex(20)
 	const toAddressInput = await $("#to-address-input")
-	await toAddressInput.waitForEnabled()
+	await toAddressInput.waitForClickable()
 	await toAddressInput.doubleClick()
-	await browser.keys(randomAddr)
+	await browser.keys([...randomAddr, "Enter"])
 	const amountInput = await $("#amount-input")
 	await amountInput.click()
 	await browser.keys("202.1")
@@ -146,7 +146,7 @@ it('approvals & transferFrom', async () => {
 	const randomAddr = devchainKit().web3.utils.randomHex(20)
 	const toAddressInput = await $("#to-address-input")
 	await toAddressInput.click()
-	await browser.keys(randomAddr)
+	await browser.keys([...randomAddr, "Enter"])
 
 	await amountInput.click()
 	await browser.keys("55")
