@@ -46,7 +46,7 @@ jobs:
       - run: yarn
       - run: yarn compile
 
-      - run: yarn electron-builder --mac --publish always
+      - run: yarn electron-builder build --pd ./out/celoterminal-darwin-arm64 --mac --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ secrets.OSX_CSC_LINK }}
@@ -56,14 +56,14 @@ jobs:
           OSX_APPLE_ID_PASSWORD: ${{ secrets.OSX_APPLE_ID_PASSWORD }}
         if: runner.os == 'macOS'
 
-      - run: yarn electron-builder --win --publish always
+      - run: yarn electron-builder build --pd ./out/celoterminal-win32-x64 --win --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
         if: runner.os == 'Windows'
 
-      - run: yarn electron-builder --linux --publish always
+      - run: yarn electron-builder build --pd ./out/celoterminal-linux-x64 --linux --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: runner.os == 'Linux'
