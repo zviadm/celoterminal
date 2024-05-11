@@ -37,7 +37,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install libudev-dev libusb-1.0-0-dev
         if: runner.os == 'Linux'
 
-      - run: python -m ensurepip && pip install setuptools
+      - run: python3 -m ensurepip && python3 -m pip install setuptools
         if: runner.os == 'macOS'
 
       - run: yarn config set network-timeout 600000 -g
