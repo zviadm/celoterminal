@@ -9,7 +9,7 @@ import { testOnlySetupAccountsDB } from './test-utils'
 import { setupMenu } from './menu'
 import * as remoteMain from "@electron/remote/main"
 
-import celoTerminalIcon from './../../static/icon.png'
+import celoTerminalIcon from './../../build/icon.png'
 
 remoteMain.initialize()
 
