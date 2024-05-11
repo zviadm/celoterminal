@@ -50,7 +50,7 @@ jobs:
           CSC_KEY_PASSWORD: ${{ secrets.OSX_CSC_KEY_PASSWORD }}
         if: runner.os == 'macOS'
 
-      - run: yarn build-win32-x64 --publish never
+      - run: yarn build --publish never
         env:
           CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
