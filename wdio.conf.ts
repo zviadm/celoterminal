@@ -1,17 +1,19 @@
 /// <reference types="wdio-electron-service" />
+import path from 'path'
 import type { Options } from '@wdio/types'
 import { onPrepare, afterSession, beforeSession} from "./test/setup"
 
 // NOTE(zviad): We can't use webdriverIO-s automatic binaryPath detection because
 // we have dependency both on electorn-forge and on electron-builder.
 const binaryPath = () => {
+    const prefix = ["out", `celoterminal-${process.platform}-${process.arch}`]
     switch (process.platform) {
         case "darwin":
-            return `./out/celoterminal-darwin-${process.arch}/celoterminal.app/Contents/MacOS/celoterminal`
+            return path.join(...prefix, "celoterminal.app", "Contents", "MacOS", "celoterminal")
         case "win32":
-            return `./out/celoterminal-win32-${process.arch}/celoterminal.exe`
+            return path.join(...prefix, "celoterminal.exe")
         case "linux":
-            return `./out/celoterminal-win32-${process.arch}/celoterminal`
+            return path.join(...prefix, "celoterminal")
         default:
             throw new Error(`Not supported platform: ${process.platform}`)
     }
