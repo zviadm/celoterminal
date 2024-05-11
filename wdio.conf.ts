@@ -1,6 +1,22 @@
 /// <reference types="wdio-electron-service" />
 import type { Options } from '@wdio/types'
 import { onPrepare, afterSession, beforeSession} from "./test/setup"
+
+// NOTE(zviad): We can't use webdriverIO-s automatic binaryPath detection because
+// we have dependency both on electorn-forge and on electron-builder.
+const binaryPath = () => {
+    switch (process.platform) {
+        case "darwin":
+            return `./out/celoterminal-darwin-${process.arch}/celoterminal.app/Contents/MacOS/celoterminal`
+        case "win32":
+            return `./out/celoterminal-win32-${process.arch}/celoterminal.exe`
+        case "linux":
+            return `./out/celoterminal-win32-${process.arch}/celoterminal`
+        default:
+            throw new Error(`Not supported platform: ${process.platform}`)
+    }
+}
+
 export const config: Options.Testrunner = {
     //
     // ====================
@@ -66,6 +82,7 @@ export const config: Options.Testrunner = {
         // see https://webdriver.io/docs/desktop-testing/electron/configuration/#service-options
         'wdio:electronServiceOptions': {
             // custom application args
+            appBinaryPath: binaryPath(),
             appArgs: []
         }
     }],
