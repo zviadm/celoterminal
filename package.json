@@ -17,9 +17,7 @@
     "dev:mainnet": "env-cmd -f env.dev.mainnet electron-forge start",
     "dev:e2etest": "env-cmd -f env.dev.e2etest electron-forge start",
     "dev:fresh": "./env.dev.fresh.sh",
-    "compile": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish"
+    "compile": "electron-forge package"
   },
   "devDependencies": {
     "@celo/governance": "^4.1.0",
@@ -50,6 +48,8 @@
     "@wdio/spec-reporter": "^8.36.1",
     "css-loader": "^6.0.0",
     "electron": "28.3.1",
+    "electron-builder": "^24.13.3",
+    "electron-notarize": "^1.2.2",
     "env-cmd": "^10.1.0",
     "eslint": "^8.0.1",
     "eslint-plugin-import": "^2.20.0",

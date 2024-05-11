@@ -1,6 +1,4 @@
 import type { ForgeConfig } from '@electron-forge/shared-types';
-import { MakerSquirrel } from '@electron-forge/maker-squirrel';
-import { MakerDMG } from '@electron-forge/maker-dmg';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
 import { WebpackPlugin } from '@electron-forge/plugin-webpack';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
@@ -16,10 +14,7 @@ const config: ForgeConfig = {
     icon: "./static/icon",
   },
   rebuildConfig: {},
-  makers: [
-    new MakerSquirrel({}),
-    new MakerDMG({}),
-  ],
+  makers: [],
   plugins: [
     new AutoUnpackNativesPlugin({}),
     new WebpackPlugin({
