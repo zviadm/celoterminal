@@ -11,7 +11,6 @@ import { rendererConfig } from './webpack.renderer.config';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
-    icon: "./build/icon",
   },
   rebuildConfig: {},
   makers: [],
@@ -20,6 +19,13 @@ const config: ForgeConfig = {
     new WebpackPlugin({
       mainConfig,
       devContentSecurityPolicy: "connect-src 'self' * 'unsafe-eval'",
+      devServer: {
+        client: {
+          overlay: {
+            runtimeErrors: false,
+          },
+        },
+      },
       renderer: {
         config: rendererConfig,
         nodeIntegration: true,
