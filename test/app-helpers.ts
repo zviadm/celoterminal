@@ -15,14 +15,14 @@ export const confirmTXs = async(opts?: {
 }): Promise<void> => {
 	if (Date.now() + _adjustedNowMS > _pwEnteredMS + pwCacheMS) {
 		const passwordInput = await $("#password-input")
-		await passwordInput.waitForEnabled()
+		await passwordInput.waitForClickable()
 		await passwordInput.click()
 		await browser.keys([...E2ETestAccountsDBPassword, 'Enter'])
 	}
 	const confirmTX = await $("#confirm-tx")
 	const txCount = opts?.txCount || 1
 	for (let idx = 0; idx < txCount; idx += 1) {
-		await confirmTX.waitForEnabled({timeout: 8000})
+		await confirmTX.waitForClickable({timeout: 8000})
 		_pwEnteredMS = Date.now() + _adjustedNowMS
 		await confirmTX.click()
 	}
@@ -64,52 +64,52 @@ export const checkErrorSnack = async (expectErrMsg?: string): Promise<void> => {
 export const refetchAppData = async (): Promise<void> => {
 	const refetchData = await $("#refetch-data")
 	await refetchData.click()
-	await refetchData.waitForEnabled()
+	await refetchData.waitForClickable()
 	await checkErrorSnack()
 }
 
 // Waits for `refetch` to complete.
 export const waitForRefetch = async (): Promise<void> => {
 	const refetchData = await $("#refetch-data")
-	await refetchData.waitForEnabled()
+	await refetchData.waitForClickable()
 	await checkErrorSnack()
 }
 
 // Installs optional app from the AppStore.
 export const installOptionalApp = async (appId: string): Promise<void> => {
 	const menuAppstore = await $("#menu-appstore")
-	await menuAppstore.waitForEnabled()
+	await menuAppstore.waitForClickable()
 	await menuAppstore.click()
 
 	const installApp = await $(`#install-app-${appId}`)
-	await installApp.waitForEnabled()
+	await installApp.waitForClickable()
 	await installApp.click()
 }
 
 // Uninstalls optional app.
 export const uninstallOptionalApp = async (appId: string): Promise<void> => {
 	const uninstallApp = await $(`#uninstall-app-${appId}`)
-	await uninstallApp.waitForEnabled()
+	await uninstallApp.waitForClickable()
 	await uninstallApp.click()
 
 	const confirmUninstall = await $("#confirm-uninstall")
-	await confirmUninstall.waitForEnabled()
+	await confirmUninstall.waitForClickable()
 	await confirmUninstall.click()
 }
 
 export const selectApp = async (appId: string): Promise<void> => {
 	const menuItem = await $(`#menu-${appId}`)
-	await menuItem.waitForEnabled()
+	await menuItem.waitForClickable()
 	await menuItem.click()
 }
 
 export const selectAccount = async (accountIdx: number): Promise<void> => {
 	const accountsSelect = await $(`#accounts-select`)
-	await accountsSelect.waitForEnabled()
+	await accountsSelect.waitForClickable()
 	await accountsSelect.click()
 
 	const accountItem = await $(`#select-account-${accountIdx}-item`)
-	await accountItem.waitForEnabled()
+	await accountItem.waitForClickable()
 	await accountItem.click()
 }
 
@@ -120,7 +120,7 @@ export const adjustNow = async (increaseMS: number): Promise<void> => {
 	const adjustTimeOpen = await $(`#adjust-time-open`)
 	await adjustTimeOpen.click()
 	const adjustTimeMSInput= await $(`#adjust-time-ms-input`)
-	await adjustTimeMSInput.waitForEnabled()
+	await adjustTimeMSInput.waitForClickable()
 	await adjustTimeMSInput.doubleClick()
 	await browser.keys([..._adjustedNowMS.toString(), "Escape"])
 
