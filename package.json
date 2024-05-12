@@ -18,7 +18,7 @@
     "dev:e2etest": "env-cmd -f env.dev.e2etest electron-forge start",
     "dev:fresh": "./env.dev.fresh.sh",
     "compile": "electron-forge package",
-    "build": "./buildcfg/webpack-path-fix.sh && electron-builder build"
+    "build": "node ./buildcfg/webpack-path-fix.js && electron-builder build"
   },
   "devDependencies": {
     "@celo/governance": "^4.1.0",
