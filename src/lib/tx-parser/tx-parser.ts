@@ -1,4 +1,4 @@
-import { AbiInput, AbiItem } from "web3-utils"
+import { AbiInput, AbiItem } from "@celo/connect"
 import Web3 from 'web3';
 
 export class TXParsingError extends Error {}
