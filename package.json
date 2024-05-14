@@ -27,7 +27,6 @@
     "@electron-forge/plugin-fuses": "^7.4.0",
     "@electron-forge/plugin-webpack": "^7.4.0",
     "@electron/fuses": "^1.8.0",
-    "@svgr/webpack": "^8.0.0",
     "@terminal-fi/celo-devchain": "^9.0.0",
     "@types/better-sqlite3": "^7.6.10",
     "@types/jest": "^26.0.20",
