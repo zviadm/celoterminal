@@ -136,22 +136,12 @@ function createMainWindow() {
 	// Alternative approach would have been to set `webSecurity: false` when creating BrowserWindow,
 	// but that is a bigger security relaxation compared to just overriding request headers.
 	const corsFilter = {urls: CORSByPassURLs}
-	let corsOrigin: string
 	window.webContents.session.webRequest.onBeforeSendHeaders(
 		corsFilter, (details, callback) => {
-			corsOrigin = details.requestHeaders['Origin']
 			details.requestHeaders['Origin'] = ''
 			callback({ requestHeaders: details.requestHeaders })
 		}
 	)
-	window.webContents.session.webRequest.onHeadersReceived(
-    corsFilter, (details, callback) => {
-			if (details.responseHeaders) {
-				details.responseHeaders['Access-Control-Allow-Origin'] = [corsOrigin]
-			}
-      callback({ responseHeaders: details.responseHeaders });
-    }
-  )
 
 	window.webContents.on('devtools-opened', () => {
 		window.focus()
