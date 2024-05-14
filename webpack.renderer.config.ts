@@ -23,11 +23,6 @@ rules.push({
 })
 
 rules.push({
-  test: /\.svg$/,
-  use: ['@svgr/webpack'],
-})
-
-rules.push({
   test: /\.png$/,
   type: "asset/resource",
 })
