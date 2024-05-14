@@ -17,7 +17,8 @@
     "dev:mainnet": "env-cmd -f env.dev.mainnet electron-forge start",
     "dev:e2etest": "env-cmd -f env.dev.e2etest electron-forge start",
     "dev:fresh": "./env.dev.fresh.sh",
-    "compile": "electron-forge package"
+    "compile": "electron-forge package",
+    "build": "node ./buildcfg/webpack-path-fix.js && electron-builder build"
   },
   "devDependencies": {
     "@celo/governance": "^4.1.0",
@@ -26,10 +27,10 @@
     "@electron-forge/plugin-fuses": "^7.4.0",
     "@electron-forge/plugin-webpack": "^7.4.0",
     "@electron/fuses": "^1.8.0",
-    "@svgr/webpack": "^8.0.0",
     "@terminal-fi/celo-devchain": "^9.0.0",
     "@types/better-sqlite3": "^7.6.10",
     "@types/jest": "^26.0.20",
+    "@types/node": "^20.12.12",
     "@types/qrcode-svg": "^1.1.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
@@ -44,6 +45,7 @@
     "css-loader": "^6.0.0",
     "electron": "28.3.1",
     "electron-builder": "^24.13.3",
+    "electron-builder-squirrel-windows": "24.13.3",
     "electron-notarize": "^1.2.2",
     "env-cmd": "^10.1.0",
     "eslint": "^8.0.1",
@@ -63,7 +65,9 @@
     "ts-loader": "^9.2.2",
     "ts-node": "^10.9.2",
     "typescript": "~4.5.4",
-    "wdio-electron-service": "^6.5.0"
+    "wdio-electron-service": "^6.5.0",
+    "webdriverio": "^8.36.1",
+    "webpack": "^5.0.0"
   },
   "keywords": [],
   "dependencies": {

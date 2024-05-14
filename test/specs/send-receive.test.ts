@@ -11,11 +11,11 @@ it('select app', async () => {
 it('simple send', async () => {
 	const randomAddr = devchainKit().web3.utils.randomHex(20)
 	const toAddressInput = await $("#to-address-input")
-	await toAddressInput.waitForEnabled()
+	await toAddressInput.waitForClickable()
 	await toAddressInput.click()
-	await browser.keys(randomAddr)
+	await browser.keys([...randomAddr, "Enter"])
 
-	const amountInput = await $("#amount-input")
+	let amountInput = await $("#amount-input")
 	await amountInput.click()
 	await browser.keys("101")
 
@@ -29,13 +29,14 @@ it('simple send', async () => {
 	expect(balanceCELO.toNumber()).toEqual(101e18)
 
 	const erc20Select = await $("#erc20-select")
-	await erc20Select.waitForEnabled()
+	await erc20Select.waitForClickable()
 	await erc20Select.click()
 
 	const erc20cusd = await $("#erc20-cUSD-item")
-	await erc20cusd.waitForEnabled()
+	await erc20cusd.waitForClickable()
 	await erc20cusd.click()
 
+	amountInput = await $("#amount-input")
 	await amountInput.click()
 	await browser.keys("201")
 	await send.click()
@@ -48,19 +49,19 @@ it('simple send', async () => {
 
 it('add/remove erc20', async () => {
 	const erc20Select = await $("#erc20-select")
-	await erc20Select.waitForEnabled()
+	await erc20Select.waitForClickable()
 	await erc20Select.click()
 
 	const addToken = await $("#add-token")
-	await addToken.waitForEnabled()
+	await addToken.waitForClickable()
 	await addToken.click()
 
 	const registeredErc20 = await $("#registered-erc20")
-	await registeredErc20.waitForEnabled()
+	await registeredErc20.waitForClickable()
 	await registeredErc20.click()
 	await browser.keys(["tCELO", "Enter"])
-	const confirmAddToken = await $("#confirm-add-erc20")
-	await confirmAddToken.waitForEnabled()
+	let confirmAddToken = await $("#confirm-add-erc20")
+	await confirmAddToken.waitForClickable()
 	await confirmAddToken.click()
 	await waitForRefetch()
 
@@ -68,11 +69,11 @@ it('add/remove erc20', async () => {
 	await removeToken_tCELO.waitForDisplayed()
 	// TODO(zviad): Figure out how to click the remove button
 	// await erc20Select.click()
-	// await removeToken_tCELO.waitForEnabled()
+	// await removeToken_tCELO.waitForClickable()
 	// await removeToken_tCELO.click()
 
 	// const confirmRemoveToken = await app.client.$("#confirm-remove-erc20")
-	// await confirmRemoveToken.waitForEnabled()
+	// await confirmRemoveToken.waitForClickable()
 	// await confirmRemoveToken.click()
 
 	// await removeToken_tCELO.waitForExist({reverse:true})
@@ -86,15 +87,16 @@ it('add/remove erc20', async () => {
 	const erc20Address = await $("#erc20-address")
 	await erc20Address.click()
 	await browser.keys("0x10A736A7b223f1FE1050264249d1aBb975741E75")
-	await confirmAddToken.waitForEnabled()
+	confirmAddToken = await $("#confirm-add-erc20")
+	await confirmAddToken.waitForClickable()
 	await confirmAddToken.click()
 	await waitForRefetch()
 
 	const randomAddr = devchainKit().web3.utils.randomHex(20)
 	const toAddressInput = await $("#to-address-input")
-	await toAddressInput.waitForEnabled()
+	await toAddressInput.waitForClickable()
 	await toAddressInput.doubleClick()
-	await browser.keys(randomAddr)
+	await browser.keys([...randomAddr, "Enter"])
 	const amountInput = await $("#amount-input")
 	await amountInput.click()
 	await browser.keys("202.1")
@@ -110,10 +112,10 @@ it('add/remove erc20', async () => {
 
 it('approvals & transferFrom', async () => {
 	const erc20Select = await $("#erc20-select")
-	await erc20Select.waitForEnabled()
+	await erc20Select.waitForClickable()
 	await erc20Select.click()
 	const erc20cusd = await $("#erc20-cUSD-item")
-	await erc20cusd.waitForEnabled()
+	await erc20cusd.waitForClickable()
 	await erc20cusd.click()
 	await selectAccount(1)
 	const approvalsTab = await $("span*=Approvals")
@@ -121,7 +123,7 @@ it('approvals & transferFrom', async () => {
 	await waitForRefetch()
 
 	const approveSpender = await $("button*=Approve Spender")
-	await approveSpender.waitForEnabled()
+	await approveSpender.waitForClickable()
 	await approveSpender.click()
 
 	const spenderInput = await $("#spender-input")
@@ -132,7 +134,7 @@ it('approvals & transferFrom', async () => {
 	await browser.keys("100")
 
 	const approve = await $("#confirm-approve")
-	await approve.waitForEnabled()
+	await approve.waitForClickable()
 	await approve.click()
 	await confirmTXs()
 
@@ -146,7 +148,7 @@ it('approvals & transferFrom', async () => {
 	const randomAddr = devchainKit().web3.utils.randomHex(20)
 	const toAddressInput = await $("#to-address-input")
 	await toAddressInput.click()
-	await browser.keys(randomAddr)
+	await browser.keys([...randomAddr, "Enter"])
 
 	await amountInput.click()
 	await browser.keys("55")

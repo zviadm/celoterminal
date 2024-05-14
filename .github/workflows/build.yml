@@ -10,8 +10,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
       - run: sudo apt-get install xvfb
@@ -29,8 +29,8 @@ jobs:
         os: [macos-latest, windows-latest, ubuntu-latest]
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
 
@@ -44,24 +44,24 @@ jobs:
       - run: yarn
       - run: yarn compile
 
-      - run: yarn electron-builder build --pd ./out/celoterminal-darwin-arm64 --publish never
+      - run: yarn build --publish never
         env:
           CSC_LINK: ${{ secrets.OSX_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.OSX_CSC_KEY_PASSWORD }}
         if: runner.os == 'macOS'
 
-      - run: yarn electron-builder build --pd ./out/celoterminal-win32-x64 --publish never
+      - run: yarn build --publish never
         env:
           CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
         if: runner.os == 'Windows'
 
-      - run: yarn electron-builder build --pd ./out/celoterminal-linux-x64 --publish never
+      - run: yarn build --publish never
         if: runner.os == 'Linux'
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
-          name: CeloTerminal-BIN
+          name: CeloTerminal-${{ runner.os }}
           path: |
             dist/*-mac*.dmg
             dist/*-linux*.AppImage
