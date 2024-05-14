@@ -27,6 +27,7 @@ async function notarizeApp(context) {
   await notarize({
     appBundleId: "com.celoterminal",
     appPath: path,
+    teamId: "QV364K4T7Y",
     appleId: OSX_APPLE_ID,
     appleIdPassword: OSX_APPLE_ID_PASSWORD,
   });
