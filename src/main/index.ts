@@ -137,9 +137,20 @@ function createMainWindow() {
 	// but that is a bigger security relaxation compared to just overriding request headers.
 	const corsFilter = {urls: CORSByPassURLs}
 	window.webContents.session.webRequest.onBeforeSendHeaders(
-		corsFilter, (details, callback) => {
-			details.requestHeaders['Origin'] = ''
-			callback({ requestHeaders: details.requestHeaders })
+		corsFilter,
+		(details, callback) => {
+			const { requestHeaders } = details;
+			UpsertKeyValue(requestHeaders, 'Origin', '*');
+			callback({ requestHeaders })
+		}
+	)
+	window.webContents.session.webRequest.onHeadersReceived(
+		corsFilter,
+		(details, callback) => {
+			const { responseHeaders } = details;
+			UpsertKeyValue(responseHeaders, 'Access-Control-Allow-Origin', ['*']);
+			UpsertKeyValue(responseHeaders, 'Access-Control-Allow-Headers', ['*']);
+			callback({ responseHeaders })
 		}
 	)
 
@@ -193,4 +204,20 @@ if (!gotLock) {
 	})
 
 	setupAutoUpdater()
+}
+
+// Headers can have keys with different capitalization. This function makes sure that we replace
+// the correct key no matter the capitalization.
+function UpsertKeyValue<T>(headers: Record<string, T> | undefined, keyToChange: string, value: T) {
+	if (!headers) {
+		return
+	}
+  const keyLowered = keyToChange.toLowerCase()
+  for (const key of Object.keys(headers)) {
+    if (key.toLowerCase() === keyLowered) {
+      headers[key] = value
+      return
+    }
+  }
+  headers[keyToChange] = value
 }
