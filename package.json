@@ -1,6 +1,6 @@
 {
   "name": "celoterminal",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "license": "MIT",
   "repository": {
     "url": "https://github.com/zviadm/celoterminal"
@@ -22,7 +22,7 @@
     "build": "node ./buildcfg/webpack-path-fix.js && electron-builder build"
   },
   "devDependencies": {
-    "@celo/governance": "^5.0.0",
+    "@celo/governance": "^4.0.0",
     "@electron-forge/cli": "^7.4.0",
     "@electron-forge/plugin-auto-unpack-natives": "^7.4.0",
     "@electron-forge/plugin-fuses": "^7.4.0",
@@ -72,16 +72,16 @@
   },
   "keywords": [],
   "dependencies": {
-    "@celo/connect": "^5.0.0",
-    "@celo/contractkit": "^5.0.0",
+    "@celo/connect": "^4.0.0",
+    "@celo/contractkit": "^4.0.0",
     "@celo/cryptographic-utils": "4.1.0",
-    "@celo/wallet-ledger": "^5.0.0",
-    "@celo/wallet-local": "^5.0.0",
+    "@celo/wallet-ledger": "^4.0.0",
+    "@celo/wallet-local": "^4.0.0",
     "@electron/remote": "^2.1.2",
     "@fontsource/roboto": "^4.1.0",
     "@ledgerhq/electron-updater": "^4.2.2",
-    "@ledgerhq/hw-app-eth": "^5.11.0",
-    "@ledgerhq/hw-transport-node-hid-noevents": "^5.40.0",
+    "@ledgerhq/hw-app-eth": "5.11.0",
+    "@ledgerhq/hw-transport-node-hid-noevents": "^6.0.0",
     "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.3",
     "@material-ui/lab": "^4.0.0-alpha.57",
@@ -108,9 +108,10 @@
     "web3": "1.10.0"
   },
   "resolutions": {
-    "@celo/connect": "^5.0.0",
-    "@celo/contractkit": "^5.0.0",
+    "@celo/connect": "^4.0.0",
+    "@celo/contractkit": "^4.0.0",
     "web3": "1.10.0",
+    "@ledgerhq/hw-app-eth": "5.11.0",
     "@types/react": "^17.0.0"
   }
 }
