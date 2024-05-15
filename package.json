@@ -74,6 +74,7 @@
   "dependencies": {
     "@celo/connect": "^4.1.0",
     "@celo/contractkit": "^4.1.0",
+    "//": "Later versions of @celo/cryptographic-utils@ depend on tiny-secp256k1@2.x.x which doesn't build with Electron and Webpack 5",
     "@celo/cryptographic-utils": "4.1.0",
     "@celo/wallet-ledger": "^4.1.0",
     "@celo/wallet-local": "^4.1.0",
@@ -112,7 +113,6 @@
   "resolutions": {
     "@celo/connect": "^4.1.0",
     "@celo/contractkit": "^4.1.0",
-    "web3": "1.10.0",
-    "bignumber.js": "^9.0.1"
+    "web3": "1.10.0"
   }
 }
