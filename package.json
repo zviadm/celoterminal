@@ -94,7 +94,7 @@
     "axios": "^0.21.1",
     "better-sqlite3": "^9.0.0",
     "bignumber.js": "^9.0.1",
-    "electron-log": "^5.0.0",
+    "electron-log": "^4.3.1",
     "electron-squirrel-startup": "^1.0.0",
     "ethereum-cryptography": "2.1.2",
     "pino": "^9.0.0",
