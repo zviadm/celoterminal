@@ -1,6 +1,8 @@
 appId: "com.celoterminal"
 productName: "Celo Terminal"
 afterSign: ./buildcfg/notarize.js
+extraMetadata:
+  productName: "Celo Terminal"
 
 npmRebuild: false
 files: [
