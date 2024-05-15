@@ -74,7 +74,6 @@
   "dependencies": {
     "@celo/connect": "^5.0.0",
     "@celo/contractkit": "^5.0.0",
-    "//": "Later versions of @celo/cryptographic-utils@ depend on tiny-secp256k1@2.x.x which doesn't build with Electron and Webpack 5",
     "@celo/cryptographic-utils": "4.1.0",
     "@celo/wallet-ledger": "^5.0.0",
     "@celo/wallet-local": "^5.0.0",
@@ -97,7 +96,6 @@
     "bignumber.js": "^9.0.1",
     "electron-log": "^4.3.1",
     "electron-squirrel-startup": "^1.0.0",
-    "//": "See ./buildhax/... folder for more details on issues with ethereum-cryptography and why it is specified as a direct dep too",
     "ethereum-cryptography": "2.1.2",
     "pino": "^6.11.3",
     "qrcode-svg": "^1.1.0",
@@ -107,7 +105,6 @@
     "react-password-strength-bar": "0.3.2",
     "source-map-support": "^0.5.16",
     "tslib": "^2.2.0",
-    "//": "web3 is fixed to the same version as to what @celo/connect & @celo/contractkit require",
     "web3": "1.10.0"
   },
   "resolutions": {
