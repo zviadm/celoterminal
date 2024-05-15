@@ -11,11 +11,9 @@ import * as remoteMain from "@electron/remote/main"
 
 import celoTerminalIcon from './../../build/icon.png'
 
-if (IS_E2E_TEST) {
-	app.setName("Celo Terminal - E2ETest")
-} else if (!app.isPackaged) {
-	app.setName("Celo Terminal - DEV")
-}
+declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
+
 remoteMain.initialize()
 
 // List of URLs that don't allow CORS requests. Celo Terminal is a native app thus
@@ -23,9 +21,6 @@ remoteMain.initialize()
 const CORSByPassURLs = [
 	'https://repo.sourcify.dev/*',
 ]
-
-declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
-declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
 
 log.transports.console.level = (app.isPackaged && !IS_E2E_TEST) ? false : "debug"
 log.transports.file.level = (app.isPackaged && !IS_E2E_TEST) ? "info" : "debug"
