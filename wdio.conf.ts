@@ -6,14 +6,14 @@ import { onPrepare, afterSession, beforeSession} from "./test/setup"
 // NOTE(zviad): We can't use webdriverIO-s automatic binaryPath detection because
 // we have dependency both on electorn-forge and on electron-builder.
 const binaryPath = () => {
-    const prefix = ["out", `celoterminal-${process.platform}-${process.arch}`]
+    const prefix = ["out", `Celo Terminal-${process.platform}-${process.arch}`]
     switch (process.platform) {
         case "darwin":
-            return path.join(...prefix, "celoterminal.app", "Contents", "MacOS", "celoterminal")
+            return path.join(...prefix, "Celo Terminal.app", "Contents", "MacOS", "Celo Terminal")
         case "win32":
-            return path.join(...prefix, "celoterminal.exe")
+            return path.join(...prefix, "Celo Terminal.exe")
         case "linux":
-            return path.join(...prefix, "celoterminal")
+            return path.join(...prefix, "Celo Terminal")
         default:
             throw new Error(`Not supported platform: ${process.platform}`)
     }
