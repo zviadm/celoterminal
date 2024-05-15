@@ -97,6 +97,7 @@
     "bignumber.js": "^9.0.1",
     "electron-log": "^4.3.1",
     "electron-squirrel-startup": "^1.0.0",
+    "//": "See ./buildhax/... folder for more details on issues with ethereum-cryptography and why it is specified as a direct dep too",
     "ethereum-cryptography": "2.1.2",
     "pino": "^6.11.3",
     "qrcode-svg": "^1.1.0",
