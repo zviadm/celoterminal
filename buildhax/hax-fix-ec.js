@@ -1,21 +1,32 @@
 // EXTREMELY HAX SOLUTION ALERT!!!
-// ethereum-cryptography@1.2.0 version package doesn't package/build properly with webpack5.
-// Unfortunately, @celo/XXX packages depend on some older versions of web3 utils which depend
-// on this version of ethereum-cryptography.
-// Thus, to solve this problem we copy over the fixed version of the problematic file for
-// ethereum-cryptography@1.2.0 library.
+// ethereum-cryptography@ both 1.x and 2.x versions have issues when packaged as a non ESM module
+// with webpack.
+// To solve this issue we copy over the fixed version of the problematic files inside node_modules/**
 const fs = require("fs")
 const path = require("path")
 
-const ec_1_2_0 = [
-	"node_modules/@ethereumjs/util/node_modules/ethereum-cryptography/utils.js",
-	"node_modules/@celo/wallet-ledger/node_modules/ethereum-cryptography/utils.js",
-	"node_modules/@celo/utils/node_modules/ethereum-cryptography/utils.js",
-	"node_modules/@celo/cryptographic-utils/node_modules/ethereum-cryptography/utils.js",
-	"node_modules/@celo/governance/node_modules/ethereum-cryptography/utils.js",
-]
+const searchDirs = ["node_modules"]
+const fixedPath_1_2_0 = path.join("buildhax", "ec-utils-1.2.0.js")
+const fixedPath_2_1_2 = path.join("buildhax", "ec-utils-2.1.2.js")
 
-for (const f of ec_1_2_0) {
-	const _f = path.join(...f.split("/"))
-	fs.copyFileSync(path.join("buildhax", "ec-utils-1.2.0.js"), _f)
+console.info(`replacing: "ethereum-cryptography/utils.js" with ${fixedPath_2_1_2}`)
+fs.copyFileSync(fixedPath_2_1_2, path.join("node_modules", "ethereum-cryptography", "utils.js"))
+console.info(`replacing: "**/ethereum-cryptography/utils.js" with ${fixedPath_1_2_0}:`)
+while (searchDirs.length > 0) {
+	const dir = searchDirs.pop()
+	const files = fs.readdirSync(dir)
+	for (const file of files) {
+		const filePath = path.join(dir, file)
+		const fileStat = fs.statSync(filePath)
+
+    if (fileStat.isDirectory()) {
+			searchDirs.push(filePath)
+    } else if (
+			path.dirname(dir) !== "node_modules" &&
+			path.basename(dir) === "ethereum-cryptography" &&
+			file === "utils.js") {
+			console.info(`${filePath}`)
+			fs.copyFileSync(fixedPath_1_2_0, filePath)
+    }
+	}
 }
