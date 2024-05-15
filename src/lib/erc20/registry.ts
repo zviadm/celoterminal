@@ -2,9 +2,7 @@ import ubeswapTokenList from "@ubeswap/default-token-list/ubeswap.token-list.jso
 import celoTokenList from "./celo.tokenlist.json"
 
 import { ConversionFunc, coreErc20s } from "./core"
-import { convertSCELO } from "./conversions/savingscelo"
 
-import { SavingsCELOAddressAlfajores, SavingsCELOAddressBaklava } from "savingscelo"
 import { ensureLeading0x } from "@celo/base"
 import { toChecksumAddress } from "@celo/utils/lib/address"
 
@@ -21,17 +19,6 @@ interface RegisteredERC20 {
 }
 
 const _erc20Registry: RegisteredERC20[] = [
-	{
-		name: "Savings CELO (Deprecated)",
-		symbol: "sCELOxDEPRECATED",
-		decimals: 18,
-		conversion: convertSCELO,
-		addresses: {
-			mainnet: "0x2879BFD5e7c4EF331384E908aaA3Bd3014b703fA",
-			baklava: SavingsCELOAddressBaklava,
-			alfajores: SavingsCELOAddressAlfajores,
-		},
-	},
 	{
 		name: "Release Ube",
 		symbol: "rUBE",
