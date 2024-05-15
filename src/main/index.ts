@@ -11,6 +11,11 @@ import * as remoteMain from "@electron/remote/main"
 
 import celoTerminalIcon from './../../build/icon.png'
 
+if (IS_E2E_TEST) {
+	app.setName("Celo Terminal - E2ETest")
+} else if (!app.isPackaged) {
+	app.setName("Celo Terminal - DEV")
+}
 remoteMain.initialize()
 
 // List of URLs that don't allow CORS requests. Celo Terminal is a native app thus
