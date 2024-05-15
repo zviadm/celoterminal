@@ -102,7 +102,7 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-hot-loader": "^4.13.1",
-    "react-password-strength-bar": "0.3.2",
+    "react-password-strength-bar": "^0.4.1",
     "source-map-support": "^0.5.16",
     "tslib": "^2.2.0",
     "web3": "1.10.0"
