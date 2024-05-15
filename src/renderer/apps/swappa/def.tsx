@@ -12,7 +12,7 @@ export const Swappa: AppDefinition = {
 	description: `
 	Swap any cERC20 token for another cERC20 token using the best available
 	trading route across all DEXex and DeFI protocols. Supports Ubeswap, Sushiswap,
-	Mobius, Moola, SavingsCELO, and other protocols.
+	Mobius, Moola, and other protocols.
 	`,
 	renderApp: SwappaApp,
 }

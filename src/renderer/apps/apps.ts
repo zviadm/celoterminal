@@ -6,7 +6,6 @@ import { Governance } from './governance/def'
 import { Locker } from './locker/def'
 import { MultiSig } from './multisig/def'
 import { Portfolio } from './portfolio/def'
-import { SavingsCELO } from './savingscelo/def'
 import { SendReceive } from './send-receive/def'
 import { WalletConnect } from './wallet-connect/def'
 import { Swappa } from './swappa/def'
@@ -26,7 +25,6 @@ export const AppList: AppDefinition[] = [
 	Celovote,
 	MultiSig,
 	SCInspector,
-	SavingsCELO,
 	Swappa,
 	Moola,
 ].concat((remote.app.isPackaged && !IS_E2E_TEST) ? [] : [

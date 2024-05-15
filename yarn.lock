@@ -14404,30 +14404,6 @@ sass@^1.76.0:
     immutable "^4.0.0"
     source-map-js ">=0.6.2 <2.0.0"
 
-savingscelo-with-ube@^1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/savingscelo-with-ube/-/savingscelo-with-ube-1.5.0.tgz#f7fe6b19eafe06f6e403ff3329916b196868bc29"
-  integrity sha512-qz1paSFSoGrwXM0brX0O6RGUsUeUxruEW0lFhtwOqaORafzFUZfk5D/66Cj/Y4kq6kspGg9XJ/c4xw0B8v38tg==
-  dependencies:
-    "@celo/connect" "^1.2.4"
-    "@celo/contractkit" "^1.2.4"
-    bignumber.js "^9.0.1"
-    savingscelo "^3.3.0"
-    web3 "^1.3.4"
-    web3-utils "^1.3.0"
-
-savingscelo@^3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/savingscelo/-/savingscelo-3.3.0.tgz#60560ccc561048d8a88754cadb3a247b5247f9df"
-  integrity sha512-j2jkWhouOaDsHRX5dBID+cPy7P4Jhae8pooWXys5l29gQM/RPWhuiyHacT/zjb/FFzOLbiATdKSTwjo6P+lsaA==
-  dependencies:
-    "@celo/connect" "^1.2.4"
-    "@celo/contractkit" "^1.2.4"
-    bignumber.js "^9.0.1"
-    node-fetch "^2.6.1"
-    web3 "^1.3.6"
-    web3-utils "^1.3.0"
-
 sax@^1.2.4:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"

@@ -1,5 +1,4 @@
 import { swappaRouterV1Address } from "@terminal-fi/swappa";
-import { SavingsCELOWithUbeV1AddressAlfajores, SavingsCELOWithUbeV1AddressMainnet } from "savingscelo-with-ube";
 
 // List of manually verified contracts that are confirmed to indeed belong to a
 // specific project. Contracts that ERC20 compatible should be placed in the ERC20 registry instead.
@@ -11,14 +10,6 @@ export const contractNamesRegistry: {
 		alfajores?: string,
 	},
 }[] = [
-	{
-		// source: https://github.com/zviadm/savingscelo-with-ube/tree/main/src/deploy
-		name: "SavingsCELO:UbeswapIntegrationV1",
-		addresses: {
-			mainnet: SavingsCELOWithUbeV1AddressMainnet,
-			alfajores: SavingsCELOWithUbeV1AddressAlfajores,
-		},
-	},
 	{
 		// source: https://github.com/Ubeswap/ubeswap#deployed-contracts
 		name: "Ubeswap:Router02",
