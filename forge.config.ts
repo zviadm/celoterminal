@@ -9,8 +9,12 @@ import { rendererConfig } from './webpack.renderer.config';
 
 
 const config: ForgeConfig = {
+  // electron-forge packager is only used for building binaries for E2E testing.
+  // electorn-builder is used for building actual distributables, including code signing
+  // and auto updating features.
   packagerConfig: {
     asar: true,
+    name: "Celo Terminal - E2ETest",
   },
   rebuildConfig: {},
   makers: [],
