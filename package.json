@@ -30,7 +30,7 @@
     "@electron-forge/plugin-webpack": "^7.4.0",
     "@electron/fuses": "^1.8.0",
     "@electron/notarize": "^2.3.2",
-    "@terminal-fi/celo-devchain": "^9.0.0",
+    "@celo/celo-devchain": "^7.0.0",
     "@types/better-sqlite3": "^7.6.10",
     "@types/jest": "^29.0.0",
     "@types/node": "^20.12.12",
