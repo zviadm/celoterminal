@@ -93,7 +93,7 @@ const RunTXs = (props: {
 					}
 				}
 				const kit = newKitWithTimeout(cfgNetworkURL({withFornoKey: true}), w.wallet)
-				kit.defaultAccount = executingAccount.address
+				kit.defaultAccount = executingAccount.address as `0x${string}`
 				try {
 					const chainId = (await kit.web3.eth.getChainId()).toString()
 					if (chainId !== cfg.chainId) {
