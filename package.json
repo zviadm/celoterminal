@@ -73,7 +73,7 @@
   },
   "keywords": [],
   "dependencies": {
-    "@celo/connect": "^4.0.0",
+    "@celo/connect": "^5.0.0",
     "@celo/contractkit": "^4.0.0",
     "@celo/cryptographic-utils": "4.1.0",
     "@celo/wallet-ledger": "^4.0.0",
@@ -109,7 +109,7 @@
     "web3": "1.10.0"
   },
   "resolutions": {
-    "@celo/connect": "^4.0.0",
+    "@celo/connect": "^5.0.0",
     "@celo/contractkit": "^4.0.0",
     "web3": "1.10.0",
     "@ledgerhq/hw-app-eth": "5.11.0",
