@@ -429,7 +429,7 @@
     targz "^1.0.1"
     tmp "^0.2.1"
 
-"@celo/connect@4.1.1", "@celo/connect@^1.2.4", "@celo/connect@^4.0.0", "@celo/connect@^5.0.0":
+"@celo/connect@4.1.1", "@celo/connect@^4.0.0", "@celo/connect@^5.0.0":
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/@celo/connect/-/connect-4.1.1.tgz#7a631a5fc832b85eabb7f5e9a5fb95dbd620ee67"
   integrity sha512-yIdrh4OiO2MEuDrgkALflor8oAx6YMAqy9/EUcDHql+BxKkDjSA8yxggqiOQzmZJ7GHKRzpwOpx5bey9siP3pQ==
@@ -442,7 +442,7 @@
     debug "^4.1.1"
     utf8 "3.0.0"
 
-"@celo/contractkit@4.1.1", "@celo/contractkit@^1.2.4", "@celo/contractkit@^4.0.0", "@celo/contractkit@^4.1.0", "@celo/contractkit@^7.0.0":
+"@celo/contractkit@4.1.1", "@celo/contractkit@^4.0.0", "@celo/contractkit@^7.0.0":
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/@celo/contractkit/-/contractkit-4.1.1.tgz#2ace459e9b6b599ec535f167a3b1e0c461fce0b1"
   integrity sha512-1QBCyFOlIuCX9m2LzFXwfs4LNrZaYhuCUleuKPlLVZiw17uhv7Bq1mEPWAmV7SckLzTjYFvggzIg42U01g8brg==
@@ -2462,30 +2462,6 @@
   dependencies:
     defer-to-connect "^2.0.1"
 
-"@terminal-fi/celo-devchain@^9.0.0":
-  version "9.1.0"
-  resolved "https://registry.yarnpkg.com/@terminal-fi/celo-devchain/-/celo-devchain-9.1.0.tgz#f5efb28163cd36c91073a9f06cab43fbda44715b"
-  integrity sha512-XIngVsQ2i8pPKco/0RuFMtp7HtM4Gd3PmqfQykwbz+8h3vQAisubMna/GSjX/rr4MO4BzjdItWQ7FUCwF5EX4g==
-  dependencies:
-    "@celo/contractkit" "^4.1.0"
-    "@celo/ganache-cli" "git+https://github.com/zviadm/ganache-cli.git#53eabeb"
-    commander "^6.2.0"
-    node-fetch "^2.6.1"
-    targz "^1.0.1"
-    tmp "^0.2.1"
-
-"@terminal-fi/savingscelo@^3.4.0":
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/@terminal-fi/savingscelo/-/savingscelo-3.4.1.tgz#a8c60e6ebd484f27bb94cb70f506df9d953daf03"
-  integrity sha512-+WYoNnkZUFnEFZBr5zQ3+JgLXyT8mNE56rSBftthk0uP2vEO2Iq0KqiBRQd6WcBUgClCvajgT9iBJ1aEuLFAZQ==
-  dependencies:
-    "@celo/connect" "^1.2.4"
-    "@celo/contractkit" "^1.2.4"
-    bignumber.js "^9.0.1"
-    node-fetch "^2.6.1"
-    web3 "^1.3.6"
-    web3-utils "^1.3.0"
-
 "@terminal-fi/swappa@^1.23.0":
   version "1.24.0"
   resolved "https://registry.yarnpkg.com/@terminal-fi/swappa/-/swappa-1.24.0.tgz#6f8694ac08ea9f90b0a49bd3802405f4291c3215"
@@ -4347,7 +4323,7 @@ author-regex@^1.0.0:
   resolved "https://registry.yarnpkg.com/author-regex/-/author-regex-1.0.0.tgz#d08885be6b9bbf9439fe087c76287245f0a81450"
   integrity sha512-KbWgR8wOYRAPekEmMXrYYdc7BRyhn2Ftk7KWfMUnQ43hFdojWEFRxhhRUm3/OFEdPa1r0KAvTTg9YQK57xTe0g==
 
-available-typed-arrays@^1.0.7:
+available-typed-arrays@^1.0.5, available-typed-arrays@^1.0.7:
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/available-typed-arrays/-/available-typed-arrays-1.0.7.tgz#a5cc375d6a03c2efc87a553f3e0b1522def14846"
   integrity sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==
@@ -4973,7 +4949,7 @@ cacheable-request@^7.0.2:
     normalize-url "^6.0.1"
     responselike "^2.0.0"
 
-call-bind@^1.0.2, call-bind@^1.0.5, call-bind@^1.0.6, call-bind@^1.0.7:
+call-bind@^1.0.2, call-bind@^1.0.4, call-bind@^1.0.5, call-bind@^1.0.6, call-bind@^1.0.7:
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/call-bind/-/call-bind-1.0.7.tgz#06016599c40c56498c18769d2730be242b6fa3b9"
   integrity sha512-GHTSNSYICQ7scH7sZ+M2rFopRoLh8t2bLSW6BbgrtLsahOIB5iyAVJf9GjWK3cYTDaMj4XdBpM1cA6pIS0Kv2w==
@@ -6348,6 +6324,24 @@ elliptic@6.5.4, elliptic@^6.5.2:
     inherits "^2.0.4"
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
+
+elliptic@^6.4.0, elliptic@^6.5.4:
+  version "6.5.5"
+  resolved "https://registry.yarnpkg.com/elliptic/-/elliptic-6.5.5.tgz#c715e09f78b6923977610d4c2346d6ce22e6dded"
+  integrity sha512-7EjbcmUm17NQFu4Pmgmq2olYMj8nwMnpcddByChSUjArp8F5DQWcIcpriwO4ZToLNAJig0yiyjswfyGNje/ixw==
+  dependencies:
+    bn.js "^4.11.9"
+    brorand "^1.1.0"
+    hash.js "^1.0.0"
+    hmac-drbg "^1.0.1"
+    inherits "^2.0.4"
+    minimalistic-assert "^1.0.1"
+    minimalistic-crypto-utils "^1.0.1"
+
+emittery@0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/emittery/-/emittery-0.10.0.tgz#bb373c660a9d421bb44706ec4967ed50c02a8026"
+  integrity sha512-AGvFfs+d0JKCJQ4o01ASQLGPmSCxgfU9RFXvzPvZdjKK8oscynksuJhWrSTSw7j7Ep/sZct5b5ZhYCi8S/t0HQ==
 
 emittery@^0.13.1:
   version "0.13.1"
@@ -14902,22 +14896,6 @@ which-collection@^1.0.1:
     is-weakmap "^2.0.2"
     is-weakset "^2.0.3"
 
-which-module@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/which-module/-/which-module-2.0.0.tgz#d9ef07dce77b9902b8a3a8fa4b31c3e3f7e6e87a"
-  integrity sha512-B+enWhmw6cjfVC7kS8Pj9pCrKSc5txArRyaYGe088shv/FGWH+0Rjx/xPgtsWfsUtS27FkP697E4DDhgrgoc0Q==
-
-which-typed-array@^1.1.11, which-typed-array@^1.1.2:
-  version "1.1.13"
-  resolved "https://registry.yarnpkg.com/which-typed-array/-/which-typed-array-1.1.13.tgz#870cd5be06ddb616f504e7b039c4c24898184d36"
-  integrity sha512-P5Nra0qjSncduVPEAr7xhoF5guty49ArDTwzJ/yNuPIbZppyRxFQsRCWrocxIY+CnMVG+qfbU2FmDKyvSGClow==
-  dependencies:
-    available-typed-arrays "^1.0.5"
-    call-bind "^1.0.4"
-    for-each "^0.3.3"
-    gopd "^1.0.1"
-    has-tostringtag "^1.0.0"
-
 which-typed-array@^1.1.14, which-typed-array@^1.1.15, which-typed-array@^1.1.9:
   version "1.1.15"
   resolved "https://registry.yarnpkg.com/which-typed-array/-/which-typed-array-1.1.15.tgz#264859e9b11a649b388bfaaf4f767df1f779b38d"
@@ -14928,6 +14906,17 @@ which-typed-array@^1.1.14, which-typed-array@^1.1.15, which-typed-array@^1.1.9:
     for-each "^0.3.3"
     gopd "^1.0.1"
     has-tostringtag "^1.0.2"
+
+which-typed-array@^1.1.2:
+  version "1.1.13"
+  resolved "https://registry.yarnpkg.com/which-typed-array/-/which-typed-array-1.1.13.tgz#870cd5be06ddb616f504e7b039c4c24898184d36"
+  integrity sha512-P5Nra0qjSncduVPEAr7xhoF5guty49ArDTwzJ/yNuPIbZppyRxFQsRCWrocxIY+CnMVG+qfbU2FmDKyvSGClow==
+  dependencies:
+    available-typed-arrays "^1.0.5"
+    call-bind "^1.0.4"
+    for-each "^0.3.3"
+    gopd "^1.0.1"
+    has-tostringtag "^1.0.0"
 
 which@^1.2.14, which@^1.2.9:
   version "1.3.1"
