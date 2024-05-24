@@ -11,7 +11,7 @@ files: [
 ]
 
 mac:
-  artifactName: ${productName}-${version}-${os}-universal.${ext}
+  artifactName: ${productName}-${version}-${os}-arm64.${ext}
   category: "public.app-category.finance"
   hardenedRuntime: true
   entitlements: ./buildcfg/mac/entitlements.plist
