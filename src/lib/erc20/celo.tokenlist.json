@@ -1,16 +1,12 @@
 {
   "name": "Celo Token List",
   "version": {
-    "major": 1,
-    "minor": 9,
+    "major": 2,
+    "minor": 5,
     "patch": 0
   },
-  "logoURI": "https://raw.githubusercontent.com/jesse-sawa/celo-token-list/master/assets/celo_logo.svg",
-  "keywords": [
-    "celo",
-    "tokens",
-    "refi"
-  ],
+  "logoURI": "https://celo-org.github.io/celo-token-list/assets/celo_logo.svg",
+  "keywords": ["celo", "tokens", "refi"],
   "timestamp": "2022-05-25T20:37:00.000+00:00",
   "tokens": [
     {
@@ -43,7 +39,7 @@
       "symbol": "stCelo",
       "decimals": 18,
       "chainId": 42220,
-      "logoURI": "https://raw.githubusercontent.com/jesse-sawa/celo-token-list/master/assets/token-stcelo.svg"
+      "logoURI": "https://celo-org.github.io/celo-token-list/assets/token-stcelo.svg"
     },
     {
       "name": "Nature Carbon Tonne",
@@ -52,6 +48,14 @@
       "decimals": 18,
       "chainId": 42220,
       "logoURI": "https://toucan.earth/img/icons/nct.svg"
+    },
+    {
+      "name": "Biochar",
+      "address": "0x50E85c754929840B58614F48e29C64BC78C58345",
+      "symbol": "CHAR",
+      "decimals": 18,
+      "chainId": 42220,
+      "logoURI": "https://app.toucan.earth/svg/pools/char.svg"
     },
     {
       "name": "USDC (Portal from Ethereum)",
@@ -70,15 +74,15 @@
       "logoURI": "https://raw.githubusercontent.com/certusone/wormhole-token-list/main/assets/DAI_wh_small.png"
     },
     {
-      "name": "Portal Ether",
+      "name": "Portal WETH",
       "address": "0x66803FB87aBd4aaC3cbB3fAd7C3aa01f6F3FB207",
-      "symbol": "ETH",
+      "symbol": "WETH",
       "decimals": 18,
       "chainId": 42220,
       "logoURI": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_ETH.png"
     },
     {
-      "name": "wrapped.com Ethereum",
+      "name": "wrapped.com ETH",
       "address": "0x2DEf4285787d58a2f811AF24755A8150622f4361",
       "symbol": "cETH",
       "decimals": 18,
@@ -107,7 +111,7 @@
       "symbol": "CELO",
       "decimals": 18,
       "chainId": 42220,
-      "logoURI": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_CELO.png"
+      "logoURI": "https://celo-org.github.io/celo-token-list/assets/celo_logo.svg"
     },
     {
       "name": "Celo Dollar",
@@ -579,23 +583,103 @@
       "symbol": "axlWBTC",
       "decimals": 18,
       "chainId": 42220,
-      "logoURI": "https://raw.githubusercontent.com/jesse-sawa/celo-token-list/master/assets/axelar_wbtc.svg"
+      "logoURI": "https://celo-org.github.io/celo-token-list/assets/axelar_wbtc.svg"
     },
     {
-    "name": "Wormhole Wrapped Bitcoin",
-    "address": "0xd71Ffd0940c920786eC4DbB5A12306669b5b81EF",
-    "symbol": "WBTC",
-    "decimals": 18,
-    "chainId": 42220,
-    "logoURI": "https://raw.githubusercontent.com/jesse-sawa/celo-token-list/master/assets/wormhole_wbtc.png"
+      "name": "Wormhole Wrapped Bitcoin",
+      "address": "0xd71Ffd0940c920786eC4DbB5A12306669b5b81EF",
+      "symbol": "WBTC",
+      "decimals": 18,
+      "chainId": 42220,
+      "logoURI": "https://celo-org.github.io/celo-token-list/assets/wormhole_wbtc.png"
     },
     {
-    "name": "Good Dollar",
-    "address": "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A",
-    "symbol": "G$",
-    "decimals": 18,
-    "chainId": 42220,
-    "logoURI": "https://raw.githubusercontent.com/GoodDollar/GoodDAPP/master/src/assets/Splash/logo.svg"
+      "name": "Good Dollar",
+      "address": "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A",
+      "symbol": "G$",
+      "decimals": 18,
+      "chainId": 42220,
+      "logoURI": "https://raw.githubusercontent.com/GoodDollar/GoodDAPP/master/src/assets/Splash/logo.svg"
+    },
+    {
+      "name": "Axelar WETH",
+      "address": "0xb829b68f57cc546da7e5806a929e53be32a4625d",
+      "symbol": "axlEth",
+      "decimals": 18,
+      "chainId": 42220,
+      "logoURI": "https://celo-org.github.io/celo-token-list/assets/axelar_eth.png"
+    },
+    {
+      "name": "JumpToken",
+      "address": "0x1d18d0386f51ab03e7e84e71bda1681eba865f1f",
+      "symbol": "JMPT",
+      "decimals": 18,
+      "chainId": 42220,
+      "logoURI": "https://celo-org.github.io/celo-token-list/assets/jumpToken.png"
+    },
+    {
+      "name": "Glo Dollar",
+      "address": "0x4f604735c1cf31399c6e711d5962b2b3e0225ad3",
+      "symbol": "USDGLO",
+      "decimals": 18,
+      "chainId": 42220,
+      "logoURI": "https://app.glodollar.org/glo-logo.svg"
+    },
+    {
+      "name": "Curve DAO Token",
+      "address": "0x173fd7434B8B50dF08e3298f173487ebDB35FD14",
+      "symbol": "CRV",
+      "decimals": 18,
+      "chainId": 42220,
+      "logoURI": "https://raw.githubusercontent.com/curvefi/curve-assets/main/branding/logo.svg"
+    },
+    {
+      "name": "AtlasX Carbon Credits",
+      "address": "0xc3377Ea71F1dc8e55Ba360724eff2d7aD62a8670",
+      "symbol": "ATLASX",
+      "decimals": 18,
+      "chainId": 42220,
+      "logoURI": "https://myterrablobs.blob.core.windows.net/public/token-icon.png"
+    },
+    {
+      "name": "agEUR",
+      "address": "0xC16B81Af351BA9e64C1a069E3Ab18c244A1E3049",
+      "symbol": "agEUR",
+      "decimals": 18,
+      "chainId": 42220,
+      "logoURI": "https://raw.githubusercontent.com/AngleProtocol/angle-assets/main/0_tokens/agEUR/cross-chain/agEUR-celo.svg"
+    },
+    {
+      "name": "EURC (Wormhole)",
+      "address": "0xBddC3554269053544bE0d6d027a73271225E9859",
+      "symbol": "EURC",
+      "decimals": 6,
+      "chainId": 42220,
+      "logoURI": "https://raw.githubusercontent.com/wormhole-foundation/wormhole-token-list/main/assets/EURC_wh.png"
+    },
+    {
+      "name": "USD Coin",
+      "address": "0xcebA9300f2b948710d2653dD7B07f33A8B32118C",
+      "symbol": "USDC",
+      "decimals": 6,
+      "chainId": 42220,
+      "logoURI": "https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_USDC.svg"
+    },
+    {
+      "name": "USD Coin",
+      "address": "0xcebA9300f2b948710d2653dD7B07f33A8B32118C",
+      "symbol": "USDC",
+      "decimals": 6,
+      "chainId": 42220,
+      "logoURI": "https://raw.githubusercontent.com/compound-finance/token-list/master/assets/asset_USDC.svg"
+    },
+    {
+      "name": "Celo Kenyan Shilling",
+      "address": "0x456a3D042C0DbD3db53D5489e98dFb038553B0d0",
+      "symbol": "cKES",
+      "decimals": 18,
+      "chainId": 42220,
+      "logoURI": "https://github.com/mento-protocol/mento-web/blob/main/src/images/tokens/cKES.svg"
     }
   ]
 }
