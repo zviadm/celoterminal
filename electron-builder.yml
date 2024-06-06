@@ -11,16 +11,14 @@ files: [
 ]
 
 mac:
-  artifactName: ${productName}-${version}-${os}-arm64.${ext}
+  artifactName: ${productName}-${version}-${os}-${arch}.${ext}
   category: "public.app-category.finance"
   hardenedRuntime: true
   entitlements: ./buildcfg/mac/entitlements.plist
   entitlementsInherit: ./buildcfg/mac/entitlements.plist
   target:
     - target: dmg
-      arch: ["universal"]
     - target: zip
-      arch: ["universal"]
   publish: ["github"]
 
 win:

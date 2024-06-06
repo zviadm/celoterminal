@@ -20,7 +20,8 @@
     "dev:e2etest": "env-cmd -f env.dev.e2etest electron-forge start",
     "dev:fresh": "./env.dev.fresh.sh",
     "compile": "electron-forge package",
-    "build": "node ./buildcfg/webpack-path-fix.js && electron-builder build"
+    "build": "node ./buildcfg/webpack-path-fix.js && electron-builder build",
+    "build:x64": "node ./buildcfg/webpack-path-fix.js x64 && electron-builder build --x64"
   },
   "devDependencies": {
     "@celo/governance": "^4.0.0",
