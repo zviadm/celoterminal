@@ -28,12 +28,11 @@ const _erc20Registry: RegisteredERC20[] = [
 		},
 	},
 	{
-		name: "Ubeswap LP Token (CELO+sCELOxDEPRECATED)",
-		symbol: "ULP-CELO+sCELOxDEPRECATED",
-		decimals: 18,
+		name: "Tether USD",
+		symbol: "USD₮",
+		decimals: 6,
 		addresses: {
-			mainnet: "0xa813Bb1DF70128d629F1A41830578fA616dAEeEc",
-			alfajores: "0x58a3dc80EC8b6aE44AbD2e2b2A30F230b14B45c3",
+			mainnet: "0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e",
 		},
 	},
 ]
