@@ -1,5 +1,5 @@
 import { browser, $ } from '@wdio/globals'
-import { increaseTime, Provider } from "@terminal-fi/celo-devchain"
+import { increaseTime, Provider } from "@celo/celo-devchain"
 
 import { devchainKit } from "./setup"
 import { E2ETestAccountsDBPassword } from "../src/lib/e2e-constants"
