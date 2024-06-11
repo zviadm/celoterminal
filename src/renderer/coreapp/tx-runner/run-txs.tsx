@@ -1,6 +1,5 @@
 import log from 'electron-log'
 
-import { TransactionTypes } from "@celo/connect"
 import { SignatureResponse, TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { EstimatedFee, estimateGas } from './fee-estimation'
 import { ParsedSignatureRequest, parseSignatureRequest } from './transaction-parser'
