@@ -113,7 +113,6 @@ const RunTXs = (props: {
 					}
 					setPreparedReqs(parsedReqs)
 
-					const gasPrice = await kit.connection.gasPrice()
 					for (let idx = 0; idx < reqs.length; idx += 1) {
 						let req = reqs[idx]
 						if (w.transformReq) {
@@ -124,6 +123,7 @@ const RunTXs = (props: {
 						switch (req.type) {
 							case undefined: {
 								estimatedGas = await estimateGas(kit, req)
+								const gasPrice = await kit.connection.gasPrice()
 								// TODO(zviadm): Add support for other fee currencies.
 								estimatedFee = {
 									estimatedGas,
@@ -192,8 +192,6 @@ const RunTXs = (props: {
 											...req.params,
 											// perf improvement, avoid re-estimating gas again.
 											gas: estimatedGas.toNumber(),
-											gasPrice,
-											type: "celo-legacy",
 										})
 									}
 									let txHash
