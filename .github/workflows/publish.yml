@@ -3,28 +3,27 @@ name: Publish
 on: workflow_dispatch
 
 jobs:
-#  test:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: actions/setup-node@v4
-#        with:
-#          node-version: 18
-#      - run: sudo apt-get install xvfb
-#      - run: yarn config set network-timeout 600000 -g
-#      - run: yarn
-#      - run: yarn lint
-#      - run: yarn compile
-#      - run: yarn test
-#      - run: xvfb-run --auto-servernum --server-args='-screen 0, 1600x900x24' yarn wdio
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - run: sudo apt-get install xvfb
+      - run: yarn config set network-timeout 600000 -g
+      - run: yarn
+      - run: yarn lint
+      - run: yarn compile
+      - run: yarn test
+      - run: xvfb-run --auto-servernum --server-args='-screen 0, 1600x900x24' yarn wdio
 
   build:
-#    needs: test
+    needs: test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
-#        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v4
