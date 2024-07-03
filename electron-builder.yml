@@ -18,7 +18,9 @@ mac:
   entitlementsInherit: ./buildcfg/mac/entitlements.plist
   target:
     - target: dmg
+      arch: ["x64"]
     - target: zip
+      arch: ["x64"]
   publish: ["github"]
 
 win:
