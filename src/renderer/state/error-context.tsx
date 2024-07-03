@@ -14,6 +14,16 @@ const errsToIgnore: string[] = [
 	"ENS is not supported on network private",
 ]
 
+const errsToReplace: [string, string][] = [
+	// WalleConnectV2 library sometimes gets stuck in a bad state. Until the bug is fixed, make error
+	// messages more helpful.
+	[
+		"Not initialized. subscription",
+		`WalletConnect is in unexpected state. Try restarting the APP by pressing: ` +
+		`${process.platform === "darwin" ? "CMD + SHIFT + R" : "CTRL + SHIFT + R"}`
+	],
+]
+
 interface IErrorContext {
 	error?: Error
 	setError: (e: Error) => void
@@ -26,10 +36,14 @@ export const ErrorContext = React.createContext<IErrorContext>({
 })
 
 export function ErrorProvider(props: {children: React.ReactNode}): JSX.Element {
-	const [error, setError] = React.useState<Error | undefined>()
+	const [_error, setError] = React.useState<Error | undefined>()
 	const handleError = (error?: Error) => {
 		const ignore = errsToIgnore.find((msg) => error?.message?.includes(msg))
 		if (!ignore) {
+			const toReplace = errsToReplace.find(([msg, ]) => error?.message?.includes(msg))
+			if (toReplace) {
+				error = new Error(toReplace[1])
+			}
 			setError(error)
 		}
 		if (!(error instanceof UserError)) {
@@ -55,7 +69,7 @@ export function ErrorProvider(props: {children: React.ReactNode}): JSX.Element {
 	}, [])
 
 	const contextValue = {
-		error,
+		error: _error,
 		setError: setError,
 		clearError: React.useCallback(() => setError(undefined), []),
 	}
