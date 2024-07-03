@@ -25,6 +25,8 @@ mac:
 
 win:
   artifactName: ${productName}-${version}-${os}-x64.${ext}
+  signingHashAlgorithms: ["sha256"]
+  sign: "./buildcfg/sslcom-sign.js"
   target:
     - target: nsis
       arch: ["x64"]
