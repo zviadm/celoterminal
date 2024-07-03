@@ -51,6 +51,7 @@ jobs:
       - run: yarn compile
 
       - run: yarn build --mac --publish always
+        if: runner.os == 'macOS'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ secrets.OSX_CSC_LINK }}
@@ -58,19 +59,35 @@ jobs:
           OSX_NOTARIZE: "TRUE"
           OSX_APPLE_ID: ${{ secrets.OSX_APPLE_ID }}
           OSX_APPLE_ID_PASSWORD: ${{ secrets.OSX_APPLE_ID_PASSWORD }}
-        if: runner.os == 'macOS'
+
+      # download 'SSLcom/esigner-codesign' to a folder called 'esigner-codesign' in the root of the project
+      - name: Checkout esigner-codesign repository (Windows)
+        if: runner.os == 'windows'
+        uses: actions/checkout@v3
+        with:
+          repository: 'SSLcom/esigner-codesign'
+          path: esigner-codesign
 
       - run: yarn build --win --publish always
+        if: runner.os == 'Windows'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
-        if: runner.os == 'Windows'
+          CODE_SIGN_SCRIPT_PATH: "${{ github.workspace }}/esigner-codesign/dist/index.js"
+          INPUT_COMMAND: "sign"
+          INPUT_OVERRIDE: "true"
+          INPUT_MALWARE_BLOCK: "false"
+          INPUT_CLEAN_LOGS: "false"
+          INPUT_JVM_MAX_MEMORY: "1024M"
+          INPUT_ENVIRONMENT_NAME: "PROD"
+          INPUT_USERNAME: ${{ secrets.SSLCOM_USERNAME }}
+          INPUT_PASSWORD: ${{ secrets.SSLCOM_PASSWORD }}
+          INPUT_TOTP_SECRET: ${{ secrets.SSLCOM_TOTP_SECRET }}
+          INPUT_CREDENTIAL_ID: ${{ secrets.SSLCOM_CREDENTIAL_ID }}
 
       - run: yarn build --linux --publish always
+        if: runner.os == 'Linux'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: runner.os == 'Linux'
 
   publish:
     needs: build
