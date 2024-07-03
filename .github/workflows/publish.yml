@@ -50,7 +50,7 @@ jobs:
       - run: yarn
       - run: yarn compile
 
-      - run: yarn build --mac --x64 --publish always
+      - run: yarn build --mac --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ secrets.OSX_CSC_LINK }}
