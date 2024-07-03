@@ -40,3 +40,5 @@ function sign(configuration) {
 
 	return true; // Return true at the end of successful signing
 }
+
+exports.default = sign;
