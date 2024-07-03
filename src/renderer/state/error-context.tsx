@@ -21,7 +21,7 @@ const errsToReplace: [string, string][] = [
 		"Not initialized. subscription",
 		`WalletConnect is in unexpected state. Try restarting the APP by pressing: ` +
 		`${process.platform === "darwin" ? "CMD + SHIFT + R" : "CTRL + SHIFT + R"}`
-	]
+	],
 ]
 
 interface IErrorContext {
@@ -69,7 +69,7 @@ export function ErrorProvider(props: {children: React.ReactNode}): JSX.Element {
 	}, [])
 
 	const contextValue = {
-		_error,
+		error: _error,
 		setError: setError,
 		clearError: React.useCallback(() => setError(undefined), []),
 	}
