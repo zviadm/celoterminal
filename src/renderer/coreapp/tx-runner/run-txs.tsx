@@ -179,15 +179,19 @@ const RunTXs = (props: {
 											`Refusing to ${req.tx}.`)
 									}
 								}
+								// TODO(zviad): this is a HAX code to force celo SDK to treat these as CeloLegacy
+								// transactions. This is important to make sure these TXs can work with the Ledger app.
+								const xtraParams = executingAccount.type === "ledger" ? {gatewayFee: "1"} : {}
 								if (req.tx === "eth_signTransaction") {
-									const encodedTX = await w.wallet.signTransaction({...req.params})
+									const encodedTX = await w.wallet.signTransaction({...xtraParams, ...req.params})
 									r.push({type: "eth_signTransaction", encodedTX})
 								} else {
 									let result
 									if (req.tx === "eth_sendTransaction") {
-										result = await kit.sendTransaction({...req.params})
+										result = await kit.sendTransaction({ ...xtraParams, ...req.params})
 									} else {
 										result = await req.tx.send({
+											...xtraParams,
 											...req.params,
 											// perf improvement, avoid re-estimating gas again.
 											gas: estimatedGas.toNumber(),
