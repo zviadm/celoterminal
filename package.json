@@ -1,7 +1,7 @@
 {
   "name": "celoterminal",
   "productName": "Celo Terminal - DEV",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "license": "MIT",
   "repository": {
     "url": "https://github.com/zviadm/celoterminal"
@@ -19,8 +19,8 @@
     "dev:mainnet": "env-cmd -f env.dev.mainnet electron-forge start",
     "dev:e2etest": "env-cmd -f env.dev.e2etest electron-forge start",
     "dev:fresh": "./env.dev.fresh.sh",
-    "compile": "electron-forge package",
-    "build": "node ./buildcfg/webpack-path-fix.js && electron-builder build"
+    "compile": "electron-forge package --arch x64",
+    "build": "node ./buildcfg/webpack-path-fix.js x64 && electron-builder build"
   },
   "devDependencies": {
     "@celo/governance": "^5.0.0",

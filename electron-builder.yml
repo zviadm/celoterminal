@@ -11,18 +11,22 @@ files: [
 ]
 
 mac:
-  artifactName: ${productName}-${version}-${os}-arm64.${ext}
+  artifactName: ${productName}-${version}-${os}-${arch}.${ext}
   category: "public.app-category.finance"
   hardenedRuntime: true
   entitlements: ./buildcfg/mac/entitlements.plist
   entitlementsInherit: ./buildcfg/mac/entitlements.plist
   target:
     - target: dmg
+      arch: ["x64"]
     - target: zip
+      arch: ["x64"]
   publish: ["github"]
 
 win:
   artifactName: ${productName}-${version}-${os}-x64.${ext}
+  signingHashAlgorithms: ["sha256"]
+  sign: "./buildcfg/sslcom-sign.js"
   target:
     - target: nsis
       arch: ["x64"]
