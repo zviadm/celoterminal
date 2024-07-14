@@ -188,7 +188,7 @@ const RunTXs = (props: {
 								} else {
 									let result
 									if (req.tx === "eth_sendTransaction") {
-										result = await kit.sendTransaction({ ...xtraParams, ...req.params})
+										result = await kit.sendTransaction({...xtraParams, ...req.params})
 									} else {
 										result = await req.tx.send({
 											...xtraParams,

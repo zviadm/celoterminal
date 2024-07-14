@@ -7,7 +7,7 @@ import { onPrepare, afterSession, beforeSession} from "./test/setup"
 // we have dependency both on electorn-forge and on electron-builder.
 const binaryPath = () => {
     const appName = "Celo Terminal - E2ETest"
-    const prefix = ["out", `${appName}-${process.platform}-${process.arch}`]
+    const prefix = ["out", `${appName}-${process.platform}-x64`]
     switch (process.platform) {
         case "darwin":
             return path.join(...prefix, `${appName}.app`, "Contents", "MacOS", appName)
