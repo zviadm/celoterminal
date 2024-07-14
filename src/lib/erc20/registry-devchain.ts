@@ -4,6 +4,7 @@ export const erc20Devchain: RegisteredErc20[] = [
 	{
 		name: "E2ETest CELO",
 		symbol: "tCELO",
+		// Address of regular CELO in `celo-devchain`.
 		address: "0x04B5dAdd2c0D6a261bfafBc964E0cAc48585dEF3",
 		decimals: 18,
 	},

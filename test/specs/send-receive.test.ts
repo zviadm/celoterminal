@@ -86,7 +86,8 @@ it('add/remove erc20', async () => {
 
 	const erc20Address = await $("#erc20-address")
 	await erc20Address.click()
-	await browser.keys("0x10A736A7b223f1FE1050264249d1aBb975741E75")
+	// Address of cUSD in `celo-devchain`.
+	await browser.keys("0x5315e44798395d4a952530d131249fE00f554565")
 	confirmAddToken = await $("#confirm-add-erc20")
 	await confirmAddToken.waitForClickable()
 	await confirmAddToken.click()
