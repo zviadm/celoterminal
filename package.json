@@ -10,7 +10,7 @@
   "description": "Celo Terminal: Manage accounts and interact with the decentralized apps on Celo platform.",
   "main": ".webpack/main",
   "scripts": {
-    "postinstall": "node ./buildhax/hax-fix-ec.js && node ./buildhax/hax-fix-celosdk.js",
+    "postinstall": "node ./buildhax/hax-fix-ec.js",
     "lint": "eslint --max-warnings=0 src/ test/",
     "test": "ELECTRON_RUN_AS_NODE=true electron ./node_modules/.bin/jest --testPathIgnorePatterns '<rootDir>/test/.*'",
     "wdio": "wdio run ./wdio.conf.ts",
@@ -23,6 +23,7 @@
     "build": "node ./buildcfg/webpack-path-fix.js x64 && electron-builder build"
   },
   "devDependencies": {
+    "@celo/celo-devchain": "^7.0.0",
     "@celo/governance": "^5.0.0",
     "@electron-forge/cli": "^7.4.0",
     "@electron-forge/plugin-auto-unpack-natives": "^7.4.0",
@@ -30,7 +31,6 @@
     "@electron-forge/plugin-webpack": "^7.4.0",
     "@electron/fuses": "^1.8.0",
     "@electron/notarize": "^2.3.2",
-    "@celo/celo-devchain": "^7.0.0",
     "@types/better-sqlite3": "^7.6.10",
     "@types/jest": "^29.0.0",
     "@types/node": "^20.12.12",
@@ -73,11 +73,11 @@
   },
   "keywords": [],
   "dependencies": {
-    "@celo/connect": "^5.0.0",
+    "@celo/connect": "^6.0.0",
     "@celo/contractkit": "^8.0.0",
     "@celo/cryptographic-utils": "4.1.0",
-    "@celo/wallet-ledger": "^5.0.0",
-    "@celo/wallet-local": "^5.0.0",
+    "@celo/wallet-ledger": "^6.0.0",
+    "@celo/wallet-local": "^6.0.0",
     "@electron/remote": "^2.1.2",
     "@fontsource/roboto": "^5.0.0",
     "@ledgerhq/electron-updater": "^4.2.2",
@@ -109,7 +109,7 @@
     "web3": "1.10.4"
   },
   "resolutions": {
-    "@celo/connect": "^5.0.0",
+    "@celo/connect": "^6.0.0",
     "@celo/contractkit": "^8.0.0",
     "web3": "1.10.4",
     "@ledgerhq/hw-app-eth": "5.11.0",
