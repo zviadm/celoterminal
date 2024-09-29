@@ -9,9 +9,5 @@ Known Build/Dependency issues and workarounds:
 * web3:
 ** web3 is fixed to same version as what @celo/connect & @celo/contractkit use.
 
-* @celo/... v4.x.x and @ledgerhq/hw-app-eth@5.11.0:
-** These packages are held back because later versions no longer work with Ledger.
-** Upgrades cause: "EthAppPleaseEnableContractData" errors.
-
 * resolutions:
 ** @celo/connect & @celo/contractkit must exist only as a single version in node_modules.

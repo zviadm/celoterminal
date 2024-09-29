@@ -66,9 +66,9 @@ const RunTXs = (props: {
 		cancel: () => void,
 	} | undefined>()
 	const [stage, setStage] = React.useState<
-		"preparing"  |
+		"preparing" |
 		"confirming" |
-		"sending"    |
+		"sending" |
 		"finishing">("preparing")
 	const [reqSendMS, setReqSendMS] = React.useState(0)
 
@@ -92,7 +92,7 @@ const RunTXs = (props: {
 							`Refusing to run transactions.`)
 					}
 				}
-				const kit = newKitWithTimeout(cfgNetworkURL({withFornoKey: true}), w.wallet)
+				const kit = newKitWithTimeout(cfgNetworkURL({ withFornoKey: true }), w.wallet)
 				kit.defaultAccount = executingAccount.address as `0x${string}`
 				try {
 					const chainId = (await kit.web3.eth.getChainId()).toString()
@@ -179,19 +179,15 @@ const RunTXs = (props: {
 											`Refusing to ${req.tx}.`)
 									}
 								}
-								// TODO(zviad): this is a HAX code to force celo SDK to treat these as CeloLegacy
-								// transactions. This is important to make sure these TXs can work with the Ledger app.
-								const xtraParams = executingAccount.type === "ledger" ? {gatewayFee: "1"} : {}
 								if (req.tx === "eth_signTransaction") {
-									const encodedTX = await w.wallet.signTransaction({...xtraParams, ...req.params})
-									r.push({type: "eth_signTransaction", encodedTX})
+									const encodedTX = await w.wallet.signTransaction({ ...req.params })
+									r.push({ type: "eth_signTransaction", encodedTX })
 								} else {
 									let result
 									if (req.tx === "eth_sendTransaction") {
-										result = await kit.sendTransaction({...xtraParams, ...req.params})
+										result = await kit.sendTransaction({ ...req.params })
 									} else {
 										result = await req.tx.send({
-											...xtraParams,
 											...req.params,
 											// perf improvement, avoid re-estimating gas again.
 											gas: estimatedGas.toNumber(),
@@ -228,18 +224,18 @@ const RunTXs = (props: {
 									const receipt = await result.waitReceipt()
 									setReqProgress(100)
 									log.info(`TX-RECEIPT:`, receipt)
-									r.push({type: "eth_sendTransaction", receipt})
+									r.push({ type: "eth_sendTransaction", receipt })
 								}
 								break
 							}
 							case "signPersonal": {
 								const encodedData = await w.wallet.signPersonalMessage(req.params.from, req.params.data)
-								r.push({type: "eth_signPersonal", encodedData})
+								r.push({ type: "eth_signPersonal", encodedData })
 								break
 							}
 							case "signTypedData_v4": {
 								const encodedData = await w.wallet.signTypedData(req.params.from, JSON.parse(req.params.data))
-								r.push({type: "eth_signTypedData_v4", encodedData})
+								r.push({ type: "eth_signTypedData_v4", encodedData })
 								break
 							}
 							default: throwUnreachableError(req)
@@ -261,9 +257,9 @@ const RunTXs = (props: {
 				onFinish(onFinishErr, r)
 			}
 		})()
-	// NOTE: This effect is expected to run only once on first render and it is expected
-	// that parent will unmount the component once it calls onFinish.
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// NOTE: This effect is expected to run only once on first render and it is expected
+		// that parent will unmount the component once it calls onFinish.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 	const [reqProgress, setReqProgress] = React.useState(0)
 	React.useEffect(() => {
@@ -288,63 +284,63 @@ const RunTXs = (props: {
 			<DialogContent className={classes.root}>
 				<Box display="flex" flexDirection="column">
 					{
-					stage === "preparing" || !currentReq ?
-					<>
-						<Typography className={classes.progressText}>Preparing requests...</Typography>
-						<LinearProgress color="primary" />
-					</>
-					:
-					<>
-						<Paper>
-							<List dense={true}>
-								{preparedReqs.map((req, idx) => (
-									<ListItem key={`${idx}`}>
-										<ListItemIcon>
-											{
-											(idx < currentReq.idx || stage === "finishing") ?
-											<CheckCircle /> :
-											(idx === currentReq.idx) ? <Send /> : <></>
-											}
-										</ListItemIcon>
-										<ListItemText primary={
-											<Typography className={classes.address}>
-												<SignatureRequestTitle req={preparedReqs[idx]} />
-											</Typography>
-										}/>
-									</ListItem>
-								))}
-							</List>
-						</Paper>
-						<Box marginTop={1}>
-							<SignatureRequestInfo req={preparedReqs[currentReq.idx]} fee={currentReq.estimatedFee} />
-						</Box>
-						<Box marginTop={1}>
-							<LinearProgress
-								style={{visibility: stage === "confirming" ? "hidden" : undefined}}
-								color="primary"
-								variant="determinate"
-								value={reqProgress}
-								/>
-						</Box>
-					</>
+						stage === "preparing" || !currentReq ?
+							<>
+								<Typography className={classes.progressText}>Preparing requests...</Typography>
+								<LinearProgress color="primary" />
+							</>
+							:
+							<>
+								<Paper>
+									<List dense={true}>
+										{preparedReqs.map((req, idx) => (
+											<ListItem key={`${idx}`}>
+												<ListItemIcon>
+													{
+														(idx < currentReq.idx || stage === "finishing") ?
+															<CheckCircle /> :
+															(idx === currentReq.idx) ? <Send /> : <></>
+													}
+												</ListItemIcon>
+												<ListItemText primary={
+													<Typography className={classes.address}>
+														<SignatureRequestTitle req={preparedReqs[idx]} />
+													</Typography>
+												} />
+											</ListItem>
+										))}
+									</List>
+								</Paper>
+								<Box marginTop={1}>
+									<SignatureRequestInfo req={preparedReqs[currentReq.idx]} fee={currentReq.estimatedFee} />
+								</Box>
+								<Box marginTop={1}>
+									<LinearProgress
+										style={{ visibility: stage === "confirming" ? "hidden" : undefined }}
+										color="primary"
+										variant="determinate"
+										value={reqProgress}
+									/>
+								</Box>
+							</>
 					}
 				</Box>
 			</DialogContent>
 			<DialogActions>
 				{executingAccount.type === "ledger" ?
-				stage === "confirming" &&
-				<PromptLedgerAction text="Confirm transaction on Ledger..." />
-				:
-				<>
-					<Button
-						id="cancel-tx"
-						onClick={currentReq?.cancel}
-						disabled={stage !== "confirming"}>Cancel</Button>
-					<Button
-						id="confirm-tx"
-						onClick={currentReq?.confirm}
-						disabled={stage !== "confirming"}>Confirm</Button>
-				</>
+					stage === "confirming" &&
+					<PromptLedgerAction text="Confirm transaction on Ledger..." />
+					:
+					<>
+						<Button
+							id="cancel-tx"
+							onClick={currentReq?.cancel}
+							disabled={stage !== "confirming"}>Cancel</Button>
+						<Button
+							id="confirm-tx"
+							onClick={currentReq?.confirm}
+							disabled={stage !== "confirming"}>Confirm</Button>
+					</>
 				}
 			</DialogActions>
 		</Dialog>
