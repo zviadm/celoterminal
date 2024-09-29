@@ -76,13 +76,13 @@
     "@celo/connect": "^6.0.0",
     "@celo/contractkit": "^8.0.0",
     "@celo/cryptographic-utils": "4.1.0",
-    "@celo/wallet-ledger": "^6.0.0",
-    "@celo/wallet-local": "^6.0.0",
+    "@celo/wallet-ledger": "^6.0.1",
+    "@celo/wallet-local": "^6.0.1",
     "@electron/remote": "^2.1.2",
     "@fontsource/roboto": "^5.0.0",
     "@ledgerhq/electron-updater": "^4.2.2",
-    "@ledgerhq/hw-app-eth": "git+https://github.com:celo-org/ledgerjs-hw-app-eth.git",
-    "@ledgerhq/hw-transport-node-hid-noevents": "^6.0.0",
+    "@ledgerhq/hw-app-eth": "https://github.com/celo-org/ledgerjs-hw-app-eth.git",
+    "@ledgerhq/hw-transport-node-hid-noevents": "^6.28.5",
     "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.3",
     "@material-ui/lab": "^4.0.0-alpha.57",
@@ -109,10 +109,10 @@
     "web3": "1.10.4"
   },
   "resolutions": {
-    "@celo/connect": "^6.0.0",
-    "@celo/contractkit": "^8.0.0",
+    "@celo/connect": "^6.0.1",
+    "@celo/contractkit": "^8.2.0",
     "web3": "1.10.4",
-    "@ledgerhq/hw-app-eth": "5.11.0",
+    "@ledgerhq/hw-app-eth": "https://github.com/celo-org/ledgerjs-hw-app-eth.git",
     "@types/react": "^17.0.0"
   }
 }
