@@ -64,7 +64,7 @@ const TransferFromTab = (props: {
 			refetch()
 		}
 	}, [refetch, accountData])
-	const ownerAddrs = accountData.owners.map((a) => ({address: a}))
+	const ownerAddrs = accountData.owners.map((a) => ({ address: a }))
 	const maxToSend = fetched?.allowance && BigNumber.minimum(fetched.allowance, fetched.balance)
 	const canSend = (
 		isValidAddress(toAddress) && (toSend !== "") && maxToSend &&
@@ -76,66 +76,66 @@ const TransferFromTab = (props: {
 	}
 	return <>
 		{props.accountData.incompleteBlockN &&
-		<Box display="flex" flexDirection="column" marginBottom={2}>
-			<Alert severity="warning">
-				Approval/spender data was only fetched from block number {props.accountData.incompleteBlockN}.
-				Accounts authorized earlier than that might not be listed. You can try clicking the refresh button
-				to try fetching approval data again.
-			</Alert>
-		</Box>}
+			<Box display="flex" flexDirection="column" marginBottom={2}>
+				<Alert severity="warning">
+					Approval/spender data was only fetched from block number {props.accountData.incompleteBlockN}.
+					Accounts authorized earlier than that might not be listed. You can try clicking the refresh button
+					to try fetching approval data again.
+				</Alert>
+			</Box>}
 		{
-			accountData.owners.length === 0 ?
-			<Alert severity="error">
-				No authorized accounts found that can be used as a source to transfer
-				funds from.
-			</Alert>
-			: <>
-			<Alert severity="warning">
-				Transfers are non-reversible. Transferring funds to an incorrect address
-				can lead to permanent loss of your funds.
-			</Alert>
-			<AddressAutocomplete
-				id="from-address-input"
-				noFreeSolo={true}
-				textFieldProps={{
-					label: "From address",
-					margin: "normal",
-					InputLabelProps: {shrink: true},
-				}}
-				addresses={ownerAddrs}
-				onChange={setOwner}
-			/>
-			<HiddenProgress hidden={!isFetching} />
-			<AddressAutocomplete
-				id="to-address-input"
-				textFieldProps={{
-					label: "Destination address",
-					margin: "normal",
-					InputLabelProps: {shrink: true},
-				}}
-				addresses={props.addressBook}
-				address={toAddress}
-				onChange={setToAddress}
-			/>
-			<NumberInput
-				margin="normal"
-				id="amount-input"
-				label={
-					!maxToSend ? `Amount` :
-					`Amount (max: ${fmtAmount(maxToSend, props.erc20.decimals)})`
-				}
-				InputLabelProps={{shrink: true}}
-				value={toSend}
-				onChangeValue={setToSend}
-				maxValue={maxToSend?.shiftedBy(-props.erc20.decimals)}
-			/>
-			<Button
-				id="send"
-				variant="outlined" color="primary"
-				disabled={!canSend}
-				onClick={handleSend}>Send</Button>
-			</>
-	}
+			(accountData.owners.length === 0 && !props.accountData.incompleteBlockN) ?
+				<Alert severity="error">
+					No authorized accounts found that can be used as a source to transfer
+					funds from.
+				</Alert>
+				: <>
+					<Alert severity="warning">
+						Transfers are non-reversible. Transferring funds to an incorrect address
+						can lead to permanent loss of your funds.
+					</Alert>
+					<AddressAutocomplete
+						id="from-address-input"
+						noFreeSolo={!props.accountData.incompleteBlockN}
+						textFieldProps={{
+							label: "From address",
+							margin: "normal",
+							InputLabelProps: { shrink: true },
+						}}
+						addresses={ownerAddrs}
+						onChange={setOwner}
+					/>
+					<HiddenProgress hidden={!isFetching} />
+					<AddressAutocomplete
+						id="to-address-input"
+						textFieldProps={{
+							label: "Destination address",
+							margin: "normal",
+							InputLabelProps: { shrink: true },
+						}}
+						addresses={props.addressBook}
+						address={toAddress}
+						onChange={setToAddress}
+					/>
+					<NumberInput
+						margin="normal"
+						id="amount-input"
+						label={
+							!maxToSend ? `Amount` :
+								`Amount (max: ${fmtAmount(maxToSend, props.erc20.decimals)})`
+						}
+						InputLabelProps={{ shrink: true }}
+						value={toSend}
+						onChangeValue={setToSend}
+						maxValue={maxToSend?.shiftedBy(-props.erc20.decimals)}
+					/>
+					<Button
+						id="send"
+						variant="outlined" color="primary"
+						disabled={!canSend}
+						onClick={handleSend}>Send</Button>
+				</>
+		}
 	</>
 }
 export default TransferFromTab
