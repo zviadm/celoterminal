@@ -80,18 +80,18 @@ const SendReceiveApp = (props: {
 			const maxBatchSize = 30 * 17280
 			let batchSize = 1000
 			let prevDeltaMs
-			for (let toBlock = blockN; toBlock > 0; ) {
+			for (let toBlock = blockN; toBlock > 0;) {
 				const startMs = Date.now()
 				const fromBlock = Math.max(toBlock - batchSize, 0)
-				log.info(`send-receive: fetching approval data ${fromBlock}..${toBlock} (elapsed: ${Date.now()-t0}ms)...`)
+				log.info(`send-receive: fetching approval data ${fromBlock}..${toBlock} (elapsed: ${Date.now() - t0}ms)...`)
 				const [
 					spenderEvents,
 					ownerEvents,
 				] = await Promise.all([
 					contract.web3contract.getPastEvents(
-						"Approval", {fromBlock, toBlock, filter: {owner: selectedAddress}}),
+						"Approval", { fromBlock, toBlock, filter: { owner: selectedAddress } }),
 					contract.web3contract.getPastEvents(
-						"Approval", {fromBlock, toBlock, filter: {spender: selectedAddress}}),
+						"Approval", { fromBlock, toBlock, filter: { spender: selectedAddress } }),
 				])
 				spenderEvents.forEach((e) => spenders.add(e.returnValues.spender))
 				ownerEvents.forEach((e) => owners.add(e.returnValues.owner))
@@ -99,14 +99,14 @@ const SendReceiveApp = (props: {
 					log.info(`send-receive: cancelled fetching approval data`)
 					break
 				}
-				if (Date.now() - t0 > 60 * 1000) {
+				if (Date.now() - t0 > 10 * 1000) {
 					log.warn(`send-receive: timed out trying to get all spender/owner data...`)
 					incompleteBlockN = fromBlock
 					break
 				}
 				prevDeltaMs = Date.now() - startMs
 				toBlock -= batchSize
-				batchSize = prevDeltaMs < 5 * 1000 ? Math.min(batchSize * 2, maxBatchSize) : batchSize
+				batchSize = Math.max(Math.floor(Math.min(((2 * 1000) / prevDeltaMs) * batchSize, maxBatchSize)), 100)
 			}
 			return {
 				spenders: Array.from(spenders).sort(),
@@ -122,12 +122,12 @@ const SendReceiveApp = (props: {
 			const fromTransfers = await contractDirect.getPastEvents("Transfer", {
 				fromBlock,
 				toBlock,
-				filter: {from: selectedAddress},
+				filter: { from: selectedAddress },
 			})
 			const toTransfers = await contractDirect.getPastEvents("Transfer", {
 				fromBlock,
 				toBlock,
-				filter: {to: selectedAddress},
+				filter: { to: selectedAddress },
 			})
 			const toTransfersFiltered = toTransfers.filter((e) => e.returnValues.from !== selectedAddress)
 			const transfers = fromTransfers.concat(toTransfersFiltered)
@@ -164,7 +164,7 @@ const SendReceiveApp = (props: {
 			async (kit: ContractKit) => {
 				const contract = await newErc20(kit, erc20)
 				const tx = contract.transfer(toAddress, amount)
-				return [{tx: tx}]
+				return [{ tx: tx }]
 			}
 		)
 	}
@@ -173,7 +173,7 @@ const SendReceiveApp = (props: {
 			async (kit: ContractKit) => {
 				const contract = await newErc20(kit, erc20)
 				const tx = contract.transferFrom(fromAddress, toAddress, amount)
-				return [{tx: tx}]
+				return [{ tx: tx }]
 			}
 		)
 	}
@@ -182,7 +182,7 @@ const SendReceiveApp = (props: {
 			async (kit: ContractKit) => {
 				const contract = await newErc20(kit, erc20)
 				const tx = contract.approve(spender, amount)
-				return [{tx: tx}]
+				return [{ tx: tx }]
 			}
 		)
 	}
@@ -211,9 +211,9 @@ const SendReceiveApp = (props: {
 					<Typography>
 						Balance: {!fetched ? "?" : fmtAmount(fetched.balance, erc20.decimals)} {erc20.symbol}
 						{fetched?.asCoreErc20 &&
-						<Typography color="textSecondary" component="span">
-							&nbsp;(~{fmtAmount(fetched.asCoreErc20.amount, coreErc20Decimals)} {fetched.asCoreErc20.coreErc20})
-						</Typography>}
+							<Typography color="textSecondary" component="span">
+								&nbsp;(~{fmtAmount(fetched.asCoreErc20.amount, coreErc20Decimals)} {fetched.asCoreErc20.coreErc20})
+							</Typography>}
 					</Typography>
 				</Box>
 			</AppSection>
@@ -237,24 +237,24 @@ const SendReceiveApp = (props: {
 					</TabPanel>
 					<TabPanel value="transfer-from">
 						{approvalData.fetched &&
-						<TransferFromTab
-							erc20={erc20}
-							account={props.selectedAccount}
-							accountData={approvalData.fetched}
-							addressBook={props.accounts}
-							resetAmounts={resetAmounts}
-							onSend={handleSendFrom}
-						/>}
+							<TransferFromTab
+								erc20={erc20}
+								account={props.selectedAccount}
+								accountData={approvalData.fetched}
+								addressBook={props.accounts}
+								resetAmounts={resetAmounts}
+								onSend={handleSendFrom}
+							/>}
 					</TabPanel>
 					<TabPanel value="approvals">
 						{approvalData.fetched &&
-						<ApprovalsTab
-							erc20={erc20}
-							account={props.selectedAccount}
-							accountData={approvalData.fetched}
-							addressBook={props.accounts}
-							onApprove={handleApprove}
-						/>}
+							<ApprovalsTab
+								erc20={erc20}
+								account={props.selectedAccount}
+								accountData={approvalData.fetched}
+								addressBook={props.accounts}
+								onApprove={handleApprove}
+							/>}
 					</TabPanel>
 				</AppSection>
 			</TabContext>
@@ -263,7 +263,7 @@ const SendReceiveApp = (props: {
 					address={selectedAddress}
 					events={transferHistory.fetched}
 					erc20={erc20}
-					/>
+				/>
 			</AppSection>
 		</AppContainer>
 	)
