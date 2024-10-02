@@ -10,7 +10,6 @@ import { sleep, throwUnreachableError } from '../../../lib/utils'
 import { transformError } from '../ledger-utils'
 import { Account } from '../../../lib/accounts/accounts'
 import { cfgNetworkURL, newKitWithTimeout } from '../../state/kit'
-import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 import * as React from 'react'
 import {
@@ -28,6 +27,8 @@ import SignatureRequestInfo from './signature-request-info'
 import SignatureRequestTitle from './signature-request-title'
 import { monospaceFont } from '../../styles'
 import { E2ETestChainId } from '../../../lib/e2e-constants'
+import { FeeToken, selectFeeToken } from '../../../lib/fee-tokens'
+import Erc20Contract, { newErc20 } from '../../../lib/erc20/erc20-contract'
 
 export class TXCancelled extends Error {
 	constructor() { super('Cancelled') }
@@ -93,6 +94,7 @@ const RunTXs = (props: {
 					}
 				}
 				const kit = newKitWithTimeout(cfgNetworkURL({ withFornoKey: true }), w.wallet)
+				let feeToken: FeeToken = "auto" // TODO(zviad)
 				kit.defaultAccount = executingAccount.address as `0x${string}`
 				try {
 					const chainId = (await kit.web3.eth.getChainId()).toString()
@@ -101,6 +103,11 @@ const RunTXs = (props: {
 							`Unexpected ChainId. Expected: ${cfg.chainId}, Got: ${chainId}. ` +
 							`Refusing to run transactions.`)
 					}
+					if (feeToken === "auto") {
+						feeToken = await selectFeeToken(kit, executingAccount.address)
+					}
+					kit.connection.defaultFeeCurrency = feeToken.address
+
 					const reqs = await txFunc(kit)
 					if (reqs.length === 0) {
 						throw new Error(`No requests to sign or run.`)
@@ -121,13 +128,14 @@ const RunTXs = (props: {
 						let estimatedFee: EstimatedFee
 						switch (req.type) {
 							case undefined: {
+								const feeCurrencyAddr = req.params?.feeCurrency || feeToken.address
+								const gasPrice = req.params?.gasPrice || (await kit.connection.gasPrice(feeCurrencyAddr))
+								const feeCurrencySymbol = !feeCurrencyAddr ? "CELO" : await (new Erc20Contract(kit, feeCurrencyAddr)).symbol()
 								estimatedGas = await estimateGas(kit, req)
-								const gasPrice = await kit.connection.gasPrice()
-								// TODO(zviadm): Add support for other fee currencies.
 								estimatedFee = {
 									estimatedGas,
-									feeCurrency: "CELO",
-									estimatedFee: estimatedGas.multipliedBy(gasPrice).shiftedBy(-coreErc20Decimals),
+									feeCurrency: feeCurrencySymbol,
+									estimatedFee: estimatedGas.multipliedBy(gasPrice.toString()).shiftedBy(-feeToken.decimals),
 								}
 								break
 							}
@@ -135,7 +143,7 @@ const RunTXs = (props: {
 								estimatedGas = new BigNumber(0)
 								estimatedFee = {
 									estimatedGas,
-									feeCurrency: "CELO",
+									feeCurrency: feeToken.symbol,
 									estimatedFee: new BigNumber(0),
 								}
 							}
