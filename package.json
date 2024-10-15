@@ -109,8 +109,8 @@
     "web3": "1.10.4"
   },
   "resolutions": {
-    "@celo/connect": "^6.0.1",
-    "@celo/contractkit": "^8.2.0",
+    "@celo/connect": "^6.0.2",
+    "@celo/contractkit": "^8.3.0",
     "web3": "1.10.4",
     "@ledgerhq/hw-app-eth": "https://github.com/celo-org/ledgerjs-hw-app-eth.git",
     "@types/react": "^17.0.0"
