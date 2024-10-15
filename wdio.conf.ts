@@ -88,6 +88,9 @@ export const config: Options.Testrunner = {
             appBinaryPath: binaryPath(),
             appArgs: []
         },
+        // NOTE(zviad): There is some issue with chromeDriver and github actions and "--no-sandbox"
+        // is the only way to resolve it.
+        // Some additional context from random internet: https://issues.chromium.org/issues/42323434#comment62
         'goog:chromeOptions': {
             args: ["--no-sandbox"],
         }

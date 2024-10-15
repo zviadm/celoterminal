@@ -21,7 +21,3 @@ jobs:
       - run: yarn test
       - run: xvfb-run --auto-servernum --server-args='-screen 0, 1600x900x24' yarn wdio
 
-      - name: Print App Logs
-        if: failure()
-        run: cat ~/.config/Celo\ Terminal\ -\ DEV/celoterminal-e2e.main.log
-
