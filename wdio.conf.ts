@@ -86,7 +86,10 @@ export const config: Options.Testrunner = {
         'wdio:electronServiceOptions': {
             // custom application args
             appBinaryPath: binaryPath(),
-            appArgs: ["--no-sandbox"]
+            appArgs: []
+        },
+        'goog:chromeOptions': {
+            args: ["--no-sandbox"],
         }
     }],
 
