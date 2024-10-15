@@ -86,7 +86,7 @@ export const config: Options.Testrunner = {
         'wdio:electronServiceOptions': {
             // custom application args
             appBinaryPath: binaryPath(),
-            appArgs: []
+            appArgs: ["--no-sandbox"]
         }
     }],
 
