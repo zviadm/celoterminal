@@ -60,11 +60,10 @@ export const erc20Registry: RegisteredERC20[] = (() => {
 			coreErc20s.find((r) => r.symbol === t.symbol)) {
 			return
 		}
-		setOfAddrs.add(address)
+		setOfAddrs.add(t.address)
 		let symbol = t.symbol
 		while (setOfSymbols.has(symbol)) {
-			const e20 = erc20s.find((v) => v.symbol === symbol)
-			console.info(`REGISTRY: symbol conflict: ${symbol}: ${t.name} vs ${e20?.name}`)
+			console.info(`REGISTRY: symbol conflict: ${symbol}`)
 			symbol = symbol + " "
 		}
 		setOfSymbols.add(symbol)
