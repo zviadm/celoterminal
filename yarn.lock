@@ -408,11 +408,6 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@celo/abis-12@npm:@celo/abis@12.0.0-canary.35":
-  version "12.0.0-canary.35"
-  resolved "https://registry.yarnpkg.com/@celo/abis/-/abis-12.0.0-canary.35.tgz#94a1f41f7e767b28e6816830d5ab8d6de013a4e7"
-  integrity sha512-6MdEX96TGTaiiqATWDHwdsv3XoUMc0GRr1KVDPH0JKFqxs3/ATnoekAUL+bBn6rzuI+KFnKhRHjcPm4Qjq9EHg==
-
 "@celo/abis-12@npm:@celo/abis@12.0.0-canary.76":
   version "12.0.0-canary.76"
   resolved "https://registry.yarnpkg.com/@celo/abis/-/abis-12.0.0-canary.76.tgz#ae87124c716b5125cc64166fa627a2cb36cbda5f"
@@ -457,13 +452,13 @@
     targz "^1.0.1"
     tmp "^0.2.1"
 
-"@celo/connect@^6.0.0", "@celo/connect@^6.0.2", "@celo/connect@^6.1.0":
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/@celo/connect/-/connect-6.0.2.tgz#740264c464488d36b7430bfb9d8d623e792ab314"
-  integrity sha512-l+7UpQlVBtdSonmMmRqJikdv7ygI/LfQEjaGoco5yNY0Bs7nD52TcBSiRqu8VV8lmI2UOZisWCjA/GzeQbRM1Q==
+"@celo/connect@^6.0.0", "@celo/connect@^6.1.0":
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/@celo/connect/-/connect-6.1.0.tgz#0c348fcc1a43eccf5533b7d0444365d91a7a693a"
+  integrity sha512-wIesewmnU9EjDLF4L1BNzNJCIJ2tvDrMHsXzYQEy088U3hsdOxTB0gqvhXMrSyiR2ukyBtBuzRFbItvIg9Zmdg==
   dependencies:
-    "@celo/base" "^6.1.0"
-    "@celo/utils" "^7.0.0"
+    "@celo/base" "^7.0.0"
+    "@celo/utils" "^8.0.0"
     "@ethereumjs/util" "8.0.5"
     "@types/debug" "^4.1.5"
     "@types/utf8" "^2.1.6"
@@ -474,24 +469,22 @@
     web3-eth "1.10.4"
     web3-eth-contract "1.10.4"
 
-"@celo/contractkit@^8.0.0", "@celo/contractkit@^8.3.0", "@celo/contractkit@^9.0.0":
-  version "8.3.0"
-  resolved "https://registry.yarnpkg.com/@celo/contractkit/-/contractkit-8.3.0.tgz#fa41361db4bab08beea5b0916a4c301512e1494b"
-  integrity sha512-Y2A6Pr+tkb+SYgt09qeF1Z09JZN/AcXXKjHkbc83LEeb6qtCxnWNhxXUY8Mu1Bnk5+Oyf+jrWJPenmuuFIufuQ==
+"@celo/contractkit@^8.0.0", "@celo/contractkit@^9.0.0":
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/@celo/contractkit/-/contractkit-9.0.0.tgz#cda95451febb4ff1a332a910f79fb3a350b906ba"
+  integrity sha512-J/7OrO50Ka/YySGlRRHiOATvK+dXvx1bht9jcEIFz+905CUb98l/gZNusA3EtS0HKGFuCloJpL6BYKmKcgT35A==
   dependencies:
     "@celo/abis" "11.0.0"
-    "@celo/abis-12" "npm:@celo/abis@12.0.0-canary.35"
-    "@celo/base" "^6.1.0"
-    "@celo/connect" "^6.0.2"
-    "@celo/utils" "^7.0.0"
-    "@celo/wallet-local" "^6.0.1"
+    "@celo/abis-12" "npm:@celo/abis@12.0.0-canary.76"
+    "@celo/base" "^7.0.0"
+    "@celo/connect" "^6.1.0"
+    "@celo/utils" "^8.0.0"
+    "@celo/wallet-local" "^6.0.4"
     "@types/bn.js" "^5.1.0"
     "@types/debug" "^4.1.5"
     bignumber.js "^9.0.0"
-    cross-fetch "3.1.5"
     debug "^4.1.1"
     fp-ts "2.1.1"
-    io-ts "2.0.1"
     semver "^7.3.5"
     web3 "1.10.4"
     web3-core-helpers "1.10.4"
@@ -664,7 +657,7 @@
     debug "^4.1.1"
     semver "^7.6.0"
 
-"@celo/wallet-local@^6.0.1":
+"@celo/wallet-local@^6.0.1", "@celo/wallet-local@^6.0.4":
   version "6.0.4"
   resolved "https://registry.yarnpkg.com/@celo/wallet-local/-/wallet-local-6.0.4.tgz#31afabdc642e5e24d25d1d1cd453dbfe4b2e433d"
   integrity sha512-zgf3yXyVhYFuRANvCyMk2Gp3QUphLBrrpNaookClgHXGatRrYeCUSQeuS4nk3jcwxQ+AeLWbpu4MqwJEXVqt8A==
