@@ -1,7 +1,7 @@
 /// <reference types="wdio-electron-service" />
 import path from 'path'
 import type { Options } from '@wdio/types'
-import { onPrepare, afterSession, beforeSession} from "./test/setup"
+import { onPrepare, afterSession, beforeSession } from "./test/setup"
 
 // NOTE(zviad): We can't use webdriverIO-s automatic binaryPath detection because
 // we have dependency both on electorn-forge and on electron-builder.
@@ -87,6 +87,12 @@ export const config: Options.Testrunner = {
             // custom application args
             appBinaryPath: binaryPath(),
             appArgs: []
+        },
+        // NOTE(zviad): There is some issue with chromeDriver and github actions and "--no-sandbox"
+        // is the only way to resolve it.
+        // Some additional context from random internet: https://issues.chromium.org/issues/42323434#comment62
+        'goog:chromeOptions': {
+            args: ["--no-sandbox"],
         }
     }],
 
@@ -115,7 +121,7 @@ export const config: Options.Testrunner = {
     //
     // If you only want to run your tests until a specific amount of tests have failed use
     // bail (default is 0 - don't bail, run all tests).
-    bail: 0,
+    bail: 1,
     //
     // Set a base URL in order to shorten url command calls. If your `url` parameter starts
     // with `/`, the base url gets prepended, not including the path portion of your baseUrl.
