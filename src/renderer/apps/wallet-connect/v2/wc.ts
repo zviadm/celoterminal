@@ -12,13 +12,13 @@ import { IJsonRpcErrorMessage, RequestPayload, WCRequest, requestQueueGlobal } f
 import { IS_E2E_TEST } from '../../../../lib/e2e-constants';
 
 const core = new Core({
-  projectId: "9e9a1a2420615978dc2409e90543aef9",
+	projectId: "9e9a1a2420615978dc2409e90543aef9",
 });
 
 export interface ErrorResponse {
-    code: number;
-    message: string;
-    data?: string;
+	code: number;
+	message: string;
+	data?: string;
 }
 
 export class WalletConnectGlobal {
@@ -66,7 +66,13 @@ export class WalletConnectGlobal {
 	private onRequest = async (event: Web3WalletTypes.SessionRequest) => {
 		log.info(`wallet-connect: received request`, event)
 		const chainId = `eip155:${CFG().chainId}`
-		if (event.params.chainId !== chainId) {
+		if (event.params.chainId !== chainId &&
+			// Allow personal and signedTypedData signing for ETHEREUM network requests too.
+			// Many dApps just specify eip155:1 when trying to get a signed message and ignore
+			// actual network that it is for.
+			(event.params.chainId !== "eip155:1" ||
+				event.params.request.method === "eth_sendTransaction" ||
+				event.params.request.method === "eth_signTransaction")) {
 			log.info(`wallet-connect: rejected request with invalid chainId`)
 			this.wc().respondSessionRequest({
 				topic: event.topic,
@@ -84,63 +90,63 @@ export class WalletConnectGlobal {
 
 		const rq = await requestQueueGlobal()
 		switch (event.params.request.method) {
-		case "eth_sendTransaction":
-		case "eth_signTransaction":
-			rq.pushRequest(
-				new WCV2Request(this.wc(), event.topic, {
-					id: event.id,
-					method: event.params.request.method,
-					params: {
-						...event.params.request.params[0],
-						chainId: CFG().chainId,
-					},
-				})
-			)
-			showWindowAndFocus()
-			break
-		case "personal_sign":
-			rq.pushRequest(
-				new WCV2Request(this.wc(), event.topic, {
-					id: event.id,
-					method: "eth_signPersonal",
-					params: {
-						data: event.params.request.params[0] as string,
-						from: event.params.request.params[1] as string,
+			case "eth_sendTransaction":
+			case "eth_signTransaction":
+				rq.pushRequest(
+					new WCV2Request(this.wc(), event.topic, {
+						id: event.id,
+						method: event.params.request.method,
+						params: {
+							...event.params.request.params[0],
+							chainId: CFG().chainId,
+						},
+					})
+				)
+				showWindowAndFocus()
+				break
+			case "personal_sign":
+				rq.pushRequest(
+					new WCV2Request(this.wc(), event.topic, {
+						id: event.id,
+						method: "eth_signPersonal",
+						params: {
+							data: event.params.request.params[0] as string,
+							from: event.params.request.params[1] as string,
+						}
+					})
+				)
+				break
+			case "eth_signTypedData_v4":
+				rq.pushRequest(
+					new WCV2Request(this.wc(), event.topic, {
+						id: event.id,
+						method: "eth_signTypedData_v4",
+						params: {
+							from: event.params.request.params[0] as string,
+							data: event.params.request.params[1] as string,
+						}
+					})
+				)
+				break
+			default:
+				log.info(`wallet-connect: rejected not supported request`)
+				this.wc().respondSessionRequest({
+					topic: event.topic,
+					response: {
+						id: event.id,
+						jsonrpc: "2.0",
+						error: {
+							code: -32000,
+							message: `Method: ${event.params.request.method} not supported!`,
+						}
 					}
 				})
-			)
-			break
-		case "eth_signTypedData_v4":
-			rq.pushRequest(
-				new WCV2Request(this.wc(), event.topic, {
-					id: event.id,
-					method: "eth_signTypedData_v4",
-					params: {
-						from: event.params.request.params[0] as string,
-						data: event.params.request.params[1] as string,
-					}
-				})
-			)
-			break
-		default:
-			log.info(`wallet-connect: rejected not supported request`)
-			this.wc().respondSessionRequest({
-				topic: event.topic,
-				response: {
-					id: event.id,
-					jsonrpc: "2.0",
-					error: {
-						code: -32000,
-						message: `Method: ${event.params.request.method} not supported!`,
-					}
-				}
-			})
 		}
 	}
 }
 
 export class SessionWrapper implements ISession {
-	constructor(private session: SessionTypes.Struct) {}
+	constructor(private session: SessionTypes.Struct) { }
 
 	isConnected = (): boolean => {
 		return !!wcGlobal.wc().getActiveSessions()[this.session.topic]
@@ -151,7 +157,7 @@ export class SessionWrapper implements ISession {
 			return
 		}
 		wcGlobal.wc().disconnectSession(
-			{topic: this.session.topic, reason: getSdkError("USER_DISCONNECTED")})
+			{ topic: this.session.topic, reason: getSdkError("USER_DISCONNECTED") })
 	}
 
 	metadata = (): SessionMetadata => {
