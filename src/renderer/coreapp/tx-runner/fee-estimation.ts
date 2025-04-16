@@ -22,6 +22,7 @@ export const estimateGas = async (
 		return new BigNumber(paramsFilled.gas)
 	}
 	if (tx.tx === "eth_signTransaction" || tx.tx === "eth_sendTransaction") {
+		console.log("DEBUG-ESTIAMTE-GAS", paramsFilled)
 		return new BigNumber(await kit.connection.estimateGasWithInflationFactor(paramsFilled))
 	}
 	if (tx.tx.defaultParams?.gas) {

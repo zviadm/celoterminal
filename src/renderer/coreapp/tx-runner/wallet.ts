@@ -109,9 +109,6 @@ const createMultiSigWallet = async (
 		const dataBytes = stringToSolidityBytes(data)
 		const txo = multiSig.methods.submitTransaction(
 			destination, req.params?.value?.toString() || 0, dataBytes)
-		// TODO(zviad): we need to figure out if there is need for additional logic for
-		// GAS estimation. If the original transaction has GAS provided, should we somehow
-		// take that into account for transformed TX?
 		if (req.tx === "eth_signTransaction" || req.tx === "eth_sendTransaction") {
 			const nonce = await kit.connection.nonce(owner.address)
 			return {
@@ -124,6 +121,10 @@ const createMultiSigWallet = async (
 					to: account.address,
 					data: txo.encodeABI(),
 					value: "",
+					// TODO(zviad): we need to figure out if there is need for additional logic for
+					// GAS estimation. If the original transaction has GAS provided, should we somehow
+					// take that into account for transformed TX?
+					gas: undefined,
 				}
 			}
 		} else {

@@ -29,12 +29,12 @@ const NetworkIndicator = (): JSX.Element => {
 	const classes = useStyles()
 	const [connected, setConnected] = React.useState(true)
 	const [connectErr, setConnectErr] = React.useState("")
-	const expectedBlockMs = 5000
+	const expectedBlockMs = 1000
 	const blockRefetchMs = 600000
 	React.useEffect(() => {
 		let errCnt = 0
 		let lastBlock: BlockHeader
-		const maxBlockDelayMs = 3 * expectedBlockMs
+		const maxBlockDelayMs = 5 * expectedBlockMs
 		const cancel = runWithInterval(
 			"coreapp-network",
 			async () => {
@@ -43,9 +43,9 @@ const NetworkIndicator = (): JSX.Element => {
 					let blockN: number
 					if (!lastBlock ||
 						new BigNumber(lastBlock.timestamp)
-						.multipliedBy(1000)
-						.plus(blockRefetchMs)
-						.lt(nowMS())) {
+							.multipliedBy(1000)
+							.plus(blockRefetchMs)
+							.lt(nowMS())) {
 						lastBlock = await k.web3.eth.getBlock('latest')
 						blockN = lastBlock.number
 					} else {
@@ -58,7 +58,7 @@ const NetworkIndicator = (): JSX.Element => {
 					const delayMs = nowMS() - blockTsMs.toNumber()
 					setConnected(delayMs <= maxBlockDelayMs)
 					if (delayMs > maxBlockDelayMs) {
-						const delayTxt = secondsToDurationString(delayMs/1000)
+						const delayTxt = secondsToDurationString(delayMs / 1000)
 						setConnectErr(`Out of sync. Last block: ${delayTxt} ago...`)
 					}
 				} catch (e) {
@@ -88,9 +88,9 @@ const NetworkIndicator = (): JSX.Element => {
 	return (
 		<>
 			{openNetworkURL &&
-			<ChangeNetworkURL
-				networkURL={networkURL}
-				onClose={handleCloseNetworkURL}
+				<ChangeNetworkURL
+					networkURL={networkURL}
+					onClose={handleCloseNetworkURL}
 				/>}
 			<Tooltip title={tooltipTitle}>
 				<Button
@@ -98,7 +98,7 @@ const NetworkIndicator = (): JSX.Element => {
 						<Wifi className={classes.connected} /> :
 						<WifiOff className={classes.disconnected} />}
 					onClick={handleOpenNetworkURL}
-					>{netName}</Button>
+				>{netName}</Button>
 			</Tooltip>
 		</>
 	)
@@ -143,7 +143,7 @@ const ChangeNetworkURL = (props: {
 	return (
 		<Dialog open={true} onClose={handleCancel}>
 			<DialogTitle>Change Network</DialogTitle>
-			<DialogContent style={{minWidth: 500}}>
+			<DialogContent style={{ minWidth: 500 }}>
 				<TextField
 					autoFocus
 					margin="dense"
@@ -154,7 +154,7 @@ const ChangeNetworkURL = (props: {
 					onChange={(e) => { setNetworkURL(e.target.value) }}
 				/>
 				<LinearProgress
-					style={{visibility: !isTesting ? "hidden" : undefined}} color="primary" />
+					style={{ visibility: !isTesting ? "hidden" : undefined }} color="primary" />
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={handleCancel}>Cancel</Button>

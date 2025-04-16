@@ -130,12 +130,20 @@ const RunTXs = (props: {
 						let estimatedFee: EstimatedFee
 						switch (req.type) {
 							case undefined: {
-								paramsFilled = { feeCurrency: feeToken.address }
+								paramsFilled = {}
 								if (req.tx !== "eth_signTransaction" && req.tx !== "eth_sendTransaction") {
 									paramsFilled = { ...paramsFilled, ...req.tx.defaultParams }
 								}
 								if (req.params) {
 									paramsFilled = { ...paramsFilled, ...req.params }
+								}
+								if (!paramsFilled.feeCurrency && !paramsFilled.maxFeePerGas && !paramsFilled.gasPrice) {
+									paramsFilled.feeCurrency = feeToken.address
+									if (paramsFilled.gas && feeToken.address) {
+										// we need to adjust estimated gas, because we are using custom fee currency which
+										// has additional Gas overhead
+										paramsFilled.gas = "0x" + new BigNumber(paramsFilled.gas).plus(50_000).toString(16)
+									}
 								}
 								paramsFilled = await kit.connection.setFeeMarketGas(paramsFilled)
 								const estimatedGas = await estimateGas(kit, req, paramsFilled)
@@ -201,7 +209,7 @@ const RunTXs = (props: {
 									throw new Error(`Unexpected error: TX parameters not found!`)
 								}
 								if (req.tx === "eth_signTransaction" || req.tx === "eth_sendTransaction") {
-									if (paramsFilled.chainId?.toString() !== cfg.chainId) {
+									if (!new BigNumber(paramsFilled.chainId || 0).eq(cfg.chainId)) {
 										throw new UserError(
 											`Unexpected ChainId. Expected: ${cfg.chainId}, Got: ${paramsFilled.chainId}. ` +
 											`Refusing to ${req.tx}.`)
@@ -293,8 +301,9 @@ const RunTXs = (props: {
 		const cancel = runWithInterval(
 			"coreapp-tx-progress",
 			async () => {
+				const expectedBlockMs = 2000
 				const progress = (
-					reqSendMS === 0 ? 0 : Math.min(99, (nowMS() - reqSendMS) / 5000 * 100.0))
+					reqSendMS === 0 ? 0 : Math.min(99, (nowMS() - reqSendMS) / expectedBlockMs * 100.0))
 				setReqProgress((reqProgress) => Math.max(progress, reqProgress))
 			},
 			200)
