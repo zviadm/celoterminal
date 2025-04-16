@@ -10,7 +10,7 @@ const errsToIgnore: string[] = [
 	// WalleConnectV2 library doesn't have a way to catch unhandled errors from its event emitters.
 	// And it throws quite a few benign but spammy errors.
 	"Bad MAC",
-	"TypeError: s.terminate is not a function",
+	".terminate is not a function",
 	// Benign ENS errors get thrown because Celo is not Ethereum Mainnet.
 	"ENS is not supported on network private",
 ]
