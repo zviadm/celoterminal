@@ -28,7 +28,10 @@ import SignatureRequestTitle from './signature-request-title'
 import { monospaceFont } from '../../styles'
 import { E2ETestChainId } from '../../../lib/e2e-constants'
 import { FeeToken, selectFeeToken } from '../../../lib/fee-tokens'
-import Erc20Contract, { newErc20 } from '../../../lib/erc20/erc20-contract'
+import Erc20Contract from '../../../lib/erc20/erc20-contract'
+import { CeloTx } from '@celo/connect'
+import { UserError } from '../../../lib/error'
+import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 export class TXCancelled extends Error {
 	constructor() { super('Cancelled') }
@@ -94,7 +97,7 @@ const RunTXs = (props: {
 					}
 				}
 				const kit = newKitWithTimeout(cfgNetworkURL({ withFornoKey: true }), w.wallet)
-				let feeToken: FeeToken = "auto" // TODO(zviad)
+				let feeToken: FeeToken = "auto" // TODO(zviadm): Make this configurable/selectable by user.
 				kit.defaultAccount = executingAccount.address as `0x${string}`
 				try {
 					const chainId = (await kit.web3.eth.getChainId()).toString()
@@ -106,7 +109,7 @@ const RunTXs = (props: {
 					if (feeToken === "auto") {
 						feeToken = await selectFeeToken(kit, executingAccount.address)
 					}
-					kit.connection.defaultFeeCurrency = feeToken.address
+					let paramsFilled: CeloTx | null = null
 
 					const reqs = await txFunc(kit)
 					if (reqs.length === 0) {
@@ -124,26 +127,43 @@ const RunTXs = (props: {
 						if (w.transformReq) {
 							req = await w.transformReq(kit, req)
 						}
-						let estimatedGas: BigNumber
 						let estimatedFee: EstimatedFee
 						switch (req.type) {
 							case undefined: {
-								const feeCurrencyAddr = req.params?.feeCurrency || feeToken.address
-								const gasPrice = req.params?.gasPrice || (await kit.connection.gasPrice(feeCurrencyAddr))
-								const feeCurrencySymbol = !feeCurrencyAddr ? "CELO" : await (new Erc20Contract(kit, feeCurrencyAddr)).symbol()
-								estimatedGas = await estimateGas(kit, req)
+								paramsFilled = { feeCurrency: feeToken.address }
+								if (req.tx !== "eth_signTransaction" && req.tx !== "eth_sendTransaction") {
+									paramsFilled = { ...paramsFilled, ...req.tx.defaultParams }
+								}
+								if (req.params) {
+									paramsFilled = { ...paramsFilled, ...req.params }
+								}
+								paramsFilled = await kit.connection.setFeeMarketGas(paramsFilled)
+								const estimatedGas = await estimateGas(kit, req, paramsFilled)
+								paramsFilled.gas = "0x" + estimatedGas.toString(16)
+
+								let feeSymbol: string
+								let feeDecimals: number
+								if (!paramsFilled.feeCurrency) {
+									feeSymbol = "CELO"
+									feeDecimals = coreErc20Decimals
+								} else {
+									const erc20 = new Erc20Contract(kit, paramsFilled.feeCurrency);
+									[feeSymbol, feeDecimals] = await Promise.all([
+										erc20.symbol(),
+										erc20.decimals(),
+									])
+								}
 								estimatedFee = {
 									estimatedGas,
-									feeCurrency: feeCurrencySymbol,
-									estimatedFee: estimatedGas.multipliedBy(gasPrice.toString()).shiftedBy(-feeToken.decimals),
+									feeCurrency: feeSymbol,
+									estimatedFee: estimatedGas.multipliedBy(paramsFilled.maxFeePerGas!.toString()).shiftedBy(-feeDecimals),
 								}
 								break
 							}
 							default: {
-								estimatedGas = new BigNumber(0)
 								estimatedFee = {
-									estimatedGas,
-									feeCurrency: feeToken.symbol,
+									estimatedGas: new BigNumber(0),
+									feeCurrency: "CELO",
 									estimatedFee: new BigNumber(0),
 								}
 							}
@@ -177,29 +197,25 @@ const RunTXs = (props: {
 
 						switch (req.type) {
 							case undefined: {
+								if (paramsFilled === null) {
+									throw new Error(`Unexpected error: TX parameters not found!`)
+								}
 								if (req.tx === "eth_signTransaction" || req.tx === "eth_sendTransaction") {
-									if (!req.params) {
-										throw new Error(`${req.tx}: Params must be provided to sign a transaction.`)
-									}
-									if (req.params.chainId?.toString() !== cfg.chainId) {
-										throw new Error(
-											`Unexpected ChainId. Expected: ${cfg.chainId}, Got: ${req.params.chainId}. ` +
+									if (paramsFilled.chainId?.toString() !== cfg.chainId) {
+										throw new UserError(
+											`Unexpected ChainId. Expected: ${cfg.chainId}, Got: ${paramsFilled.chainId}. ` +
 											`Refusing to ${req.tx}.`)
 									}
 								}
 								if (req.tx === "eth_signTransaction") {
-									const encodedTX = await w.wallet.signTransaction({ ...req.params })
+									const encodedTX = await w.wallet.signTransaction(paramsFilled)
 									r.push({ type: "eth_signTransaction", encodedTX })
 								} else {
 									let result
 									if (req.tx === "eth_sendTransaction") {
-										result = await kit.sendTransaction({ ...req.params })
+										result = await kit.sendTransaction(paramsFilled)
 									} else {
-										result = await req.tx.send({
-											...req.params,
-											// perf improvement, avoid re-estimating gas again.
-											gas: estimatedGas.toNumber(),
-										})
+										result = await req.tx.send(paramsFilled)
 									}
 									let txHash
 									try {

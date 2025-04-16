@@ -1,44 +1,38 @@
 import { StrongAddress } from '@celo/base';
 import { ContractKit } from "@celo/contractkit";
 import Erc20Contract from "./erc20/erc20-contract";
+import BigNumber from 'bignumber.js';
 
 export type FeeToken = "auto" | FeeTokenInfo
 
 export interface FeeTokenInfo {
-	symbol: string
-	decimals: number
 	address?: StrongAddress
 }
 
 export async function selectFeeToken(kit: ContractKit, walletAddress: string): Promise<FeeTokenInfo> {
 	const minGasAmt = 2_000_000
-	const gasPriceMinimum = await kit.contracts.getGasPriceMinimum()
-
 	const celoToken = await kit.contracts.getGoldToken()
-	const feeTokenWhitelist = await kit.contracts.getFeeCurrencyWhitelist()
-	const feeTokenAddrs = await feeTokenWhitelist.getAddresses()
-	for (const tknAddress of [celoToken.address, ...feeTokenAddrs]) {
+	const [celoBalance, gasPrice] = await Promise.all([
+		celoToken.balanceOf(walletAddress),
+		kit.connection.gasPrice(),
+	])
+	if (celoBalance.gt(new BigNumber(gasPrice).multipliedBy(minGasAmt))) {
+		return {}
+	}
+
+	const feeTokenDir = await kit.contracts.getFeeCurrencyDirectory()
+	const feeTokenAddrs = await feeTokenDir.getAddresses()
+	const feeTokenInfos = await Promise.all(feeTokenAddrs.map(async (tknAddress) => {
 		const erc20 = new Erc20Contract(kit, tknAddress)
-		console.info("DEBUG-FETCHING", tknAddress)
-		try {
-			const priceMin = await gasPriceMinimum.getGasPriceMinimum(tknAddress)
-			const balance = await erc20.balanceOf(walletAddress)
-			console.info("DEBUG", tknAddress, priceMin.toFixed(0), balance.toFixed(0))
-			if (balance.gt(priceMin.multipliedBy(minGasAmt))) {
-				const symbol = await erc20.symbol()
-				const decimals = await erc20.decimals()
-				return {
-					symbol,
-					decimals,
-					address: tknAddress === celoToken.address ? undefined : tknAddress,
-				}
-			}
-		} catch (e) {
-			console.error("FAILED to fetch GasPrceInfo", e)
+		const gasPrice = new BigNumber(await kit.connection.gasPrice(tknAddress))
+		const balance = await erc20.balanceOf(walletAddress)
+		return { tknAddress, balance, gasPrice }
+	}))
+	feeTokenInfos.sort((a, b) => b.balance.minus(a.balance).toNumber())
+	for (const feeTokenInfo of feeTokenInfos) {
+		if (feeTokenInfo.balance.gt(feeTokenInfo.gasPrice.multipliedBy(minGasAmt))) {
+			return { address: feeTokenInfo.tknAddress }
 		}
 	}
-	return {
-		symbol: await celoToken.symbol(),
-		decimals: await celoToken.decimals(),
-	}
+	return {}
 }
