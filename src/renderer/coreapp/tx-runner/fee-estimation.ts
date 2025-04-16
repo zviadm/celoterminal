@@ -1,9 +1,9 @@
 import { ContractKit } from "@celo/contractkit"
+import { CeloTx } from "@celo/connect"
 import BigNumber from "bignumber.js"
 
 import { sleep } from "../../../lib/utils"
 import { Transaction } from "../../components/app-definition"
-import { CeloTx } from "@celo/connect"
 
 export interface EstimatedFee {
 	estimatedGas: BigNumber, // Gas price in WEI
@@ -22,7 +22,6 @@ export const estimateGas = async (
 		return new BigNumber(paramsFilled.gas)
 	}
 	if (tx.tx === "eth_signTransaction" || tx.tx === "eth_sendTransaction") {
-		console.log("DEBUG-ESTIAMTE-GAS", paramsFilled)
 		return new BigNumber(await kit.connection.estimateGasWithInflationFactor(paramsFilled))
 	}
 	if (tx.tx.defaultParams?.gas) {

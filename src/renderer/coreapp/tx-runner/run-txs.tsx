@@ -1,4 +1,6 @@
 import log from 'electron-log'
+import BigNumber from 'bignumber.js'
+import { CeloTx } from '@celo/connect'
 
 import { SignatureResponse, TXFinishFunc, TXFunc } from '../../components/app-definition'
 import { EstimatedFee, estimateGas } from './fee-estimation'
@@ -10,6 +12,12 @@ import { sleep, throwUnreachableError } from '../../../lib/utils'
 import { transformError } from '../ledger-utils'
 import { Account } from '../../../lib/accounts/accounts'
 import { cfgNetworkURL, newKitWithTimeout } from '../../state/kit'
+import { UserError } from '../../../lib/error'
+import { coreErc20Decimals } from '../../../lib/erc20/core'
+import { E2ETestChainId } from '../../../lib/e2e-constants'
+import { FeeToken, selectFeeToken } from '../../../lib/fee-tokens'
+import Erc20Contract from '../../../lib/erc20/erc20-contract'
+import { runWithInterval } from '../../../lib/interval'
 
 import * as React from 'react'
 import {
@@ -21,17 +29,9 @@ import Send from '@material-ui/icons/Send'
 import CheckCircle from '@material-ui/icons/CheckCircle'
 
 import PromptLedgerAction from './prompt-ledger-action'
-import { runWithInterval } from '../../../lib/interval'
-import BigNumber from 'bignumber.js'
 import SignatureRequestInfo from './signature-request-info'
 import SignatureRequestTitle from './signature-request-title'
 import { monospaceFont } from '../../styles'
-import { E2ETestChainId } from '../../../lib/e2e-constants'
-import { FeeToken, selectFeeToken } from '../../../lib/fee-tokens'
-import Erc20Contract from '../../../lib/erc20/erc20-contract'
-import { CeloTx } from '@celo/connect'
-import { UserError } from '../../../lib/error'
-import { coreErc20Decimals } from '../../../lib/erc20/core'
 
 export class TXCancelled extends Error {
 	constructor() { super('Cancelled') }
