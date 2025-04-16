@@ -1,4 +1,5 @@
 import * as log from 'electron-log'
+import BigNumber from 'bignumber.js';
 import { Lock } from '@celo/base/lib/lock'
 import { IWeb3Wallet, Web3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
 import { Core } from "@walletconnect/core";
@@ -92,18 +93,21 @@ export class WalletConnectGlobal {
 		switch (event.params.request.method) {
 			case "eth_sendTransaction":
 			case "eth_signTransaction":
-				rq.pushRequest(
-					new WCV2Request(this.wc(), event.topic, {
-						id: event.id,
-						method: event.params.request.method,
-						params: {
-							...event.params.request.params[0],
-							chainId: CFG().chainId,
-						},
-					})
-				)
-				showWindowAndFocus()
-				break
+				{
+					const params = { ...event.params.request.params[0] }
+					if (!params.chainId) {
+						params.chainId = "0x" + new BigNumber(CFG().chainId).toString(16)
+					}
+					rq.pushRequest(
+						new WCV2Request(this.wc(), event.topic, {
+							id: event.id,
+							method: event.params.request.method,
+							params: params,
+						})
+					)
+					showWindowAndFocus()
+					break
+				}
 			case "personal_sign":
 				rq.pushRequest(
 					new WCV2Request(this.wc(), event.topic, {

@@ -11,13 +11,12 @@ import { UserError } from '../../../lib/error'
 import { CFG } from '../../../lib/cfg'
 import { SignatureRequest } from '../../components/app-definition'
 import { extractTXDestinationAndData } from './transaction-parser'
-import { estimateGas } from './fee-estimation'
 import { E2ETestChainId } from '../../../lib/e2e-constants'
 
 export interface Wallet {
 	wallet: ReadOnlyWallet
 	transformReq?: (kit: ContractKit, req: SignatureRequest) => Promise<SignatureRequest>
-	transport?: {close: () => void}
+	transport?: { close: () => void }
 }
 
 export async function createWallet(
@@ -37,7 +36,7 @@ export async function createWallet(
 			if (CFG().chainId !== E2ETestChainId) {
 				wallet.addAccount(localKey.privateKey)
 			}
-			return {wallet}
+			return { wallet }
 		}
 		case "ledger": {
 			const _transport = await TransportNodeHid.open('')
@@ -45,12 +44,12 @@ export async function createWallet(
 				const wallet = await newLedgerWalletWithSetup(
 					_transport,
 					{
-						derivationPathIndexes:[account.derivationPathIndex],
+						derivationPathIndexes: [account.derivationPathIndex],
 						ledgerAddressValidation: AddressValidation.never,
 						baseDerivationPath: account.baseDerivationPath,
 					})
 
-				return {wallet, transport: _transport}
+				return { wallet, transport: _transport }
 			} catch (e) {
 				_transport.close()
 				throw e
@@ -100,7 +99,7 @@ const createMultiSigWallet = async (
 		if (req.type !== undefined) {
 			throw new UserError(`MultiSig accounts can only send and sign transactions.`)
 		}
-		const {destination, data} = extractTXDestinationAndData(req)
+		const { destination, data } = extractTXDestinationAndData(req)
 		if (!destination) {
 			throw new UserError(`MultiSig accounts can not deploy new contracts.`)
 		}
@@ -110,12 +109,8 @@ const createMultiSigWallet = async (
 		const dataBytes = stringToSolidityBytes(data)
 		const txo = multiSig.methods.submitTransaction(
 			destination, req.params?.value?.toString() || 0, dataBytes)
-		// TODO(zviad): we need to figure out if there is need for additional logic for
-		// GAS estimation. If the original transaction has GAS provided, should we somehow
-		// take that into account for transformed TX?
 		if (req.tx === "eth_signTransaction" || req.tx === "eth_sendTransaction") {
 			const nonce = await kit.connection.nonce(owner.address)
-			const estimatedGas = await estimateGas(kit, {tx: toTransactionObject(kit.connection, txo)})
 			return {
 				type: req.type,
 				tx: req.tx,
@@ -126,11 +121,14 @@ const createMultiSigWallet = async (
 					to: account.address,
 					data: txo.encodeABI(),
 					value: "",
-					gas: estimatedGas.toFixed(0),
+					// TODO(zviad): we need to figure out if there is need for additional logic for
+					// GAS estimation. If the original transaction has GAS provided, should we somehow
+					// take that into account for transformed TX?
+					gas: undefined,
 				}
 			}
 		} else {
-			return {type: req.type, tx: toTransactionObject(kit.connection, txo)}
+			return { type: req.type, tx: toTransactionObject(kit.connection, txo) }
 		}
 	}
 	return {
