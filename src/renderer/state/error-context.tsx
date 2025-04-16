@@ -10,6 +10,7 @@ const errsToIgnore: string[] = [
 	// WalleConnectV2 library doesn't have a way to catch unhandled errors from its event emitters.
 	// And it throws quite a few benign but spammy errors.
 	"Bad MAC",
+	"TypeError: s.terminate is not a function",
 	// Benign ENS errors get thrown because Celo is not Ethereum Mainnet.
 	"ENS is not supported on network private",
 ]
@@ -35,12 +36,12 @@ export const ErrorContext = React.createContext<IErrorContext>({
 	clearError: () => { /* nothing */ },
 })
 
-export function ErrorProvider(props: {children: React.ReactNode}): JSX.Element {
+export function ErrorProvider(props: { children: React.ReactNode }): JSX.Element {
 	const [_error, setError] = React.useState<Error | undefined>()
 	const handleError = (error?: Error) => {
 		const ignore = errsToIgnore.find((msg) => error?.message?.includes(msg))
 		if (!ignore) {
-			const toReplace = errsToReplace.find(([msg, ]) => error?.message?.includes(msg))
+			const toReplace = errsToReplace.find(([msg,]) => error?.message?.includes(msg))
 			if (toReplace) {
 				error = new Error(toReplace[1])
 			}
