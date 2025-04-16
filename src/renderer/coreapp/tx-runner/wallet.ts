@@ -40,13 +40,16 @@ export async function createWallet(
 			return {wallet}
 		}
 		case "ledger": {
-			const _transport = await TransportNodeHid.open()
+			const _transport = await TransportNodeHid.open('')
 			try {
 				const wallet = await newLedgerWalletWithSetup(
 					_transport,
-					[account.derivationPathIndex],
-					account.baseDerivationPath,
-					AddressValidation.never)
+					{
+						derivationPathIndexes:[account.derivationPathIndex],
+						ledgerAddressValidation: AddressValidation.never,
+						baseDerivationPath: account.baseDerivationPath,
+					})
+
 				return {wallet, transport: _transport}
 			} catch (e) {
 				_transport.close()

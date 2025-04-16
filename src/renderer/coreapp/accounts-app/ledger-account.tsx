@@ -1,7 +1,7 @@
 import * as React from 'react'
 import log from 'electron-log'
 import TransportNodeHid from '@ledgerhq/hw-transport-node-hid-noevents'
-import LedgerApp from '@ledgerhq/hw-app-eth'
+import LedgerApp from '@celo/hw-app-eth'
 import { CELO_BASE_DERIVATION_PATH } from '@celo/wallet-ledger'
 
 import { makeStyles } from '@material-ui/core/styles'
