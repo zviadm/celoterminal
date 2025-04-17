@@ -34,7 +34,7 @@ const NetworkIndicator = (): JSX.Element => {
 	React.useEffect(() => {
 		let errCnt = 0
 		let lastBlock: BlockHeader
-		const maxBlockDelayMs = 5 * expectedBlockMs
+		const maxBlockDelayMs = 10 * expectedBlockMs
 		const cancel = runWithInterval(
 			"coreapp-network",
 			async () => {
@@ -69,7 +69,7 @@ const NetworkIndicator = (): JSX.Element => {
 					}
 				}
 			},
-			expectedBlockMs)
+			maxBlockDelayMs)
 		return cancel
 	}, [])
 	const [networkURL, setNetworkURL] = useNetworkURL()
