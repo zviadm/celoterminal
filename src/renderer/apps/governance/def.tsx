@@ -9,6 +9,6 @@ export const Governance: AppDefinition = {
 	icon: <img src={icon} width="24px" />,
 	iconLarge: <img src={icon} width="35px" />,
 	core: true,
-	url: "https://docs.celo.org/celo-codebase/protocol/governance",
+	url: "https://docs.celo.org/what-is-celo/using-celo/protocol/governance/voting-in-governance",
 	renderApp: GovernanceApp,
 }
