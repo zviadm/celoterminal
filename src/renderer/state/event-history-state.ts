@@ -21,17 +21,17 @@ export type FetchEventsCallback<T> = (
 //   when called with the same fromBlock/toBlock parameters.
 // * must return data ordered from oldest to latest.
 //
-// maxHistoryDays and maxEvents can be used to control amount of recent data that gets fetched.
-// maxHistoryDays >7 can take few seconds to fetch, so it can become pretty expensive.
+// maxHistoryHours and maxEvents can be used to control amount of recent data that gets fetched.
+// maxHistoryHours >1 can take few seconds to fetch, so it can become pretty expensive.
 //
 // useEventHistoryState maintains internal cache for fetched events, thus when a `refetch` is called
 // only new blocks will be fetched, keeping event history performant as long as `fetchCallback` remains
 // unchanged.
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export default function useEventHistoryState <T>(
+export default function useEventHistoryState<T>(
 	fetchCallback: FetchEventsCallback<T>,
 	opts: {
-		maxHistoryDays: number,
+		maxHistoryHours: number,
 		maxEvents: number,
 		noErrorPropagation?: boolean,
 	},
@@ -42,10 +42,10 @@ export default function useEventHistoryState <T>(
 		callback?: FetchEventsCallback<T>,
 		toBlock: number,
 		events: T[],
-	}>({toBlock: 0, events: []})
+	}>({ toBlock: 0, events: [] })
 
 	const maxEvents = opts.maxEvents
-	const maxHistoryBlocks = opts.maxHistoryDays * 24 * 60 * 12
+	const maxHistoryBlocks = opts.maxHistoryHours * 60 * 60
 	return useOnChainState(React.useCallback(
 		async (kit: ContractKit, c: CancelPromise) => {
 			const latestBlock = await kit.web3.eth.getBlock("latest")
@@ -81,7 +81,7 @@ export default function useEventHistoryState <T>(
 		},
 		[fetchCallback, cache, maxEvents, maxHistoryBlocks],
 	),
-	{noErrorPropagation: opts.noErrorPropagation})
+		{ noErrorPropagation: opts.noErrorPropagation })
 }
 
 const FETCH_SIZE_MIN = 100
@@ -94,11 +94,11 @@ async function progressiveFetch<T>(
 	minItems: number,
 	fetch: (fromBlock: number, toBlock: number) => Promise<T[]>,
 	c?: CancelPromise,
-	): Promise<T[]> {
+): Promise<T[]> {
 	const all: T[] = []
 	let fetchSize = FETCH_SIZE_MIN
 	let _to = toBlock
-	for (;;) {
+	for (; ;) {
 		const _from = Math.max(fromBlock, _to - fetchSize)
 		const fetchT0 = Date.now()
 		const events = await fetch(_from, _to)
@@ -114,7 +114,7 @@ async function progressiveFetch<T>(
 
 		if (fetchMs > FETCH_TARGET_MS * 2 || fetchMs < FETCH_TARGET_MS / 2) {
 			const fetchSizeMX =
-				Math.max(Math.min(FETCH_TARGET_MS / fetchMs, 5), 1/5)
+				Math.max(Math.min(FETCH_TARGET_MS / fetchMs, 5), 1 / 5)
 			fetchSize = Math.min(
 				FETCH_SIZE_MAX,
 				Math.max(FETCH_SIZE_MIN, Math.floor(fetchSize * fetchSizeMX)))
@@ -127,6 +127,6 @@ async function progressiveFetch<T>(
 export const estimateTimestamp = (block: BlockTransactionString, blockN: number): Date => {
 	return new Date(
 		new BigNumber(block.timestamp)
-		.minus((block.number - blockN) * 5)
-		.multipliedBy(1000).toNumber())
+			.minus((block.number - blockN) * 5)
+			.multipliedBy(1000).toNumber())
 }

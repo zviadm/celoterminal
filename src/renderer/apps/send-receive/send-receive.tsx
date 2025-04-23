@@ -99,7 +99,7 @@ const SendReceiveApp = (props: {
 					log.info(`send-receive: cancelled fetching approval data`)
 					break
 				}
-				if (Date.now() - t0 > 10 * 1000) {
+				if (Date.now() - t0 > 3 * 1000) {
 					log.warn(`send-receive: timed out trying to get all spender/owner data...`)
 					incompleteBlockN = fromBlock
 					break
@@ -143,7 +143,7 @@ const SendReceiveApp = (props: {
 		},
 		[selectedAddress, erc20],
 	), {
-		maxHistoryDays: 1,
+		maxHistoryHours: 1,
 		maxEvents: 100,
 	})
 
