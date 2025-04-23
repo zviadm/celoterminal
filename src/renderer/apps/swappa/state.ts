@@ -39,8 +39,8 @@ const managerGlobal = async (kit: ContractKit, tokenWhitelist?: Address[]): Prom
 		if (!_manager || !match) {
 			const registries =
 				CFG().chainId === mainnetChainId ? mainnetRegistriesWhitelist(kit) :
-				[]
-				null
+					[]
+			null
 			_manager = new SwappaManager(kit, routerAddr, registries)
 			if (tokenWhitelist) {
 				log.info(`swappa: initializing SwappaManager, tokenWhitelist: ${tokenWhitelist.length}...`)
@@ -74,11 +74,11 @@ export const useSwappaRouterState = (
 			new Set([
 				...erc20s.map(erc20StaticAddress),
 				...registeredErc20s.map(erc20StaticAddress),
-				].filter((a) => a) as Address[]).values())
+			].filter((a) => a) as Address[]).values())
 		return addresses
 	}, [erc20s])
 
-	const [refreshN, setRefreshN]= React.useState(0)
+	const [refreshN, setRefreshN] = React.useState(0)
 	const [manager, setManager] = React.useState<SwappaManager | undefined>()
 	const refreshPairsState = useOnChainState(React.useCallback(
 		async (kit: ContractKit) => {
@@ -148,24 +148,24 @@ export const useSwappaHistoryState = (account: Account) => {
 				filter: { sender: account.address }
 			})
 			return events.map((e) => ({
-					blockNumber: e.blockNumber,
-					// Estimate timestamp from just `latestBlock`, since fetching all blocks
-					// would be prohibitevly expensive.
-					timestamp: estimateTimestamp(latestBlock, e.blockNumber),
-					txHash: e.transactionHash,
-					sender: e.returnValues.sender,
-					input: e.returnValues.input,
-					output: e.returnValues.output,
-					inputAmount: new BigNumber(e.returnValues.inputAmount),
-					outputAmount: new BigNumber(e.returnValues.outputAmount),
+				blockNumber: e.blockNumber,
+				// Estimate timestamp from just `latestBlock`, since fetching all blocks
+				// would be prohibitevly expensive.
+				timestamp: estimateTimestamp(latestBlock, e.blockNumber),
+				txHash: e.transactionHash,
+				sender: e.returnValues.sender,
+				input: e.returnValues.input,
+				output: e.returnValues.output,
+				inputAmount: new BigNumber(e.returnValues.inputAmount),
+				outputAmount: new BigNumber(e.returnValues.outputAmount),
 			}))
 		}, [account],
 	)
 
 	return useEventHistoryState(
 		fetchCallback, {
-			maxHistoryDays: 1,
-			maxEvents: 100,
-		},
+		maxHistoryHours: 1,
+		maxEvents: 100,
+	},
 	)
 }

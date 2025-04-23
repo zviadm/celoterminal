@@ -280,6 +280,6 @@ const ProposalID = (props: {
 	id: BigNumber
 }) => {
 	return (
-		<Link href={`https://mondo.celo.org/governance`}>{props.id.toString()}</Link>
+		<Link href={`https://mondo.celo.org/governance/${props.id.toString()}`}>{props.id.toString()}</Link>
 	)
 }

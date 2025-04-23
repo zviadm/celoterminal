@@ -14,7 +14,7 @@ const defaultChainId = mainnetChainId
 const defaultAccountsDB = "home/.celoterminal/celoaccounts.db"
 
 export const FORNO_MAINNET_URL = "https://forno.celo.org"
-const defaultNetworks: {[key: string]: string} = {
+const defaultNetworks: { [key: string]: string } = {
 	[mainnetChainId]: FORNO_MAINNET_URL,
 	[baklavaChainId]: "https://baklava-forno.celo-testnet.org",
 	[alfajoresChainId]: "https://alfajores-forno.celo-testnet.org",
@@ -60,19 +60,19 @@ export const CFG = (): Config => {
 	return _CFG
 }
 
-export const selectAddress = (addresses: {[chainId: string]: string}): string | null => {
+export const selectAddress = (addresses: { [chainId: string]: string }): string | null => {
 	let address: string | null = addresses[CFG().chainId]
 	if (!address) {
 		address =
 			CFG().chainId === mainnetChainId ? addresses.mainnet :
-			CFG().chainId === baklavaChainId ? addresses.baklava :
-			CFG().chainId === alfajoresChainId ? addresses.alfajores :
-			null
+				CFG().chainId === baklavaChainId ? addresses.baklava :
+					CFG().chainId === alfajoresChainId ? addresses.alfajores :
+						null
 	}
 	return address
 }
 
-export const selectAddressOrThrow = (addresses: {[chainId: string]: string}): string => {
+export const selectAddressOrThrow = (addresses: { [chainId: string]: string }): string => {
 	const address = selectAddress(addresses)
 	if (!address) {
 		throw new Error(`No address found for chainId: ${CFG().chainId}!`)
@@ -80,7 +80,7 @@ export const selectAddressOrThrow = (addresses: {[chainId: string]: string}): st
 	return address
 }
 
-const networkNames: {[key: string]: string} = {
+const networkNames: { [key: string]: string } = {
 	[mainnetChainId]: "Mainnet",
 	[baklavaChainId]: "Baklava",
 	[alfajoresChainId]: "Alfajores",
@@ -94,37 +94,37 @@ export const cmpErc20ASC = (a: RegisteredErc20, b: RegisteredErc20): number => {
 	const isLowerB = b.symbol[0] === b.symbol[0].toLowerCase()
 	return (
 		isLowerA && !isLowerB ? -1 :
-		!isLowerA && isLowerB ? 1 :
-		a.symbol < b.symbol ? -1 : 1
+			!isLowerA && isLowerB ? 1 :
+				a.symbol < b.symbol ? -1 : 1
 	)
 }
 const _registeredErc20s = (): RegisteredErc20[] => {
 	const chainId = CFG().chainId
 	switch (chainId) {
-	case E2ETestChainId:
-		return erc20Devchain
-	default:
-		return erc20Registry.map((e) => ({
-			name: e.name,
-			symbol: e.symbol,
-			decimals: e.decimals,
-			conversion: e.conversion,
-			address: selectAddress(e.addresses) || undefined,
-		}))
-		.filter((e) => e.address !== undefined)
-		.sort(cmpErc20ASC)
+		case E2ETestChainId:
+			return erc20Devchain
+		default:
+			return erc20Registry.map((e) => ({
+				name: e.name,
+				symbol: e.symbol,
+				decimals: e.decimals,
+				conversion: e.conversion,
+				address: selectAddress(e.addresses) || undefined,
+			}))
+				.filter((e) => e.address !== undefined)
+				.sort(cmpErc20ASC)
 	}
 }
 export const registeredErc20s = _registeredErc20s()
 
 export const explorerRootURL = (): string => {
 	switch (CFG().chainId) {
-	case mainnetChainId:
-		return "https://celoscan.io"
-	case alfajoresChainId:
-		return "https://alfajores.celoscan.io"
-	default:
-		// just a fake URL.
-		return `https://explorer.network.${CFG().chainId}`
+		case mainnetChainId:
+			return "https://celoscan.io"
+		case alfajoresChainId:
+			return "https://alfajores.celoscan.io"
+		default:
+			// just a fake URL.
+			return `https://explorer.network.${CFG().chainId}`
 	}
 }
