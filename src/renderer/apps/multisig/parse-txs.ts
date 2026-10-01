@@ -14,19 +14,35 @@ export interface ParsedTX {
 	parseErr?: string,
 }
 
-export const parseTXs = async (kit: ContractKit, txs: MultiSigTX[]): Promise<ParsedTX[]> => {
+type ContractLookup = {
+	c?: ContractABI,
+	verifiedName: string | null,
+	err?: Error,
+}
+
+export const parseTXs = async (
+	kit: ContractKit,
+	txs: MultiSigTX[],
+	onProgress?: (done: number, total: number) => void,
+): Promise<ParsedTX[]> => {
 	const destinations = Array.from(new Set(txs.map((tx) => tx.destination)))
-	const contractAbis = await Promise.all(
-		destinations.map(async (d): Promise<[string, {c?: ContractABI, verifiedName: string | null, err?: Error}]> => {
-			try {
-				const r = await fetchContractAbi(kit, d)
-				return [d, {c: r, verifiedName: r.verifiedName}]
-			} catch (e) {
-				const verifiedName = await verifiedContractName(kit, d)
-				return [d, {verifiedName, err: e as Error}]
-			}
-		})
-	)
+	let done = 0
+	if (destinations.length > 0) {
+		onProgress?.(0, destinations.length)
+	}
+	const contractAbis = await Promise.all(destinations.map(async (d): Promise<[string, ContractLookup]> => {
+		try {
+			const r = await fetchContractAbi(kit, d)
+			return [d, {c: r, verifiedName: r.verifiedName}]
+		} catch (e) {
+			const verifiedName = await verifiedContractName(kit, d)
+			const err = e instanceof Error ? e : new Error(`${e}`)
+			return [d, {verifiedName, err}]
+		} finally {
+			done += 1
+			onProgress?.(done, destinations.length)
+		}
+	}))
 	const abiMap = new Map(contractAbis)
 	return txs.map((tx) => {
 		const contractAbi = abiMap.get(tx.destination)

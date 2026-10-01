@@ -17,4 +17,8 @@ test('tx-parser examples', () => {
 	expect(parsedData.txData[0].value).toEqual(exAddr)
 	expect(parsedData.txData[1].input.name).toEqual("_value")
 	expect(parsedData.txData[1].value).toEqual(1e18.toFixed(0))
+
+	const zeroValue = "0xa9059cbb0000000000000000000000001dbe73b0480058106798adda62e25d5279233c1c0000000000000000000000000000000000000000000000000000000000000000"
+	const parsedZero = parseTransactionData(web3, erc20Abi as AbiItem[], zeroValue)
+	expect(parsedZero.txData[1].value).toEqual("0")
 })

@@ -24,14 +24,33 @@ const builtinContracts: {
 	},
 ]
 
-const sourcifyRoot = `https://repo.sourcify.dev`
+// Sourcify v2. repo.sourcify.dev/contracts/.../metadata.json now 404s even
+// when the contract is verified.
+const sourcifyServer = `https://sourcify.dev/server`
 
-let _client: AxiosInstance
-const cli = () => {
-	if (!_client) {
-		_client = axios.create({baseURL: sourcifyRoot, timeout: 3000})
+export const sourcifyContractURL = (chainId: string, address: string): string => {
+	return `${sourcifyServer}/v2/contract/${chainId}/${address}?fields=abi`
+}
+
+export const abiFromSourcify = (status: number, data: unknown): AbiItem[] | undefined => {
+	if (status !== 200 || data === null || typeof data !== "object" || !("abi" in data)) {
+		return undefined
 	}
-	return _client
+	const abi = (data as {abi?: unknown}).abi
+	return Array.isArray(abi) ? abi as AbiItem[] : undefined
+}
+
+const fetchSourcifyAbi = async (chainId: string, contractAddress: string): Promise<AbiItem[] | undefined> => {
+	try {
+		const resp = await axios.get(sourcifyContractURL(chainId, contractAddress), {
+			timeout: 3000,
+			validateStatus: (status) => status === 200 || status === 404,
+		})
+		return abiFromSourcify(resp.status, resp.data)
+	} catch (err) {
+		log.warn(`sourcify: ${contractAddress} ${err}`)
+		return undefined
+	}
 }
 
 let _explorerClient: AxiosInstance
@@ -119,18 +138,7 @@ export const fetchContractAbi = async (kit: ContractKit, contractAddress: string
 				chainId !== alfajoresChainId) {
 				throw new Error(`Contract verification not supported on ChainId: ${chainId}.`)
 			}
-			for (const match of ["full_match", "partial_match"]) {
-				const url = `/contracts/${match}/${chainId}/${contractAddress}/metadata.json`
-				const resp = await cli().get(url, {
-					validateStatus: (status) => (status === 200 || status === 404),
-					responseType: "json",
-				})
-				if (resp.status === 404) {
-					continue
-				}
-				abi = resp.data.output.abi as AbiItem[]
-				break
-			}
+			abi = await fetchSourcifyAbi(chainId, contractAddress)
 			if (abi === undefined) {
 				// Fallback #1 to check if contract is verified on celoscan.
 				// NOTE: celoscan API key is hardcoded here but this is a non issue since this API key

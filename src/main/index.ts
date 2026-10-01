@@ -16,10 +16,17 @@ declare const SPLASH_WINDOW_WEBPACK_ENTRY: string;
 
 remoteMain.initialize()
 
+// CELOTERMINAL_DEBUG=1 opens DevTools and Chrome remote debugging on port 9222
+// so the running app can be inspected from outside Electron.
+const debugEnabled = process.env.CELOTERMINAL_DEBUG === "1"
+if (debugEnabled) {
+	app.commandLine.appendSwitch("remote-debugging-port", "9222")
+}
+
 // List of URLs that don't allow CORS requests. Celo Terminal is a native app thus
 // CORS restrictions are completely unnecessary.
 const CORSByPassURLs = [
-	'https://repo.sourcify.dev/*',
+	'https://sourcify.dev/*',
 ]
 
 log.transports.console.level = (app.isPackaged && !IS_E2E_TEST) ? false : "debug"
@@ -41,7 +48,7 @@ function createMainWindow() {
 	const height = 800
 	const minWidth = 850
 
-	const noDevTools = app.isPackaged || IS_E2E_TEST
+	const noDevTools = !debugEnabled && (app.isPackaged || IS_E2E_TEST)
 	const noSplash = IS_E2E_TEST // No splash screen during e2e testing.
 	const width = noDevTools ? 950 : 1100
 
@@ -136,14 +143,24 @@ function createMainWindow() {
 	// Alternative approach would have been to set `webSecurity: false` when creating BrowserWindow,
 	// but that is a bigger security relaxation compared to just overriding request headers.
 	const corsFilter = {urls: CORSByPassURLs}
+	// dRPC answers HTTP 400 "the method eth_* does not exist/is not available" when the
+	// request uses a browser user agent. Electron's agent looks like Chrome. A plain
+	// client name is accepted by dRPC, Forno, and Ankr.
+	const rpcUserAgent = `celoterminal/${app.getVersion()}`
 	window.webContents.session.webRequest.onBeforeSendHeaders(
-		corsFilter,
+		{urls: ["http://*/*", "https://*/*"]},
 		(details, callback) => {
-			const { requestHeaders } = details;
-			UpsertKeyValue(requestHeaders, 'Origin', '*');
+			const { requestHeaders } = details
+			UpsertKeyValue(requestHeaders, "User-Agent", rpcUserAgent)
+			if (details.url.startsWith("https://sourcify.dev/")) {
+				UpsertKeyValue(requestHeaders, "Origin", "*")
+			}
 			callback({ requestHeaders })
 		}
 	)
+	if (debugEnabled) {
+		log.info("main: remote debugging on http://127.0.0.1:9222")
+	}
 	window.webContents.session.webRequest.onHeadersReceived(
 		corsFilter,
 		(details, callback) => {

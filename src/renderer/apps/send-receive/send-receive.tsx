@@ -1,7 +1,6 @@
 import * as log from "electron-log"
 import { ContractKit } from '@celo/contractkit'
 import BigNumber from 'bignumber.js'
-import { BlockTransactionString } from 'web3-eth'
 import { valueToBigNumber } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 
 import { Account } from '../../../lib/accounts/accounts'
@@ -11,9 +10,11 @@ import { CancelPromise, fmtAmount } from '../../../lib/utils'
 import { newErc20 } from '../../../lib/erc20/erc20-contract'
 import { TXFunc, TXFinishFunc } from '../../components/app-definition'
 import { SendReceive } from './def'
-import useEventHistoryState, { estimateTimestamp } from '../../state/event-history-state'
+import { estimateTimestamp } from '../../state/event-history-state'
 import { useErc20List } from '../../state/erc20list-state'
 import { coreErc20Decimals } from '../../../lib/erc20/core'
+import { getPastLogs } from '../../../lib/rpc/get-past-logs'
+import { LOG_LOOKBACK_BLOCKS } from '../../../lib/rpc/max-log-span'
 
 import * as React from 'react'
 import {
@@ -74,66 +75,73 @@ const SendReceiveApp = (props: {
 			const spenders = new Set<string>()
 			const owners = new Set<string>()
 
-			const blockN = await kit.web3.eth.getBlockNumber()
-			let incompleteBlockN: number | undefined
-			const t0 = Date.now()
-			const maxBatchSize = 30 * 17280
-			let batchSize = 1000
-			let prevDeltaMs
-			for (let toBlock = blockN; toBlock > 0;) {
-				const startMs = Date.now()
-				const fromBlock = Math.max(toBlock - batchSize, 0)
-				log.info(`send-receive: fetching approval data ${fromBlock}..${toBlock} (elapsed: ${Date.now() - t0}ms)...`)
-				const [
-					spenderEvents,
-					ownerEvents,
-				] = await Promise.all([
-					contract.web3contract.getPastEvents(
-						"Approval", { fromBlock, toBlock, filter: { owner: selectedAddress } }),
-					contract.web3contract.getPastEvents(
-						"Approval", { fromBlock, toBlock, filter: { spender: selectedAddress } }),
-				])
-				spenderEvents.forEach((e) => spenders.add(e.returnValues.spender))
-				ownerEvents.forEach((e) => owners.add(e.returnValues.owner))
-				if (c.isCancelled()) {
-					log.info(`send-receive: cancelled fetching approval data`)
-					break
-				}
-				if (Date.now() - t0 > 3 * 1000) {
-					log.warn(`send-receive: timed out trying to get all spender/owner data...`)
-					incompleteBlockN = fromBlock
-					break
-				}
-				prevDeltaMs = Date.now() - startMs
-				toBlock -= batchSize
-				batchSize = Math.max(Math.floor(Math.min(((2 * 1000) / prevDeltaMs) * batchSize, maxBatchSize)), 100)
-			}
+			const latestBlock = await kit.web3.eth.getBlock("latest")
+			const toBlock = latestBlock.number
+			const fromBlock = Math.max(toBlock - LOG_LOOKBACK_BLOCKS, 0)
+			log.info(`send-receive: fetching approval data ${fromBlock}..${toBlock}`)
+			const [
+				spenderEvents,
+				ownerEvents,
+			] = await Promise.all([
+				getPastLogs(
+					(from, to) => contract.web3contract.getPastEvents(
+						"Approval", { fromBlock: from, toBlock: to, filter: { owner: selectedAddress } }),
+					fromBlock,
+					toBlock,
+					{ isCancelled: () => c.isCancelled() },
+				),
+				getPastLogs(
+					(from, to) => contract.web3contract.getPastEvents(
+						"Approval", { fromBlock: from, toBlock: to, filter: { spender: selectedAddress } }),
+					fromBlock,
+					toBlock,
+					{ isCancelled: () => c.isCancelled() },
+				),
+			])
+			spenderEvents.forEach((e) => spenders.add(e.returnValues.spender))
+			ownerEvents.forEach((e) => owners.add(e.returnValues.owner))
 			return {
 				spenders: Array.from(spenders).sort(),
 				owners: Array.from(owners).sort(),
-				incompleteBlockN,
+				// Set only when the lookback was interrupted. A finished 14 day
+				// scan is not an error, so the partial-history warning stays hidden.
+				incompleteBlockN: c.isCancelled() ? fromBlock : undefined,
 			}
 		},
 		[selectedAddress, erc20],
 	))
-	const transferHistory = useEventHistoryState(React.useCallback(
-		async (kit: ContractKit, fromBlock: number, toBlock: number, latestBlock: BlockTransactionString) => {
+	const transferHistory = useOnChainState(React.useCallback(
+		async (kit: ContractKit, c: CancelPromise) => {
 			const contractDirect = (await newErc20(kit, erc20)).web3contract
-			const fromTransfers = await contractDirect.getPastEvents("Transfer", {
-				fromBlock,
-				toBlock,
-				filter: { from: selectedAddress },
-			})
-			const toTransfers = await contractDirect.getPastEvents("Transfer", {
-				fromBlock,
-				toBlock,
-				filter: { to: selectedAddress },
-			})
+			const latestBlock = await kit.web3.eth.getBlock("latest")
+			const toBlock = latestBlock.number
+			const fromBlock = Math.max(toBlock - LOG_LOOKBACK_BLOCKS, 0)
+			const [fromTransfers, toTransfers] = await Promise.all([
+				getPastLogs(
+					(from, to) => contractDirect.getPastEvents("Transfer", {
+						fromBlock: from,
+						toBlock: to,
+						filter: { from: selectedAddress },
+					}),
+					fromBlock,
+					toBlock,
+					{ maxEvents: 100, isCancelled: () => c.isCancelled() },
+				),
+				getPastLogs(
+					(from, to) => contractDirect.getPastEvents("Transfer", {
+						fromBlock: from,
+						toBlock: to,
+						filter: { to: selectedAddress },
+					}),
+					fromBlock,
+					toBlock,
+					{ maxEvents: 100, isCancelled: () => c.isCancelled() },
+				),
+			])
 			const toTransfersFiltered = toTransfers.filter((e) => e.returnValues.from !== selectedAddress)
 			const transfers = fromTransfers.concat(toTransfersFiltered)
-			transfers.sort((a, b) => a.blockNumber - b.blockNumber)
-
-			return transfers.map((e) => ({
+			transfers.sort((a, b) => b.blockNumber - a.blockNumber)
+			return transfers.slice(0, 100).map((e) => ({
 				timestamp: estimateTimestamp(latestBlock, e.blockNumber),
 				txHash: e.transactionHash,
 				from: e.returnValues.from,
@@ -142,10 +150,7 @@ const SendReceiveApp = (props: {
 			}))
 		},
 		[selectedAddress, erc20],
-	), {
-		maxHistoryHours: 1,
-		maxEvents: 100,
-	})
+	))
 
 	const refetchAll = () => {
 		refetch()

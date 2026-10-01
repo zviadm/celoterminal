@@ -6,6 +6,7 @@ import { BlockTransactionString } from 'web3-eth'
 import useOnChainState from './onchain-state'
 import BigNumber from 'bignumber.js'
 import { CancelPromise } from '../../lib/utils'
+import { MAX_LOG_BLOCK_SPAN } from '../../lib/rpc/max-log-span'
 
 export type FetchEventsCallback<T> = (
 	kit: ContractKit,
@@ -85,7 +86,7 @@ export default function useEventHistoryState<T>(
 }
 
 const FETCH_SIZE_MIN = 100
-const FETCH_SIZE_MAX = 100_000
+const FETCH_SIZE_MAX = MAX_LOG_BLOCK_SPAN
 const FETCH_TARGET_MS = 1_000
 
 async function progressiveFetch<T>(
@@ -125,8 +126,9 @@ async function progressiveFetch<T>(
 }
 
 export const estimateTimestamp = (block: BlockTransactionString, blockN: number): Date => {
+	// Celo blocks are 1 second apart.
 	return new Date(
 		new BigNumber(block.timestamp)
-			.minus((block.number - blockN) * 5)
+			.minus(block.number - blockN)
 			.multipliedBy(1000).toNumber())
 }

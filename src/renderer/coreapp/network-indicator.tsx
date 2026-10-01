@@ -3,6 +3,7 @@ import { BlockHeader } from '@celo/connect'
 import { secondsToDurationString } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 
 import kitInstance, { useNetworkURL, newKitWithTimeout } from '../state/kit'
+import { activeRpcURL } from '../../lib/rpc/read-limiter'
 import { CFG, networkName } from '../../lib/cfg'
 import { UserError } from '../../lib/error'
 import { nowMS } from '../state/time'
@@ -52,6 +53,7 @@ const NetworkIndicator = (): JSX.Element => {
 						blockN = await k.web3.eth.getBlockNumber()
 					}
 					errCnt = 0
+					setUsingURL(activeRpcURL())
 					const blockTsMs = new BigNumber(lastBlock.timestamp)
 						.multipliedBy(1000)
 						.plus((blockN - lastBlock.number) * expectedBlockMs)
@@ -73,6 +75,7 @@ const NetworkIndicator = (): JSX.Element => {
 		return cancel
 	}, [])
 	const [networkURL, setNetworkURL] = useNetworkURL()
+	const [usingURL, setUsingURL] = React.useState<string | undefined>()
 	const [openNetworkURL, setOpenNetworkURL] = React.useState(false)
 
 	const handleOpenNetworkURL = () => { setOpenNetworkURL(true) }
@@ -84,7 +87,8 @@ const NetworkIndicator = (): JSX.Element => {
 		setOpenNetworkURL(false)
 	}
 	const netName = networkName(CFG().chainId)
-	const tooltipTitle = <div>Network: {networkURL}{connected ? <></> : <><br />{connectErr}</>}</div>
+	const shownURL = usingURL && usingURL !== networkURL ? `${networkURL} (using ${usingURL})` : networkURL
+	const tooltipTitle = <div>Network: {shownURL}{connected ? <></> : <><br />{connectErr}</>}</div>
 	return (
 		<>
 			{openNetworkURL &&

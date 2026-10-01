@@ -38,7 +38,8 @@ export const parseTransactionData = (
 		const decoded = web3.eth.abi.decodeParameters(txAbi.inputs, encodedParameters)
 		txData = txAbi.inputs.map((i) => {
 			const value = decoded[i.name]
-			if (!value) {
+			// 0 and false are real parameter values. Only a missing field is an error.
+			if (value === undefined || value === null) {
 				throw new TXParsingError(`Value not found for parameter: ${i.name}.`)
 			}
 			return {
